@@ -1,0 +1,31 @@
+{
+  "name": "mydictionary",
+  "version": "1.0.0",
+  "description": "Full-Stack Dictionary Application",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "yarn install && cd backend && yarn install && cd ../frontend && yarn install",
+    "dev:backend": "cd backend && yarn start:dev",
+    "dev:frontend": "cd frontend && yarn dev",
+    "build:backend": "cd backend && yarn build",
+    "build:frontend": "cd frontend && yarn build",
+    "build:all": "yarn build:backend && yarn build:frontend",
+    "test:backend": "cd backend && yarn test",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:prod": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "keywords": [
+    "dictionary",
+    "fullstack",
+    "react",
+    "nestjs",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT"
+}

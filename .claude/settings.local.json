@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(tree:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(curl:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(yarn install:*)",
+      "Bash(npx nest:*)",
+      "Bash(npx nest g service:*)",
+      "Bash(yarn build:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(yarn add:*)",
+      "Bash(npx @biomejs/biome@latest init)",
+      "Bash(npx @biomejs/biome check --write .)",
+      "Bash(npx --yes @biomejs/biome@latest check:*)",
+      "Bash(npm run typeorm:*)",
+      "Bash(docker exec:*)"
+    ]
+  }
+}
