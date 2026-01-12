@@ -23,7 +23,11 @@
       "Bash(npm uninstall:*)",
       "Bash(npm run build:*)",
       "Bash(timeout 15 npm run dev:*)",
-      "Bash(timeout 10 npm run dev:*)"
+      "Bash(timeout 10 npm run dev:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(npm run dev:*)",
+      "Bash(docker-compose:*)",
+      "Bash(timeout /t 5 /nobreak)"
     ]
   }
 }

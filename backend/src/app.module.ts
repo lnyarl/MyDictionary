@@ -7,6 +7,8 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { DefinitionsModule } from "./definitions/definitions.module";
+import { FeedModule } from "./feed/feed.module";
+import { FollowsModule } from "./follows/follows.module";
 import { LikesModule } from "./likes/likes.module";
 import { UsersModule } from "./users/users.module";
 import { WordsModule } from "./words/words.module";
@@ -37,6 +39,8 @@ import { WordsModule } from "./words/words.module";
 		WordsModule,
 		DefinitionsModule,
 		LikesModule,
+		FollowsModule,
+		FeedModule,
 	],
 	controllers: [AppController],
 	providers: [

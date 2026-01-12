@@ -6,6 +6,8 @@ import { WordForm } from "../components/words/WordForm";
 import { WordList } from "../components/words/WordList";
 import { useAuth } from "../contexts/AuthContext";
 import { useWords } from "../hooks/useWords";
+import { followsApi } from "../lib/follows";
+import type { FollowStats } from "../types/follow.types";
 import type { Word } from "../types/word.types";
 
 export default function DashboardPage() {
@@ -15,10 +17,21 @@ export default function DashboardPage() {
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingWord, setEditingWord] = useState<Word | undefined>(undefined);
+	const [stats, setStats] = useState<FollowStats | null>(null);
 
 	useEffect(() => {
 		fetchWords();
+		fetchFollowStats();
 	}, [fetchWords]);
+
+	const fetchFollowStats = async () => {
+		try {
+			const data = await followsApi.getStats();
+			setStats(data);
+		} catch (error) {
+			console.error("Failed to fetch stats", error);
+		}
+	};
 
 	const handleCreate = () => {
 		setEditingWord(undefined);
@@ -61,7 +74,7 @@ export default function DashboardPage() {
 					</Button>
 				</div>
 
-				<div className="grid gap-4 md:grid-cols-3 mb-8">
+				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
 					<div className="rounded-lg border bg-card p-6">
 						<h3 className="font-semibold mb-2">내 단어</h3>
 						<p className="text-3xl font-bold">{words.length}</p>
@@ -80,6 +93,18 @@ export default function DashboardPage() {
 						<h3 className="font-semibold mb-2">받은 좋아요</h3>
 						<p className="text-3xl font-bold">0</p>
 						<p className="text-sm text-muted-foreground mt-1">개의 좋아요</p>
+					</div>
+
+					<div className="rounded-lg border bg-card p-6">
+						<h3 className="font-semibold mb-2">팔로워</h3>
+						<p className="text-3xl font-bold">{stats?.followersCount || 0}</p>
+						<p className="text-sm text-muted-foreground mt-1">명</p>
+					</div>
+
+					<div className="rounded-lg border bg-card p-6">
+						<h3 className="font-semibold mb-2">팔로잉</h3>
+						<p className="text-3xl font-bold">{stats?.followingCount || 0}</p>
+						<p className="text-sm text-muted-foreground mt-1">명</p>
 					</div>
 				</div>
 

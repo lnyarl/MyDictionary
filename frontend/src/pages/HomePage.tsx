@@ -13,7 +13,7 @@ export default function HomePage() {
 
 	useEffect(() => {
 		if (isAuthenticated) {
-			navigate("/dashboard");
+			navigate("/feed");
 		}
 	}, [isAuthenticated, navigate]);
 

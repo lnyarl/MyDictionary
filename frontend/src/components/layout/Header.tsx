@@ -20,6 +20,12 @@ export function Header() {
 						(isAuthenticated ? (
 							<>
 								<Link
+									to="/feed"
+									className="text-sm font-medium transition-colors hover:text-primary"
+								>
+									피드
+								</Link>
+								<Link
 									to="/dashboard"
 									className="text-sm font-medium transition-colors hover:text-primary"
 								>

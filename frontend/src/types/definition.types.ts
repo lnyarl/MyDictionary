@@ -6,6 +6,11 @@ export interface Definition {
 	wordId: string;
 	userId: string;
 	user?: User;
+	word?: {
+		id: string;
+		term: string;
+		isPublic: boolean;
+	};
 	likesCount: number;
 	createdAt: string;
 	updatedAt: string;

@@ -1,6 +1,8 @@
 import { History, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Definition } from "../../types/definition.types";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
@@ -10,14 +12,17 @@ interface DefinitionCardProps {
 	definition: Definition;
 	onDelete: (id: string) => void;
 	onViewHistory: (userId: string) => void;
+	showWord?: boolean;
 }
 
 export function DefinitionCard({
 	definition,
 	onDelete,
 	onViewHistory,
+	showWord = false,
 }: DefinitionCardProps) {
 	const { user } = useAuth();
+	const navigate = useNavigate();
 	const isOwner = user?.id === definition.userId;
 
 	const formattedDate = new Date(definition.createdAt).toLocaleDateString(
@@ -29,12 +34,43 @@ export function DefinitionCard({
 		},
 	);
 
+	const handleUserClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		navigate(`/users/${definition.userId}`);
+	};
+
 	return (
 		<Card className="hover:shadow-md transition-shadow">
 			<CardHeader>
+				{showWord && definition.word && (
+					<div className="mb-2">
+						<Button
+							variant="link"
+							className="p-0 h-auto font-semibold text-lg"
+							onClick={() => navigate(`/words/${definition.word?.id}/edit`)}
+						>
+							{definition.word.term}
+						</Button>
+					</div>
+				)}
 				<div className="flex items-start justify-between gap-2">
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
-						<span>{definition.user?.nickname || "사용자"}</span>
+						<Avatar
+							className="h-6 w-6 cursor-pointer"
+							onClick={handleUserClick}
+						>
+							<AvatarImage src={definition.user?.profilePicture} />
+							<AvatarFallback>
+								{definition.user?.nickname?.[0] || "U"}
+							</AvatarFallback>
+						</Avatar>
+						<Button
+							variant="link"
+							className="p-0 h-auto text-sm text-muted-foreground"
+							onClick={handleUserClick}
+						>
+							{definition.user?.nickname || "사용자"}
+						</Button>
 						<span>•</span>
 						<span>{formattedDate}</span>
 					</div>

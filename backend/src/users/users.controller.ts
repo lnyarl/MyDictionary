@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Patch } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Query } from "@nestjs/common";
+import { Public } from "../common/decorators/public.decorator";
+import { PaginationDto } from "../common/dto/pagination.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { UpdateNicknameDto } from "./dto/update-nickname.dto";
 import { User } from "./entities/user.entity";
@@ -22,5 +24,29 @@ export class UsersController {
 			user.id,
 			updateNicknameDto.nickname,
 		);
+	}
+
+	@Get(":userId/profile")
+	@Public()
+	async getUserProfile(@Param("userId") userId: string) {
+		return this.usersService.getUserProfile(userId);
+	}
+
+	@Get(":userId/words")
+	@Public()
+	async getUserWords(
+		@Param("userId") userId: string,
+		@Query() paginationDto: PaginationDto,
+	) {
+		return this.usersService.getUserPublicWords(userId, paginationDto);
+	}
+
+	@Get(":userId/definitions")
+	@Public()
+	async getUserDefinitions(
+		@Param("userId") userId: string,
+		@Query() paginationDto: PaginationDto,
+	) {
+		return this.usersService.getUserPublicDefinitions(userId, paginationDto);
 	}
 }
