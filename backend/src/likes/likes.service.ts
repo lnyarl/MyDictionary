@@ -7,12 +7,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { Repository } from "typeorm";
 import { Definition } from "../definitions/entities/definition.entity";
 import { Like } from "./entities/like.entity";
+import { LikesRepository } from "./likes.repository";
 
 @Injectable()
 export class LikesService {
 	constructor(
-		@InjectRepository(Like)
-		private readonly likeRepository: Repository<Like>,
+		private readonly likeRepository: LikesRepository,
 		@InjectRepository(Definition)
 		private readonly definitionRepository: Repository<Definition>,
 	) { }
@@ -33,10 +33,7 @@ export class LikesService {
 		}
 
 		// Check if like already exists
-		const existingLike = await this.likeRepository.findOne({
-			where: { userId, definitionId },
-			withDeleted: false,
-		});
+		const existingLike = await this.likeRepository.findByUserIdAndDefinitionId(userId, definitionId);
 
 		if (existingLike) {
 			// Unlike: soft delete the like and decrement count
@@ -49,8 +46,7 @@ export class LikesService {
 			return false; // unliked
 		}
 		// Like: create new like and increment count
-		const newLike = this.likeRepository.create({ userId, definitionId });
-		await this.likeRepository.save(newLike);
+		await this.likeRepository.create({ userId, definitionId });
 		await this.definitionRepository.increment(
 			{ id: definitionId },
 			"likesCount",
@@ -60,16 +56,11 @@ export class LikesService {
 	}
 
 	async checkUserLike(userId: string, definitionId: string): Promise<boolean> {
-		const like = await this.likeRepository.findOne({
-			where: { userId, definitionId },
-		});
+		const like = await this.likeRepository.findByUserIdAndDefinitionId(userId, definitionId);
 		return !!like;
 	}
 
 	async getLikesByDefinition(definitionId: string): Promise<Like[]> {
-		return this.likeRepository.find({
-			where: { definitionId },
-			relations: ["user"],
-		});
+		return this.likeRepository.findByDefinitionId(definitionId);
 	}
 }

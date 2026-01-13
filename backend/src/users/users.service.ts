@@ -1,15 +1,12 @@
-import {
-	ConflictException,
-	Injectable,
-	NotFoundException,
-} from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { PaginatedResponseDto, PaginationDto, User } from "@shared";
 import type { Repository } from "typeorm";
-import { PaginatedResponseDto, PaginationDto } from "../common/dto/pagination.dto";
 import { Definition } from "../definitions/entities/definition.entity";
 import { FollowsService } from "../follows/follows.service";
 import { Word } from "../words/entities/word.entity";
-import { User } from "./entities/user.entity";
+import { WordsRepository } from "../words/words.repository";
+import { UsersRepository } from "./users.repository";
 
 export interface CreateUserDto {
 	googleId: string;
@@ -21,30 +18,27 @@ export interface CreateUserDto {
 @Injectable()
 export class UsersService {
 	constructor(
-		@InjectRepository(User)
-		private readonly userRepository: Repository<User>,
-		@InjectRepository(Word)
-		private readonly wordRepository: Repository<Word>,
+		private readonly userRepository: UsersRepository,
+		private readonly wordRepository: WordsRepository,
 		@InjectRepository(Definition)
 		private readonly definitionRepository: Repository<Definition>,
 		private readonly followsService: FollowsService,
-	) {}
+	) { }
 
 	async findByGoogleId(googleId: string): Promise<User | null> {
-		return this.userRepository.findOne({ where: { googleId } });
+		return this.userRepository.findByGoogleId(googleId);
 	}
 
 	async findById(id: string): Promise<User | null> {
-		return this.userRepository.findOne({ where: { id } });
+		return this.userRepository.findById(id);
 	}
 
 	async findByEmail(email: string): Promise<User | null> {
-		return this.userRepository.findOne({ where: { email } });
+		return this.userRepository.findByEmail(email);
 	}
 
 	async create(data: CreateUserDto): Promise<User> {
-		const user = this.userRepository.create(data);
-		return this.userRepository.save(user);
+		return this.userRepository.insert(data);
 	}
 
 	async updateNickname(userId: string, nickname: string): Promise<User> {
@@ -55,24 +49,25 @@ export class UsersService {
 		}
 
 		// Check if nickname is already taken by another user
-		const existingUser = await this.userRepository.findOne({
-			where: { nickname },
-		});
+		const existingUser = await this.userRepository.findByNickname(nickname);
 
 		if (existingUser && existingUser.id !== userId) {
 			throw new ConflictException("Nickname is already taken");
 		}
 
-		await this.userRepository.update(userId, { nickname });
-		return this.findById(userId);
+		const updated = await this.userRepository.updateNickname(userId, nickname);
+		if (!updated) {
+			throw new NotFoundException("User not found");
+		}
+		return updated;
 	}
 
-	async updateProfile(
-		userId: string,
-		updates: { email?: string; profilePicture?: string },
-	): Promise<User> {
-		await this.userRepository.update(userId, updates);
-		return this.findById(userId);
+	async updateProfile(userId: string, updates: { email?: string; profilePicture?: string }): Promise<User> {
+		const updated = await this.userRepository.updateEmailAndPicture(userId, updates);
+		if (!updated) {
+			throw new NotFoundException("User not found");
+		}
+		return updated;
 	}
 
 	async getUserProfile(userId: string) {
@@ -82,9 +77,7 @@ export class UsersService {
 		}
 
 		// Get counts
-		const wordsCount = await this.wordRepository.count({
-			where: { userId, isPublic: true },
-		});
+		const wordsCount = await this.wordRepository.countPublicByUserId(userId);
 
 		const definitionsCount = await this.definitionRepository
 			.createQueryBuilder("definition")
@@ -93,8 +86,7 @@ export class UsersService {
 			.andWhere("word.is_public = :isPublic", { isPublic: true })
 			.getCount();
 
-		const { followersCount, followingCount } =
-			await this.followsService.getFollowStats(userId);
+		const { followersCount, followingCount } = await this.followsService.getFollowStats(userId);
 
 		return {
 			user: {
@@ -112,23 +104,14 @@ export class UsersService {
 		};
 	}
 
-	async getUserPublicWords(
-		userId: string,
-		paginationDto: PaginationDto,
-	): Promise<PaginatedResponseDto<Word>> {
-		const [words, total] = await this.wordRepository.findAndCount({
-			where: { userId, isPublic: true },
-			order: { createdAt: "DESC" },
-			skip: paginationDto.offset,
-			take: paginationDto.limit,
-		});
-
-		return new PaginatedResponseDto<Word>(
-			words,
-			total,
-			paginationDto.page,
+	async getUserPublicWords(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Word>> {
+		const [words, total] = await this.wordRepository.findPublicByUserId(
+			userId,
 			paginationDto.limit,
+			paginationDto.offset,
 		);
+
+		return new PaginatedResponseDto<Word>(words, total, paginationDto.page, paginationDto.limit);
 	}
 
 	async getUserPublicDefinitions(
@@ -147,11 +130,6 @@ export class UsersService {
 
 		const [definitions, total] = await queryBuilder.getManyAndCount();
 
-		return new PaginatedResponseDto<Definition>(
-			definitions,
-			total,
-			paginationDto.page,
-			paginationDto.limit,
-		);
+		return new PaginatedResponseDto<Definition>(definitions, total, paginationDto.page, paginationDto.limit);
 	}
 }

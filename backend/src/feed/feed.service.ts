@@ -1,44 +1,24 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { PaginatedResponseDto, PaginationDto } from "../common/dto/pagination.dto";
-import { Definition } from "../definitions/entities/definition.entity";
+import { PaginatedResponseDto, PaginationDto } from "@shared";
 import { FollowsService } from "../follows/follows.service";
+import { Feed } from "./entities/feed.entity";
+import { FeedRepository } from "./feed.repository";
 
 @Injectable()
 export class FeedService {
 	constructor(
-		@InjectRepository(Definition)
-		private readonly definitionRepository: Repository<Definition>,
+		private readonly feedRepository: FeedRepository,
 		private readonly followsService: FollowsService,
 	) { }
 
-	async getFeed(
-		userId: string,
-		paginationDto: PaginationDto,
-	): Promise<PaginatedResponseDto<Definition>> {
+	async getFeed(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Feed>> {
 		// Get users that current user follows + self
 		const followingIds = await this.followsService.getFollowingIds(userId);
 		const userIds = [...followingIds, userId];
 
 		// Query definitions from followed users + self
-		const queryBuilder = this.definitionRepository
-			.createQueryBuilder("definition")
-			.leftJoinAndSelect("definition.user", "user")
-			.leftJoinAndSelect("definition.word", "word")
-			.where("definition.user_id IN (:...userIds)", { userIds })
-			.andWhere("word.is_public = :isPublic", { isPublic: true })
-			.orderBy("definition.created_at", "DESC")
-			.skip(paginationDto.offset)
-			.take(paginationDto.limit);
+		const feeds = await this.feedRepository.findFeeds(userIds, paginationDto.offset, paginationDto.limit);
 
-		const [definitions, total] = await queryBuilder.getManyAndCount();
-
-		return new PaginatedResponseDto<Definition>(
-			definitions,
-			total,
-			paginationDto.page,
-			paginationDto.limit,
-		);
+		return new PaginatedResponseDto<Feed>(feeds, 0, paginationDto.page, paginationDto.limit);
 	}
 }

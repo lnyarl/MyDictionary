@@ -2,18 +2,18 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Definition } from "../definitions/entities/definition.entity";
 import { FollowsModule } from "../follows/follows.module";
-import { Word } from "../words/entities/word.entity";
-import { User } from "./entities/user.entity";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
+import { UsersRepository } from "./users.repository";
+import { WordsRepository } from "../words/words.repository";
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([User, Word, Definition]),
+		TypeOrmModule.forFeature([Definition]), // Keep TypeORM for Definition
 		FollowsModule,
 	],
-	providers: [UsersService],
+	providers: [UsersService, UsersRepository, WordsRepository],
 	controllers: [UsersController],
-	exports: [UsersService],
+	exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}

@@ -2,15 +2,17 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DefinitionsModule } from "src/definitions/definitions.module";
 import { Definition } from "src/definitions/entities/definition.entity";
-import { User } from "../users/entities/user.entity";
-import { Word } from "./entities/word.entity";
 import { WordsController } from "./words.controller";
 import { WordsService } from "./words.service";
+import { WordsRepository } from "./words.repository";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Word, User, Definition]), DefinitionsModule],
-	providers: [WordsService],
+	imports: [
+		TypeOrmModule.forFeature([Definition]), // Keep TypeORM for Definition
+		DefinitionsModule,
+	],
+	providers: [WordsService, WordsRepository],
 	controllers: [WordsController],
-	exports: [WordsService],
+	exports: [WordsService, WordsRepository],
 })
-export class WordsModule { }
+export class WordsModule {}

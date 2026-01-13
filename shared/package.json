@@ -1,0 +1,20 @@
+{
+  "name": "@mydictionary/shared",
+  "version": "1.0.0",
+  "description": "Shared code for MyDictionary project",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": ["shared", "mydictionary"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "class-validator": "^0.14.1",
+    "class-transformer": "^0.5.1",
+    "typeorm": "^0.3.19"
+  }
+}

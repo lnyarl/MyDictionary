@@ -5,19 +5,35 @@
   "private": true,
   "workspaces": [
     "backend",
-    "frontend"
+    "backend-admin",
+    "frontend",
+    "frontend-admin",
+    "shared"
   ],
   "scripts": {
-    "install:all": "yarn install && cd backend && yarn install && cd ../frontend && yarn install",
+    "install:all": "yarn install",
+    "dev": "concurrently -n \"shared,backend,admin-be,frontend,admin-fe\" -c \"cyan,green,yellow,blue,magenta\" \"yarn dev:shared\" \"yarn dev:backend\" \"yarn dev:backend-admin\" \"yarn dev:frontend\" \"yarn dev:frontend-admin\"",
+    "dev:all": "concurrently -n \"shared,backend,admin-be,frontend,admin-fe\" -c \"cyan,green,yellow,blue,magenta\" \"yarn dev:shared\" \"yarn dev:backend\" \"yarn dev:backend-admin\" \"yarn dev:frontend\" \"yarn dev:frontend-admin\"",
+    "dev:main": "concurrently -n \"shared,backend,frontend\" -c \"cyan,green,blue\" \"yarn dev:shared\" \"yarn dev:backend\" \"yarn dev:frontend\"",
+    "dev:admin": "concurrently -n \"shared,admin-be,admin-fe\" -c \"cyan,yellow,magenta\" \"yarn dev:shared\" \"yarn dev:backend-admin\" \"yarn dev:frontend-admin\"",
+    "dev:shared": "cd shared && yarn watch",
     "dev:backend": "cd backend && yarn start:dev",
+    "dev:backend-admin": "cd backend-admin && yarn start:dev",
     "dev:frontend": "cd frontend && yarn dev",
+    "dev:frontend-admin": "cd frontend-admin && yarn dev",
+    "build:shared": "cd shared && yarn build",
     "build:backend": "cd backend && yarn build",
+    "build:backend-admin": "cd backend-admin && yarn build",
     "build:frontend": "cd frontend && yarn build",
-    "build:all": "yarn build:backend && yarn build:frontend",
+    "build:frontend-admin": "cd frontend-admin && yarn build",
+    "build:all": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
     "test:backend": "cd backend && yarn test",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:prod": "docker-compose up -d",
     "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   },
   "keywords": [
     "dictionary",

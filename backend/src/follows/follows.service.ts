@@ -1,17 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { IsNull, Repository } from "typeorm";
-import { PaginatedResponseDto, PaginationDto } from "../common/dto/pagination.dto";
+import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { UsersRepository } from "src/users/users.repository";
 import { User } from "../users/entities/user.entity";
 import { Follow } from "./entities/follow.entity";
+import { FollowsRepository } from "./follows.repository";
 
 @Injectable()
 export class FollowsService {
 	constructor(
-		@InjectRepository(Follow)
-		private readonly followRepository: Repository<Follow>,
-		@InjectRepository(User)
-		private readonly userRepository: Repository<User>,
+		private readonly followRepository: FollowsRepository,
+		private readonly userRepository: UsersRepository,
 	) { }
 
 	async follow(followerId: string, followingId: string): Promise<Follow> {
@@ -21,26 +19,19 @@ export class FollowsService {
 		}
 
 		// Check if user exists
-		const userToFollow = await this.userRepository.findOne({
-			where: { id: followingId },
-		});
+		const userToFollow = await this.userRepository.findById(followingId);
 		if (!userToFollow) {
 			throw new NotFoundException("User not found");
 		}
 
 		// Check for existing follow (including soft-deleted)
-		const existingFollow = await this.followRepository.findOne({
-			where: { followerId, followingId },
-			withDeleted: true,
-		});
+		const existingFollow = await this.followRepository.findExistingFollow(followerId, followingId);
 
 		if (existingFollow) {
 			if (existingFollow.deletedAt) {
 				// Restore soft-deleted follow
-				await this.followRepository.restore(existingFollow.id);
-				return this.followRepository.findOne({
-					where: { id: existingFollow.id },
-				});
+				await this.followRepository.restoreRelation(existingFollow.id);
+				return this.followRepository.findById(existingFollow.id);
 			}
 			throw new BadRequestException("Already following this user");
 		}
@@ -50,94 +41,58 @@ export class FollowsService {
 			followerId,
 			followingId,
 		});
-		return this.followRepository.save(follow);
+		return follow;
 	}
 
 	async unfollow(followerId: string, followingId: string): Promise<void> {
-		const follow = await this.followRepository.findOne({
-			where: { followerId, followingId },
-		});
-
+		const follow = await this.followRepository.findExistingFollow(followerId, followingId);
 		if (!follow) {
 			throw new NotFoundException("Follow relationship not found");
 		}
 
-		await this.followRepository.softDelete(follow.id);
+		await this.followRepository.delete(follow.id);
 	}
 
-	async checkFollowing(
-		followerId: string,
-		followingId: string,
-	): Promise<boolean> {
-		const follow = await this.followRepository.findOne({
-			where: { followerId, followingId },
-		});
+	async checkFollowing(followerId: string, followingId: string): Promise<boolean> {
+		const follow = await this.followRepository.findExistingFollow(followerId, followingId);
 		return !!follow;
 	}
 
-	async getFollowers(
-		userId: string,
-		paginationDto: PaginationDto,
-	): Promise<PaginatedResponseDto<User>> {
-		const queryBuilder = this.followRepository
-			.createQueryBuilder("follow")
-			.leftJoinAndSelect("follow.follower", "follower")
-			.where("follow.following_id = :userId", { userId })
-			.skip(paginationDto.offset)
-			.take(paginationDto.limit);
-
-		const [follows, total] = await queryBuilder.getManyAndCount();
-		const users = follows.map((follow) => follow.follower);
-
-		return new PaginatedResponseDto<User>(
-			users,
-			total,
-			paginationDto.page,
+	async getFollowers(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<User>> {
+		const { listQuery, countQuery } = this.followRepository.findFollowers(
+			userId,
+			paginationDto.offset,
 			paginationDto.limit,
 		);
+
+		const [followers, total] = await Promise.all([listQuery, countQuery]);
+
+		return new PaginatedResponseDto<User>(followers, total.count, paginationDto.page, paginationDto.limit);
 	}
 
-	async getFollowing(
-		userId: string,
-		paginationDto: PaginationDto,
-	): Promise<PaginatedResponseDto<User>> {
-		const queryBuilder = this.followRepository
-			.createQueryBuilder("follow")
-			.leftJoinAndSelect("follow.following", "following")
-			.where("follow.follower_id = :userId", { userId })
-			.skip(paginationDto.offset)
-			.take(paginationDto.limit);
-
-		const [follows, total] = await queryBuilder.getManyAndCount();
-		const users = follows.map((follow) => follow.following);
-
-		return new PaginatedResponseDto<User>(
-			users,
-			total,
-			paginationDto.page,
+	async getFollowing(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<User>> {
+		const { listQuery, countQuery } = this.followRepository.findFollowings(
+			userId,
+			paginationDto.offset,
 			paginationDto.limit,
 		);
+
+		const [followings, total] = await Promise.all([listQuery, countQuery]);
+
+		return new PaginatedResponseDto<User>(followings, total.count, paginationDto.page, paginationDto.limit);
 	}
 
-	async getFollowStats(
-		userId: string,
-	): Promise<{ followersCount: number; followingCount: number }> {
-		const followersCount = await this.followRepository.count({
-			where: { followingId: userId },
-		});
+	async getFollowStats(userId: string): Promise<{ followersCount: number; followingCount: number }> {
+		const [followersCount, followingCount] = await Promise.all([
+			this.followRepository.getFollowerCount(userId),
+			this.followRepository.getFollowingCount(userId),
+		]);
 
-		const followingCount = await this.followRepository.count({
-			where: { followerId: userId },
-		});
-
-		return { followersCount, followingCount };
+		return { followersCount: followersCount.count, followingCount: followingCount.count };
 	}
 
 	async getFollowingIds(userId: string): Promise<string[]> {
-		const follows = await this.followRepository.find({
-			where: { followerId: userId },
-			select: ["followingId"],
-		});
-		return follows.map((follow) => follow.followingId);
+		const followIds = await this.followRepository.findFollowingIds(userId);
+		return followIds;
 	}
 }
