@@ -1,14 +1,13 @@
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Definition } from "../definitions/entities/definition.entity";
+import { knexProvider } from "src/common/database/knex.provider";
 import { FollowsModule } from "../follows/follows.module";
 import { FeedController } from "./feed.controller";
 import { FeedService } from "./feed.service";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Definition]), FollowsModule],
-	controllers: [FeedController],
-	providers: [FeedService],
-	exports: [FeedService],
+  imports: [FollowsModule],
+  controllers: [FeedController],
+  providers: [FeedService, knexProvider],
+  exports: [FeedService],
 })
-export class FeedModule { }
+export class FeedModule {}

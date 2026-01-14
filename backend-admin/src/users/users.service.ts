@@ -1,37 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { PaginationDto, PaginatedResponseDto, User } from "@shared";
+import { PaginatedResponseDto, PaginationDto, User } from "@shared";
+import { UsersRepository } from "./users.repository";
 
 @Injectable()
 export class UsersService {
-	constructor(
-		@InjectRepository(User)
-		private readonly userRepository: Repository<User>,
-	) {}
+  constructor(private readonly userRepository: UsersRepository) {}
 
-	async getUsers(
-		paginationDto: PaginationDto,
-	): Promise<PaginatedResponseDto<User>> {
-		const [users, total] = await this.userRepository.findAndCount({
-			select: [
-				"id",
-				"email",
-				"nickname",
-				"profilePicture",
-				"createdAt",
-				"updatedAt",
-			],
-			order: { createdAt: "DESC" },
-			skip: paginationDto.offset,
-			take: paginationDto.limit,
-		});
+  async getUsers(paginationDto: PaginationDto): Promise<PaginatedResponseDto<User>> {
+    const { listQuery, countQuery } = await this.userRepository.findUsers(
+      paginationDto.offset,
+      paginationDto.limit,
+    );
+    const users = await listQuery;
+    const totalResult = await countQuery;
+    const total = totalResult ? totalResult.count : 0;
 
-		return new PaginatedResponseDto<User>(
-			users,
-			total,
-			paginationDto.page,
-			paginationDto.limit,
-		);
-	}
+    return new PaginatedResponseDto<User>(users, total, paginationDto.page, paginationDto.limit);
+  }
 }

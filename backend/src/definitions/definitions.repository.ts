@@ -8,11 +8,19 @@ import { Definition } from "./entities/definition.entity";
 export class DefinitionsRepository extends BaseRepository {
   private tableName = TABLES.DEFINITIONS;
 
-  /**
-   * Find all words by user ID
-   */
-  findByUserIdAndDefinitionId(userId: string, definitionId: string): Promise<Like> {
-    return this.query(this.tableName).select<Like>().where({ userId, definitionId }).first();
+  findByUserId(userId: string, offset: number, limit: number) {
+    const baseQuery = this.query(this.tableName)
+      .select<Definition[]>()
+      .where({ user_id: userId, is_public: true });
+
+    const listQuery = baseQuery
+      .clone()
+      .orderBy("definition.created_at", "DESC")
+      .offset(offset)
+      .limit(limit);
+    const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
+
+    return { listQuery, countQuery };
   }
 
   findById(definitionId: string): Promise<Definition> {
@@ -55,6 +63,21 @@ export class DefinitionsRepository extends BaseRepository {
 			`,
       [wordId],
     );
+  }
+
+  getCountByUserId(userId: string) {
+    return this.query(this.tableName)
+      .where({ user_id: userId, is_public: true })
+      .count<{ count: number }>("* as count")
+      .first();
+  }
+
+  decrement(id: string) {
+    return this.knex(this.tableName).where({ id }).decrement("likes_count", 1);
+  }
+
+  increment(id: string) {
+    return this.knex(this.tableName).where({ id }).increment("likes_count", 1);
   }
 
   delete(id: string): Promise<void> {

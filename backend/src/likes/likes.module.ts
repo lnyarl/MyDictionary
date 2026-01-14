@@ -1,14 +1,12 @@
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Definition } from "../definitions/entities/definition.entity";
-import { Like } from "./entities/like.entity";
+import { knexProvider } from "src/common/database/knex.provider";
 import { LikesController } from "./likes.controller";
+import { LikesRepository } from "./likes.repository";
 import { LikesService } from "./likes.service";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Like, Definition])],
-	controllers: [LikesController],
-	providers: [LikesService],
-	exports: [LikesService],
+  controllers: [LikesController],
+  providers: [knexProvider, LikesService, LikesRepository],
+  exports: [LikesService],
 })
 export class LikesModule {}

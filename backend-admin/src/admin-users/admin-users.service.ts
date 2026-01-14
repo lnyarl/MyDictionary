@@ -1,40 +1,30 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { AdminUsersRepository } from "./admin-users.repository";
 import { AdminUser } from "./entities/admin-user.entity";
 
 @Injectable()
 export class AdminUsersService {
-	constructor(
-		@InjectRepository(AdminUser)
-		private readonly adminUserRepository: Repository<AdminUser>,
-	) {}
+  constructor(private readonly adminUserRepository: AdminUsersRepository) {}
 
-	async findByUsername(username: string): Promise<AdminUser | null> {
-		return this.adminUserRepository.findOne({ where: { username } });
-	}
+  async findByUsername(username: string): Promise<AdminUser | null> {
+    return await this.adminUserRepository.findByUserName(username);
+  }
 
-	async findById(id: string): Promise<AdminUser | null> {
-		return this.adminUserRepository.findOne({ where: { id } });
-	}
+  async findById(id: string): Promise<AdminUser | null> {
+    return await this.adminUserRepository.findById(id);
+  }
 
-	async updatePassword(
-		adminId: string,
-		hashedPassword: string,
-	): Promise<AdminUser> {
-		const admin = await this.findById(adminId);
-		if (!admin) {
-			throw new NotFoundException("Admin user not found");
-		}
+  async updatePassword(adminId: string, hashedPassword: string): Promise<AdminUser> {
+    const admin = await this.findById(adminId);
+    if (!admin) {
+      throw new NotFoundException("Admin user not found");
+    }
 
-		admin.password = hashedPassword;
-		admin.mustChangePassword = false;
-		return this.adminUserRepository.save(admin);
-	}
+    return await this.adminUserRepository.updatePassword(adminId, hashedPassword);
+  }
 
-	async updateLastLogin(adminId: string): Promise<void> {
-		await this.adminUserRepository.update(adminId, {
-			lastLogin: new Date(),
-		});
-	}
+  async updateLastLogin(adminId: string): Promise<void> {
+    const now = new Date();
+    await this.adminUserRepository.updateLastLogin(adminId, now);
+  }
 }

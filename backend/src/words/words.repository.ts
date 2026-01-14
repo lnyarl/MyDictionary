@@ -1,99 +1,80 @@
 import { Injectable } from "@nestjs/common";
 import { TABLES, TableName } from "@shared";
-import { BaseRepository, } from "../common/database/base.repository";
+import { BaseRepository } from "../common/database/base.repository";
 import { Word } from "./entities/word.entity";
 
 @Injectable()
 export class WordsRepository extends BaseRepository {
-	private tableName: TableName = TABLES.WORDS;
+  private tableName: TableName = TABLES.WORDS;
 
-	/**
-	 * Find all words by user ID
-	 */
-	async findByUserId(userId: string): Promise<Word[]> {
-		return this.query(this.tableName).select<Word[]>().where({ userId }).orderBy("created_at", "desc");
-	}
+  findByUserId(userId: string): Promise<Word[]> {
+    return this.query(this.tableName)
+      .select<Word[]>()
+      .where({ userId })
+      .orderBy("created_at", "desc");
+  }
 
-	/**
-	 * Find public words by user ID with pagination
-	 */
-	async findPublicByUserId(userId: string, limit: number, offset: number): Promise<[Word[], number]> {
-		const baseQuery = this.query(this.tableName).where({ userId, isPublic: true });
+  findPublicByUserId(userId: string, limit: number, offset: number) {
+    const baseQuery = this.query(this.tableName).where({ userId, isPublic: true });
+    const listQuery = baseQuery
+      .clone()
+      .select<Word[]>()
+      .limit(limit)
+      .offset(offset)
+      .orderBy("created_at", "desc");
+    const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
 
-		// Count query
-		const countResult = await baseQuery.clone().count("* as count").first();
-		const total = Number(countResult?.count || 0);
+    return { listQuery, countQuery };
+  }
 
-		// Data query
-		const dataQuery = baseQuery.clone();
-		dataQuery.limit(limit).offset(offset);
+  countPublicByUserId(userId: string): Promise<number> {
+    return this.query(this.tableName).where({ userId, isPublic: true }).count("* as count").first();
+  }
 
-		const data = await dataQuery.orderBy("created_at", "desc");
+  create(word: Partial<Word>): Promise<Word> {
+    return this.knex(this.tableName).insert(word);
+  }
 
-		return [data, total];
-	}
+  delete(id: string): Promise<void> {
+    return this.softDelete(this.tableName, id);
+  }
 
-	/**
-	 * Count public words by user ID
-	 */
-	async countPublicByUserId(userId: string): Promise<number> {
-		return this.query(this.tableName).where({ userId, isPublic: true })
-			.count("* as count")
-			.first();
-	}
+  updateAll(id: string, data: Partial<Word>): Promise<Word> {
+    return this.update(this.tableName, id, data);
+  }
 
-	async create(word: Partial<Word>): Promise<Word> {
-		return await this.knex(this.tableName).insert(word);
-	}
+  findById(id: string): Promise<Word> {
+    return this.query(this.tableName).select<Word>().where({ id });
+  }
 
-	async delete(id: string): Promise<void> {
-		await this.softDelete(this.tableName, id);
-	}
+  /**
+   * Search words with definitions
+   * Includes complex joins and aggregation
+   */
+  searchWithDefinitions(term: string, userId: string | undefined, limit: number, offset: number) {
+    const normalizedTerm = `%${term}%`;
 
-	async updateAll(id: string, data: Partial<Word>): Promise<Word> {
-		return await this.update(this.tableName, id, data);
-	}
+    // Base query for count
+    const baseQuery = this.knex(TABLES.WORDS)
+      .whereNull(`${TABLES.WORDS}.deleted_at`)
+      .where(`${TABLES.WORDS}.term`, "ilike", normalizedTerm);
 
-	async findById(id: string): Promise<Word> {
-		return await this.query(this.tableName).select<Word>().where({ id });
-	}
+    // Apply visibility filter
+    if (userId) {
+      baseQuery.where((builder) => {
+        builder.where(`${TABLES.WORDS}.user_id`, userId).orWhere(`${TABLES.WORDS}.is_public`, true);
+      });
+    } else {
+      baseQuery.where(`${TABLES.WORDS}.is_public`, true);
+    }
 
-	/**
-	 * Search words with definitions
-	 * Includes complex joins and aggregation
-	 */
-	async searchWithDefinitions(
-		term: string,
-		userId: string | undefined,
-		limit: number,
-		offset: number,
-	): Promise<[Word[], number]> {
-		const normalizedTerm = `%${term}%`;
+    const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
 
-		// Base query for count
-		const baseQuery = this.knex(TABLES.WORDS)
-			.whereNull(`${TABLES.WORDS}.deleted_at`)
-			.where(`${TABLES.WORDS}.term`, "ilike", normalizedTerm);
-
-		// Apply visibility filter
-		if (userId) {
-			baseQuery.where((builder) => {
-				builder.where(`${TABLES.WORDS}.user_id`, userId).orWhere(`${TABLES.WORDS}.is_public`, true);
-			});
-		} else {
-			baseQuery.where(`${TABLES.WORDS}.is_public`, true);
-		}
-
-		// Count query
-		const countResult = await baseQuery.clone().count("* as count").first();
-		const total = Number(countResult?.count || 0);
-
-		// Data query with definitions
-		const words = await baseQuery
-			.clone()
-			.select(
-				`${TABLES.WORDS}.*`,
-				this.knex.raw(`
+    const listQuery = baseQuery
+      .clone()
+      .select(
+        `${TABLES.WORDS}.*`,
+        this.knex.raw(`
 					COALESCE(
 						json_agg(
 							json_build_object(
@@ -119,7 +100,7 @@ export class WordsRepository extends BaseRepository {
 						'[]'
 					) as definitions
 				`),
-				this.knex.raw(`
+        this.knex.raw(`
 					json_build_object(
 						'id', wu.id,
 						'nickname', wu.nickname,
@@ -131,21 +112,21 @@ export class WordsRepository extends BaseRepository {
 						'deleted_at', wu.deleted_at
 					) as user
 				`),
-			)
-			.leftJoin(`${TABLES.DEFINITIONS} as d`, function () {
-				this.on(`d.word_id`, "=", `${TABLES.WORDS}.id`).andOnNull("d.deleted_at");
-			})
-			.leftJoin(`${TABLES.USERS} as du`, function () {
-				this.on(`du.id`, "=", "d.user_id").andOnNull("du.deleted_at");
-			})
-			.leftJoin(`${TABLES.USERS} as wu`, function () {
-				this.on(`wu.id`, "=", `${TABLES.WORDS}.user_id`).andOnNull("wu.deleted_at");
-			})
-			.groupBy(`${TABLES.WORDS}.id`, "wu.id")
-			.orderBy(`${TABLES.WORDS}.created_at`, "desc")
-			.limit(limit)
-			.offset(offset);
+      )
+      .leftJoin(`${TABLES.DEFINITIONS} as d`, function () {
+        this.on(`d.word_id`, "=", `${TABLES.WORDS}.id`).andOnNull("d.deleted_at");
+      })
+      .leftJoin(`${TABLES.USERS} as du`, function () {
+        this.on(`du.id`, "=", "d.user_id").andOnNull("du.deleted_at");
+      })
+      .leftJoin(`${TABLES.USERS} as wu`, function () {
+        this.on(`wu.id`, "=", `${TABLES.WORDS}.user_id`).andOnNull("wu.deleted_at");
+      })
+      .groupBy(`${TABLES.WORDS}.id`, "wu.id")
+      .orderBy(`${TABLES.WORDS}.created_at`, "desc")
+      .limit(limit)
+      .offset(offset);
 
-		return [words, total];
-	}
+    return { listQuery, countQuery };
+  }
 }
