@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { knexProvider } from "../common/database/knex.provider";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { FollowsModule } from "../follows/follows.module";
 import { WordsRepository } from "../words/words.repository";
 import { UsersController } from "./users.controller";
@@ -8,7 +8,7 @@ import { UsersService } from "./users.service";
 
 @Module({
   imports: [FollowsModule],
-  providers: [knexProvider, UsersService, UsersRepository, WordsRepository],
+  providers: [UsersService, UsersRepository, WordsRepository, DefinitionsRepository],
   controllers: [UsersController],
   exports: [UsersService, UsersRepository],
 })

@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { PaginatedResponseDto, PaginationDto } from "@shared";
-import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { Definition } from "../definitions/entities/definition.entity";
 import { CreateWordDto } from "./dto/create-word.dto";
 import { UpdateWordDto } from "./dto/update-word.dto";
@@ -11,10 +10,7 @@ import { WordsRepository } from "./words.repository";
 
 @Injectable()
 export class WordsService {
-  constructor(
-    private readonly wordRepository: WordsRepository,
-    private readonly definitionRepository: DefinitionsRepository,
-  ) {}
+  constructor(private readonly wordRepository: WordsRepository) {}
 
   /**
    * Filter definitions to show only latest per user

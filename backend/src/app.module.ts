@@ -4,6 +4,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { DefinitionsModule } from "./definitions/definitions.module";
@@ -19,6 +20,7 @@ import { WordsModule } from "./words/words.module";
       isGlobal: true,
       envFilePath: ".env",
     }),
+    DatabaseModule,
     UsersModule,
     AuthModule,
     WordsModule,
