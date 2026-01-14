@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { knexProvider } from "src/common/database/knex.provider";
+import { knexProvider } from "../common/database/knex.provider";
 import { DefinitionsController } from "./definitions.controller";
 import { DefinitionsService } from "./definitions.service";
 

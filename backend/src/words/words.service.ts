@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { PaginatedResponseDto, PaginationDto } from "@shared";
-import { DefinitionsRepository } from "src/definitions/definitions.repository";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { Definition } from "../definitions/entities/definition.entity";
 import { CreateWordDto } from "./dto/create-word.dto";
 import { UpdateWordDto } from "./dto/update-word.dto";

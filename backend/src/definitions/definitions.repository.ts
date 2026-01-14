@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TABLES } from "@shared";
-import { Like } from "src/likes/entities/like.entity";
 import { BaseRepository } from "../common/database/base.repository";
+import { Like } from "../likes/entities/like.entity";
 import { Definition } from "./entities/definition.entity";
 
 @Injectable()

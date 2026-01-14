@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { WordsRepository } from "src/words/words.repository";
+import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
 import { Definition } from "./entities/definition.entity";

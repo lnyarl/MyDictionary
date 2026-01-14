@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto, User } from "@shared";
-import { DefinitionsRepository } from "src/definitions/definitions.repository";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { Definition } from "../definitions/entities/definition.entity";
 import { FollowsService } from "../follows/follows.service";
 import { Word } from "../words/entities/word.entity";

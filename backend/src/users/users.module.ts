@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { knexProvider } from "src/common/database/knex.provider";
+import { knexProvider } from "../common/database/knex.provider";
 import { FollowsModule } from "../follows/follows.module";
 import { WordsRepository } from "../words/words.repository";
 import { UsersController } from "./users.controller";

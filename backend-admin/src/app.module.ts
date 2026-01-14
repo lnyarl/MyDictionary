@@ -9,6 +9,7 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { AdminJwtAuthGuard } from "./auth/guards/admin-jwt-auth.guard";
 import { PasswordChangeRequiredGuard } from "./auth/guards/password-change-required.guard";
+import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
 import { UsersModule } from "./users/users.module";
 
@@ -32,6 +33,7 @@ import { UsersModule } from "./users/users.module";
       inject: [ConfigService],
     }),
 
+    DatabaseModule,
     // Feature modules
     AdminUsersModule,
     AuthModule,

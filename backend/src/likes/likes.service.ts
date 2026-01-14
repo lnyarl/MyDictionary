@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { DefinitionsRepository } from "src/definitions/definitions.repository";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { Like } from "./entities/like.entity";
 import { LikesRepository } from "./likes.repository";
 
