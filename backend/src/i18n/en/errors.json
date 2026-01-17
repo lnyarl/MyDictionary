@@ -1,0 +1,5 @@
+{
+  "USER_NOT_FOUND": "User not found.",
+  "AUTH_FAILED": "Authentication failed.",
+  "FORBIDDEN": "Permission denied."
+}

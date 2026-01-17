@@ -1,0 +1,5 @@
+{
+  "USER_NOT_FOUND": "사용자를 찾을 수 없습니다.",
+  "AUTH_FAILED": "인증에 실패했습니다.",
+  "FORBIDDEN": "권한이 없습니다."
+}

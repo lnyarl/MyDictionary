@@ -1,0 +1,14 @@
+{
+	"header": {
+		"feed": "Feed",
+		"my_stash": "My Stash",
+		"search": "Search",
+		"stash_gems": "Stash your gems"
+	},
+	"common": {
+		"confirm": "Confirm",
+		"cancel": "Cancel",
+		"save": "Save",
+		"delete": "Delete"
+	}
+}

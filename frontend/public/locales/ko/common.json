@@ -1,0 +1,14 @@
+{
+	"header": {
+		"feed": "피드",
+		"my_stash": "내 사전",
+		"search": "검색",
+		"stash_gems": "보석을 모으세요"
+	},
+	"common": {
+		"confirm": "확인",
+		"cancel": "취소",
+		"save": "저장",
+		"delete": "삭제"
+	}
+}

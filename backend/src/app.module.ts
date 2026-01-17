@@ -1,6 +1,8 @@
+import * as path from "node:path";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
@@ -19,6 +21,21 @@ import { WordsModule } from "./words/words.module";
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
+    }),
+    I18nModule.forRoot({
+      fallbackLanguage: "ko",
+      loaderOptions: {
+        path: path.join(
+          process.cwd(),
+          process.env.NODE_ENV === "production" ? "dist/i18n/" : "src/i18n/",
+        ),
+        watch: true,
+      },
+      resolvers: [
+        { use: QueryResolver, options: ["lang"] },
+        AcceptLanguageResolver,
+        new HeaderResolver(["x-custom-lang"]),
+      ],
     }),
     DatabaseModule,
     UsersModule,

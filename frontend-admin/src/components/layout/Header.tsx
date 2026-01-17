@@ -15,7 +15,7 @@ export function Header() {
       <div className="container mx-auto px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">MyDictionary Admin</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Stashy Admin</h1>
             <p className="text-sm text-gray-500">Admin Panel</p>
           </div>
           <nav className="flex gap-4">
