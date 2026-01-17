@@ -1,48 +1,67 @@
-import { Book } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import logo from "../../assets/logo.png";
 import { useAuth } from "../../contexts/AuthContext";
+import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
 import { UserMenu } from "../auth/UserMenu";
 
 export function Header() {
 	const { isAuthenticated, isLoading } = useAuth();
+	const location = useLocation();
+
+	const navItems = [
+		{ name: "피드", path: "/feed" },
+		{ name: "내 사전", path: "/dashboard" },
+		{ name: "검색", path: "/search" },
+	];
 
 	return (
-		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-			<div className="flex h-16 items-center justify-between px-4 md:px-8 lg:px-12">
-				<Link to="/" className="flex items-center space-x-2">
-					<Book className="h-6 w-6" />
-					<span className="font-bold text-xl">Stashy</span>
+		<header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
+			<div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-8">
+				<Link to="/" className="flex items-center space-x-3 group">
+					<div className="relative h-12 w-12 overflow-hidden rounded-xl bg-primary/10 p-1 transition-transform group-hover:scale-110 group-hover:rotate-3">
+						<img src={logo} alt="Stashy Logo" className="h-full w-full object-contain" />
+					</div>
+					<div className="flex flex-col">
+						<span className="font-black text-2xl tracking-tighter text-primary">STASHY</span>
+						<span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground leading-none">
+							Stash your gems
+						</span>
+					</div>
 				</Link>
 
-				<nav className="flex items-center space-x-6">
-					{!isLoading &&
-						(isAuthenticated ? (
-							<>
+				<nav className="hidden md:flex items-center space-x-1">
+					{!isLoading && isAuthenticated && (
+						<>
+							{navItems.map((item) => (
 								<Link
-									to="/feed"
-									className="text-sm font-medium transition-colors hover:text-primary"
+									key={item.path}
+									to={item.path}
+									className={cn(
+										"px-4 py-2 text-sm font-semibold rounded-full transition-all hover:bg-secondary/80",
+										location.pathname === item.path
+											? "text-primary bg-primary/10"
+											: "text-muted-foreground hover:text-foreground",
+									)}
 								>
-									피드
+									{item.name}
 								</Link>
-								<Link
-									to="/dashboard"
-									className="text-sm font-medium transition-colors hover:text-primary"
-								>
-									내 사전
-								</Link>
-								<Link
-									to="/search"
-									className="text-sm font-medium transition-colors hover:text-primary"
-								>
-									검색
-								</Link>
+							))}
+							<div className="ml-4 pl-4 border-l h-6 border-border flex items-center">
 								<UserMenu />
-							</>
-						) : (
+							</div>
+						</>
+					)}
+					{!isLoading && !isAuthenticated && (
+						<div className="flex items-center space-x-4">
 							<GoogleLoginButton />
-						))}
+						</div>
+					)}
 				</nav>
+
+				<div className="md:hidden flex items-center space-x-4">
+					{!isLoading && isAuthenticated ? <UserMenu /> : <GoogleLoginButton />}
+				</div>
 			</div>
 		</header>
 	);
