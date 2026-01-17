@@ -23,7 +23,7 @@ export class AuthController {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly configService: ConfigService,
-	) {}
+	) { }
 
 	@Public()
 	@Post("login")
@@ -91,6 +91,7 @@ export class AuthController {
 		return {
 			id: admin.id,
 			username: admin.username,
+			role: admin.role,
 			mustChangePassword: admin.mustChangePassword,
 		};
 	}

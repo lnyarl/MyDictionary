@@ -1,0 +1,46 @@
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Roles } from "../auth/decorators/roles.decorator";
+import { AdminUsersService } from "./admin-users.service";
+import { CreateAdminUserDto } from "./dto/create-admin-user.dto";
+import { UpdateAdminRoleDto } from "./dto/update-admin-role.dto";
+import { AdminRole } from "./entities/admin-user.entity";
+
+@Controller("admin-users")
+@Roles(AdminRole.SUPER_ADMIN)
+export class AdminUsersController {
+  constructor(private readonly adminUsersService: AdminUsersService) {}
+
+  @Get()
+  async findAll() {
+    const admins = await this.adminUsersService.findAll();
+    return admins.map((admin) => ({
+      id: admin.id,
+      username: admin.username,
+      role: admin.role,
+      mustChangePassword: admin.mustChangePassword,
+      lastLogin: admin.lastLogin,
+      createdAt: admin.createdAt,
+    }));
+  }
+
+  @Post()
+  async create(@Body() dto: CreateAdminUserDto) {
+    const admin = await this.adminUsersService.create(dto);
+    return {
+      id: admin.id,
+      username: admin.username,
+      role: admin.role,
+      createdAt: admin.createdAt,
+    };
+  }
+
+  @Patch(":id/role")
+  async updateRole(@Param("id") id: string, @Body() dto: UpdateAdminRoleDto) {
+    const admin = await this.adminUsersService.updateRole(id, dto.role);
+    return {
+      id: admin.id,
+      username: admin.username,
+      role: admin.role,
+    };
+  }
+}

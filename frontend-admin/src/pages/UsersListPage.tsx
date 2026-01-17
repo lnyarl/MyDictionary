@@ -17,10 +17,17 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
+import { useAdminAuth } from "../contexts/AdminAuthContext";
 import { useUsers } from "../hooks/useUsers";
 import { usersApi } from "../lib/users";
+import { AdminRole } from "../types/admin.types";
 
 export default function UsersListPage() {
+  const { admin } = useAdminAuth();
+  const canCreateUser =
+    admin?.role === AdminRole.SUPER_ADMIN || admin?.role === AdminRole.DEVELOPER;
+  console.log("Admin Role:", admin?.role);
+
   const [page, setPage] = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
   const { users, isLoading, error, meta } = useUsers(page, 20, refreshKey);
@@ -100,7 +107,7 @@ export default function UsersListPage() {
           <h1 className="text-3xl font-bold">Users Management</h1>
           <p className="text-gray-600 mt-2">View and manage all registered users</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>Create User</Button>
+        {canCreateUser && <Button onClick={() => setIsDialogOpen(true)}>Create User</Button>}
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
