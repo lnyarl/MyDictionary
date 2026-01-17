@@ -17,7 +17,7 @@
       "Bash(npx @biomejs/biome@latest init)",
       "Bash(npx @biomejs/biome check --write .)",
       "Bash(npx --yes @biomejs/biome@latest check:*)",
-      "Bash(npm run typeorm:*)",
+
       "Bash(docker exec:*)",
       "Bash(npm install:*)",
       "Bash(npm uninstall:*)",

@@ -27,7 +27,6 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.11",
-    "@nestjs/typeorm": "^11.0.0",
     "@types/knex": "^0.16.1",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
@@ -38,8 +37,7 @@
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.1",
-    "rxjs": "^7.8.1",
-    "typeorm": "^0.3.19"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",

@@ -15,7 +15,7 @@ Full-Stack Dictionary Application built with modern technologies.
 ### Backend
 - **NestJS** - Node.js framework
 - **TypeScript** - Type safety
-- **TypeORM** - ORM
+- **Knex.js** - SQL Query Builder
 - **PostgreSQL** - Database
 - **Jest** - Testing framework
 

@@ -1,4 +1,3 @@
-// Plain class without TypeORM decorators (for Knex compatibility)
 export class User {
   id: string;
   googleId: string | null;
