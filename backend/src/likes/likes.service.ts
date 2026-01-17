@@ -29,11 +29,9 @@ export class LikesService {
 
     if (existingLike) {
       await this.likeRepository.delete(existingLike.id);
-      await this.definitionRepository.decrement(definitionId);
       return false;
     } else {
       await this.likeRepository.create({ userId, definitionId });
-      await this.definitionRepository.increment(definitionId);
       return true;
     }
   }

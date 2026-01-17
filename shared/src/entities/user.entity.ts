@@ -9,6 +9,17 @@ export class User {
   deletedAt: Date | null;
 }
 
+export const UserSelect = {
+  id: "id",
+  googleId: "google_id",
+  email: "email",
+  nickname: "nickname",
+  profilePicture: "profile_picture",
+  createdAt: "created_at",
+  updatedAt: "updated_at",
+  deletedAt: "deleted_at",
+} as const;
+
 // For database inserts (optional fields)
 export type UserInsert = Omit<User, "id" | "createdAt" | "updatedAt" | "deletedAt" | "googleId"> & {
   id?: string;

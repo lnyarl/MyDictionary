@@ -19,7 +19,7 @@ services:
     networks:
       - stashy-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d stashy']
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres -d stashy' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,6 +40,8 @@ services:
       DB_PASSWORD: postgres
       DB_DATABASE: stashy
       FRONTEND_URL: http://localhost
+      JWT_SECRET: ${JWT_SECRET:-jwt_secret_change_in_production}
+      JWT_EXPIRES_IN: 8h
     ports:
       - '3000:3000'
     depends_on:

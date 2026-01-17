@@ -49,18 +49,15 @@ export class DefinitionsService {
     const results = await this.definitionRepository.findByWordIdForEachUser(wordId);
 
     return results.map((row: any) => {
-      const definition = new Definition();
-      definition.id = row.id;
-      definition.content = row.content;
-      definition.wordId = row.word_id;
-      definition.userId = row.user_id;
-      definition.likesCount = row.likes_count;
-      definition.createdAt = row.created_at;
-      definition.updatedAt = row.updated_at;
-      definition.user = {
-        id: row.user_id,
-        nickname: row.user_nickname,
-      } as any;
+      const definition: Definition & { likesCount: number } = {
+        id: row.id,
+        content: row.content,
+        wordId: row.word_id,
+        userId: row.user_id,
+        likesCount: row.likes_count,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
       return definition;
     });
   }
@@ -73,8 +70,8 @@ export class DefinitionsService {
     }
 
     // Check access based on word's isPublic
-    if (!definition.is_public) {
-      if (!userId || (definition.word_user_id !== userId && definition.user_id !== userId)) {
+    if (!definition.isPublic) {
+      if (!userId || (definition.wordUserId !== userId && definition.userId !== userId)) {
         throw new ForbiddenException("You do not have access to this definition");
       }
     }

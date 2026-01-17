@@ -24,19 +24,20 @@ export class UsersService {
   ) {}
 
   async findByGoogleId(googleId: string): Promise<User | null> {
-    return this.userRepository.findByGoogleId(googleId);
+    console.log("====", this.userRepository.findByGoogleId(googleId).toQuery());
+    return await this.userRepository.findByGoogleId(googleId);
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.userRepository.findById(id);
+    return await this.userRepository.findById(id);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findByEmail(email);
+    return await this.userRepository.findByEmail(email);
   }
 
   async create(data: CreateUserDto): Promise<User> {
-    return this.userRepository.insert(data);
+    return await this.userRepository.insert(data);
   }
 
   async updateNickname(userId: string, nickname: string): Promise<User> {

@@ -14,6 +14,16 @@ export class Word {
   definitions?: Definition[];
 }
 
+export const WordSelect = {
+  id: "id",
+  term: "term",
+  userId: "user_id",
+  isPublic: "is_public",
+  createdAt: "created_at",
+  updatedAt: "updated_at",
+  deletedAt: "deleted_at",
+} as const;
+
 // For database inserts
 export type WordInsert = Omit<
   Word,

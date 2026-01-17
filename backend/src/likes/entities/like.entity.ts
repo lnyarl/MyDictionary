@@ -33,3 +33,12 @@ export class Like {
   // @DeleteDateColumn({ name: "deleted_at" })
   deletedAt: Date;
 }
+
+export const LikeSelect = {
+  id: "id",
+  userId: "user_id",
+  definitionId: "definition_id",
+  createdAt: "created_at",
+  updatedAt: "updated_at",
+  deletedAt: "deleted_at",
+} as const;

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TABLES, TableName } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
-import { Word } from "./entities/word.entity";
+import { Word, WordSelect } from "./entities/word.entity";
 
 @Injectable()
 export class WordsRepository extends BaseRepository {
@@ -9,16 +9,16 @@ export class WordsRepository extends BaseRepository {
 
   findByUserId(userId: string): Promise<Word[]> {
     return this.query(this.tableName)
-      .select<Word[]>()
-      .where({ userId })
+      .select<Word[]>(WordSelect)
+      .where({ user_id: userId })
       .orderBy("created_at", "desc");
   }
 
   findPublicByUserId(userId: string, limit: number, offset: number) {
-    const baseQuery = this.query(this.tableName).where({ userId, isPublic: true });
+    const baseQuery = this.query(this.tableName).where({ user_id: userId, is_public: true });
     const listQuery = baseQuery
       .clone()
-      .select<Word[]>()
+      .select<Word[]>(WordSelect)
       .limit(limit)
       .offset(offset)
       .orderBy("created_at", "desc");
@@ -28,11 +28,22 @@ export class WordsRepository extends BaseRepository {
   }
 
   countPublicByUserId(userId: string): Promise<number> {
-    return this.query(this.tableName).where({ userId, isPublic: true }).count("* as count").first();
+    return this.query(this.tableName)
+      .where({ user_id: userId, is_public: true })
+      .count("* as count")
+      .first();
   }
 
   create(word: Partial<Word>): Promise<Word> {
-    return this.knex(this.tableName).insert(word);
+    const now = new Date();
+    return this.knex(this.tableName).insert({
+      id: word.id,
+      term: word.term,
+      user_id: word.userId,
+      is_public: word.isPublic,
+      created_at: now,
+      updated_at: now,
+    });
   }
 
   delete(id: string): Promise<void> {
@@ -44,7 +55,7 @@ export class WordsRepository extends BaseRepository {
   }
 
   findById(id: string): Promise<Word> {
-    return this.query(this.tableName).select<Word>().where({ id });
+    return this.query(this.tableName).select<Word>(WordSelect).where({ id }).first();
   }
 
   /**
@@ -73,27 +84,33 @@ export class WordsRepository extends BaseRepository {
     const listQuery = baseQuery
       .clone()
       .select(
-        `${TABLES.WORDS}.*`,
+        `${TABLES.WORDS}.id`,
+        `${TABLES.WORDS}.term`,
+        `${TABLES.WORDS}.user_id as userId`,
+        `${TABLES.WORDS}.is_public as isPublic`,
+        `${TABLES.WORDS}.created_at as createdAt`,
+        `${TABLES.WORDS}.updated_at as updatedAt`,
+        `${TABLES.WORDS}.deleted_at as deletedAt`,
         this.knex.raw(`
 					COALESCE(
 						json_agg(
 							json_build_object(
 								'id', d.id,
 								'content', d.content,
-								'word_id', d.word_id,
-								'user_id', d.user_id,
-								'likes_count', d.likes_count,
-								'created_at', d.created_at,
-								'updated_at', d.updated_at,
+								'wordId', d.word_id,
+								'userId', d.user_id,
+								'likesCount', d.likes_count,
+								'createdAt', d.created_at,
+								'updatedAt', d.updated_at,
 								'user', json_build_object(
 									'id', du.id,
 									'nickname', du.nickname,
 									'email', du.email,
-									'google_id', du.google_id,
-									'profile_picture', du.profile_picture,
-									'created_at', du.created_at,
-									'updated_at', du.updated_at,
-									'deleted_at', du.deleted_at
+									'googleId', du.google_id,
+									'profilePicture', du.profile_picture,
+									'createdAt', du.created_at,
+									'updatedAt', du.updated_at,
+									'deletedAt', du.deleted_at
 								)
 							) ORDER BY d.created_at DESC
 						) FILTER (WHERE d.id IS NOT NULL),
@@ -105,11 +122,11 @@ export class WordsRepository extends BaseRepository {
 						'id', wu.id,
 						'nickname', wu.nickname,
 						'email', wu.email,
-						'google_id', wu.google_id,
-						'profile_picture', wu.profile_picture,
-						'created_at', wu.created_at,
-						'updated_at', wu.updated_at,
-						'deleted_at', wu.deleted_at
+						'googleId', wu.google_id,
+						'profilePicture', wu.profile_picture,
+						'createdAt', wu.created_at,
+						'updatedAt', wu.updated_at,
+						'deletedAt', wu.deleted_at
 					) as user
 				`),
       )

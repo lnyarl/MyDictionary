@@ -10,82 +10,82 @@ import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
 
 export interface GoogleUserData {
-	googleId: string;
-	email: string;
-	name: string;
-	picture?: string;
+  googleId: string;
+  email: string;
+  name: string;
+  picture?: string;
 }
 
 export interface JwtPayload {
-	sub: string;
-	email: string;
+  sub: string;
+  email: string;
 }
 
 @Injectable()
 export class AuthService {
-	private googleClient: OAuth2Client;
+  private googleClient: OAuth2Client;
 
-	constructor(
-		private readonly usersService: UsersService,
-		private readonly jwtService: JwtService,
-		private readonly configService: ConfigService,
-	) {
-		const clientId = this.configService.get<string>("GOOGLE_CLIENT_ID");
-		this.googleClient = new OAuth2Client(clientId);
-	}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {
+    const clientId = this.configService.get<string>("GOOGLE_CLIENT_ID");
+    this.googleClient = new OAuth2Client(clientId);
+  }
 
-	async validateGoogleUser(data: GoogleUserData): Promise<User> {
-		let user = await this.usersService.findByGoogleId(data.googleId);
+  async validateGoogleUser(data: GoogleUserData): Promise<User> {
+    const googleUser = await this.usersService.findByGoogleId(data.googleId);
 
-		if (user) {
-			await this.usersService.updateProfile(user.id, {
-				email: data.email,
-				profilePicture: data.picture,
-			});
-			return this.usersService.findById(user.id);
-		}
+    if (googleUser) {
+      await this.usersService.updateProfile(googleUser.id, {
+        email: data.email,
+        profilePicture: data.picture,
+      });
+      return await this.usersService.findById(googleUser.id);
+    }
 
-		const nickname = generateRandomNickname();
+    const nickname = generateRandomNickname();
 
-		user = await this.usersService.create({
-			googleId: data.googleId,
-			email: data.email,
-			nickname,
-			profilePicture: data.picture,
-		});
+    const newUser = await this.usersService.create({
+      googleId: data.googleId,
+      email: data.email,
+      nickname,
+      profilePicture: data.picture,
+    });
 
-		return user;
-	}
+    return newUser;
+  }
 
-	async verifyGoogleToken(token: string): Promise<GoogleUserData> {
-		try {
-			const ticket = await this.googleClient.verifyIdToken({
-				idToken: token,
-				audience: this.configService.get<string>("GOOGLE_CLIENT_ID"),
-			});
+  async verifyGoogleToken(token: string): Promise<GoogleUserData> {
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: token,
+        audience: this.configService.get<string>("GOOGLE_CLIENT_ID"),
+      });
 
-			const payload = ticket.getPayload();
-			if (!payload) {
-				throw new UnauthorizedException("Invalid Google token");
-			}
+      const payload = ticket.getPayload();
+      if (!payload) {
+        throw new UnauthorizedException("Invalid Google token");
+      }
 
-			return {
-				googleId: payload.sub,
-				email: payload.email || "",
-				name: payload.name || "",
-				picture: payload.picture,
-			};
-		} catch (error) {
-			throw new UnauthorizedException("Failed to verify Google token");
-		}
-	}
+      return {
+        googleId: payload.sub,
+        email: payload.email || "",
+        name: payload.name || "",
+        picture: payload.picture,
+      };
+    } catch (error) {
+      throw new UnauthorizedException("Failed to verify Google token");
+    }
+  }
 
-	generateJwtToken(user: User): string {
-		const payload: JwtPayload = {
-			sub: user.id,
-			email: user.email,
-		};
+  generateJwtToken(user: User): string {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+    };
 
-		return this.jwtService.sign(payload);
-	}
+    return this.jwtService.sign(payload);
+  }
 }

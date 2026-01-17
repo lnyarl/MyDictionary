@@ -1,43 +1,96 @@
 import { Injectable } from "@nestjs/common";
 import { TABLES, User } from "@shared";
+import { UserSelect } from "@shared/entities/user.entity";
 import { BaseRepository } from "../common/database/base.repository";
 
 @Injectable()
 export class UsersRepository extends BaseRepository {
-	private tableName = TABLES.USERS;
+  private tableName = TABLES.USERS;
 
-	async findById(id: string): Promise<User | null> {
-		return await this.query(this.tableName).select<User>().where({ id }).first();
-	}
+  findById(id: string): Promise<User | null> {
+    return this.query(this.tableName).select<User>(UserSelect).where({ id }).first();
+  }
 
-	async findByGoogleId(googleId: string): Promise<User | null> {
-		return await this.query(this.tableName).select<User>().where({ googleId }).first();
-	}
+  findByGoogleId(googleId: string) {
+    return this.query(this.tableName)
+      .select<User>(UserSelect)
+      .where({ google_id: googleId })
+      .first();
+  }
 
-	async findByEmail(email: string): Promise<User | null> {
-		return await this.query(this.tableName).select<User>().where({ email }).first();
-	}
+  findByEmail(email: string) {
+    return this.query(this.tableName).select<User>(UserSelect).where({ email }).first();
+  }
 
-	async findByNickname(nickname: string): Promise<User | null> {
-		return await this.query(this.tableName).select<User>().where({ nickname }).first();
-	}
+  findByNickname(nickname: string) {
+    return this.query(this.tableName).select<User>(UserSelect).where({ nickname }).first();
+  }
 
-	async updateNickname(userId: string, nickname: string): Promise<User> {
-		const [result] = await this.knex(this.tableName).update({ nickname }).where({ id: userId }).returning("*");;
-		return result;
-	}
+  async updateNickname(userId: string, nickname: string): Promise<User> {
+    const [result] = await this.knex(this.tableName)
+      .update({ nickname })
+      .where({ id: userId })
+      .returning([
+        "id",
+        "google_id as googleId",
+        "email",
+        "nickname",
+        "profile_picture as profilePicture",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+      ]);
+    return result;
+  }
 
-	async updateEmailAndPicture(userId: string, updates: { email?: string, profilePicture?: string }): Promise<User> {
-		const [result] = await this.knex(this.tableName).update(updates).where({ id: userId }).returning("*");;
-		return result;
-	}
+  async updateEmailAndPicture(
+    userId: string,
+    updates: { email?: string; profilePicture?: string },
+  ): Promise<User> {
+    const dbUpdates: any = { ...updates };
+    if (updates.profilePicture) {
+      dbUpdates.profile_picture = updates.profilePicture;
+      delete dbUpdates.profilePicture;
+    }
 
-	async insert(data: Partial<User>): Promise<User> {
-		const now = new Date();
-		return await this.knex(this.tableName).insert({
-			...data,
-			created_at: now,
-			updated_at: now,
-		});
-	}
+    const [result] = await this.knex(this.tableName)
+      .update(dbUpdates)
+      .where({ id: userId })
+      .returning([
+        "id",
+        "google_id as googleId",
+        "email",
+        "nickname",
+        "profile_picture as profilePicture",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+      ]);
+    return result;
+  }
+
+  async insert(data: Partial<User>): Promise<User> {
+    const now = new Date();
+    const [result] = await this.knex(this.tableName)
+      .insert({
+        id: data.id,
+        google_id: data.googleId || null,
+        email: data.email,
+        nickname: data.nickname,
+        profile_picture: data.profilePicture || null,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning([
+        "id",
+        "google_id as googleId",
+        "email",
+        "nickname",
+        "profile_picture as profilePicture",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+      ]);
+    return result;
+  }
 }

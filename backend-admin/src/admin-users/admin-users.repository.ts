@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
-import type { AdminRoleType } from "./entities/admin-user.entity";
+import { type AdminRoleType, AdminUser } from "./entities/admin-user.entity";
 
 interface AdminUserRow {
   id: string;
@@ -19,39 +19,36 @@ interface AdminUserRow {
 export class AdminUsersRepository extends BaseRepository {
   private tableName = TABLES.ADMIN_USERS;
 
-  private mapToEntity(row: AdminUserRow) {
-    if (!row) return null;
-    return {
-      id: row.id,
-      username: row.username,
-      password: row.password,
-      role: row.role,
-      mustChangePassword: row.must_change_password,
-      lastLogin: row.last_login,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      deletedAt: row.deleted_at,
-    };
-  }
+  private readonly adminUserSelect = {
+    id: "id",
+    username: "username",
+    password: "password",
+    role: "role",
+    mustChangePassword: "must_change_password",
+    lastLogin: "last_login",
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+    deletedAt: "deleted_at",
+  };
 
   async findById(id: string) {
-    const row = await this.query(this.tableName).select<AdminUserRow>("*").where({ id }).first();
-    return this.mapToEntity(row);
+    return await this.query(this.tableName)
+      .select<AdminUser>(this.adminUserSelect)
+      .where({ id })
+      .first();
   }
 
   async findByUserName(username: string) {
-    const row = await this.query(this.tableName)
-      .select<AdminUserRow>("*")
+    return await this.query(this.tableName)
+      .select<AdminUser>(this.adminUserSelect)
       .where({ username })
       .first();
-    return this.mapToEntity(row);
   }
 
   async findAll() {
-    const rows = await this.query(this.tableName)
-      .select<AdminUserRow[]>("*")
+    return await this.query(this.tableName)
+      .select<AdminUser[]>(this.adminUserSelect)
       .orderBy("created_at", "desc");
-    return rows.map((row) => this.mapToEntity(row));
   }
 
   updateLastLogin(adminId: string, now: Date) {
@@ -71,7 +68,11 @@ export class AdminUsersRepository extends BaseRepository {
       .update({ role, updated_at: new Date() });
   }
 
-  async insert(data: { username: string; password: string; role: AdminRoleType }) {
+  async insert(data: {
+    username: string;
+    password: string;
+    role: AdminRoleType;
+  }): Promise<AdminUser> {
     const now = new Date();
     const [row] = await this.knex(this.tableName)
       .insert({
@@ -82,7 +83,17 @@ export class AdminUsersRepository extends BaseRepository {
         created_at: now,
         updated_at: now,
       })
-      .returning<AdminUserRow[]>("*");
-    return this.mapToEntity(row);
+      .returning<AdminUser[]>([
+        "id",
+        "username",
+        "password",
+        "role",
+        "must_change_password as mustChangePassword",
+        "last_login as lastLogin",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+      ]);
+    return row;
   }
 }

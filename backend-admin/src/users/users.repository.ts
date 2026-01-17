@@ -7,16 +7,20 @@ import { BaseRepository } from "../common/database/base.repository";
 export class UsersRepository extends BaseRepository {
   private tableName = TABLES.USERS;
 
+  private readonly userSelect = {
+    id: "id",
+    googleId: "google_id",
+    email: "email",
+    nickname: "nickname",
+    profilePicture: "profile_picture",
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+    deletedAt: "deleted_at",
+  };
+
   findUsers(offset: number, limit: number) {
     const listQuery = this.knex(this.tableName)
-      .select<User[]>({
-        id: "id",
-        email: "email",
-        nickname: "nickname",
-        profilePicture: "profile_picture",
-        createdAt: "created_at",
-        updatedAt: "updated_at",
-      })
+      .select<User[]>(this.userSelect)
       .whereNull("deleted_at")
       .offset(offset)
       .limit(limit)
@@ -32,14 +36,7 @@ export class UsersRepository extends BaseRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.knex(this.tableName)
-      .select<User>({
-        id: "id",
-        email: "email",
-        nickname: "nickname",
-        profilePicture: "profile_picture",
-        createdAt: "created_at",
-        updatedAt: "updated_at",
-      })
+      .select<User>(this.userSelect)
       .where({ email })
       .whereNull("deleted_at")
       .first();
@@ -47,14 +44,7 @@ export class UsersRepository extends BaseRepository {
 
   async findByNickname(nickname: string): Promise<User | null> {
     return this.knex(this.tableName)
-      .select<User>({
-        id: "id",
-        email: "email",
-        nickname: "nickname",
-        profilePicture: "profile_picture",
-        createdAt: "created_at",
-        updatedAt: "updated_at",
-      })
+      .select<User>(this.userSelect)
       .where({ nickname })
       .whereNull("deleted_at")
       .first();
@@ -73,11 +63,13 @@ export class UsersRepository extends BaseRepository {
       })
       .returning([
         "id",
+        "google_id as googleId",
         "email",
         "nickname",
         "profile_picture as profilePicture",
         "created_at as createdAt",
         "updated_at as updatedAt",
+        "deleted_at as deletedAt",
       ]);
     return result;
   }

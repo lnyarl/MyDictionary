@@ -29,3 +29,12 @@ export class Follow {
   // @DeleteDateColumn({ name: "deleted_at" })
   deletedAt: Date;
 }
+
+export const FollowSelect = {
+  id: "id",
+  followerId: "follower_id",
+  followingId: "following_id",
+  createdAt: "created_at",
+  updatedAt: "updated_at",
+  deletedAt: "deleted_at",
+} as const;
