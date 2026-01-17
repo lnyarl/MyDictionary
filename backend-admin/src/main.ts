@@ -28,6 +28,8 @@ async function bootstrap() {
   const port = process.env.PORT || 3001;
   await app.listen(port);
   console.log(`Admin backend running on: http://localhost:${port}`);
+  console.log(`Environment (NODE_ENV): ${process.env.NODE_ENV || "development"}`);
+  console.log(`Environment (ENV): ${process.env.ENV || "not set"}`);
 }
 
 bootstrap();
