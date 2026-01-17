@@ -21,7 +21,7 @@ export const knexProvider: Provider = {
         min: 2,
         max: 10,
       },
-      debug: configService.get("NODE_ENV") === "development",
+      debug: configService.get("DB_LOGGING") === "true",
     });
   },
 };
