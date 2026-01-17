@@ -6,14 +6,17 @@ WORKDIR /app
 # Copy root package files
 COPY package.json yarn.lock ./
 
-# Copy workspace package files
+# Copy all workspace package files to satisfy yarn install
 COPY shared/package.json ./shared/
+COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
+COPY frontend-admin/package.json ./frontend-admin/
+COPY backend-admin/package.json ./backend-admin/
 
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
-# Copy source code
+# Copy source code for shared and the target app
 COPY shared/ ./shared/
 COPY backend/ ./backend/
 
@@ -31,7 +34,7 @@ WORKDIR /app
 # Copy root package files
 COPY package.json yarn.lock ./
 
-# Copy workspace package files
+# Copy shared and backend package files
 COPY shared/package.json ./shared/
 COPY backend/package.json ./backend/
 
