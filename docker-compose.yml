@@ -58,6 +58,8 @@ services:
       dockerfile: frontend/Dockerfile
     container_name: mydictionary-frontend
     restart: unless-stopped
+    environment:
+      - BACKEND_URL=http://backend:3000
     ports:
       - '80:80'
     depends_on:
