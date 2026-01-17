@@ -21,10 +21,10 @@ COPY shared/ ./shared/
 COPY frontend/ ./frontend/
 
 # Build shared first
-RUN yarn workspace @mydictionary/shared build
+RUN yarn workspace @stashy/shared build
 
 # Build frontend
-RUN yarn workspace mydictionary-frontend build
+RUN yarn workspace stashy-frontend build
 
 # Production stage
 FROM nginx:alpine

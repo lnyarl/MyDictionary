@@ -21,10 +21,10 @@ COPY shared/ ./shared/
 COPY backend/ ./backend/
 
 # Build shared first
-RUN yarn workspace @mydictionary/shared build
+RUN yarn workspace @stashy/shared build
 
 # Build backend
-RUN yarn workspace mydictionary-backend build
+RUN yarn workspace stashy-backend build
 
 # Production stage
 FROM node:20-alpine
