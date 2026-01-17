@@ -27,8 +27,8 @@ services:
   # Backend API
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: mydictionary-backend
     restart: unless-stopped
     environment:
@@ -54,8 +54,8 @@ services:
   # Frontend
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: mydictionary-frontend
     restart: unless-stopped
     ports:
@@ -68,8 +68,8 @@ services:
   # Admin Backend API
   backend-admin:
     build:
-      context: ./backend-admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend-admin/Dockerfile
     container_name: mydictionary-backend-admin
     restart: unless-stopped
     environment:
@@ -97,8 +97,8 @@ services:
   # Admin Frontend
   frontend-admin:
     build:
-      context: ./frontend-admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend-admin/Dockerfile
     container_name: mydictionary-frontend-admin
     restart: unless-stopped
     ports:
