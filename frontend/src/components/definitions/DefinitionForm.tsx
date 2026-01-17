@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -17,11 +18,8 @@ interface DefinitionFormProps {
 	onSubmit: (content: string) => Promise<void>;
 }
 
-export function DefinitionForm({
-	open,
-	onOpenChange,
-	onSubmit,
-}: DefinitionFormProps) {
+export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormProps) {
+	const { t } = useTranslation();
 	const [content, setContent] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,41 +49,32 @@ export function DefinitionForm({
 			<DialogContent className="max-w-2xl">
 				<form onSubmit={handleSubmit}>
 					<DialogHeader>
-						<DialogTitle>새 정의 추가</DialogTitle>
-						<DialogDescription>
-							단어의 정의를 작성하세요.
-						</DialogDescription>
+						<DialogTitle>{t("word.add_definition")}</DialogTitle>
+						<DialogDescription>{t("word.definition_desc")}</DialogDescription>
 					</DialogHeader>
 
 					<div className="grid gap-4 py-4">
 						<div className="grid gap-2">
-							<Label htmlFor="content">정의</Label>
+							<Label htmlFor="content">{t("word.definition")}</Label>
 							<Textarea
 								id="content"
 								value={content}
 								onChange={(e) => setContent(e.target.value)}
-								placeholder="예: 마음에 흐뭇하고 즐거운 느낌이 있는 상태"
+								placeholder={t("word.definition_placeholder")}
 								rows={6}
 								maxLength={5000}
 								autoFocus
 							/>
-							<p className="text-sm text-muted-foreground">
-								{content.length}/5000
-							</p>
+							<p className="text-sm text-muted-foreground">{content.length}/5000</p>
 						</div>
 					</div>
 
 					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={handleClose}
-							disabled={isSubmitting}
-						>
-							취소
+						<Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
+							{t("common.cancel")}
 						</Button>
 						<Button type="submit" disabled={isSubmitting || !content.trim()}>
-							{isSubmitting ? "저장 중..." : "추가"}
+							{isSubmitting ? t("common.saving") : t("common.add")}
 						</Button>
 					</DialogFooter>
 				</form>

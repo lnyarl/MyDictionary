@@ -1,4 +1,5 @@
 import { History, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Definition } from "../../types/definition.types";
@@ -21,18 +22,16 @@ export function DefinitionCard({
 	onViewHistory,
 	showWord = false,
 }: DefinitionCardProps) {
+	const { t } = useTranslation();
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const isOwner = user?.id === definition.userId;
 
-	const formattedDate = new Date(definition.createdAt).toLocaleDateString(
-		"ko-KR",
-		{
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		},
-	);
+	const formattedDate = new Date(definition.createdAt).toLocaleDateString("ko-KR", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
 
 	const handleUserClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -55,21 +54,16 @@ export function DefinitionCard({
 				)}
 				<div className="flex items-start justify-between gap-2">
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
-						<Avatar
-							className="h-6 w-6 cursor-pointer"
-							onClick={handleUserClick}
-						>
+						<Avatar className="h-6 w-6 cursor-pointer" onClick={handleUserClick}>
 							<AvatarImage src={definition.user?.profilePicture} />
-							<AvatarFallback>
-								{definition.user?.nickname?.[0] || "U"}
-							</AvatarFallback>
+							<AvatarFallback>{definition.user?.nickname?.[0] || "U"}</AvatarFallback>
 						</Avatar>
 						<Button
 							variant="link"
 							className="p-0 h-auto text-sm text-muted-foreground"
 							onClick={handleUserClick}
 						>
-							{definition.user?.nickname || "사용자"}
+							{definition.user?.nickname || t("common.user")}
 						</Button>
 						<span>•</span>
 						<span>{formattedDate}</span>
@@ -80,7 +74,7 @@ export function DefinitionCard({
 							variant="ghost"
 							size="icon"
 							onClick={() => onViewHistory(definition.userId)}
-							title="히스토리 보기"
+							title={t("word.history")}
 						>
 							<History className="h-4 w-4" />
 						</Button>
@@ -89,7 +83,7 @@ export function DefinitionCard({
 								variant="ghost"
 								size="icon"
 								onClick={() => onDelete(definition.id)}
-								title="삭제"
+								title={t("common.delete")}
 							>
 								<Trash2 className="h-4 w-4 text-destructive" />
 							</Button>

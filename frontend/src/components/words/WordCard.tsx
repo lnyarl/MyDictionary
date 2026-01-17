@@ -1,4 +1,5 @@
 import { ChevronRight, Edit2, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { Word } from "../../types/word.types";
 import { Button } from "../ui/button";
@@ -11,6 +12,7 @@ interface WordCardProps {
 }
 
 export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 
 	const formattedDate = new Date(word.createdAt).toLocaleDateString("ko-KR", {
@@ -34,31 +36,23 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
 	};
 
 	return (
-		<Card
-			className="hover:shadow-md transition-shadow cursor-pointer"
-			onClick={handleCardClick}
-		>
+		<Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleCardClick}>
 			<CardHeader>
 				<div className="flex items-start justify-between">
 					<div className="flex-1">
 						<CardTitle className="text-2xl mb-2">{word.term}</CardTitle>
-						<CardDescription>{formattedDate}에 추가됨</CardDescription>
+						<CardDescription>{t("word.added_at", { date: formattedDate })}</CardDescription>
 					</div>
 
 					<div className="flex gap-2">
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={handleEditClick}
-							title="수정"
-						>
+						<Button variant="ghost" size="icon" onClick={handleEditClick} title={t("common.edit")}>
 							<Edit2 className="h-4 w-4" />
 						</Button>
 						<Button
 							variant="ghost"
 							size="icon"
 							onClick={handleDeleteClick}
-							title="삭제"
+							title={t("common.delete")}
 						>
 							<Trash2 className="h-4 w-4 text-destructive" />
 						</Button>

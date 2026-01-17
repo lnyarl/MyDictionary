@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Word } from "../../types/word.types";
 import { Button } from "../ui/button";
 import {
@@ -21,13 +22,8 @@ interface WordFormProps {
 	mode: "create" | "edit";
 }
 
-export function WordForm({
-	open,
-	onOpenChange,
-	onSubmit,
-	word,
-	mode,
-}: WordFormProps) {
+export function WordForm({ open, onOpenChange, onSubmit, word, mode }: WordFormProps) {
+	const { t } = useTranslation();
 	const [term, setTerm] = useState(word?.term || "");
 	const [isPublic, setIsPublic] = useState(word?.isPublic || false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,24 +56,20 @@ export function WordForm({
 			<DialogContent>
 				<form onSubmit={handleSubmit}>
 					<DialogHeader>
-						<DialogTitle>
-							{mode === "create" ? "새 단어 추가" : "단어 수정"}
-						</DialogTitle>
+						<DialogTitle>{mode === "create" ? t("word.add_new") : t("word.edit_word")}</DialogTitle>
 						<DialogDescription>
-							{mode === "create"
-								? "사전에 추가할 단어를 입력하세요."
-								: "단어를 수정하세요."}
+							{mode === "create" ? t("word.add_desc") : t("word.edit_desc")}
 						</DialogDescription>
 					</DialogHeader>
 
 					<div className="grid gap-4 py-4">
 						<div className="grid gap-2">
-							<Label htmlFor="term">단어</Label>
+							<Label htmlFor="term">{t("word.term")}</Label>
 							<Input
 								id="term"
 								value={term}
 								onChange={(e) => setTerm(e.target.value)}
-								placeholder="예: 행복"
+								placeholder={t("word.term_placeholder")}
 								maxLength={100}
 								autoFocus
 							/>
@@ -85,34 +77,23 @@ export function WordForm({
 
 						<div className="flex items-center justify-between rounded-lg border p-4">
 							<div className="space-y-0.5">
-								<Label htmlFor="isPublic">공개 설정</Label>
-								<p className="text-sm text-muted-foreground">
-									공개 설정 시 다른 사용자도 이 단어와 정의를 볼 수 있습니다
-								</p>
+								<Label htmlFor="isPublic">{t("word.public_setting")}</Label>
+								<p className="text-sm text-muted-foreground">{t("word.public_desc")}</p>
 							</div>
-							<Switch
-								id="isPublic"
-								checked={isPublic}
-								onCheckedChange={setIsPublic}
-							/>
+							<Switch id="isPublic" checked={isPublic} onCheckedChange={setIsPublic} />
 						</div>
 					</div>
 
 					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={handleClose}
-							disabled={isSubmitting}
-						>
-							취소
+						<Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
+							{t("common.cancel")}
 						</Button>
 						<Button type="submit" disabled={isSubmitting || !term.trim()}>
 							{isSubmitting
-								? "저장 중..."
+								? t("common.saving")
 								: mode === "create"
-									? "추가"
-									: "저장"}
+									? t("common.add")
+									: t("common.save")}
 						</Button>
 					</DialogFooter>
 				</form>

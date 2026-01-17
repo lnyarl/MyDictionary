@@ -1,15 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "../components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Separator } from "../components/ui/separator";
@@ -18,6 +13,7 @@ import { useToast } from "../hooks/use-toast";
 import { usersApi } from "../lib/users";
 
 export default function SettingsPage() {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { user, refetchUser } = useAuth();
 	const { toast } = useToast();
@@ -34,16 +30,16 @@ export default function SettingsPage() {
 			await usersApi.updateNickname(nickname.trim());
 			await refetchUser();
 			toast({
-				title: "성공",
-				description: "닉네임이 성공적으로 변경되었습니다",
+				title: t("common.success"),
+				description: t("settings.nickname_success"),
 			});
 		} catch (err: any) {
 			toast({
-				title: "오류",
+				title: t("common.error"),
 				description:
 					err.statusCode === 409
-						? "이미 사용 중인 닉네임입니다"
-						: err.message || "닉네임 변경에 실패했습니다",
+						? t("settings.nickname_already_taken")
+						: err.message || t("settings.nickname_failed"),
 				variant: "destructive",
 			});
 		} finally {
@@ -60,89 +56,74 @@ export default function SettingsPage() {
 
 	return (
 		<Page maxWidth="2xl">
-			<Button
-				variant="ghost"
-				onClick={() => navigate("/dashboard")}
-				className="mb-4"
-			>
+			<Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4">
 				<ArrowLeft className="mr-2 h-4 w-4" />
-				대시보드로 돌아가기
+				{t("common.back_to_dashboard")}
 			</Button>
 
-				<div className="mb-8">
-					<h1 className="text-3xl font-bold">설정</h1>
-					<p className="text-muted-foreground mt-2">프로필 정보를 관리하세요</p>
-				</div>
+			<div className="mb-8">
+				<h1 className="text-3xl font-bold">{t("settings.title")}</h1>
+				<p className="text-muted-foreground mt-2">{t("settings.subtitle")}</p>
+			</div>
 
-				<div className="space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle>프로필 정보</CardTitle>
-							<CardDescription>
-								기본 프로필 정보를 확인할 수 있습니다
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label>이메일</Label>
-								<Input value={user?.email || ""} disabled />
-								<p className="text-sm text-muted-foreground">
-									Google 계정 이메일은 변경할 수 없습니다
-								</p>
-							</div>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>닉네임 변경</CardTitle>
-							<CardDescription>
-								다른 사용자에게 표시될 닉네임을 변경할 수 있습니다
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<form onSubmit={handleSubmit} className="space-y-4">
-								<div className="space-y-2">
-									<Label htmlFor="nickname">닉네임</Label>
-									<Input
-										id="nickname"
-										value={nickname}
-										onChange={(e) => setNickname(e.target.value)}
-										placeholder="닉네임을 입력하세요"
-										maxLength={20}
-										disabled={isSubmitting}
-									/>
-									<p className="text-sm text-muted-foreground">
-										2-20자의 영문, 한글, 숫자, 언더스코어(_)만 사용 가능합니다
-									</p>
-								</div>
-
-								<div className="flex gap-2">
-									<Button
-										type="submit"
-										disabled={isSubmitting || !isValid || !hasChanged}
-									>
-										{isSubmitting ? "변경 중..." : "변경"}
-									</Button>
-									<Button
-										type="button"
-										variant="outline"
-										onClick={handleCancel}
-										disabled={isSubmitting || !hasChanged}
-									>
-										취소
-									</Button>
-								</div>
-							</form>
-						</CardContent>
-					</Card>
-
-					<Separator />
+			<div className="space-y-6">
+				<Card>
+					<CardHeader>
+						<CardTitle>{t("settings.profile_info")}</CardTitle>
+						<CardDescription>{t("settings.profile_info_desc")}</CardDescription>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<div className="space-y-2">
+							<Label>{t("settings.email")}</Label>
+							<Input value={user?.email || ""} disabled />
+							<p className="text-sm text-muted-foreground">{t("settings.email_desc")}</p>
+						</div>
+					</CardContent>
+				</Card>
 
 				<Card>
 					<CardHeader>
-						<CardTitle>계정 정보</CardTitle>
-						<CardDescription>Google 계정으로 로그인했습니다</CardDescription>
+						<CardTitle>{t("settings.change_nickname")}</CardTitle>
+						<CardDescription>{t("settings.nickname_desc")}</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<form onSubmit={handleSubmit} className="space-y-4">
+							<div className="space-y-2">
+								<Label htmlFor="nickname">{t("settings.nickname")}</Label>
+								<Input
+									id="nickname"
+									value={nickname}
+									onChange={(e) => setNickname(e.target.value)}
+									placeholder={t("settings.nickname_placeholder")}
+									maxLength={20}
+									disabled={isSubmitting}
+								/>
+								<p className="text-sm text-muted-foreground">{t("settings.nickname_hint")}</p>
+							</div>
+
+							<div className="flex gap-2">
+								<Button type="submit" disabled={isSubmitting || !isValid || !hasChanged}>
+									{isSubmitting ? t("settings.changing") : t("settings.change")}
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handleCancel}
+									disabled={isSubmitting || !hasChanged}
+								>
+									{t("common.cancel")}
+								</Button>
+							</div>
+						</form>
+					</CardContent>
+				</Card>
+
+				<Separator />
+
+				<Card>
+					<CardHeader>
+						<CardTitle>{t("settings.account_info")}</CardTitle>
+						<CardDescription>{t("settings.google_account")}</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-center gap-4">

@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
 import { WordForm } from "../components/words/WordForm";
@@ -11,27 +12,27 @@ import type { FollowStats } from "../types/follow.types";
 import type { Word } from "../types/word.types";
 
 export default function DashboardPage() {
+	const { t } = useTranslation();
 	const { user } = useAuth();
-	const { words, loading, fetchWords, createWord, updateWord, deleteWord } =
-		useWords();
+	const { words, loading, fetchWords, createWord, updateWord, deleteWord } = useWords();
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingWord, setEditingWord] = useState<Word | undefined>(undefined);
 	const [stats, setStats] = useState<FollowStats | null>(null);
 
-	useEffect(() => {
-		fetchWords();
-		fetchFollowStats();
-	}, [fetchWords]);
-
-	const fetchFollowStats = async () => {
+	const fetchFollowStats = useCallback(async () => {
 		try {
 			const data = await followsApi.getStats();
 			setStats(data);
 		} catch (error) {
 			console.error("Failed to fetch stats", error);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		fetchWords();
+		fetchFollowStats();
+	}, [fetchWords, fetchFollowStats]);
 
 	const handleCreate = () => {
 		setEditingWord(undefined);
@@ -52,7 +53,7 @@ export default function DashboardPage() {
 	};
 
 	const handleDelete = async (id: string) => {
-		if (confirm("정말 이 단어를 삭제하시겠습니까?")) {
+		if (confirm(t("dashboard.delete_confirm"))) {
 			await deleteWord(id);
 		}
 	};
@@ -60,61 +61,59 @@ export default function DashboardPage() {
 	return (
 		<Page>
 			<div className="mb-8 flex items-center justify-between">
-					<div>
-						<h1 className="text-3xl font-bold">
-							안녕하세요, {user?.nickname}님!
-						</h1>
-						<p className="text-muted-foreground mt-2">
-							나만의 단어 사전을 만들어보세요.
-						</p>
-					</div>
-					<Button onClick={handleCreate} size="lg">
-						<Plus className="mr-2 h-4 w-4" />
-						단어 추가
-					</Button>
+				<div>
+					<h1 className="text-3xl font-bold">
+						{t("dashboard.welcome", { nickname: user?.nickname })}
+					</h1>
+					<p className="text-muted-foreground mt-2">{t("dashboard.subtitle")}</p>
+				</div>
+				<Button onClick={handleCreate} size="lg">
+					<Plus className="mr-2 h-4 w-4" />
+					{t("word.add_word")}
+				</Button>
+			</div>
+
+			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
+				<div className="rounded-lg border bg-card p-6">
+					<h3 className="font-semibold mb-2">{t("dashboard.my_words")}</h3>
+					<p className="text-3xl font-bold">{words.length}</p>
+					<p className="text-sm text-muted-foreground mt-1">
+						{words.length === 0 ? t("dashboard.no_words") : t("dashboard.words_count")}
+					</p>
 				</div>
 
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
-					<div className="rounded-lg border bg-card p-6">
-						<h3 className="font-semibold mb-2">내 단어</h3>
-						<p className="text-3xl font-bold">{words.length}</p>
-						<p className="text-sm text-muted-foreground mt-1">
-							{words.length === 0 ? "아직 단어가 없습니다" : "개의 단어"}
-						</p>
-					</div>
-
-					<div className="rounded-lg border bg-card p-6">
-						<h3 className="font-semibold mb-2">내 정의</h3>
-						<p className="text-3xl font-bold">0</p>
-						<p className="text-sm text-muted-foreground mt-1">개의 정의</p>
-					</div>
-
-					<div className="rounded-lg border bg-card p-6">
-						<h3 className="font-semibold mb-2">받은 좋아요</h3>
-						<p className="text-3xl font-bold">0</p>
-						<p className="text-sm text-muted-foreground mt-1">개의 좋아요</p>
-					</div>
-
-					<div className="rounded-lg border bg-card p-6">
-						<h3 className="font-semibold mb-2">팔로워</h3>
-						<p className="text-3xl font-bold">{stats?.followersCount || 0}</p>
-						<p className="text-sm text-muted-foreground mt-1">명</p>
-					</div>
-
-					<div className="rounded-lg border bg-card p-6">
-						<h3 className="font-semibold mb-2">팔로잉</h3>
-						<p className="text-3xl font-bold">{stats?.followingCount || 0}</p>
-						<p className="text-sm text-muted-foreground mt-1">명</p>
-					</div>
+				<div className="rounded-lg border bg-card p-6">
+					<h3 className="font-semibold mb-2">{t("dashboard.my_definitions")}</h3>
+					<p className="text-3xl font-bold">0</p>
+					<p className="text-sm text-muted-foreground mt-1">{t("dashboard.definitions_count")}</p>
 				</div>
 
-				{loading && words.length === 0 ? (
-					<div className="rounded-lg border bg-muted/50 p-12 text-center">
-						<p className="text-muted-foreground">로딩 중...</p>
-					</div>
-				) : (
-					<WordList words={words} onEdit={handleEdit} onDelete={handleDelete} />
-				)}
+				<div className="rounded-lg border bg-card p-6">
+					<h3 className="font-semibold mb-2">{t("dashboard.received_likes")}</h3>
+					<p className="text-3xl font-bold">0</p>
+					<p className="text-sm text-muted-foreground mt-1">{t("dashboard.likes_count")}</p>
+				</div>
+
+				<div className="rounded-lg border bg-card p-6">
+					<h3 className="font-semibold mb-2">{t("dashboard.followers")}</h3>
+					<p className="text-3xl font-bold">{stats?.followersCount || 0}</p>
+					<p className="text-sm text-muted-foreground mt-1">{t("dashboard.count_unit")}</p>
+				</div>
+
+				<div className="rounded-lg border bg-card p-6">
+					<h3 className="font-semibold mb-2">{t("dashboard.following")}</h3>
+					<p className="text-3xl font-bold">{stats?.followingCount || 0}</p>
+					<p className="text-sm text-muted-foreground mt-1">{t("dashboard.count_unit")}</p>
+				</div>
+			</div>
+
+			{loading && words.length === 0 ? (
+				<div className="rounded-lg border bg-muted/50 p-12 text-center">
+					<p className="text-muted-foreground">{t("common.loading")}</p>
+				</div>
+			) : (
+				<WordList words={words} onEdit={handleEdit} onDelete={handleDelete} />
+			)}
 
 			<WordForm
 				open={isFormOpen}

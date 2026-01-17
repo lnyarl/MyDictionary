@@ -1,11 +1,13 @@
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { DefinitionCard } from "../components/definitions/DefinitionCard";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
 import { useFeed } from "../hooks/useFeed";
 
 export default function FeedPage() {
+	const { t } = useTranslation();
 	const { definitions, loading, fetchFeed, loadMore, hasMore } = useFeed();
 
 	useEffect(() => {
@@ -25,22 +27,18 @@ export default function FeedPage() {
 	return (
 		<Page>
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold">피드</h1>
-				<p className="text-muted-foreground mt-2">
-					내가 팔로우하는 사용자들의 최신 정의를 확인하세요.
-				</p>
+				<h1 className="text-3xl font-bold">{t("header.feed")}</h1>
+				<p className="text-muted-foreground mt-2">{t("feed.subtitle")}</p>
 			</div>
 
 			{loading && definitions.length === 0 ? (
 				<div className="rounded-lg border bg-muted/50 p-12 text-center">
 					<Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-					<p className="text-muted-foreground">로딩 중...</p>
+					<p className="text-muted-foreground">{t("common.loading")}</p>
 				</div>
 			) : definitions.length === 0 ? (
 				<div className="rounded-lg border border-dashed p-12 text-center">
-					<p className="text-muted-foreground">
-						아직 피드가 비어있습니다. 다른 사용자를 팔로우해보세요!
-					</p>
+					<p className="text-muted-foreground">{t("feed.empty")}</p>
 				</div>
 			) : (
 				<>
@@ -62,10 +60,10 @@ export default function FeedPage() {
 								{loading ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										로딩 중...
+										{t("common.loading")}
 									</>
 								) : (
-									"더 보기"
+									t("common.more")
 								)}
 							</Button>
 						</div>
