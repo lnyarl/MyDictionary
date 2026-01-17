@@ -38,16 +38,16 @@ COPY package.json yarn.lock ./
 COPY shared/package.json ./shared/
 COPY backend/package.json ./backend/
 
-# Install production dependencies only
 RUN yarn install --production --frozen-lockfile
 
-# Copy built application and shared dist
 COPY --from=builder /app/shared/dist ./shared/dist
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/dist/i18n ./backend/dist/i18n
 
-# Expose port
+COPY backend/scripts/migrate.js ./scripts/
+COPY backend/migrations ./backend/migrations
+COPY backend-admin/migrations ./backend-admin/migrations
+
 EXPOSE 3000
 
-# Start application
-CMD ["node", "backend/dist/backend/src/main"]
+CMD ["sh", "-c", "node scripts/migrate.js && node backend/dist/backend/src/main"]

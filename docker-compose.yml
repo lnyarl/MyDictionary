@@ -47,9 +47,6 @@ services:
         condition: service_healthy
     networks:
       - stashy-network
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
 
   # Frontend
   frontend:
@@ -92,9 +89,6 @@ services:
         condition: service_healthy
     networks:
       - stashy-network
-    volumes:
-      - ./backend-admin:/app
-      - /app/node_modules
 
   # Admin Frontend
   frontend-admin:

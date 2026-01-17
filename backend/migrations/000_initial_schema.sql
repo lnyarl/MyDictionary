@@ -2,8 +2,8 @@
 -- PostgreSQL Schema Definition
 -- Generated: 2026-01-11
 
--- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- =====================================================
 -- USERS TABLE
