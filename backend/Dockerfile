@@ -44,6 +44,7 @@ RUN yarn install --production --frozen-lockfile
 # Copy built application and shared dist
 COPY --from=builder /app/shared/dist ./shared/dist
 COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/dist/i18n ./backend/dist/i18n
 
 # Expose port
 EXPOSE 3000

@@ -70,13 +70,13 @@ ON CONFLICT (username) DO NOTHING;
 docker-compose up -d postgres
 
 # 마이그레이션 실행
-docker exec -i mydictionary-db psql -U postgres -d mydictionary < backend-admin/migrations/001_create_admin_users.sql
+docker exec -i stashy-db psql -U postgres -d stashy < backend-admin/migrations/001_create_admin_users.sql
 ```
 
 또는 직접 psql 사용:
 
 ```bash
-psql -h localhost -U postgres -d mydictionary -f backend-admin/migrations/001_create_admin_users.sql
+psql -h localhost -U postgres -d stashy -f backend-admin/migrations/001_create_admin_users.sql
 ```
 
 ### 4단계: 개발 모드로 실행
@@ -212,7 +212,7 @@ curl http://localhost:3001/users?page=1&limit=20 -b cookies.txt
 ## 📁 프로젝트 구조
 
 ```
-MyDictionary/
+Stashy/
 ├── shared/                      # 공유 코드
 │   ├── src/
 │   │   ├── entities/           # User entity
@@ -281,7 +281,7 @@ docker-compose ps
 docker-compose up -d postgres
 
 # 연결 테스트
-psql -h localhost -U postgres -d mydictionary
+psql -h localhost -U postgres -d stashy
 ```
 
 ---

@@ -4,9 +4,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-CONTAINER_NAME="mydictionary-db-dev"
+CONTAINER_NAME="stashy-db-dev"
 DB_USER="postgres"
-DB_NAME="mydictionary"
+DB_NAME="stashy"
 
 echo "=== Database Reset ==="
 echo "Container: $CONTAINER_NAME"

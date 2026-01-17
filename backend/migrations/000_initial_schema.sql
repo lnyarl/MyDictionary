@@ -1,4 +1,4 @@
--- MyDictionary Database Schema
+-- Stashy Database Schema
 -- PostgreSQL Schema Definition
 -- Generated: 2026-01-11
 

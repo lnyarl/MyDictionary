@@ -27,7 +27,7 @@ import { WordsModule } from "./words/words.module";
       loaderOptions: {
         path: path.join(
           process.cwd(),
-          process.env.NODE_ENV === "production" ? "dist/i18n/" : "src/i18n/",
+          process.env.NODE_ENV === "production" ? "backend/dist/i18n/" : "src/i18n/",
         ),
         watch: true,
       },
