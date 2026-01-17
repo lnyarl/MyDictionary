@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo2.png";
 import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
@@ -19,7 +19,7 @@ export function Header() {
 		<header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
 			<div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-8">
 				<Link to="/" className="flex items-center space-x-3 group">
-					<div className="relative h-12 w-12 overflow-hidden rounded-xl bg-primary/10 p-1 transition-transform group-hover:scale-110 group-hover:rotate-3">
+					<div className="relative h-16 w-16 overflow-hidden rounded-xl bg-primary/10 transition-transform group-hover:scale-110 group-hover:rotate-3">
 						<img src={logo} alt="Stashy Logo" className="h-full w-full object-contain" />
 					</div>
 					<div className="flex flex-col">
