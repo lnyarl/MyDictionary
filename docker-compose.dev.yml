@@ -4,12 +4,12 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: mydictionary-db-dev
+    container_name: stashy-db-dev
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydictionary
+      POSTGRES_DB: stashy
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '5432:5432'
@@ -17,15 +17,15 @@ services:
       - postgres_data_dev:/var/lib/postgresql/data
       - ./docker/postgres/init-user.sh:/docker-entrypoint-initdb.d/init-user.sh
     networks:
-      - mydictionary-network-dev
+      - stashy-network-dev
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d stashy']
       interval: 10s
       timeout: 5s
       retries: 5
 
 networks:
-  mydictionary-network-dev:
+  stashy-network-dev:
     driver: bridge
 
 volumes:
