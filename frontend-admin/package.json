@@ -1,7 +1,7 @@
 {
-  "name": "mydictionary-frontend-admin",
+  "name": "stashy-frontend-admin",
   "version": "1.0.0",
-  "description": "MyDictionary Admin Frontend",
+  "description": "Stashy Admin Frontend",
   "type": "module",
   "scripts": {
     "dev": "vite",

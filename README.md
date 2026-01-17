@@ -1,6 +1,6 @@
-# MyDictionary
+# Stashy
 
-Full-Stack Dictionary Application built with modern technologies.
+Full-Stack Stash Application built with modern technologies.
 
 ## Tech Stack
 
@@ -26,7 +26,7 @@ Full-Stack Dictionary Application built with modern technologies.
 ## Project Structure
 
 ```
-MyDictionary/
+Stashy/
 ├── backend/              # NestJS backend application
 │   ├── src/
 │   │   ├── main.ts

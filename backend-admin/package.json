@@ -1,7 +1,7 @@
 {
-  "name": "mydictionary-backend-admin",
+  "name": "stashy-backend-admin",
   "version": "1.0.0",
-  "description": "MyDictionary Admin Backend API",
+  "description": "Stashy Admin Backend API",
   "author": "",
   "private": true,
   "license": "MIT",
@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@mydictionary/shared": "*",
+    "@stashy/shared": "*",
     "@nestjs/common": "^11.1.11",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.11",

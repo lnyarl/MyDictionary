@@ -1,7 +1,7 @@
 {
-  "name": "@mydictionary/shared",
+  "name": "@stashy/shared",
   "version": "1.0.0",
-  "description": "Shared code for MyDictionary project",
+  "description": "Shared code for Stashy project",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "keywords": [
     "shared",
-    "mydictionary"
+    "stashy"
   ],
   "author": "",
   "license": "MIT",

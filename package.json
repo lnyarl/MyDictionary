@@ -1,7 +1,7 @@
 {
-  "name": "mydictionary",
+  "name": "stashy",
   "version": "1.0.0",
-  "description": "Full-Stack Dictionary Application",
+  "description": "Full-Stack Stash Application",
   "private": true,
   "workspaces": [
     "backend",
