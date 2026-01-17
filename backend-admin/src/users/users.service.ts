@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto, User } from "@shared";
+import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
@@ -16,5 +17,23 @@ export class UsersService {
     const total = totalResult ? totalResult.count : 0;
 
     return new PaginatedResponseDto<User>(users, total, paginationDto.page, paginationDto.limit);
+  }
+
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    const existingByEmail = await this.userRepository.findByEmail(createUserDto.email);
+    if (existingByEmail) {
+      throw new ConflictException("Email is already registered");
+    }
+
+    const existingByNickname = await this.userRepository.findByNickname(createUserDto.nickname);
+    if (existingByNickname) {
+      throw new ConflictException("Nickname is already taken");
+    }
+
+    return this.userRepository.insert({
+      email: createUserDto.email,
+      nickname: createUserDto.nickname,
+      profilePicture: createUserDto.profilePicture,
+    });
   }
 }
