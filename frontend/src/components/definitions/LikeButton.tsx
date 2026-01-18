@@ -39,9 +39,7 @@ export function LikeButton({
 		const previousLikesCount = likesCount;
 		const previousIsLiked = isLiked;
 		const newIsLiked = !isLiked;
-		const newLikesCount = newIsLiked
-			? likesCount + 1
-			: Math.max(0, likesCount - 1);
+		const newLikesCount = newIsLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
 
 		setIsLiked(newIsLiked);
 		setLikesCount(newLikesCount);
@@ -70,17 +68,9 @@ export function LikeButton({
 	};
 
 	return (
-		<Button
-			variant="ghost"
-			size="sm"
-			onClick={handleToggle}
-			disabled={isLoading}
-			className="gap-2"
-		>
+		<Button variant="ghost" size="sm" onClick={handleToggle} disabled={isLoading} className="gap-2">
 			<Heart
-				className={`h-4 w-4 ${
-					isLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"
-				}`}
+				className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
 			/>
 			<span className="text-sm">{likesCount}</span>
 		</Button>

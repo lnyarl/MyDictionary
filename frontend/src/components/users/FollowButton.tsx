@@ -8,11 +8,7 @@ interface FollowButtonProps {
 	onFollowChange?: (isFollowing: boolean) => void;
 }
 
-export function FollowButton({
-	userId,
-	initialFollowing,
-	onFollowChange,
-}: FollowButtonProps) {
+export function FollowButton({ userId, initialFollowing, onFollowChange }: FollowButtonProps) {
 	const { isFollowing, loading, toggleFollow } = useFollow(initialFollowing);
 
 	const handleClick = async () => {
@@ -21,11 +17,7 @@ export function FollowButton({
 	};
 
 	return (
-		<Button
-			onClick={handleClick}
-			disabled={loading}
-			variant={isFollowing ? "outline" : "default"}
-		>
+		<Button onClick={handleClick} disabled={loading} variant={isFollowing ? "outline" : "default"}>
 			{isFollowing ? (
 				<>
 					<UserMinus className="mr-2 h-4 w-4" />

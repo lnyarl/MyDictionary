@@ -23,7 +23,7 @@ export interface PaginationOptions extends FindOptions {
 
 @Injectable()
 export abstract class BaseRepository {
-  constructor(@Inject(KNEX_CONNECTION) protected readonly knex: Knex) { }
+  constructor(@Inject(KNEX_CONNECTION) protected readonly knex: Knex) {}
 
   /**
    * Get base query with soft delete filtering

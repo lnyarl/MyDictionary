@@ -7,17 +7,11 @@ interface DefinitionListProps {
 	onViewHistory: (userId: string) => void;
 }
 
-export function DefinitionList({
-	definitions,
-	onDelete,
-	onViewHistory,
-}: DefinitionListProps) {
+export function DefinitionList({ definitions, onDelete, onViewHistory }: DefinitionListProps) {
 	if (definitions.length === 0) {
 		return (
 			<div className="rounded-lg border border-dashed p-12 text-center">
-				<p className="text-muted-foreground">
-					아직 정의가 없습니다. 첫 정의를 추가해보세요!
-				</p>
+				<p className="text-muted-foreground">아직 정의가 없습니다. 첫 정의를 추가해보세요!</p>
 			</div>
 		);
 	}

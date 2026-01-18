@@ -34,16 +34,19 @@ export class WordsRepository extends BaseRepository {
       .first();
   }
 
-  create(word: Partial<Word>): Promise<Word> {
+  async create(word: Partial<Word>): Promise<Word> {
     const now = new Date();
-    return this.knex(this.tableName).insert({
-      id: word.id || generateId(),
-      term: word.term,
-      user_id: word.userId,
-      is_public: word.isPublic,
-      created_at: now,
-      updated_at: now,
-    });
+    const [result] = await this.knex(this.tableName)
+      .insert({
+        id: word.id || generateId(),
+        term: word.term,
+        user_id: word.userId,
+        is_public: word.isPublic,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning("*");
+    return result;
   }
 
   delete(id: string): Promise<void> {
@@ -99,7 +102,7 @@ export class WordsRepository extends BaseRepository {
 								'content', d.content,
 								'wordId', d.word_id,
 								'userId', d.user_id,
-								'likesCount', d.likes_count,
+								'likesCount', 0,
 								'createdAt', d.created_at,
 								'updatedAt', d.updated_at,
 								'user', json_build_object(

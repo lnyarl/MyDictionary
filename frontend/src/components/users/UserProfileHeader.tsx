@@ -22,16 +22,13 @@ export function UserProfileHeader({
 			<div className="flex items-center gap-4">
 				<Avatar className="h-20 w-20">
 					<AvatarImage src={profile.user.profilePicture} />
-					<AvatarFallback className="text-2xl">
-						{profile.user.nickname[0]}
-					</AvatarFallback>
+					<AvatarFallback className="text-2xl">{profile.user.nickname[0]}</AvatarFallback>
 				</Avatar>
 
 				<div>
 					<h1 className="text-3xl font-bold">{profile.user.nickname}</h1>
 					<p className="text-muted-foreground mt-1">
-						{new Date(profile.user.createdAt).toLocaleDateString("ko-KR")}에
-						가입
+						{new Date(profile.user.createdAt).toLocaleDateString("ko-KR")}에 가입
 					</p>
 				</div>
 			</div>

@@ -1,11 +1,4 @@
-import {
-	createContext,
-	type ReactNode,
-	useCallback,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../lib/auth";
 import type { User } from "../types/user.types";
@@ -50,9 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		async (response: GoogleCredentialResponse) => {
 			try {
 				setIsLoading(true);
-				const { user: userData } = await authApi.loginWithGoogle(
-					response.credential,
-				);
+				const { user: userData } = await authApi.loginWithGoogle(response.credential);
 				setUser(userData);
 				navigate("/dashboard");
 			} catch (error) {

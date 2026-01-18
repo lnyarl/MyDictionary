@@ -6,13 +6,10 @@ import { FeedService } from "./feed.service";
 
 @Controller("feed")
 export class FeedController {
-	constructor(private readonly feedService: FeedService) { }
+  constructor(private readonly feedService: FeedService) {}
 
-	@Get()
-	async getFeed(
-		@CurrentUser() user: User,
-		@Query() paginationDto: PaginationDto,
-	) {
-		return this.feedService.getFeed(user.id, paginationDto);
-	}
+  @Get()
+  async getFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
+    return this.feedService.getFeed(user.id, paginationDto);
+  }
 }

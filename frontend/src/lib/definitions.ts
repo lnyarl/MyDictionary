@@ -1,15 +1,10 @@
-import type {
-	CreateDefinitionInput,
-	Definition,
-} from "../types/definition.types";
+import type { CreateDefinitionInput, Definition } from "../types/definition.types";
 import { api } from "./api";
 
 export const definitionsApi = {
-	getByWord: (wordId: string) =>
-		api.get<Definition[]>(`/words/${wordId}/definitions`),
+	getByWord: (wordId: string) => api.get<Definition[]>(`/words/${wordId}/definitions`),
 
-	create: (data: CreateDefinitionInput) =>
-		api.post<Definition>("/definitions", data),
+	create: (data: CreateDefinitionInput) => api.post<Definition>("/definitions", data),
 
 	delete: (id: string) => api.delete(`/definitions/${id}`),
 

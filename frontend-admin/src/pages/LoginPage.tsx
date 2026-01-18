@@ -70,11 +70,7 @@ export default function LoginPage() {
 						/>
 					</div>
 
-					{error && (
-						<div className="text-red-600 text-sm bg-red-50 p-3 rounded">
-							{error}
-						</div>
-					)}
+					{error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded">{error}</div>}
 
 					<Button type="submit" className="w-full" disabled={isLoading}>
 						{isLoading ? "Logging in..." : "Login"}

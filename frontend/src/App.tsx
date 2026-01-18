@@ -31,14 +31,8 @@ function App() {
 								<Route path="/words/:wordId/edit" element={<WordEditPage />} />
 								<Route path="/settings" element={<SettingsPage />} />
 								<Route path="/users/:userId" element={<UserProfilePage />} />
-								<Route
-									path="/users/:userId/followers"
-									element={<FollowersPage />}
-								/>
-								<Route
-									path="/users/:userId/following"
-									element={<FollowingPage />}
-								/>
+								<Route path="/users/:userId/followers" element={<FollowersPage />} />
+								<Route path="/users/:userId/following" element={<FollowingPage />} />
 							</Route>
 						</Routes>
 					</main>

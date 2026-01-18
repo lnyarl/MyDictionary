@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { usersApi } from "../lib/users";
 import type { UserProfile } from "../types/follow.types";
 

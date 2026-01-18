@@ -1,5 +1,5 @@
-import { api } from "./api";
 import type { Definition } from "../types/definition.types";
+import { api } from "./api";
 
 interface PaginatedResponse<T> {
 	data: T[];

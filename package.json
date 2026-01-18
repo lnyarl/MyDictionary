@@ -31,10 +31,35 @@
     "docker:dev": "docker-compose -f docker-compose.dev.yml --env-file ./backend/.env up -d",
     "docker:prod": "docker-compose up -d --build",
     "docker:down": "docker-compose down",
-    "db:reset": "node scripts/db-reset.js"
+    "db:reset": "node scripts/db-reset.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "backend/**/*.{ts,js}": [
+      "yarn workspace stashy-backend lint",
+      "yarn workspace stashy-backend test --findRelatedTests --passWithNoTests"
+    ],
+    "backend-admin/**/*.{ts,js}": [
+      "yarn workspace stashy-backend-admin lint"
+    ],
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "yarn workspace stashy-frontend lint"
+    ],
+    "frontend-admin/**/*.{ts,tsx,js,jsx}": [
+      "yarn workspace stashy-frontend-admin lint"
+    ],
+    "shared/**/*.{ts,js}": [
+      "yarn workspace @stashy/shared lint"
+    ]
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.9",
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "dictionary",

@@ -6,7 +6,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "lint": "biome lint --write .",
+    "lint:check": "biome check .",
+    "lint:fix": "biome check --write ."
   },
   "keywords": [
     "shared",

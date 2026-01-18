@@ -1,9 +1,6 @@
 import { useCallback, useState } from "react";
 import { definitionsApi } from "../lib/definitions";
-import type {
-	CreateDefinitionInput,
-	Definition,
-} from "../types/definition.types";
+import type { CreateDefinitionInput, Definition } from "../types/definition.types";
 
 export function useDefinitions(wordId: string) {
 	const [definitions, setDefinitions] = useState<Definition[]>([]);

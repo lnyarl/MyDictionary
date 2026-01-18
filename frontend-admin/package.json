@@ -1,39 +1,40 @@
 {
-  "name": "stashy-frontend-admin",
-  "version": "1.0.0",
-  "description": "Stashy Admin Frontend",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "biome lint --write .",
-    "format": "biome format --write .",
-    "type-check": "tsc -b"
-  },
-  "dependencies": {
-    "@radix-ui/react-label": "^2.1.2",
-    "@radix-ui/react-slot": "^1.1.1",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.562.0",
-    "postcss": "^8.5.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.12.0",
-    "tailwind-merge": "^3.4.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.3.11",
-    "@tailwindcss/vite": "^4.1.18",
-    "@types/node": "^22.10.5",
-    "@types/react": "^19.2.3",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.2",
-    "autoprefixer": "^10.4.20",
-    "tailwindcss": "^4.1.18",
-    "tailwindcss-animate": "^1.0.7",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1"
-  }
+	"name": "stashy-frontend-admin",
+	"version": "1.0.0",
+	"description": "Stashy Admin Frontend",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"preview": "vite preview",
+		"lint": "biome lint --write .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
+		"type-check": "tsc -b"
+	},
+	"dependencies": {
+		"@radix-ui/react-label": "^2.1.2",
+		"@radix-ui/react-slot": "^1.1.1",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.562.0",
+		"postcss": "^8.5.6",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-router-dom": "^7.12.0",
+		"tailwind-merge": "^3.4.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.11",
+		"@tailwindcss/vite": "^4.1.18",
+		"@types/node": "^22.10.5",
+		"@types/react": "^19.2.3",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^5.1.2",
+		"autoprefixer": "^10.4.20",
+		"tailwindcss": "^4.1.18",
+		"tailwindcss-animate": "^1.0.7",
+		"typescript": "~5.9.3",
+		"vite": "^7.3.1"
+	}
 }

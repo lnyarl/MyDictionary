@@ -32,11 +32,7 @@ export default function FollowingPage() {
 
 	return (
 		<Page maxWidth="2xl">
-			<Button
-				variant="ghost"
-				onClick={() => navigate(-1)}
-				className="mb-4"
-			>
+			<Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
 				<ArrowLeft className="mr-2 h-4 w-4" />
 				뒤로 가기
 			</Button>
@@ -49,9 +45,7 @@ export default function FollowingPage() {
 				</div>
 			) : following.length === 0 ? (
 				<div className="rounded-lg border border-dashed p-12 text-center">
-					<p className="text-muted-foreground">
-						아직 팔로우하는 사용자가 없습니다.
-					</p>
+					<p className="text-muted-foreground">아직 팔로우하는 사용자가 없습니다.</p>
 				</div>
 			) : (
 				<div className="space-y-4">

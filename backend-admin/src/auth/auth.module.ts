@@ -6,9 +6,9 @@ import { AuthService } from "./auth.service";
 import { AdminJwtStrategy } from "./strategies/admin-jwt.strategy";
 
 @Module({
-	imports: [PassportModule, AdminUsersModule],
-	controllers: [AuthController],
-	providers: [AuthService, AdminJwtStrategy],
-	exports: [AuthService],
+  imports: [PassportModule, AdminUsersModule],
+  controllers: [AuthController],
+  providers: [AuthService, AdminJwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

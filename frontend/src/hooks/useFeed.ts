@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { feedApi } from "../lib/feed";
 import type { Definition } from "../types/definition.types";
 

@@ -3,7 +3,7 @@ import { knexProvider } from "./knex.provider";
 
 @Global()
 @Module({
-	providers: [knexProvider],
-	exports: [knexProvider],
+  providers: [knexProvider],
+  exports: [knexProvider],
 })
 export class DatabaseModule {}

@@ -1,10 +1,4 @@
-import {
-	type ReactNode,
-	createContext,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { adminAuthApi } from "../lib/auth";
 import type { AdminUser } from "../types/admin.types";
 
@@ -12,23 +6,18 @@ interface AdminAuthContextType {
 	admin: AdminUser | null;
 	isLoading: boolean;
 	isAuthenticated: boolean;
-	login: (
-		username: string,
-		password: string,
-	) => Promise<{ mustChangePassword: boolean }>;
+	login: (username: string, password: string) => Promise<{ mustChangePassword: boolean }>;
 	logout: () => Promise<void>;
 	refetchAdmin: () => Promise<void>;
 }
 
-const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
-	undefined,
-);
+const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
 	const [admin, setAdmin] = useState<AdminUser | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const fetchAdmin = async () => {
+	const fetchAdmin = useCallback(async () => {
 		try {
 			const adminData = await adminAuthApi.getMe();
 			setAdmin(adminData);
@@ -37,11 +26,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		fetchAdmin();
-	}, []);
+	}, [fetchAdmin]);
 
 	const login = async (username: string, password: string) => {
 		const { admin: adminData } = await adminAuthApi.login(username, password);

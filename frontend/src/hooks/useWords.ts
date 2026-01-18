@@ -1,10 +1,6 @@
 import { useCallback, useState } from "react";
 import { wordsApi } from "../lib/words";
-import type {
-	CreateWordInput,
-	UpdateWordInput,
-	Word,
-} from "../types/word.types";
+import type { CreateWordInput, UpdateWordInput, Word } from "../types/word.types";
 
 export function useWords() {
 	const [words, setWords] = useState<Word[]>([]);
@@ -44,9 +40,7 @@ export function useWords() {
 		setError(null);
 		try {
 			const updatedWord = await wordsApi.update(id, input);
-			setWords((prev) =>
-				prev.map((word) => (word.id === id ? updatedWord : word)),
-			);
+			setWords((prev) => prev.map((word) => (word.id === id ? updatedWord : word)));
 			return updatedWord;
 		} catch (err: any) {
 			setError(err.message || "Failed to update word");

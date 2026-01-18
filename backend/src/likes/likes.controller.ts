@@ -6,14 +6,11 @@ import { LikesService } from "./likes.service";
 
 @Controller("likes")
 export class LikesController {
-	constructor(private readonly likesService: LikesService) { }
+  constructor(private readonly likesService: LikesService) {}
 
-	@Post(":definitionId")
-	async toggle(
-		@Param("definitionId") definitionId: string,
-		@CurrentUser() user: User,
-	) {
-		const liked = await this.likesService.toggle(user.id, definitionId);
-		return { liked };
-	}
+  @Post(":definitionId")
+  async toggle(@Param("definitionId") definitionId: string, @CurrentUser() user: User) {
+    const liked = await this.likesService.toggle(user.id, definitionId);
+    return { liked };
+  }
 }

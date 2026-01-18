@@ -8,36 +8,36 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { UsersService } from "../../users/users.service";
 
 export interface JwtPayload {
-	sub: string;
-	email: string;
-	iat: number;
-	exp: number;
+  sub: string;
+  email: string;
+  iat: number;
+  exp: number;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
-	constructor(
-		readonly configService: ConfigService,
-		private readonly usersService: UsersService,
-	) {
-		super({
-			jwtFromRequest: ExtractJwt.fromExtractors([
-				(request: Request) => {
-					return request?.cookies?.access_token;
-				},
-			]),
-			ignoreExpiration: false,
-			secretOrKey: configService.get<string>("JWT_SECRET"),
-		});
-	}
+  constructor(
+    readonly configService: ConfigService,
+    private readonly usersService: UsersService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          return request?.cookies?.access_token;
+        },
+      ]),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>("JWT_SECRET"),
+    });
+  }
 
-	async validate(payload: JwtPayload) {
-		const user = await this.usersService.findById(payload.sub);
+  async validate(payload: JwtPayload) {
+    const user = await this.usersService.findById(payload.sub);
 
-		if (!user) {
-			throw new UnauthorizedException("User not found");
-		}
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
 
-		return user;
-	}
+    return user;
+  }
 }

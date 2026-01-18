@@ -3,15 +3,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { DefinitionCard } from "../components/definitions/DefinitionCard";
 import { Page } from "../components/layout/Page";
+import { Card, CardContent, CardHeader } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { ProfileStats } from "../components/users/ProfileStats";
 import { UserProfileHeader } from "../components/users/UserProfileHeader";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { followsApi } from "../lib/follows";
 import { usersApi } from "../lib/users";
 import type { Definition } from "../types/definition.types";
 import type { Word } from "../types/word.types";
-import { Card, CardContent, CardHeader } from "../components/ui/card";
 
 export default function UserProfilePage() {
 	const { userId } = useParams<{ userId: string }>();

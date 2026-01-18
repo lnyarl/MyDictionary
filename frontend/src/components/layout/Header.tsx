@@ -4,6 +4,7 @@ import logo from "../../assets/logo2.png";
 import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
+import { MockLoginButton } from "../auth/MockLoginButton";
 import { UserMenu } from "../auth/UserMenu";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -61,7 +62,10 @@ export function Header() {
 										<UserMenu />
 									</div>
 								) : (
-									<GoogleLoginButton />
+									<div className="flex items-center space-x-2">
+										<MockLoginButton />
+										<GoogleLoginButton />
+									</div>
 								)}
 							</div>
 						</>
@@ -70,7 +74,15 @@ export function Header() {
 
 				<div className="md:hidden flex items-center space-x-2">
 					<LanguageSwitcher />
-					{!isLoading && (isAuthenticated ? <UserMenu /> : <GoogleLoginButton />)}
+					{!isLoading &&
+						(isAuthenticated ? (
+							<UserMenu />
+						) : (
+							<>
+								<MockLoginButton />
+								<GoogleLoginButton />
+							</>
+						))}
 				</div>
 			</div>
 		</header>

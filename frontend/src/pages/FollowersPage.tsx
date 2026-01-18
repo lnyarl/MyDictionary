@@ -32,11 +32,7 @@ export default function FollowersPage() {
 
 	return (
 		<Page maxWidth="2xl">
-			<Button
-				variant="ghost"
-				onClick={() => navigate(-1)}
-				className="mb-4"
-			>
+			<Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
 				<ArrowLeft className="mr-2 h-4 w-4" />
 				뒤로 가기
 			</Button>

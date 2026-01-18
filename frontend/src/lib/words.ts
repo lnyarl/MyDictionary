@@ -1,8 +1,4 @@
-import type {
-	CreateWordInput,
-	UpdateWordInput,
-	Word,
-} from "../types/word.types";
+import type { CreateWordInput, UpdateWordInput, Word } from "../types/word.types";
 import { api } from "./api";
 
 export const wordsApi = {
