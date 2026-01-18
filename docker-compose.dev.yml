@@ -3,7 +3,9 @@ version: '3.8'
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
     container_name: stashy-db-dev
     restart: unless-stopped
     environment:
@@ -11,11 +13,18 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: stashy
       PGDATA: /var/lib/postgresql/data/pgdata
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: stashy
     ports:
       - '5432:5432'
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
       - ./docker/postgres/init-user.sh:/docker-entrypoint-initdb.d/init-user.sh
+      - ./backend:/app/backend
+      - ./backend-admin:/app/backend-admin
     networks:
       - stashy-network-dev
     healthcheck:

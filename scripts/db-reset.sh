@@ -2,7 +2,6 @@
 set -e
 
 DB_CONTAINER="stashy-db-dev"
-APP_CONTAINER="stashy-backend"
 DB_USER="postgres"
 DB_NAME="stashy"
 
@@ -20,7 +19,7 @@ echo "Database schema wiped."
 echo ""
 
 echo "Step 2: Running migrations via migrate.js..."
-docker exec -i "$APP_CONTAINER" node scripts/migrate.js
+docker exec -i "$DB_CONTAINER" node /app/backend/scripts/migrate.js
 
 echo ""
 echo "=== Database reset and migration complete ==="
