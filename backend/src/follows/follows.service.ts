@@ -113,4 +113,8 @@ export class FollowsService {
     const followIds = await this.followRepository.findFollowingIds(userId);
     return followIds;
   }
+
+  async getFollowerIds(userId: string): Promise<string[]> {
+    return this.followRepository.findFollowerIds(userId);
+  }
 }

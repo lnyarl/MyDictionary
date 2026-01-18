@@ -38,7 +38,7 @@
     "test:cov": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:cov:backend\" \"yarn test:cov:backend-admin\"",
     "test:cov:backend": "cd backend && yarn test:cov",
     "test:cov:backend-admin": "cd backend-admin && yarn test:cov",
-    "docker:dev": "docker-compose -f docker-compose.dev.yml --env-file ./backend/.env up -d",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml --env-file ./backend/.env up -d --build  --force-recreate",
     "docker:prod": "docker-compose up -d --build",
     "docker:down": "docker-compose down",
     "db:reset": "node scripts/db-reset.js",

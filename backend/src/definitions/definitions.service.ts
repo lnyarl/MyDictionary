@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { FeedService } from "../feed/feed.service";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
@@ -9,6 +10,7 @@ export class DefinitionsService {
   constructor(
     private readonly definitionRepository: DefinitionsRepository,
     private readonly wordRepository: WordsRepository,
+    private readonly feedService: FeedService,
   ) {}
 
   async create(userId: string, createDefinitionDto: CreateDefinitionDto): Promise<Definition> {
@@ -28,6 +30,9 @@ export class DefinitionsService {
       ...createDefinitionDto,
       userId,
     });
+
+    await this.feedService.invalidateFollowerFeeds(userId);
+    await this.feedService.invalidateRecommendations();
 
     return definition;
   }
@@ -92,6 +97,9 @@ export class DefinitionsService {
     }
 
     await this.definitionRepository.delete(id);
+
+    await this.feedService.invalidateFollowerFeeds(userId);
+    await this.feedService.invalidateRecommendations();
   }
 
   async getHistory(

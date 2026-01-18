@@ -14,4 +14,7 @@ interface PaginatedResponse<T> {
 export const feedApi = {
 	getFeed: (page = 1, limit = 20) =>
 		api.get<PaginatedResponse<Definition>>(`/feed?page=${page}&limit=${limit}`),
+
+	getRecommendations: (page = 1, limit = 20) =>
+		api.get<PaginatedResponse<Definition>>(`/feed/recommendations?page=${page}&limit=${limit}`),
 };

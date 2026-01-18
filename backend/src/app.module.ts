@@ -6,6 +6,7 @@ import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } fro
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { CacheModule } from "./common/cache/cache.module";
 import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
@@ -37,6 +38,7 @@ import { WordsModule } from "./words/words.module";
         new HeaderResolver(["x-custom-lang"]),
       ],
     }),
+    CacheModule,
     DatabaseModule,
     UsersModule,
     AuthModule,

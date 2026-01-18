@@ -1,5 +1,6 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { FeedService } from "../feed/feed.service";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
@@ -38,6 +39,13 @@ describe("DefinitionsService", () => {
           provide: WordsRepository,
           useValue: {
             findById: jest.fn(),
+          },
+        },
+        {
+          provide: FeedService,
+          useValue: {
+            invalidateFollowerFeeds: jest.fn().mockResolvedValue(undefined),
+            invalidateRecommendations: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],

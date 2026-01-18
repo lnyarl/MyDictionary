@@ -28,4 +28,35 @@ export class FeedRepository extends BaseRepository {
         term: "words.term",
       });
   }
+
+  findRecommendations(offset: number, limit: number, excludeUserId?: string) {
+    const query = this.query(TABLES.DEFINITIONS)
+      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
+      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .whereNull("words.deleted_at")
+      .whereNull("users.deleted_at")
+      .where("words.is_public", true)
+      .offset(offset)
+      .limit(limit)
+      .orderBy("definitions.likes_count", "desc")
+      .orderBy("definitions.created_at", "desc")
+      .select<Feed[]>({
+        id: "definitions.id",
+        content: "definitions.content",
+        wordId: "definitions.word_id",
+        userId: "definitions.user_id",
+        likesCount: "definitions.likes_count",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        nickname: "users.nickname",
+        profilePicture: "users.profile_picture",
+        term: "words.term",
+      });
+
+    if (excludeUserId) {
+      query.whereNot("definitions.user_id", excludeUserId);
+    }
+
+    return query;
+  }
 }

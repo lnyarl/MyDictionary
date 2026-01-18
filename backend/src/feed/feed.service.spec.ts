@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { PaginationDto } from "@shared";
+import { CacheService } from "../common/cache/cache.service";
 import { FollowsService } from "../follows/follows.service";
 import { FeedRepository } from "./feed.repository";
 import { FeedService } from "./feed.service";
@@ -17,12 +18,27 @@ describe("FeedService", () => {
           provide: FeedRepository,
           useValue: {
             findFeeds: jest.fn().mockResolvedValue([]),
+            findRecommendations: jest.fn().mockResolvedValue([]),
           },
         },
         {
           provide: FollowsService,
           useValue: {
             getFollowingIds: jest.fn().mockResolvedValue(["u-2"]),
+            getFollowerIds: jest.fn().mockResolvedValue([]),
+          },
+        },
+        {
+          provide: CacheService,
+          useValue: {
+            get: jest.fn().mockResolvedValue(null),
+            set: jest.fn().mockResolvedValue(undefined),
+            delete: jest.fn().mockResolvedValue(undefined),
+            deletePattern: jest.fn().mockResolvedValue(undefined),
+            feedKey: jest.fn().mockReturnValue("feed:u-1:1"),
+            feedPattern: jest.fn().mockReturnValue("feed:u-1:*"),
+            recommendationsKey: jest.fn().mockReturnValue("recommendations:1"),
+            recommendationsPattern: jest.fn().mockReturnValue("recommendations:*"),
           },
         },
       ],

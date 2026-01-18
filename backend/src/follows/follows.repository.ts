@@ -80,6 +80,13 @@ export class FollowsRepository extends BaseRepository {
       .pluck("following_id");
   }
 
+  findFollowerIds(userId: string): Promise<string[]> {
+    return this.query(this.tableName)
+      .select("follower_id")
+      .where({ following_id: userId })
+      .pluck("follower_id");
+  }
+
   delete(id: string): Promise<void> {
     return this.softDelete(this.tableName, id);
   }

@@ -15,7 +15,7 @@
     "lint": "biome lint --write .",
     "lint:check": "biome check .",
     "lint:fix": "biome check --write .",
-    "test": "jest --coverage",
+    "test": "jest --coverage && jest --config ./test/jest-e2e.json",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -30,11 +30,13 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.11",
     "@stashy/shared": "*",
+    "@types/ioredis": "^5.0.0",
     "@types/knex": "^0.16.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "google-auth-library": "^10.5.0",
+    "ioredis": "^5.9.2",
     "knex": "^3.1.0",
     "nestjs-i18n": "10.5.0",
     "passport": "^0.7.0",
@@ -83,7 +85,11 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*.dto.ts",
+      "!**/*.entity.ts",
+      "!**/*.module.ts",
+      "!**/*.controller.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
