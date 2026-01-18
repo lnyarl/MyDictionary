@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { generateId, TableName } from "@shared";
+import { TableName } from "@shared";
 import { Knex } from "knex";
 import { KNEX_CONNECTION } from "./knex.provider";
 

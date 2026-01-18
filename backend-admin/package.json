@@ -15,7 +15,7 @@
     "lint": "biome lint --write .",
     "lint:check": "biome check .",
     "lint:fix": "biome check --write .",
-    "test": "jest --passWithNoTests",
+    "test": "jest --coverage --passWithNoTests",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -77,6 +77,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@shared$": "<rootDir>/../../shared/src",
+      "^@shared/(.*)$": "<rootDir>/../../shared/src/$1"
+    }
   }
 }

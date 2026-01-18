@@ -26,14 +26,17 @@ export class LikesRepository extends BaseRepository {
     return this.softDelete(this.tableName, id);
   }
 
-  create(like: Partial<Like>): Promise<Like> {
+  async create(like: Partial<Like>): Promise<Like> {
     const now = new Date();
-    return this.knex(this.tableName).insert({
-      id: like.id || generateId(),
-      user_id: like.userId,
-      definition_id: like.definitionId,
-      created_at: now,
-      updated_at: now,
-    });
+    const [result] = await this.knex(this.tableName)
+      .insert({
+        id: like.id || generateId(),
+        user_id: like.userId,
+        definition_id: like.definitionId,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning("*");
+    return result;
   }
 }

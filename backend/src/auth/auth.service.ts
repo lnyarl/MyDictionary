@@ -75,7 +75,7 @@ export class AuthService {
         name: payload.name || "",
         picture: payload.picture,
       };
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException("Failed to verify Google token");
     }
   }

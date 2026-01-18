@@ -17,27 +17,22 @@ export class AuthController {
   @Public()
   @Post("google")
   async googleLogin(@Body() googleLoginDto: GoogleLoginDto, @Res() res: Response) {
-    // Verify Google ID token
     const googleUserData = await this.authService.verifyGoogleToken(googleLoginDto.credential);
 
-    // Validate or create user
     const user = await this.authService.validateGoogleUser(googleUserData);
 
-    // Generate JWT token
     const token = this.authService.generateJwtToken(user);
 
-    // Set cookie
     const isDevelopment = this.configService.get("NODE_ENV") !== "production";
 
     res.cookie("access_token", token, {
       httpOnly: true,
       secure: !isDevelopment,
       sameSite: isDevelopment ? "lax" : "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
 
-    // Return user data
     const { deletedAt, ...userWithoutDeletedAt } = user;
     return res.status(HttpStatus.OK).json({
       user: userWithoutDeletedAt,
@@ -47,7 +42,7 @@ export class AuthController {
 
   @Public()
   @Post("mock-login")
-  async mockLogin(@Res() res: Response) {
+  async mockLogin(@Body() body: { email?: string; name?: string } = {}, @Res() res: Response) {
     const isDevelopment = this.configService.get("NODE_ENV") !== "production";
     if (!isDevelopment) {
       return res
@@ -55,10 +50,14 @@ export class AuthController {
         .json({ message: "Mock login only available in development" });
     }
 
+    const email = body.email || "test@example.com";
+    const name = body.name || "Test User";
+    const googleId = `google-id-${email}`;
+
     const testUser = await this.authService.validateGoogleUser({
-      email: "test@example.com",
-      name: "Test User",
-      googleId: "test-google-id",
+      email,
+      name,
+      googleId,
       picture: "https://example.com/test.jpg",
     });
 

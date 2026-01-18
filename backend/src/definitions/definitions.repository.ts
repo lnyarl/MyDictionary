@@ -101,15 +101,18 @@ export class DefinitionsRepository extends BaseRepository {
     return this.softDelete(this.tableName, id);
   }
 
-  create(definition: Partial<Definition>): Promise<Definition> {
+  async create(definition: Partial<Definition>): Promise<Definition> {
     const now = new Date();
-    return this.knex(this.tableName).insert({
-      id: definition.id || generateId(),
-      word_id: definition.wordId,
-      user_id: definition.userId,
-      content: definition.content,
-      created_at: now,
-      updated_at: now,
-    });
+    const [result] = await this.knex(this.tableName)
+      .insert({
+        id: definition.id || generateId(),
+        word_id: definition.wordId,
+        user_id: definition.userId,
+        content: definition.content,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning("*");
+    return result;
   }
 }

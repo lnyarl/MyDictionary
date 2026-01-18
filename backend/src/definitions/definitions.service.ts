@@ -47,8 +47,9 @@ export class DefinitionsService {
 
     // Get latest definition per user using raw query with window function
     const results = await this.definitionRepository.findByWordIdForEachUser(wordId);
+    const rows = Array.isArray(results) ? results : results.rows;
 
-    return results.map((row: any) => {
+    return rows.map((row: any) => {
       const definition: Definition & { likesCount: number } = {
         id: row.id,
         content: row.content,

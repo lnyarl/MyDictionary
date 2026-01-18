@@ -1,11 +1,11 @@
 const { Client } = require("pg");
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 async function migrate() {
   const config = {
     host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || "5432"),
+    port: parseInt(process.env.DB_PORT || "5432", 10),
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
@@ -23,7 +23,7 @@ async function migrate() {
         await client.connect();
         connected = true;
         break;
-      } catch (err) {
+      } catch (_err) {
         console.log("Waiting for PostgreSQL to be ready...");
         await new Promise((r) => setTimeout(r, 2000));
       }
@@ -55,8 +55,8 @@ async function migrate() {
         .sort();
 
       for (const filename of files) {
-        const fileSeq = parseInt(filename.split("_")[0]);
-        if (isNaN(fileSeq)) continue;
+        const fileSeq = parseInt(filename.split("_")[0], 10);
+        if (Number.isNaN(fileSeq)) continue;
 
         if (fileSeq > lastSeq) {
           console.log(`  [RUN] Seq ${fileSeq}: ${filename}`);

@@ -14,9 +14,10 @@ export class OptionalAuthGuard extends AuthGuard("jwt") {
   }
 
   // Override canActivate to always return true
-  canActivate(context: ExecutionContext) {
-    // Always allow the request to proceed
-    // This will attempt JWT validation, but won't reject if it fails
-    return super.canActivate(context) as Promise<boolean> | boolean;
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    try {
+      await super.canActivate(context);
+    } catch {}
+    return true;
   }
 }

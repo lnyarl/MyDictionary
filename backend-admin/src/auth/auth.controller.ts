@@ -6,7 +6,6 @@ import {
   Post,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { Response } from "express";

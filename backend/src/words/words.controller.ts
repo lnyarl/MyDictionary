@@ -52,6 +52,7 @@ export class WordsController {
   }
 
   @Get(":wordId/definitions")
+  @Public()
   @UseGuards(OptionalAuthGuard)
   findDefinitions(@Param("wordId") wordId: string, @CurrentUser() user?: User) {
     return this.definitionsService.findAllByWord(wordId, user?.id);

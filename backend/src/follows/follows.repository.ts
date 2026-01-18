@@ -84,14 +84,17 @@ export class FollowsRepository extends BaseRepository {
     return this.softDelete(this.tableName, id);
   }
 
-  create(follow: Partial<Follow>): Promise<Follow> {
+  async create(follow: Partial<Follow>): Promise<Follow> {
     const now = new Date();
-    return this.knex(this.tableName).insert({
-      id: follow.id || generateId(),
-      follower_id: follow.followerId,
-      following_id: follow.followingId,
-      created_at: now,
-      updated_at: now,
-    });
+    const [result] = await this.knex(this.tableName)
+      .insert({
+        id: follow.id || generateId(),
+        follower_id: follow.followerId,
+        following_id: follow.followingId,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning("*");
+    return result;
   }
 }

@@ -1,14 +1,14 @@
-import type { INestApplication } from "@nestjs/common";
-import { ValidationPipe } from "@nestjs/common";
+import { type INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import cookieParser from "cookie-parser";
 import request from "supertest";
 import { uuidv7 } from "uuidv7";
 import { AppModule } from "./../src/app.module";
 
-describe("WordsController (e2e)", () => {
+describe("DefinitionsController (e2e)", () => {
   let app: INestApplication;
   let cookie: string;
+  let wordId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,43 +22,37 @@ describe("WordsController (e2e)", () => {
 
     const loginRes = await request(app.getHttpServer())
       .post("/auth/mock-login")
-      .send({ email: `words-${uuidv7()}@example.com` })
+      .send({ email: `defs-${uuidv7()}@example.com` })
       .expect(200);
-
     cookie = loginRes.header["set-cookie"];
+
+    const wordRes = await request(app.getHttpServer())
+      .post("/words")
+      .set("Cookie", cookie)
+      .send({ term: "def-test", isPublic: true })
+      .expect(201);
+    wordId = wordRes.body.id;
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it("should create a word", async () => {
-    const wordData = {
-      term: "testword",
-      language: "en",
-      isPublic: true,
-    };
-
+  it("should create a definition", async () => {
     const res = await request(app.getHttpServer())
-      .post("/words")
+      .post("/definitions")
       .set("Cookie", cookie)
-      .send(wordData)
+      .send({ wordId, content: "This is a test definition" })
       .expect(201);
 
     expect(res.body).toHaveProperty("id");
-    expect(res.body.term).toBe(wordData.term);
+    expect(res.body.content).toBe("This is a test definition");
   });
 
-  it("should get all words for user", async () => {
-    const res = await request(app.getHttpServer()).get("/words").set("Cookie", cookie).expect(200);
+  it("should get definitions for a word", async () => {
+    const res = await request(app.getHttpServer()).get(`/words/${wordId}/definitions`).expect(200);
 
     expect(Array.isArray(res.body)).toBe(true);
-  });
-
-  it("should search for words", async () => {
-    const res = await request(app.getHttpServer()).get("/words/search?term=test").expect(200);
-
-    expect(res.body).toHaveProperty("data");
-    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
   });
 });
