@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES, User } from "@shared";
+import { generateId, TABLES, User } from "@shared";
 import { UserSelect } from "@shared/entities/user.entity";
 import { BaseRepository } from "../common/database/base.repository";
 import { Follow, FollowSelect } from "./entities/follow.entity";
@@ -87,7 +87,7 @@ export class FollowsRepository extends BaseRepository {
   create(follow: Partial<Follow>): Promise<Follow> {
     const now = new Date();
     return this.knex(this.tableName).insert({
-      id: follow.id,
+      id: follow.id || generateId(),
       follower_id: follow.followerId,
       following_id: follow.followingId,
       created_at: now,

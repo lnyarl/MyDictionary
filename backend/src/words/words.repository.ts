@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES, TableName } from "@shared";
+import { generateId, TABLES, TableName } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Word, WordSelect } from "./entities/word.entity";
 
@@ -37,7 +37,7 @@ export class WordsRepository extends BaseRepository {
   create(word: Partial<Word>): Promise<Word> {
     const now = new Date();
     return this.knex(this.tableName).insert({
-      id: word.id,
+      id: word.id || generateId(),
       term: word.term,
       user_id: word.userId,
       is_public: word.isPublic,

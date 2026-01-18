@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES } from "@shared";
+import { generateId, TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { type AdminRoleType, AdminUser } from "./entities/admin-user.entity";
 
@@ -76,6 +76,7 @@ export class AdminUsersRepository extends BaseRepository {
     const now = new Date();
     const [row] = await this.knex(this.tableName)
       .insert({
+        id: generateId(),
         username: data.username,
         password: data.password,
         role: data.role,

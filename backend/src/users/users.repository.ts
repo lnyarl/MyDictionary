@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES, User } from "@shared";
+import { generateId, TABLES, User } from "@shared";
 import { UserSelect } from "@shared/entities/user.entity";
 import { BaseRepository } from "../common/database/base.repository";
 
@@ -73,7 +73,7 @@ export class UsersRepository extends BaseRepository {
     const now = new Date();
     const [result] = await this.knex(this.tableName)
       .insert({
-        id: data.id,
+        id: data.id || generateId(),
         google_id: data.googleId || null,
         email: data.email,
         nickname: data.nickname,

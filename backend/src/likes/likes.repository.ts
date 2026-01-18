@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES } from "@shared";
+import { generateId, TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Like, LikeSelect } from "./entities/like.entity";
 
@@ -29,7 +29,7 @@ export class LikesRepository extends BaseRepository {
   create(like: Partial<Like>): Promise<Like> {
     const now = new Date();
     return this.knex(this.tableName).insert({
-      id: like.id,
+      id: like.id || generateId(),
       user_id: like.userId,
       definition_id: like.definitionId,
       created_at: now,
