@@ -52,19 +52,6 @@ Stashy/
 
 ## 구현 상태
 
-### ✅ Phase 1: 인증 시스템 (완료)
-- Google OAuth 로그인
-- JWT 기반 인증 (httpOnly Cookie)
-- 사용자 관리 (자동 닉네임 생성)
-- 보호된 라우트 (AuthLayout)
-- Header 및 UserMenu
-
-### 🚧 Phase 2-7: 진행 예정
-- 단어/정의 관리 (CRUD)
-- 검색 기능 (Full-text Search)
-- 좋아요 기능
-- 설정 페이지 (닉네임 변경)
-
 ## Getting Started
 
 ### Prerequisites
@@ -75,28 +62,11 @@ Stashy/
 ### Local Development
 
 #### 1. Install Dependencies
-
-**Backend:**
 ```bash
-cd backend
 yarn install
 ```
 
-**Frontend:**
-```bash
-cd frontend
-yarn install
-```
-
-#### 2. Setup Database
-
-Start PostgreSQL using Docker:
-```bash
-docker-compose -f docker-compose.dev.yml up -d
-```
-
-#### 3. Environment Variables
-
+#### 2. Environment Variables
 **Backend (.env):**
 ```bash
 cd backend
@@ -111,34 +81,27 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
+#### 3. Setup Database
+Start PostgreSQL using Docker:
+```bash
+yarn docker:dev
+```
+
 #### 4. Run Applications
 
-**Backend:**
+**Run All**
 ```bash
-cd backend
-yarn start:dev
-```
-
-**Frontend:**
-```bash
-cd frontend
 yarn dev
 ```
-
 The application will be available at:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000
 
 ### Docker Deployment
 
-#### Development
-```bash
-docker-compose -f docker-compose.dev.yml up -d
-```
-
 #### Production
 ```bash
-docker-compose up -d
+yarn docker:prod
 ```
 
 ## Testing

@@ -1,8 +1,11 @@
 const { execSync } = require("child_process");
+require('dotenv').config({
+  path: './backend/.env'
+});
 
 const DB_CONTAINER = "stashy-db-dev";
-const DB_USER = "postgres";
-const DB_NAME = "stashy";
+const DB_USER = process.env.DB_USERNAME;
+const DB_NAME = process.env.DB_DATABASE;
 
 function run() {
   console.log("=== Stashy Database Reset ===");
@@ -23,16 +26,9 @@ GRANT ALL ON SCHEMA public TO public;
 
     console.log("Database schema wiped.\n");
 
-    console.log("Step 2: Running migrations via migrate.js...");
-    execSync(`docker exec -i ${DB_CONTAINER} node /app/backend/scripts/migrate.js`, {
-      stdio: "inherit",
-    });
-
-    console.log("Database schema wiped.\n");
-
     // Step 2: Run migrations
     console.log("Step 2: Running migrations via migrate.js...");
-    execSync(`docker exec -i ${DB_CONTAINER} node /app/backend/scripts/migrate.js`, {
+    execSync(`docker exec --env-file ./backend/.env -i ${DB_CONTAINER} node /app/backend/scripts/migrate.js`, {
       stdio: "inherit",
     });
 
