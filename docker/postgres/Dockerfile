@@ -1,7 +1,7 @@
 FROM postgres:16-alpine
 
 # Install Node.js and npm
-RUN apk add --no-available --no-cache nodejs npm
+RUN apk add --no-cache nodejs npm
 
 # Set working directory
 WORKDIR /app

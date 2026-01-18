@@ -28,7 +28,7 @@
     "build:frontend-admin": "cd frontend-admin && yarn build",
     "build:all": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
     "test:backend": "cd backend && yarn test",
-    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml --env-file ./backend/.env up -d",
     "docker:prod": "docker-compose up -d --build",
     "docker:down": "docker-compose down",
     "db:reset": "node scripts/db-reset.js"

@@ -7,9 +7,9 @@ services:
     container_name: stashy-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: stashy
+      POSTGRES_USER: ${DB_USERNAME} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '5432:5432'
@@ -37,7 +37,7 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USERNAME: postgres
-      DB_PASSWORD: postgres
+      DB_PASSWORD: "[fiTgkCxEn@^2hG@7K74"
       DB_DATABASE: stashy
       FRONTEND_URL: http://localhost
       JWT_SECRET: ${JWT_SECRET:-jwt_secret_change_in_production}
@@ -79,7 +79,7 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USERNAME: postgres
-      DB_PASSWORD: postgres
+      DB_PASSWORD: "[fiTgkCxEn@^2hG@7K74"
       DB_DATABASE: stashy
       JWT_SECRET: ${ADMIN_JWT_SECRET:-admin_jwt_secret_change_in_production}
       JWT_EXPIRES_IN: 8h

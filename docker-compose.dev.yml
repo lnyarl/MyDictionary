@@ -9,20 +9,14 @@ services:
     container_name: stashy-db-dev
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: stashy
+      POSTGRES_USER: ${DB_USERNAME} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
       PGDATA: /var/lib/postgresql/data/pgdata
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: stashy
     ports:
       - '5432:5432'
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
-      - ./docker/postgres/init-user.sh:/docker-entrypoint-initdb.d/init-user.sh
       - ./backend:/app/backend
       - ./backend-admin:/app/backend-admin
     networks:
