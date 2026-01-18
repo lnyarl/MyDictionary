@@ -7,7 +7,7 @@ import type { User } from "../users/entities/user.entity";
 import { AuthService } from "./auth.service";
 import { GoogleLoginDto } from "./dto/google-login.dto";
 
-@Controller("auth")
+@Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -15,7 +15,7 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Post("google")
+  @Post("auth/google")
   async googleLogin(@Body() googleLoginDto: GoogleLoginDto, @Res() res: Response) {
     const googleUserData = await this.authService.verifyGoogleToken(googleLoginDto.credential);
 
@@ -41,7 +41,7 @@ export class AuthController {
   }
 
   @Public()
-  @Post("mock-login")
+  @Post("auth/mock-login")
   async mockLogin(@Body() body: { email?: string; name?: string } = {}, @Res() res: Response) {
     const isDevelopment = this.configService.get("NODE_ENV") !== "production";
     if (!isDevelopment) {
@@ -74,7 +74,7 @@ export class AuthController {
     return res.status(HttpStatus.OK).json({ user: testUser, token });
   }
 
-  @Get("me")
+  @Get("auth/me")
   @UseGuards(AuthGuard("jwt"))
   getMe(@Req() req: Request & { user: User }) {
     const { deletedAt, ...userWithoutDeletedAt } = req.user;
@@ -83,7 +83,7 @@ export class AuthController {
     };
   }
 
-  @Post("logout")
+  @Post("auth/logout")
   logout(@Res() res: Response) {
     res.clearCookie("access_token", { path: "/" });
     return res.status(HttpStatus.OK).json({ message: "Logged out successfully" });

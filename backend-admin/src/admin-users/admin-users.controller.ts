@@ -5,12 +5,12 @@ import { CreateAdminUserDto } from "./dto/create-admin-user.dto";
 import { UpdateAdminRoleDto } from "./dto/update-admin-role.dto";
 import { AdminRole } from "./entities/admin-user.entity";
 
-@Controller("admin-users")
+@Controller()
 @Roles(AdminRole.SUPER_ADMIN)
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
-  @Get()
+  @Get("admin-users")
   async findAll() {
     const admins = await this.adminUsersService.findAll();
     return admins.map((admin) => ({
@@ -23,7 +23,7 @@ export class AdminUsersController {
     }));
   }
 
-  @Post()
+  @Post("admin-users")
   async create(@Body() dto: CreateAdminUserDto) {
     const admin = await this.adminUsersService.create(dto);
     return {
@@ -34,7 +34,7 @@ export class AdminUsersController {
     };
   }
 
-  @Patch(":id/role")
+  @Patch("admin-users/:id/role")
   async updateRole(@Param("id") id: string, @Body() dto: UpdateAdminRoleDto) {
     const admin = await this.adminUsersService.updateRole(id, dto.role);
     return {

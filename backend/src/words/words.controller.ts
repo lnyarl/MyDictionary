@@ -21,49 +21,49 @@ import { SearchWordDto } from "./dto/search-word.dto";
 import { UpdateWordDto } from "./dto/update-word.dto";
 import { WordsService } from "./words.service";
 
-@Controller("words")
+@Controller()
 export class WordsController {
   constructor(
     private readonly wordsService: WordsService,
     private readonly definitionsService: DefinitionsService,
   ) {}
 
-  @Post()
+  @Post("words")
   create(@CurrentUser() user: User, @Body() createWordDto: CreateWordDto) {
     return this.wordsService.create(user.id, createWordDto);
   }
 
-  @Get()
+  @Get("words")
   findAll(@CurrentUser() user: User) {
     return this.wordsService.findAllByUser(user.id);
   }
 
-  @Get("search")
+  @Get("words/search")
   @Public()
   search(@Query() searchParam: SearchWordDto) {
     const { term } = searchParam;
     return this.wordsService.search(term, searchParam);
   }
 
-  @Get(":id")
+  @Get("words/:id")
   @UseGuards(OptionalAuthGuard)
   findOne(@Param("id") id: string, @CurrentUser() user?: User) {
     return this.wordsService.findOne(id, user?.id);
   }
 
-  @Get(":wordId/definitions")
+  @Get("words/:wordId/definitions")
   @Public()
   @UseGuards(OptionalAuthGuard)
   findDefinitions(@Param("wordId") wordId: string, @CurrentUser() user?: User) {
     return this.definitionsService.findAllByWord(wordId, user?.id);
   }
 
-  @Patch(":id")
+  @Patch("words/:id")
   update(@Param("id") id: string, @CurrentUser() user: User, @Body() updateWordDto: UpdateWordDto) {
     return this.wordsService.update(id, updateWordDto);
   }
 
-  @Delete(":id")
+  @Delete("words/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param("id") id: string, @CurrentUser() user: User) {
     await this.wordsService.remove(id, user.id);

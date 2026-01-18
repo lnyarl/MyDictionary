@@ -5,16 +5,16 @@ import { PaginationDto } from "../common/dto/pagination.dto";
 import { User } from "../users/entities/user.entity";
 import { FeedService } from "./feed.service";
 
-@Controller("feed")
+@Controller()
 export class FeedController {
   constructor(private readonly feedService: FeedService) {}
 
-  @Get()
+  @Get("feed")
   async getFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
     return this.feedService.getFeed(user.id, paginationDto);
   }
 
-  @Get("recommendations")
+  @Get("feed/recommendations")
   @Public()
   async getRecommendations(
     @CurrentUser() user: User | null,

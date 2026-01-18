@@ -5,16 +5,16 @@ import { Roles } from "../auth/decorators/roles.decorator";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersService } from "./users.service";
 
-@Controller("users")
+@Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get("users")
   async getUsers(@Query() paginationDto: PaginationDto) {
     return this.usersService.getUsers(paginationDto);
   }
 
-  @Post()
+  @Post("users")
   @Roles(AdminRole.DEVELOPER)
   async createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);

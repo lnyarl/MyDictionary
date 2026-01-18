@@ -17,7 +17,7 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { LoginDto } from "./dto/login.dto";
 import { SkipPasswordCheck } from "./guards/password-change-required.guard";
 
-@Controller("auth")
+@Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -25,7 +25,7 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Post("login")
+  @Post("auth/login")
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const admin = await this.authService.validateCredentials(loginDto.username, loginDto.password);
 
@@ -59,7 +59,7 @@ export class AuthController {
     });
   }
 
-  @Post("change-password")
+  @Post("auth/change-password")
   @SkipPasswordCheck()
   async changePassword(
     @CurrentAdmin() admin: AdminUser,
@@ -81,7 +81,7 @@ export class AuthController {
     return { message: "Password changed successfully" };
   }
 
-  @Get("me")
+  @Get("auth/me")
   @SkipPasswordCheck()
   getMe(@CurrentAdmin() admin: AdminUser) {
     return {
@@ -92,7 +92,7 @@ export class AuthController {
     };
   }
 
-  @Post("logout")
+  @Post("auth/logout")
   @SkipPasswordCheck()
   async logout(@Res() res: Response) {
     res.clearCookie("admin_access_token");
