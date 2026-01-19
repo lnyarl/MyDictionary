@@ -8,6 +8,7 @@ import FeedPage from "./pages/FeedPage";
 import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";
 import HomePage from "./pages/HomePage";
+import ImpersonatePage from "./pages/ImpersonatePage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import SettingsPage from "./pages/SettingsPage";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -23,6 +24,7 @@ function App() {
 						<Routes>
 							<Route path="/" element={<HomePage />} />
 							<Route path="/search" element={<SearchResultsPage />} />
+							<Route path="/auth/impersonate" element={<ImpersonatePage />} />
 
 							{/* Protected Routes */}
 							<Route element={<AuthLayout />}>

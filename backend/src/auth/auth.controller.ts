@@ -88,4 +88,20 @@ export class AuthController {
     res.clearCookie("access_token", { path: "/" });
     return res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
   }
+
+  @Public()
+  @Post("/auth/session")
+  async createSession(@Body() body: { token: string }, @Res() res: Response) {
+    const isDevelopment = this.configService.get("NODE_ENV") !== "production";
+
+    res.cookie("access_token", body.token, {
+      httpOnly: true,
+      secure: !isDevelopment,
+      sameSite: isDevelopment ? "lax" : "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/",
+    });
+
+    return res.status(HttpStatus.OK).json({ success: true });
+  }
 }

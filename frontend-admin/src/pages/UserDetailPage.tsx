@@ -53,6 +53,18 @@ export default function UserDetailPage() {
 		}
 	};
 
+	const handleMockLogin = async () => {
+		if (!id) return;
+		try {
+			const { token } = await usersApi.impersonateUser(id);
+			const mainAppUrl = import.meta.env.VITE_MAIN_APP_URL || "http://localhost:5173";
+			window.open(`${mainAppUrl}/auth/impersonate?token=${token}`, "_blank");
+		} catch (error) {
+			console.error("Failed to mock login", error);
+			alert("Failed to mock login");
+		}
+	};
+
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center min-h-[400px]">
@@ -79,7 +91,12 @@ export default function UserDetailPage() {
 			</div>
 
 			<div className="bg-white rounded-lg shadow p-6">
-				<h2 className="text-xl font-semibold mb-4">Profile</h2>
+				<div className="flex justify-between items-start mb-4">
+					<h2 className="text-xl font-semibold">Profile</h2>
+					<Button onClick={handleMockLogin} variant="secondary">
+						Mock Login
+					</Button>
+				</div>
 				<div className="grid grid-cols-2 gap-4">
 					<div>
 						<span className="font-semibold text-gray-600 block">Nickname</span>

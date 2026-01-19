@@ -23,4 +23,8 @@ export const usersApi = {
 	createDummyUser: async (): Promise<User> => {
 		return api.post<User>("/users/dummy", {});
 	},
+
+	impersonateUser: async (id: string): Promise<{ token: string }> => {
+		return api.post<{ token: string }>(`/users/${id}/impersonate`, {});
+	},
 };

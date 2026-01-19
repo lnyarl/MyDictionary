@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { User } from "@shared";
 import * as bcrypt from "bcrypt";
 import { AdminUsersService } from "../admin-users/admin-users.service";
 import type { AdminUser } from "../admin-users/entities/admin-user.entity";
@@ -9,6 +10,11 @@ export interface AdminJwtPayload {
   sub: string;
   username: string;
   mustChangePassword: boolean;
+}
+
+export interface UserJwtPayload {
+  sub: string;
+  email: string;
 }
 
 @Injectable()
@@ -44,6 +50,15 @@ export class AuthService {
       sub: admin.id,
       username: admin.username,
       mustChangePassword: admin.mustChangePassword,
+    };
+
+    return this.jwtService.sign(payload);
+  }
+
+  generateUserJwtToken(user: User): string {
+    const payload: UserJwtPayload = {
+      sub: user.id,
+      email: user.email,
     };
 
     return this.jwtService.sign(payload);

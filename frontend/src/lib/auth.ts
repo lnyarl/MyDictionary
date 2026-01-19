@@ -18,4 +18,8 @@ export const authApi = {
 	async loginWithGoogle(credential: string): Promise<GoogleLoginResponse> {
 		return api.post<GoogleLoginResponse>("/auth/google", { credential });
 	},
+
+	async createSession(token: string): Promise<void> {
+		await api.post<void>("/auth/session", { token });
+	},
 };
