@@ -13,7 +13,7 @@ export function Page({ children, maxWidth = "4xl" }: PageProps) {
 	}[maxWidth];
 
 	return (
-		<div className="container py-8">
+		<div className="py-8">
 			<div className={`${maxWidthClass} mx-auto`}>{children}</div>
 		</div>
 	);
