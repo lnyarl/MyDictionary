@@ -81,7 +81,6 @@ async function migrate() {
     }
 
     await runMigrationsFromDir("/app/backend/migrations");
-    await runMigrationsFromDir("/app/backend-admin/migrations");
 
     console.log("=== All migrations are up to date ===");
   } catch (err) {
