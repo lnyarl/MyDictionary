@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import logo from "../../assets/logo2.png";
-import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
 import { MockLoginButton } from "../auth/MockLoginButton";
@@ -38,22 +38,20 @@ export function Header() {
 					{!isLoading && (
 						<>
 							{isAuthenticated && (
-								<>
-									{navItems.map((item) => (
-										<Link
-											key={item.path}
-											to={item.path}
-											className={cn(
-												"px-4 py-2 text-sm font-semibold rounded-full transition-all hover:bg-secondary/80",
-												location.pathname === item.path
-													? "text-primary bg-primary/10"
-													: "text-muted-foreground hover:text-foreground",
-											)}
-										>
-											{item.name}
-										</Link>
-									))}
-								</>
+								navItems.map((item) => (
+									<Link
+										key={item.path}
+										to={item.path}
+										className={cn(
+											"px-4 py-2 text-sm font-semibold rounded-full transition-all hover:bg-secondary/80",
+											location.pathname === item.path
+												? "text-primary bg-primary/10"
+												: "text-muted-foreground hover:text-foreground",
+										)}
+									>
+										{item.name}
+									</Link>
+								))
 							)}
 							<div className="ml-2 flex items-center space-x-2">
 								<LanguageSwitcher />

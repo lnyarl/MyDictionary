@@ -92,7 +92,7 @@ export class DefinitionsRepository extends BaseRepository {
 
   getCountByUserId(userId: string) {
     return this.query(this.tableName)
-      .where({ user_id: userId, is_public: true })
+      .where({ user_id: userId })
       .count<{ count: number }>("* as count")
       .first();
   }

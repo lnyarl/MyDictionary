@@ -27,7 +27,6 @@ export class WordsRepository extends BaseRepository {
         word_id: word.id,
         user_id: wordData.userId,
         content: definitionContent,
-        likes: 0,
       });
     });
   }

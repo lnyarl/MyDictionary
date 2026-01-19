@@ -2,10 +2,10 @@ import { Book, Heart, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { GoogleLoginButton } from "../components/auth/GoogleLoginButton";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { useAuth } from "../contexts/AuthContext";
 
 export default function HomePage() {
 	const { t } = useTranslation();

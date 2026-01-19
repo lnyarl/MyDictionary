@@ -27,29 +27,33 @@ class ApiClient {
 			throw new Error(error.message || `HTTP error! status: ${response.status}`);
 		}
 
-		return response.json();
+		if (response.headers.get("Content-Length") === "0") {
+			return {} as T;
+		} else {
+			return await response.json();
+		}
 	}
 
 	async get<T>(endpoint: string): Promise<T> {
-		return this.request<T>(endpoint, { method: "GET" });
+		return await this.request<T>(endpoint, { method: "GET" });
 	}
 
 	async post<T>(endpoint: string, data?: unknown): Promise<T> {
-		return this.request<T>(endpoint, {
+		return await this.request<T>(endpoint, {
 			method: "POST",
 			body: data ? JSON.stringify(data) : undefined,
 		});
 	}
 
 	async patch<T>(endpoint: string, data?: unknown): Promise<T> {
-		return this.request<T>(endpoint, {
+		return await this.request<T>(endpoint, {
 			method: "PATCH",
 			body: data ? JSON.stringify(data) : undefined,
 		});
 	}
 
 	async delete<T>(endpoint: string): Promise<T> {
-		return this.request<T>(endpoint, { method: "DELETE" });
+		return await this.request<T>(endpoint, { method: "DELETE" });
 	}
 }
 

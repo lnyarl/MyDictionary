@@ -121,7 +121,7 @@ export default function UsersListPage() {
 				<div className="flex gap-2">
 					{canCreateUser && (
 						<>
-							<Button onClick={handleCreateDummyUser} variant="secondary">
+							<Button onClick={handleCreateDummyUser} variant="secondary" className="tqtq" >
 								Create Dummy User
 							</Button>
 							<Button onClick={() => setIsDialogOpen(true)}>Create User</Button>

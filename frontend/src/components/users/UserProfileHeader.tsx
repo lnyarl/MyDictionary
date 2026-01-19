@@ -1,4 +1,4 @@
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import type { UserProfile } from "../../types/follow.types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { FollowButton } from "./FollowButton";

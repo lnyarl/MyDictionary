@@ -1,7 +1,7 @@
 import { History, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import type { Definition } from "../../types/definition.types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -38,32 +38,33 @@ export function DefinitionCard({
 		navigate(`/users/${definition.userId}`);
 	};
 
+	console.log(definition)
 	return (
 		<Card className="hover:shadow-md transition-shadow">
 			<CardHeader>
-				{showWord && definition.word && (
+				{showWord && definition.term && (
 					<div className="mb-2">
 						<Button
 							variant="link"
 							className="p-0 h-auto font-semibold text-lg"
-							onClick={() => navigate(`/words/${definition.word?.id}/edit`)}
+							onClick={() => navigate(`/words/${definition.wordId}/edit`)}
 						>
-							{definition.word.term}
+							{definition.term}
 						</Button>
 					</div>
 				)}
 				<div className="flex items-start justify-between gap-2">
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
-						<Avatar className="h-6 w-6 cursor-pointer" onClick={handleUserClick}>
-							<AvatarImage src={definition.user?.profilePicture} />
-							<AvatarFallback>{definition.user?.nickname?.[0] || "U"}</AvatarFallback>
+						<Avatar className="h-6 w-6 cursor-pointer border" onClick={handleUserClick}>
+							<AvatarImage src={definition.profilePicture} />
+							<AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
 						</Avatar>
 						<Button
 							variant="link"
 							className="p-0 h-auto text-sm text-muted-foreground"
 							onClick={handleUserClick}
 						>
-							{definition.user?.nickname || t("common.user")}
+							{definition.nickname || t("common.user")}
 						</Button>
 						<span>•</span>
 						<span>{formattedDate}</span>

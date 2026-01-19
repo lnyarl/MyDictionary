@@ -27,7 +27,7 @@ export default function FeedPage() {
 		fetchFeed(1);
 	};
 
-	const handleViewHistory = () => {};
+	const handleViewHistory = () => { };
 
 	const renderRecommendations = () => (
 		<div className="space-y-6">

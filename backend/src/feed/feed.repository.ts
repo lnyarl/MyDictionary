@@ -6,7 +6,7 @@ import { Feed } from "./entities/feed.entity";
 @Injectable()
 export class FeedRepository extends BaseRepository {
   findFeeds(userIds: string[], offset: number, limit: number) {
-    return this.query(TABLES.DEFINITIONS)
+    return this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereIn("definitions.user_id", userIds)
@@ -30,7 +30,7 @@ export class FeedRepository extends BaseRepository {
   }
 
   findRecommendations(offset: number, limit: number, excludeUserId?: string) {
-    const query = this.query(TABLES.DEFINITIONS)
+    const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereNull("words.deleted_at")

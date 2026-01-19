@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { DefinitionCard } from "../components/definitions/DefinitionCard";
 import { Page } from "../components/layout/Page";
@@ -22,21 +22,14 @@ export default function UserProfilePage() {
 	const [wordsLoading, setWordsLoading] = useState(false);
 	const [defsLoading, setDefsLoading] = useState(false);
 
-	useEffect(() => {
-		if (userId) {
-			fetchProfile();
-			checkFollowing();
-		}
-	}, [userId, fetchProfile]);
-
-	const checkFollowing = async () => {
+	const checkFollowing = useCallback(async () => {
 		try {
 			const result = await followsApi.checkFollowing(userId!);
 			setIsFollowing(result.isFollowing);
 		} catch (error) {
 			console.error("Failed to check following status", error);
 		}
-	};
+	}, [userId]);
 
 	const fetchWords = async () => {
 		setWordsLoading(true);
@@ -61,6 +54,13 @@ export default function UserProfilePage() {
 			setDefsLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		if (userId) {
+			fetchProfile();
+			checkFollowing();
+		}
+	}, [userId, fetchProfile, checkFollowing]);
 
 	if (loading || !profile) {
 		return (
@@ -134,8 +134,8 @@ export default function UserProfilePage() {
 								<DefinitionCard
 									key={definition.id}
 									definition={definition}
-									onDelete={() => {}}
-									onViewHistory={() => {}}
+									onDelete={() => { }}
+									onViewHistory={() => { }}
 									showWord={true}
 								/>
 							))}

@@ -9,12 +9,12 @@ import { FeedService } from "./feed.service";
 export class FeedController {
   constructor(private readonly feedService: FeedService) {}
 
-  @Get("feed")
+  @Get("/feed")
   async getFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
     return this.feedService.getFeed(user.id, paginationDto);
   }
 
-  @Get("feed/recommendations")
+  @Get("/feed/recommendations")
   @Public()
   async getRecommendations(
     @CurrentUser() user: User | null,

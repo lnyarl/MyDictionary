@@ -2,6 +2,7 @@ import { ArrowLeft, Globe, Lock, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { DefinitionHistoryDialog } from "../components/definitions/DefinitionHistoryDialog";
 import { DefinitionList } from "../components/definitions/DefinitionList";
 import { Page } from "../components/layout/Page";
@@ -9,7 +10,6 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Separator } from "../components/ui/separator";
-import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../hooks/use-toast";
 import { useSearch } from "../hooks/useSearch";
 import type { Definition } from "../types/definition.types";
@@ -139,7 +139,7 @@ export default function SearchResultsPage() {
 												<Separator />
 												<DefinitionList
 													definitions={word.definitions as Definition[]}
-													onDelete={() => {}}
+													onDelete={() => { }}
 													onViewHistory={(userId) => handleViewHistory(word.id, userId)}
 												/>
 											</div>

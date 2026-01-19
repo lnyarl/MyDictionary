@@ -1,16 +1,11 @@
-import type { User } from "./user.types";
-
 export interface Definition {
 	id: string;
 	content: string;
 	wordId: string;
 	userId: string;
-	user?: User;
-	word?: {
-		id: string;
-		term: string;
-		isPublic: boolean;
-	};
+	term: string;
+	profilePicture?: string;
+	nickname?: string;
 	likesCount: number;
 	createdAt: string;
 	updatedAt: string;

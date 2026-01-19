@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthLayout } from "./components/layout/AuthLayout";
 import { Header } from "./components/layout/Header";
 import { Toaster } from "./components/ui/toaster";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthProvider";
 import DashboardPage from "./pages/DashboardPage";
 import FeedPage from "./pages/FeedPage";
 import FollowersPage from "./pages/FollowersPage";

@@ -1,11 +1,11 @@
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/hooks/useAuth";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
 import { WordForm } from "../components/words/WordForm";
 import { WordList } from "../components/words/WordList";
-import { useAuth } from "../contexts/AuthContext";
 import { useWords } from "../hooks/useWords";
 import { followsApi } from "../lib/follows";
 import type { FollowStats } from "../types/follow.types";

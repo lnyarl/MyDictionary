@@ -1,6 +1,6 @@
 import { Heart } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { likesApi } from "../../lib/likes";
 import { Button } from "../ui/button";
 

@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AuthLayout() {
 	const { isAuthenticated, isLoading } = useAuth();

@@ -42,6 +42,7 @@
     "docker:prod": "docker-compose up -d --build",
     "docker:down": "docker-compose down",
     "db:reset": "node scripts/db-reset.js",
+    "db:migration": "node scripts/db-migration.js",
     "prepare": "husky"
   },
   "lint-staged": {

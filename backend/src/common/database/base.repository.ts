@@ -28,10 +28,12 @@ export abstract class BaseRepository {
   /**
    * Get base query with soft delete filtering
    */
-  protected query(tableName: string, withDeleted = false): Knex.QueryBuilder {
+  protected query(tableName: string | Knex.AliasDict, withDeleted = false): Knex.QueryBuilder {
     const query = this.knex(tableName);
     if (!withDeleted) {
-      query.whereNull(`${tableName}.deleted_at`);
+      const resolvedTableName =
+        typeof tableName === "string" ? tableName : Object.keys(tableName)[0];
+      query.whereNull(`${resolvedTableName}.deleted_at`);
     }
     return query;
   }
