@@ -3,6 +3,7 @@ export type Definition = {
   content: string;
   wordId: string;
   userId: string;
+  likesCount: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
@@ -15,6 +16,7 @@ export const DefinitionSelect = {
   content: "content",
   wordId: "word_id",
   userId: "user_id",
+  likesCount: "likes_count",
   createdAt: "created_at",
   updatedAt: "updated_at",
   deletedAt: "deleted_at",

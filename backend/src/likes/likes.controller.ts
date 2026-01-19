@@ -8,7 +8,7 @@ import { LikesService } from "./likes.service";
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
 
-  @Post("likes/:definitionId")
+  @Post("/likes/:definitionId")
   async toggle(@Param("definitionId") definitionId: string, @CurrentUser() user: User) {
     const liked = await this.likesService.toggle(user.id, definitionId);
     return { liked };

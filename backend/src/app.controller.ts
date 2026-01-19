@@ -14,7 +14,7 @@ export class AppController {
   }
 
   @Public()
-  @Get("health")
+  @Get("/health")
   getHealth() {
     return {
       status: "ok",

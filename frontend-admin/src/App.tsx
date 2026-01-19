@@ -5,6 +5,7 @@ import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
+import UserDetailPage from "./pages/UserDetailPage";
 import UsersListPage from "./pages/UsersListPage";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
 						{/* Routes that require password change */}
 						<Route element={<PasswordChangeGuard />}>
 							<Route path="/users" element={<UsersListPage />} />
+							<Route path="/users/:id" element={<UserDetailPage />} />
 							<Route path="/admin-users" element={<AdminUsersPage />} />
 							<Route path="/" element={<Navigate to="/users" replace />} />
 						</Route>

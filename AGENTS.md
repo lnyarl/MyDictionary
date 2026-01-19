@@ -81,6 +81,7 @@ Stashy is a full-stack dictionary application.
 - **Soft Deletes**: Use the `deleted_at` column. `BaseRepository` provides a `query()` method that filters out deleted records by default.
 - **Transactions**: Use `this.transaction(async (trx) => { ... })` for atomic operations involving multiple tables.
 - **Migrations**: SQL-based migrations are located in `migrations/` folders and run via `migrate.js`.
+- Avoid using Triggers and Functions
 
 ### Authentication
 - **Backend**: Passport.js with JWT and Google OAuth strategies. Use `@CurrentUser()` decorator to access authenticated user info.

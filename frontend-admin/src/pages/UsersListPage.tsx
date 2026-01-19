@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import {
 	Dialog,
@@ -24,6 +25,7 @@ import { AdminRole } from "../types/admin.types";
 
 export default function UsersListPage() {
 	const { admin } = useAdminAuth();
+	const navigate = useNavigate();
 	const canCreateUser =
 		admin?.role === AdminRole.SUPER_ADMIN || admin?.role === AdminRole.DEVELOPER;
 	console.log("Admin Role:", admin?.role);
@@ -75,6 +77,15 @@ export default function UsersListPage() {
 		}
 	};
 
+	const handleCreateDummyUser = async () => {
+		try {
+			await usersApi.createDummyUser();
+			setRefreshKey((prev) => prev + 1);
+		} catch (_err) {
+			alert("Failed to create dummy user");
+		}
+	};
+
 	const handleDialogClose = (open: boolean) => {
 		if (!open) {
 			setEmail("");
@@ -107,7 +118,16 @@ export default function UsersListPage() {
 					<h1 className="text-3xl font-bold">Users Management</h1>
 					<p className="text-gray-600 mt-2">View and manage all registered users</p>
 				</div>
-				{canCreateUser && <Button onClick={() => setIsDialogOpen(true)}>Create User</Button>}
+				<div className="flex gap-2">
+					{canCreateUser && (
+						<>
+							<Button onClick={handleCreateDummyUser} variant="secondary">
+								Create Dummy User
+							</Button>
+							<Button onClick={() => setIsDialogOpen(true)}>Create User</Button>
+						</>
+					)}
+				</div>
 			</div>
 
 			<Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
@@ -179,7 +199,11 @@ export default function UsersListPage() {
 							</TableRow>
 						) : (
 							users.map((user) => (
-								<TableRow key={user.id}>
+								<TableRow
+									key={user.id}
+									className="cursor-pointer hover:bg-gray-50"
+									onClick={() => navigate(`/users/${user.id}`)}
+								>
 									<TableCell className="font-medium">{user.email}</TableCell>
 									<TableCell>{user.nickname}</TableCell>
 									<TableCell>

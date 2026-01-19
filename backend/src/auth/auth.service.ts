@@ -1,12 +1,9 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-// biome-ignore lint/style/useImportType: ConfigService is needed at runtime for dependency injection
 import { ConfigService } from "@nestjs/config";
-// biome-ignore lint/style/useImportType: JwtService is needed at runtime for dependency injection
 import { JwtService } from "@nestjs/jwt";
+import { generateRandomNickname } from "@shared";
 import { OAuth2Client } from "google-auth-library";
-import { generateRandomNickname } from "../common/utils/generate-nickname.util";
 import type { User } from "../users/entities/user.entity";
-// biome-ignore lint/style/useImportType: UsersService is needed at runtime for dependency injection
 import { UsersService } from "../users/users.service";
 
 export interface GoogleUserData {

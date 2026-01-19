@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto, User } from "@shared";
+import { generateRandomNickname, PaginatedResponseDto, PaginationDto, User } from "@shared";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 
@@ -35,5 +35,20 @@ export class UsersService {
       nickname: createUserDto.nickname,
       profilePicture: createUserDto.profilePicture,
     });
+  }
+
+  async createDummyUser(): Promise<User> {
+    const nickname = generateRandomNickname();
+    const email = `dummy_${nickname}_${Date.now()}@example.com`;
+
+    return this.userRepository.insert({
+      email,
+      nickname,
+      profilePicture: undefined,
+    });
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    return this.userRepository.findById(id);
   }
 }

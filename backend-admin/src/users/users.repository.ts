@@ -50,6 +50,14 @@ export class UsersRepository extends BaseRepository {
       .first();
   }
 
+  async findById(id: string): Promise<User | null> {
+    return this.knex(this.tableName)
+      .select<User>(this.userSelect)
+      .where({ id })
+      .whereNull("deleted_at")
+      .first();
+  }
+
   async insert(data: UserInsert): Promise<User> {
     const now = new Date();
     const [result] = await this.knex(this.tableName)

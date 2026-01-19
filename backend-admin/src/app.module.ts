@@ -13,6 +13,7 @@ import { RolesGuard } from "./auth/guards/roles.guard";
 import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
 import { UsersModule } from "./users/users.module";
+import { WordsModule } from "./words/words.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { UsersModule } from "./users/users.module";
     AdminUsersModule,
     AuthModule,
     UsersModule,
+    WordsModule,
   ],
   controllers: [AppController],
   providers: [

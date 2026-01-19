@@ -14,5 +14,6 @@ export { PaginatedResponseDto, PaginationDto } from "./dto/pagination.dto";
 export { User } from "./entities/user.entity";
 // Types
 export * from "./types";
+export { generateRandomNickname, isValidNickname } from "./utils/generate-nickname.util";
 // Utils
 export { generateId } from "./utils/uuid";

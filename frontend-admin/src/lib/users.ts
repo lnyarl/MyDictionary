@@ -12,7 +12,15 @@ export const usersApi = {
 		return api.get<PaginatedResponse<User>>(`/users?page=${page}&limit=${limit}`);
 	},
 
+	getUser: async (id: string): Promise<User> => {
+		return api.get<User>(`/users/${id}`);
+	},
+
 	createUser: async (data: CreateUserRequest): Promise<User> => {
 		return api.post<User>("/users", data);
+	},
+
+	createDummyUser: async (): Promise<User> => {
+		return api.post<User>("/users/dummy", {});
 	},
 };
