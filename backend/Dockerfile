@@ -46,7 +46,6 @@ COPY --from=builder /app/backend/dist/i18n ./backend/dist/i18n
 
 COPY backend/scripts/migrate.js ./scripts/
 COPY backend/migrations ./backend/migrations
-COPY backend-admin/migrations ./backend-admin/migrations
 
 EXPOSE 3000
 
