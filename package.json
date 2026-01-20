@@ -38,7 +38,6 @@
     "test:cov": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:cov:backend\" \"yarn test:cov:backend-admin\"",
     "test:cov:backend": "cd backend && yarn test:cov",
     "test:cov:backend-admin": "cd backend-admin && yarn test:cov",
-
     "docker:infra": "docker-compose --env-file ./backend/.env up -d postgres redis minio createbuckets",
     "docker": "docker-compose --env-file ./backend/.env up -d --build",
     "docker:down": "docker-compose down",
