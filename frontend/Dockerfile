@@ -30,7 +30,7 @@ RUN yarn workspace stashy-frontend build
 FROM nginx:alpine
 
 # Copy nginx configuration
-COPY frontend/nginx.conf.template /etc/nginx/conf.d/default.conf.template
+COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy built application
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html
