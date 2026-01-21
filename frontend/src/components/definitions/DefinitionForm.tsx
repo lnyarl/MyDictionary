@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { Image, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import {
@@ -9,19 +10,35 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "../ui/dialog";
+import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
 interface DefinitionFormProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSubmit: (content: string) => Promise<void>;
+	onSubmit: (data: { content: string; tags: string[]; files: File[] }) => Promise<void>;
 }
 
 export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormProps) {
 	const { t } = useTranslation();
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
 	const [content, setContent] = useState("");
+	const [tagsString, setTagsString] = useState("");
+	const [files, setFiles] = useState<File[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files) {
+			const newFiles = Array.from(e.target.files);
+			setFiles((prev) => [...prev, ...newFiles]);
+		}
+	};
+
+	const removeFile = (index: number) => {
+		setFiles((prev) => prev.filter((_, i) => i !== index));
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -29,8 +46,20 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 
 		setIsSubmitting(true);
 		try {
-			await onSubmit(content.trim());
+			const tags = tagsString
+				.split(/\s+/)
+				.map((tag) => tag.trim())
+				.filter((tag) => tag.length > 0);
+
+			await onSubmit({
+				content: content.trim(),
+				tags,
+				files,
+			});
+
 			setContent("");
+			setTagsString("");
+			setFiles([]);
 			onOpenChange(false);
 		} catch (error) {
 			console.error("Failed to submit definition:", error);
@@ -41,6 +70,8 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 
 	const handleClose = () => {
 		setContent("");
+		setTagsString("");
+		setFiles([]);
 		onOpenChange(false);
 	};
 
@@ -54,6 +85,7 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 					</DialogHeader>
 
 					<div className="grid gap-4 py-4">
+						{/* Content */}
 						<div className="grid gap-2">
 							<Label htmlFor="content">{t("word.definition")}</Label>
 							<Textarea
@@ -64,8 +96,62 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 								rows={6}
 								maxLength={5000}
 								autoFocus
+								disabled={isSubmitting}
 							/>
-							<p className="text-sm text-muted-foreground">{content.length}/5000</p>
+							<p className="text-sm text-muted-foreground text-right">{content.length}/5000</p>
+						</div>
+
+						<div className="grid gap-2">
+							<Label htmlFor="tags">{t("word.tags")}</Label>
+							<Input
+								id="tags"
+								value={tagsString}
+								onChange={(e) => setTagsString(e.target.value)}
+								placeholder={t("word.tags_placeholder")}
+								disabled={isSubmitting}
+							/>
+							<p className="text-xs text-muted-foreground">{t("word.tags_help")}</p>
+						</div>
+
+						<div className="grid gap-2">
+							<Label>{t("word.media")}</Label>
+							<div className="flex flex-wrap gap-2 mb-2">
+								{files.map((file, index) => (
+									<div
+										key={`${file.name}-${index}`}
+										className="flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs group"
+									>
+										<span className="truncate max-w-[150px]">{file.name}</span>
+										<button
+											type="button"
+											onClick={() => removeFile(index)}
+											className="text-muted-foreground hover:text-destructive"
+										>
+											<X className="h-3 w-3" />
+										</button>
+									</div>
+								))}
+							</div>
+							<div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isSubmitting}
+								>
+									<Image className="h-4 w-4 mr-2" />
+									{t("word.add_media")}
+								</Button>
+								<input
+									ref={fileInputRef}
+									type="file"
+									accept="image/*,video/*"
+									multiple
+									className="hidden"
+									onChange={handleFileChange}
+								/>
+							</div>
 						</div>
 					</div>
 

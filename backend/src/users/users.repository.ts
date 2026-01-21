@@ -43,14 +43,21 @@ export class UsersRepository extends BaseRepository {
     return result;
   }
 
-  async updateEmailAndPicture(
+  async updateProfile(
     userId: string,
-    updates: { email?: string; profilePicture?: string },
+    updates: { nickname?: string; bio?: string; profilePicture?: string },
   ): Promise<User> {
     const dbUpdates: any = { ...updates };
     if (updates.profilePicture) {
       dbUpdates.profile_picture = updates.profilePicture;
       delete dbUpdates.profilePicture;
+    }
+    Object.keys(dbUpdates).forEach((key) => {
+      if (dbUpdates[key] === undefined) delete dbUpdates[key];
+    });
+
+    if (Object.keys(dbUpdates).length === 0) {
+      return this.findById(userId) as Promise<User>;
     }
 
     const [result] = await this.knex(this.tableName)
@@ -61,6 +68,7 @@ export class UsersRepository extends BaseRepository {
         "google_id as googleId",
         "email",
         "nickname",
+        "bio",
         "profile_picture as profilePicture",
         "created_at as createdAt",
         "updated_at as updatedAt",

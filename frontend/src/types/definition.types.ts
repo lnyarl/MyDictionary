@@ -7,6 +7,14 @@ export interface Definition {
 	profilePicture?: string;
 	nickname?: string;
 	likesCount: number;
+	tags?: string[];
+	mediaUrls?: Array<{
+		url: string;
+		type: "image" | "video" | "unknown";
+		title?: string;
+		description?: string;
+		image?: string;
+	}>;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -14,4 +22,6 @@ export interface Definition {
 export interface CreateDefinitionInput {
 	content: string;
 	wordId: string;
+	tags?: string[];
+	files?: File[];
 }

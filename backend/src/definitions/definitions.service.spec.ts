@@ -1,5 +1,6 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { MetadataService } from "../common/services/metadata.service";
 import { FeedService } from "../feed/feed.service";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
@@ -10,6 +11,7 @@ describe("DefinitionsService", () => {
   let service: DefinitionsService;
   let definitionRepository: DefinitionsRepository;
   let wordRepository: WordsRepository;
+  let metadataService: MetadataService;
 
   const mockWord = { id: "word-1", isPublic: true, userId: "owner-1" };
   const mockDefinition = {
@@ -17,6 +19,8 @@ describe("DefinitionsService", () => {
     content: "test def",
     wordId: "word-1",
     userId: "user-1",
+    tags: [],
+    mediaUrls: [],
     createdAt: new Date(),
   };
 
@@ -48,12 +52,22 @@ describe("DefinitionsService", () => {
             invalidateRecommendations: jest.fn().mockResolvedValue(undefined),
           },
         },
+        {
+          provide: MetadataService,
+          useValue: {
+            extractMetadata: jest.fn().mockResolvedValue({
+              url: "http://test.com",
+              type: "website",
+            }),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<DefinitionsService>(DefinitionsService);
     definitionRepository = module.get<DefinitionsRepository>(DefinitionsRepository);
     wordRepository = module.get<WordsRepository>(WordsRepository);
+    metadataService = module.get<MetadataService>(MetadataService);
   });
 
   it("should be defined", () => {

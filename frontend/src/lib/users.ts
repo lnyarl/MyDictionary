@@ -17,6 +17,15 @@ interface PaginatedResponse<T> {
 export const usersApi = {
 	updateNickname: (nickname: string) => api.patch<User>("/users/me/nickname", { nickname }),
 
+	updateProfile: (data: { nickname?: string; bio?: string; profilePicture?: File }) => {
+		const formData = new FormData();
+		if (data.nickname) formData.append("nickname", data.nickname);
+		if (data.bio) formData.append("bio", data.bio);
+		if (data.profilePicture) formData.append("profilePicture", data.profilePicture);
+
+		return api.patch<User>("/users/me/profile", formData);
+	},
+
 	getUserProfile: (userId: string) => api.get<UserProfile>(`/users/${userId}/profile`),
 
 	getUserWords: (userId: string, page = 1, limit = 20) =>

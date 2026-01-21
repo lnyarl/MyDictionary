@@ -1,9 +1,10 @@
-import { History, Trash2 } from "lucide-react";
+import { ExternalLink, History, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import type { Definition } from "../../types/definition.types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
@@ -33,12 +34,21 @@ export function DefinitionCard({
 		day: "numeric",
 	});
 
+	const isEdited = definition.updatedAt !== definition.createdAt;
+
 	const handleUserClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		navigate(`/users/${definition.userId}`);
 	};
 
-	console.log(definition)
+	const getHostname = (url: string) => {
+		try {
+			return new URL(url).hostname;
+		} catch {
+			return url;
+		}
+	};
+
 	return (
 		<Card className="hover:shadow-md transition-shadow">
 			<CardHeader>
@@ -56,7 +66,7 @@ export function DefinitionCard({
 				<div className="flex items-start justify-between gap-2">
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
 						<Avatar className="h-6 w-6 cursor-pointer border" onClick={handleUserClick}>
-							<AvatarImage src={definition.profilePicture} />
+							<AvatarImage src={definition.profilePicture} className="object-cover" />
 							<AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
 						</Avatar>
 						<Button
@@ -68,6 +78,7 @@ export function DefinitionCard({
 						</Button>
 						<span>•</span>
 						<span>{formattedDate}</span>
+						{isEdited && <span className="text-xs text-muted-foreground">(edited)</span>}
 					</div>
 
 					<div className="flex gap-1">
@@ -92,8 +103,78 @@ export function DefinitionCard({
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="space-y-4">
 				<p className="text-base whitespace-pre-wrap">{definition.content}</p>
+
+				{definition.mediaUrls && definition.mediaUrls.length > 0 && (
+					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+						{definition.mediaUrls.map((media) => {
+							if (media.type === "image") {
+								return (
+									<img
+										key={media.url}
+										src={media.url}
+										alt="media"
+										className="rounded-lg object-cover w-full h-48 border"
+									/>
+								);
+							}
+							if (media.type === "video") {
+								return (
+									<video
+										key={media.url}
+										src={media.url}
+										controls
+										className="rounded-lg w-full h-48 object-cover border"
+									>
+										<track kind="captions" />
+									</video>
+								);
+							}
+							return (
+								<a
+									key={media.url}
+									href={media.url}
+									target="_blank"
+									rel="noreferrer"
+									className="block group rounded-lg border overflow-hidden hover:bg-muted/50 transition-colors"
+								>
+									{media.image && (
+										<img
+											src={media.image}
+											alt={media.title || "Link preview"}
+											className="w-full h-32 object-cover"
+										/>
+									)}
+									<div className="p-3">
+										<h4 className="font-semibold text-sm truncate group-hover:text-primary">
+											{media.title || media.url}
+										</h4>
+										{media.description && (
+											<p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+												{media.description}
+											</p>
+										)}
+										<div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+											<ExternalLink className="h-3 w-3" />
+											<span className="truncate">{getHostname(media.url)}</span>
+										</div>
+									</div>
+								</a>
+							);
+						})}
+					</div>
+				)}
+
+				{definition.tags && definition.tags.length > 0 && (
+					<div className="flex flex-wrap gap-2">
+						{definition.tags.map((tag) => (
+							<Badge key={tag} variant="secondary" className="text-xs">
+								#{tag}
+							</Badge>
+						))}
+					</div>
+				)}
 			</CardContent>
 			<Separator />
 			<CardFooter className="pt-4">

@@ -3,6 +3,7 @@ export class User {
   googleId: string | null;
   email: string;
   nickname: string;
+  bio: string | null;
   profilePicture: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -14,6 +15,7 @@ export const UserSelect = {
   googleId: "google_id",
   email: "email",
   nickname: "nickname",
+  bio: "bio",
   profilePicture: "profile_picture",
   createdAt: "created_at",
   updatedAt: "updated_at",

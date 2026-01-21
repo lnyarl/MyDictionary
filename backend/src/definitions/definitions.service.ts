@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { MetadataService } from "../common/services/metadata.service";
 import { FeedService } from "../feed/feed.service";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
@@ -11,24 +12,36 @@ export class DefinitionsService {
     private readonly definitionRepository: DefinitionsRepository,
     private readonly wordRepository: WordsRepository,
     private readonly feedService: FeedService,
+    private readonly metadataService: MetadataService,
   ) {}
 
-  async create(userId: string, createDefinitionDto: CreateDefinitionDto): Promise<Definition> {
-    // Verify word exists
+  async create(
+    userId: string,
+    createDefinitionDto: CreateDefinitionDto,
+    mediaUrls: string[] = [],
+  ): Promise<Definition> {
     const word = await this.wordRepository.findById(createDefinitionDto.wordId);
 
     if (!word) {
       throw new NotFoundException("Word not found");
     }
 
-    // Check access: only owner can add definitions to private words
     if (!word.isPublic && word.userId !== userId) {
       throw new ForbiddenException("You do not have access to this word");
     }
 
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urlsInContent = createDefinitionDto.content.match(urlRegex) || [];
+    const metadataPromises = urlsInContent.map((url) => this.metadataService.extractMetadata(url));
+    const metadataList = await Promise.all(metadataPromises);
+
+    const combinedMedia = [...mediaUrls.map((url) => ({ url, type: "image" })), ...metadataList];
+
     const definition = await this.definitionRepository.create({
       ...createDefinitionDto,
       userId,
+      tags: createDefinitionDto.tags || [],
+      mediaUrls: combinedMedia,
     });
 
     await this.feedService.invalidateFollowerFeeds(userId);
@@ -60,6 +73,8 @@ export class DefinitionsService {
         content: row.content,
         wordId: row.word_id,
         userId: row.user_id,
+        tags: row.tags || [],
+        mediaUrls: row.mediaUrls || [],
         likesCount: row.likes_count,
         createdAt: row.created_at,
         updatedAt: row.updated_at,

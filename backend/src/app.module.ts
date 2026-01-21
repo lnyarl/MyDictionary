@@ -7,6 +7,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { CacheModule } from "./common/cache/cache.module";
+import { CommonModule } from "./common/common.module";
 import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
@@ -39,6 +40,7 @@ import { WordsModule } from "./words/words.module";
       ],
     }),
     CacheModule,
+    CommonModule,
     DatabaseModule,
     UsersModule,
     AuthModule,

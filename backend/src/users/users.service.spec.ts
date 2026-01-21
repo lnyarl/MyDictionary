@@ -20,6 +20,7 @@ describe("UsersService", () => {
     email: "test@example.com",
     nickname: "testuser",
     profilePicture: "https://example.com/pic.jpg",
+    bio: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     deletedAt: null,

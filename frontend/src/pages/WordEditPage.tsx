@@ -53,8 +53,13 @@ export default function WordEditPage() {
 		setIsFormOpen(true);
 	};
 
-	const handleSubmit = async (content: string) => {
-		await createDefinition({ content, wordId });
+	const handleSubmit = async (data: { content: string; tags: string[]; files: File[] }) => {
+		await createDefinition({
+			wordId: wordId || "",
+			content: data.content,
+			tags: data.tags,
+			files: data.files,
+		});
 	};
 
 	const handleDelete = async (id: string) => {
@@ -137,7 +142,7 @@ export default function WordEditPage() {
 					onOpenChange={setIsHistoryOpen}
 					wordId={wordId}
 					userId={selectedUserId}
-					userName={definitions.find((d) => d.userId === selectedUserId)?.user?.nickname}
+					userName={definitions.find((d) => d.userId === selectedUserId)?.nickname}
 				/>
 			)}
 		</Page>

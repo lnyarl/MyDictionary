@@ -1,4 +1,9 @@
-CREATE TYPE admin_role AS ENUM ('super_admin', 'developer', 'operator');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'admin_role') THEN
+        CREATE TYPE admin_role AS ENUM ('super_admin', 'developer', 'operator');
+    END IF;
+END$$;
 
 CREATE TABLE IF NOT EXISTS admin_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -36,7 +36,6 @@ export class AuthService {
 
     if (googleUser) {
       await this.usersService.updateProfile(googleUser.id, {
-        email: data.email,
         profilePicture: data.picture,
       });
       return await this.usersService.findById(googleUser.id);

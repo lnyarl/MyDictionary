@@ -15,13 +15,19 @@ export class ApiClient {
 
 	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
 		const url = `${this.baseUrl}${endpoint}`;
+		const isFormData = options.body instanceof FormData;
+
+		const headers: Record<string, string> = {
+			...((options.headers as Record<string, string>) || {}),
+		};
+
+		if (!isFormData) {
+			headers["Content-Type"] = "application/json";
+		}
 
 		const config: RequestInit = {
 			...options,
-			headers: {
-				"Content-Type": "application/json",
-				...options.headers,
-			},
+			headers,
 			credentials: "include", // Important for cookies
 		};
 
@@ -58,16 +64,18 @@ export class ApiClient {
 	}
 
 	async post<T>(endpoint: string, data?: any): Promise<T> {
+		const isFormData = data instanceof FormData;
 		return this.request<T>(endpoint, {
 			method: "POST",
-			body: data ? JSON.stringify(data) : undefined,
+			body: isFormData ? data : data ? JSON.stringify(data) : undefined,
 		});
 	}
 
 	async patch<T>(endpoint: string, data: any): Promise<T> {
+		const isFormData = data instanceof FormData;
 		return this.request<T>(endpoint, {
 			method: "PATCH",
-			body: JSON.stringify(data),
+			body: isFormData ? data : JSON.stringify(data),
 		});
 	}
 

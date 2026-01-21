@@ -139,7 +139,7 @@ export default function SearchResultsPage() {
 												<Separator />
 												<DefinitionList
 													definitions={word.definitions as Definition[]}
-													onDelete={() => { }}
+													onDelete={() => {}}
 													onViewHistory={(userId) => handleViewHistory(word.id, userId)}
 												/>
 											</div>
@@ -163,7 +163,7 @@ export default function SearchResultsPage() {
 					userName={
 						results
 							.find((w) => w.id === selectedWordId)
-							?.definitions?.find((d) => d.userId === selectedUserId)?.user?.nickname
+							?.definitions?.find((d) => d.userId === selectedUserId)?.nickname
 					}
 				/>
 			)}

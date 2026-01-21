@@ -47,6 +47,8 @@ export class DefinitionsRepository extends BaseRepository {
         `${this.tableName}.word_id as wordId`,
         `${this.tableName}.user_id as userId`,
         `${this.tableName}.content`,
+        `${this.tableName}.tags`,
+        `${this.tableName}.media_urls as mediaUrls`,
         `count(${TABLES.LIKES}.id) as likesCount`,
         `${this.tableName}.created_at as createdAt`,
         `${this.tableName}.updated_at as updatedAt`,
@@ -66,6 +68,8 @@ export class DefinitionsRepository extends BaseRepository {
         d.word_id as wordId, 
         d.user_id as userId, 
         d.content, 
+        d.tags,
+        d.media_urls as mediaUrls,
         COALESCE(l.likes_count, 0) as likesCount, 
         d.created_at as createdAt, 
         d.updated_at as updatedAt,
@@ -111,8 +115,19 @@ export class DefinitionsRepository extends BaseRepository {
         content: definition.content,
         created_at: now,
         updated_at: now,
+        tags: definition.tags || [],
+        media_urls: JSON.stringify(definition.mediaUrls || []),
       })
-      .returning("*");
+      .returning([
+        "id",
+        "word_id as wordId",
+        "user_id as userId",
+        "content",
+        "tags",
+        "media_urls as mediaUrls",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+      ]);
     return result;
   }
 }

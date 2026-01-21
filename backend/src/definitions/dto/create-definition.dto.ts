@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 
 export class CreateDefinitionDto {
   @IsString()
@@ -9,4 +9,9 @@ export class CreateDefinitionDto {
   @IsUUID()
   @IsNotEmpty()
   wordId: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }

@@ -73,27 +73,7 @@ export default function DashboardPage() {
 				</Button>
 			</div>
 
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-8">
-				<div className="rounded-lg border bg-card p-6">
-					<h3 className="font-semibold mb-2">{t("dashboard.my_words")}</h3>
-					<p className="text-3xl font-bold">{words.length}</p>
-					<p className="text-sm text-muted-foreground mt-1">
-						{words.length === 0 ? t("dashboard.no_words") : t("dashboard.words_count")}
-					</p>
-				</div>
-
-				<div className="rounded-lg border bg-card p-6">
-					<h3 className="font-semibold mb-2">{t("dashboard.my_definitions")}</h3>
-					<p className="text-3xl font-bold">0</p>
-					<p className="text-sm text-muted-foreground mt-1">{t("dashboard.definitions_count")}</p>
-				</div>
-
-				<div className="rounded-lg border bg-card p-6">
-					<h3 className="font-semibold mb-2">{t("dashboard.received_likes")}</h3>
-					<p className="text-3xl font-bold">0</p>
-					<p className="text-sm text-muted-foreground mt-1">{t("dashboard.likes_count")}</p>
-				</div>
-
+			<div className="grid gap-4 md:grid-cols-2 mb-8">
 				<div className="rounded-lg border bg-card p-6">
 					<h3 className="font-semibold mb-2">{t("dashboard.followers")}</h3>
 					<p className="text-3xl font-bold">{stats?.followersCount || 0}</p>

@@ -63,9 +63,16 @@ export class UsersService {
 
   async updateProfile(
     userId: string,
-    updates: { email?: string; profilePicture?: string },
+    updates: { nickname?: string; bio?: string; profilePicture?: string },
   ): Promise<User> {
-    const updated = await this.userRepository.updateEmailAndPicture(userId, updates);
+    if (updates.nickname) {
+      const existingUser = await this.userRepository.findByNickname(updates.nickname);
+      if (existingUser && existingUser.id !== userId) {
+        throw new ConflictException("Nickname is already taken");
+      }
+    }
+
+    const updated = await this.userRepository.updateProfile(userId, updates);
     if (!updated) {
       throw new NotFoundException("User not found");
     }
