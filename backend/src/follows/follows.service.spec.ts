@@ -1,45 +1,42 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import {
+  cleanupTestDatabase,
+  getTestDatabaseHelper,
+  TestDatabaseHelper,
+} from "../common/database/test-database.helper";
+import { TestDatabaseModule } from "../common/database/test-database.module";
 import { UsersRepository } from "../users/users.repository";
 import { FollowsRepository } from "./follows.repository";
 import { FollowsService } from "./follows.service";
 
 describe("FollowsService", () => {
   let service: FollowsService;
-  let followRepository: FollowsRepository;
-  let userRepository: UsersRepository;
+  let testDb: TestDatabaseHelper;
+  let testUser: { id: string };
+  let otherUser: { id: string };
 
-  const mockFollow = { id: "f-1", followerId: "u-1", followingId: "u-2", deletedAt: null };
-  const mockUser = { id: "u-2", nickname: "user2" };
+  beforeAll(async () => {
+    testDb = getTestDatabaseHelper();
+    await testDb.setupSchema();
+  });
+
+  afterAll(async () => {
+    await cleanupTestDatabase();
+  });
 
   beforeEach(async () => {
+    await testDb.cleanAll();
+
+    testUser = await testDb.createUser({ nickname: "follower" });
+    otherUser = await testDb.createUser({ nickname: "following" });
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        FollowsService,
-        {
-          provide: FollowsRepository,
-          useValue: {
-            findExistingFollow: jest.fn(),
-            restoreRelation: jest.fn(),
-            findById: jest.fn(),
-            create: jest.fn(),
-            delete: jest.fn(),
-            getFollowerCount: jest.fn(),
-            getFollowingCount: jest.fn(),
-          },
-        },
-        {
-          provide: UsersRepository,
-          useValue: {
-            findById: jest.fn(),
-          },
-        },
-      ],
+      imports: [TestDatabaseModule],
+      providers: [FollowsService, FollowsRepository, UsersRepository],
     }).compile();
 
     service = module.get<FollowsService>(FollowsService);
-    followRepository = module.get<FollowsRepository>(FollowsRepository);
-    userRepository = module.get<UsersRepository>(UsersRepository);
   });
 
   it("should be defined", () => {
@@ -48,43 +45,97 @@ describe("FollowsService", () => {
 
   describe("follow", () => {
     it("should follow a user", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(mockUser as any);
-      jest.spyOn(followRepository, "findExistingFollow").mockResolvedValue(null as any);
-      jest.spyOn(followRepository, "create").mockResolvedValue(mockFollow as any);
+      const result = await service.follow(testUser.id, otherUser.id);
 
-      const result = await service.follow("u-1", "u-2");
-      expect(result).toEqual(mockFollow);
+      expect(result.followerId).toBe(testUser.id);
+      expect(result.followingId).toBe(otherUser.id);
     });
 
     it("should throw BadRequestException for self-follow", async () => {
-      await expect(service.follow("u-1", "u-1")).rejects.toThrow(BadRequestException);
+      await expect(service.follow(testUser.id, testUser.id)).rejects.toThrow(BadRequestException);
     });
 
     it("should throw NotFoundException if user to follow not found", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(null as any);
-      await expect(service.follow("u-1", "u-2")).rejects.toThrow(NotFoundException);
+      await expect(
+        service.follow(testUser.id, "00000000-0000-0000-0000-000000000000"),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it("should throw BadRequestException if already following", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(mockUser as any);
-      jest.spyOn(followRepository, "findExistingFollow").mockResolvedValue(mockFollow as any);
+      await service.follow(testUser.id, otherUser.id);
 
-      await expect(service.follow("u-1", "u-2")).rejects.toThrow(BadRequestException);
+      await expect(service.follow(testUser.id, otherUser.id)).rejects.toThrow(BadRequestException);
     });
   });
 
   describe("unfollow", () => {
     it("should unfollow a user", async () => {
-      jest.spyOn(followRepository, "findExistingFollow").mockResolvedValue(mockFollow as any);
-      jest.spyOn(followRepository, "delete").mockResolvedValue(undefined);
+      await service.follow(testUser.id, otherUser.id);
 
-      await service.unfollow("u-1", "u-2");
-      expect(followRepository.delete).toHaveBeenCalledWith(mockFollow.id);
+      await service.unfollow(testUser.id, otherUser.id);
+
+      const isFollowing = await service.checkFollowing(testUser.id, otherUser.id);
+      expect(isFollowing).toBe(false);
     });
 
-    it("should throw NotFoundException if follow not found", async () => {
-      jest.spyOn(followRepository, "findExistingFollow").mockResolvedValue(null as any);
-      await expect(service.unfollow("u-1", "u-2")).rejects.toThrow(NotFoundException);
+    it("should throw NotFoundException if follow relationship not found", async () => {
+      await expect(service.unfollow(testUser.id, otherUser.id)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("checkFollowing", () => {
+    it("should return true if following", async () => {
+      await service.follow(testUser.id, otherUser.id);
+
+      const result = await service.checkFollowing(testUser.id, otherUser.id);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false if not following", async () => {
+      const result = await service.checkFollowing(testUser.id, otherUser.id);
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("getFollowStats", () => {
+    it("should return follower and following counts", async () => {
+      const thirdUser = await testDb.createUser({ nickname: "third" });
+      await service.follow(testUser.id, otherUser.id);
+      await service.follow(thirdUser.id, otherUser.id);
+
+      const result = await service.getFollowStats(otherUser.id);
+
+      expect(result.followersCount).toBe(2);
+    });
+  });
+
+  describe("getFollowingIds", () => {
+    it("should return list of following user IDs", async () => {
+      const thirdUser = await testDb.createUser({ nickname: "third" });
+      await service.follow(testUser.id, otherUser.id);
+      await service.follow(testUser.id, thirdUser.id);
+
+      const result = await service.getFollowingIds(testUser.id);
+
+      expect(result).toHaveLength(2);
+      expect(result).toContain(otherUser.id);
+      expect(result).toContain(thirdUser.id);
+    });
+  });
+
+  describe("getFollowerIds", () => {
+    it("should return list of follower user IDs", async () => {
+      const thirdUser = await testDb.createUser({ nickname: "third" });
+      await service.follow(testUser.id, otherUser.id);
+      await service.follow(thirdUser.id, otherUser.id);
+
+      const result = await service.getFollowerIds(otherUser.id);
+
+      expect(result).toHaveLength(2);
+      expect(result).toContain(testUser.id);
+      expect(result).toContain(thirdUser.id);
     });
   });
 });

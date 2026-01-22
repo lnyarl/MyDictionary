@@ -8,24 +8,27 @@ export class DefinitionsRepository extends BaseRepository {
   private tableName = TABLES.DEFINITIONS;
 
   findByUserId(userId: string, offset: number, limit: number) {
-    const baseQuery = this.query(this.tableName)
-      .select<Definition[]>(DefinitionSelect)
-      .where({ user_id: userId });
+    const baseQuery = this.query(this.tableName).where({ user_id: userId });
 
-    const listQuery = baseQuery.clone().orderBy("created_at", "DESC").offset(offset).limit(limit);
+    const listQuery = baseQuery
+      .clone()
+      .orderBy("created_at", "DESC")
+      .select<Definition[]>(DefinitionSelect)
+      .offset(offset)
+      .limit(limit);
     const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
 
     return { listQuery, countQuery };
   }
 
-  findById(definitionId: string): Promise<Definition> {
+  findById(definitionId: string) {
     return this.query(this.tableName)
       .select<Definition>(DefinitionSelect)
       .where({ id: definitionId })
       .first();
   }
 
-  findByWordIdAndUserId(wordId: string, userId: string): Promise<Definition[]> {
+  findByWordIdAndUserId(wordId: string, userId: string) {
     return this.query(this.tableName)
       .select<Definition[]>(DefinitionSelect)
       .where({ word_id: wordId, user_id: userId })
@@ -49,7 +52,7 @@ export class DefinitionsRepository extends BaseRepository {
         `${this.tableName}.content`,
         `${this.tableName}.tags`,
         `${this.tableName}.media_urls as mediaUrls`,
-        `count(${TABLES.LIKES}.id) as likesCount`,
+        this.knex.raw(`COUNT(${TABLES.LIKES}.id) as "likesCount"`),
         `${this.tableName}.created_at as createdAt`,
         `${this.tableName}.updated_at as updatedAt`,
         `${TABLES.WORDS}.is_public as isPublic`,
@@ -105,19 +108,26 @@ export class DefinitionsRepository extends BaseRepository {
     return this.softDelete(this.tableName, id);
   }
 
-  async create(definition: Partial<Definition>): Promise<Definition> {
+  create(definition: Partial<Definition>) {
     const now = new Date();
-    const [result] = await this.knex(this.tableName)
-      .insert({
-        id: definition.id || generateId(),
-        word_id: definition.wordId,
-        user_id: definition.userId,
-        content: definition.content,
-        created_at: now,
-        updated_at: now,
-        tags: definition.tags || [],
-        media_urls: JSON.stringify(definition.mediaUrls || []),
-      })
+    const insertData: any = {
+      id: definition.id || generateId(),
+      word_id: definition.wordId,
+      user_id: definition.userId,
+      content: definition.content,
+      created_at: now,
+      updated_at: now,
+      media_urls: JSON.stringify(definition.mediaUrls || []),
+    };
+
+    if (definition.tags && definition.tags.length > 0) {
+      insertData.tags = definition.tags;
+    } else {
+      insertData.tags = this.knex.raw("'{}'::text[]");
+    }
+
+    return this.knex(this.tableName)
+      .insert(insertData)
       .returning([
         "id",
         "word_id as wordId",
@@ -128,6 +138,5 @@ export class DefinitionsRepository extends BaseRepository {
         "created_at as createdAt",
         "updated_at as updatedAt",
       ]);
-    return result;
   }
 }

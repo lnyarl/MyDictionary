@@ -1,0 +1,44 @@
+import { Global, Module } from "@nestjs/common";
+import knex, { Knex } from "knex";
+import { KNEX_CONNECTION } from "./knex.provider";
+
+let testKnexInstance: Knex | null = null;
+
+export function createTestKnexInstance(): Knex {
+  if (!testKnexInstance) {
+    testKnexInstance = knex({
+      client: "pg",
+      connection: {
+        host: process.env.TEST_DB_HOST || "localhost",
+        port: Number(process.env.TEST_DB_PORT) || 5433,
+        user: process.env.TEST_DB_USERNAME || "postgres",
+        password: process.env.TEST_DB_PASSWORD || "postgres",
+        database: process.env.TEST_DB_DATABASE || "stashy_test",
+      },
+      pool: {
+        min: 1,
+        max: 5,
+      },
+    });
+  }
+  return testKnexInstance;
+}
+
+export async function destroyTestKnexInstance(): Promise<void> {
+  if (testKnexInstance) {
+    await testKnexInstance.destroy();
+    testKnexInstance = null;
+  }
+}
+
+export const testKnexProvider = {
+  provide: KNEX_CONNECTION,
+  useFactory: (): Knex => createTestKnexInstance(),
+};
+
+@Global()
+@Module({
+  providers: [testKnexProvider],
+  exports: [testKnexProvider],
+})
+export class TestDatabaseModule {}

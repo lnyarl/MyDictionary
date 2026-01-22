@@ -47,7 +47,7 @@ export class DefinitionsService {
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
 
-    return definition;
+    return definition[0];
   }
 
   async findAllByWord(wordId: string, userId?: string): Promise<Definition[]> {

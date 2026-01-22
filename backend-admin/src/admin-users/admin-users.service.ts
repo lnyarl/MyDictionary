@@ -32,11 +32,12 @@ export class AdminUsersService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    return await this.adminUserRepository.insert({
+    const result = await this.adminUserRepository.insert({
       username: dto.username,
       password: hashedPassword,
       role: dto.role,
     });
+    return result[0];
   }
 
   async updateRole(adminId: string, role: AdminRoleType) {

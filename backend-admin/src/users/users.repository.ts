@@ -62,7 +62,7 @@ export class UsersRepository extends BaseRepository {
     const now = new Date();
     const [result] = await this.knex(this.tableName)
       .insert({
-        id: data.id || generateId(),
+        id: generateId(),
         email: data.email,
         nickname: data.nickname,
         google_id: data.googleId || null,

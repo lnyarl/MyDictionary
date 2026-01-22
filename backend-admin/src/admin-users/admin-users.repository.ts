@@ -3,18 +3,6 @@ import { generateId, TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { type AdminRoleType, AdminUser } from "./entities/admin-user.entity";
 
-interface AdminUserRow {
-  id: string;
-  username: string;
-  password: string;
-  role: AdminRoleType;
-  must_change_password: boolean;
-  last_login: Date | null;
-  created_at: Date;
-  updated_at: Date;
-  deleted_at: Date | null;
-}
-
 @Injectable()
 export class AdminUsersRepository extends BaseRepository {
   private tableName = TABLES.ADMIN_USERS;
@@ -31,22 +19,19 @@ export class AdminUsersRepository extends BaseRepository {
     deletedAt: "deleted_at",
   };
 
-  async findById(id: string) {
-    return await this.query(this.tableName)
-      .select<AdminUser>(this.adminUserSelect)
-      .where({ id })
-      .first();
+  findById(id: string) {
+    return this.query(this.tableName).select<AdminUser>(this.adminUserSelect).where({ id }).first();
   }
 
-  async findByUserName(username: string) {
-    return await this.query(this.tableName)
+  findByUserName(username: string) {
+    return this.query(this.tableName)
       .select<AdminUser>(this.adminUserSelect)
       .where({ username })
       .first();
   }
 
-  async findAll() {
-    return await this.query(this.tableName)
+  findAll() {
+    return this.query(this.tableName)
       .select<AdminUser[]>(this.adminUserSelect)
       .orderBy("created_at", "desc");
   }
@@ -68,13 +53,9 @@ export class AdminUsersRepository extends BaseRepository {
       .update({ role, updated_at: new Date() });
   }
 
-  async insert(data: {
-    username: string;
-    password: string;
-    role: AdminRoleType;
-  }): Promise<AdminUser> {
+  insert(data: { username: string; password: string; role: AdminRoleType }) {
     const now = new Date();
-    const [row] = await this.knex(this.tableName)
+    return this.knex(this.tableName)
       .insert({
         id: generateId(),
         username: data.username,
@@ -95,6 +76,5 @@ export class AdminUsersRepository extends BaseRepository {
         "updated_at as updatedAt",
         "deleted_at as deletedAt",
       ]);
-    return row;
   }
 }

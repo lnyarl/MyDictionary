@@ -1,42 +1,50 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import {
+  cleanupTestDatabase,
+  getTestDatabaseHelper,
+  TestDatabaseHelper,
+} from "../common/database/test-database.helper";
+import { TestDatabaseModule } from "../common/database/test-database.module";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { LikesRepository } from "./likes.repository";
 import { LikesService } from "./likes.service";
 
 describe("LikesService", () => {
   let service: LikesService;
-  let likeRepository: LikesRepository;
-  let definitionRepository: DefinitionsRepository;
+  let testDb: TestDatabaseHelper;
+  let testUser: { id: string };
+  let otherUser: { id: string };
+  let testWord: { id: string };
+  let testDefinition: { id: string; userId: string };
 
-  const mockDefinition = { id: "def-1", userId: "owner-1" };
-  const mockLike = { id: "like-1", userId: "user-1", definitionId: "def-1" };
+  beforeAll(async () => {
+    testDb = getTestDatabaseHelper();
+    await testDb.setupSchema();
+  });
+
+  afterAll(async () => {
+    await cleanupTestDatabase();
+  });
 
   beforeEach(async () => {
+    await testDb.cleanAll();
+
+    testUser = await testDb.createUser({ nickname: "liker" });
+    otherUser = await testDb.createUser({ nickname: "defowner" });
+    testWord = await testDb.createWord({ term: "likeword", userId: otherUser.id, isPublic: true });
+    testDefinition = await testDb.createDefinition({
+      content: "likeable def",
+      wordId: testWord.id,
+      userId: otherUser.id,
+    });
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        LikesService,
-        {
-          provide: LikesRepository,
-          useValue: {
-            findByUserIdAndDefinitionId: jest.fn(),
-            delete: jest.fn(),
-            create: jest.fn(),
-            findByDefinitionId: jest.fn(),
-          },
-        },
-        {
-          provide: DefinitionsRepository,
-          useValue: {
-            findById: jest.fn(),
-          },
-        },
-      ],
+      imports: [TestDatabaseModule],
+      providers: [LikesService, LikesRepository, DefinitionsRepository],
     }).compile();
 
     service = module.get<LikesService>(LikesService);
-    likeRepository = module.get<LikesRepository>(LikesRepository);
-    definitionRepository = module.get<DefinitionsRepository>(DefinitionsRepository);
   });
 
   it("should be defined", () => {
@@ -45,33 +53,63 @@ describe("LikesService", () => {
 
   describe("toggle", () => {
     it("should create a like if none exists", async () => {
-      jest.spyOn(definitionRepository, "findById").mockResolvedValue(mockDefinition as any);
-      jest.spyOn(likeRepository, "findByUserIdAndDefinitionId").mockResolvedValue(null as any);
-      jest.spyOn(likeRepository, "create").mockResolvedValue(mockLike as any);
+      const result = await service.toggle(testUser.id, testDefinition.id);
 
-      const result = await service.toggle("user-1", "def-1");
       expect(result).toBe(true);
-      expect(likeRepository.create).toHaveBeenCalled();
     });
 
     it("should delete a like if it exists", async () => {
-      jest.spyOn(definitionRepository, "findById").mockResolvedValue(mockDefinition as any);
-      jest.spyOn(likeRepository, "findByUserIdAndDefinitionId").mockResolvedValue(mockLike as any);
-      jest.spyOn(likeRepository, "delete").mockResolvedValue(undefined);
+      await service.toggle(testUser.id, testDefinition.id);
 
-      const result = await service.toggle("user-1", "def-1");
+      const result = await service.toggle(testUser.id, testDefinition.id);
+
       expect(result).toBe(false);
-      expect(likeRepository.delete).toHaveBeenCalledWith(mockLike.id);
     });
 
     it("should throw ForbiddenException if liking own definition", async () => {
-      jest.spyOn(definitionRepository, "findById").mockResolvedValue(mockDefinition as any);
-      await expect(service.toggle("owner-1", "def-1")).rejects.toThrow(ForbiddenException);
+      await expect(service.toggle(otherUser.id, testDefinition.id)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it("should throw NotFoundException if definition not found", async () => {
-      jest.spyOn(definitionRepository, "findById").mockResolvedValue(null as any);
-      await expect(service.toggle("user-1", "def-1")).rejects.toThrow(NotFoundException);
+      await expect(
+        service.toggle(testUser.id, "00000000-0000-0000-0000-000000000000"),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("checkUserLike", () => {
+    it("should return true if user liked the definition", async () => {
+      await service.toggle(testUser.id, testDefinition.id);
+
+      const result = await service.checkUserLike(testUser.id, testDefinition.id);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false if user has not liked the definition", async () => {
+      const result = await service.checkUserLike(testUser.id, testDefinition.id);
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("getLikesByDefinition", () => {
+    it("should return all likes for a definition", async () => {
+      const thirdUser = await testDb.createUser({ nickname: "thirdliker" });
+      await service.toggle(testUser.id, testDefinition.id);
+      await service.toggle(thirdUser.id, testDefinition.id);
+
+      const result = await service.getLikesByDefinition(testDefinition.id);
+
+      expect(result).toHaveLength(2);
+    });
+
+    it("should return empty array if no likes", async () => {
+      const result = await service.getLikesByDefinition(testDefinition.id);
+
+      expect(result).toHaveLength(0);
     });
   });
 });

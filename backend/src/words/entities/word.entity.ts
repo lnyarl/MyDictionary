@@ -1,6 +1,3 @@
-import { User } from "@shared";
-import { Definition } from "../../definitions/entities/definition.entity";
-
 export class Word {
   id: string;
   term: string;
@@ -9,9 +6,6 @@ export class Word {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-
-  user?: User;
-  definitions?: Definition[];
 }
 
 export const WordSelect = {

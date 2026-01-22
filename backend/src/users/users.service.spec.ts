@@ -1,7 +1,13 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { User } from "@shared";
+import {
+  cleanupTestDatabase,
+  getTestDatabaseHelper,
+  TestDatabaseHelper,
+} from "../common/database/test-database.helper";
+import { TestDatabaseModule } from "../common/database/test-database.module";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
+import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
 import { WordsRepository } from "../words/words.repository";
 import { UsersRepository } from "./users.repository";
@@ -9,67 +15,40 @@ import { UsersService } from "./users.service";
 
 describe("UsersService", () => {
   let service: UsersService;
-  let userRepository: UsersRepository;
-  let wordRepository: WordsRepository;
-  let definitionRepository: DefinitionsRepository;
-  let followsService: FollowsService;
+  let testDb: TestDatabaseHelper;
+  let testUser: { id: string; nickname: string; email: string };
 
-  const mockUser: User = {
-    id: "user-1",
-    googleId: "google-1",
-    email: "test@example.com",
-    nickname: "testuser",
-    profilePicture: "https://example.com/pic.jpg",
-    bio: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  };
+  beforeAll(async () => {
+    testDb = getTestDatabaseHelper();
+    await testDb.setupSchema();
+  });
+
+  afterAll(async () => {
+    await cleanupTestDatabase();
+  });
 
   beforeEach(async () => {
+    await testDb.cleanAll();
+
+    testUser = await testDb.createUser({
+      nickname: "testuser",
+      email: "test@example.com",
+      googleId: "google-123",
+    });
+
     const module: TestingModule = await Test.createTestingModule({
+      imports: [TestDatabaseModule],
       providers: [
         UsersService,
-        {
-          provide: UsersRepository,
-          useValue: {
-            findByGoogleId: jest.fn(),
-            findById: jest.fn(),
-            findByEmail: jest.fn(),
-            insert: jest.fn(),
-            findByNickname: jest.fn(),
-            updateNickname: jest.fn(),
-            updateEmailAndPicture: jest.fn(),
-          },
-        },
-        {
-          provide: WordsRepository,
-          useValue: {
-            countPublicByUserId: jest.fn(),
-            findPublicByUserId: jest.fn(),
-          },
-        },
-        {
-          provide: DefinitionsRepository,
-          useValue: {
-            getCountByUserId: jest.fn(),
-            findByUserId: jest.fn(),
-          },
-        },
-        {
-          provide: FollowsService,
-          useValue: {
-            getFollowStats: jest.fn(),
-          },
-        },
+        UsersRepository,
+        WordsRepository,
+        DefinitionsRepository,
+        FollowsService,
+        FollowsRepository,
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    userRepository = module.get<UsersRepository>(UsersRepository);
-    wordRepository = module.get<WordsRepository>(WordsRepository);
-    definitionRepository = module.get<DefinitionsRepository>(DefinitionsRepository);
-    followsService = module.get<FollowsService>(FollowsService);
   });
 
   it("should be defined", () => {
@@ -78,62 +57,157 @@ describe("UsersService", () => {
 
   describe("findByGoogleId", () => {
     it("should return a user by google id", async () => {
-      const promise = Promise.resolve(mockUser);
-      (promise as any).toQuery = jest.fn().mockReturnValue("query");
-      jest.spyOn(userRepository, "findByGoogleId").mockReturnValue(promise as any);
+      const result = await service.findByGoogleId("google-123");
 
-      const result = await service.findByGoogleId("google-1");
-      expect(result).toEqual(mockUser);
+      expect(result).not.toBeNull();
+      expect(result?.email).toBe("test@example.com");
+    });
+
+    it("should return undefined for non-existent google id", async () => {
+      const result = await service.findByGoogleId("non-existent");
+
+      expect(result).toBeUndefined();
     });
   });
 
   describe("findById", () => {
     it("should return a user by id", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(mockUser);
-      const result = await service.findById("user-1");
-      expect(result).toEqual(mockUser);
+      const result = await service.findById(testUser.id);
+
+      expect(result).not.toBeNull();
+      expect(result?.nickname).toBe("testuser");
+    });
+
+    it("should return undefined for non-existent id", async () => {
+      const result = await service.findById("00000000-0000-0000-0000-000000000000");
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("findByEmail", () => {
+    it("should return a user by email", async () => {
+      const result = await service.findByEmail("test@example.com");
+
+      expect(result).not.toBeNull();
+      expect(result?.nickname).toBe("testuser");
+    });
+  });
+
+  describe("create", () => {
+    it("should create a new user", async () => {
+      const result = await service.create({
+        googleId: "new-google-id",
+        email: "newuser@example.com",
+        nickname: "newuser",
+        profilePicture: "https://example.com/pic.jpg",
+      });
+
+      expect(result.email).toBe("newuser@example.com");
+      expect(result.nickname).toBe("newuser");
     });
   });
 
   describe("updateNickname", () => {
     it("should update nickname if available", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(mockUser);
-      jest.spyOn(userRepository, "findByNickname").mockResolvedValue(null as any);
-      jest
-        .spyOn(userRepository, "updateNickname")
-        .mockResolvedValue({ ...mockUser, nickname: "new" });
+      const result = await service.updateNickname(testUser.id, "newnickname");
 
-      const result = await service.updateNickname("user-1", "new");
-      expect(result.nickname).toBe("new");
+      expect(result.nickname).toBe("newnickname");
     });
 
-    it("should throw ConflictException if nickname taken", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(mockUser);
-      jest.spyOn(userRepository, "findByNickname").mockResolvedValue({ id: "other" } as any);
+    it("should throw ConflictException if nickname taken by another user", async () => {
+      await testDb.createUser({ nickname: "taken", email: "other@test.com" });
 
-      await expect(service.updateNickname("user-1", "taken")).rejects.toThrow(ConflictException);
+      await expect(service.updateNickname(testUser.id, "taken")).rejects.toThrow(ConflictException);
+    });
+
+    it("should allow user to keep same nickname", async () => {
+      const result = await service.updateNickname(testUser.id, "testuser");
+
+      expect(result.nickname).toBe("testuser");
     });
 
     it("should throw NotFoundException if user not found", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(null as any);
-      await expect(service.updateNickname("user-1", "new")).rejects.toThrow(NotFoundException);
+      await expect(
+        service.updateNickname("00000000-0000-0000-0000-000000000000", "new"),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("updateProfile", () => {
+    it("should update profile fields", async () => {
+      const result = await service.updateProfile(testUser.id, {
+        nickname: "updated",
+        bio: "My bio",
+      });
+
+      expect(result.nickname).toBe("updated");
+      expect(result.bio).toBe("My bio");
+    });
+
+    it("should throw ConflictException if nickname is taken", async () => {
+      await testDb.createUser({ nickname: "existing", email: "existing@test.com" });
+
+      await expect(service.updateProfile(testUser.id, { nickname: "existing" })).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
   describe("getUserProfile", () => {
     it("should return user profile with stats", async () => {
-      jest.spyOn(userRepository, "findById").mockResolvedValue(mockUser);
-      jest.spyOn(wordRepository, "countPublicByUserId").mockResolvedValue(5 as any);
-      jest.spyOn(definitionRepository, "getCountByUserId").mockResolvedValue(10 as any);
-      jest
-        .spyOn(followsService, "getFollowStats")
-        .mockResolvedValue({ followersCount: 1, followingCount: 2 });
+      await testDb.createWord({ term: "word1", userId: testUser.id, isPublic: true });
+      await testDb.createWord({ term: "word2", userId: testUser.id, isPublic: true });
 
-      const result = await service.getUserProfile("user-1");
-      expect(result.user.id).toBe(mockUser.id);
-      expect(result.stats.wordsCount).toBe(5);
-      expect(result.stats.definitionsCount).toBe(10);
-      expect(result.stats.followersCount).toBe(1);
+      const otherUser = await testDb.createUser({ nickname: "follower" });
+      await testDb.createFollow({ followerId: otherUser.id, followingId: testUser.id });
+
+      const result = await service.getUserProfile(testUser.id);
+
+      expect(result.user.id).toBe(testUser.id);
+      expect(result.user.nickname).toBe("testuser");
+      expect(Number((result.stats.wordsCount as any)?.count || result.stats.wordsCount)).toBe(2);
+      expect(Number(result.stats.followersCount)).toBe(1);
+    });
+
+    it("should throw NotFoundException if user not found", async () => {
+      await expect(service.getUserProfile("00000000-0000-0000-0000-000000000000")).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe("getUserPublicWords", () => {
+    it("should return paginated public words", async () => {
+      await testDb.createWord({ term: "public1", userId: testUser.id, isPublic: true });
+      await testDb.createWord({ term: "public2", userId: testUser.id, isPublic: true });
+      await testDb.createWord({ term: "private1", userId: testUser.id, isPublic: false });
+
+      const result = await service.getUserPublicWords(testUser.id, {
+        page: 1,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.data).toHaveLength(2);
+      expect(Number(result.meta.total)).toBe(2);
+    });
+  });
+
+  describe("getUserPublicDefinitions", () => {
+    it("should return paginated definitions", async () => {
+      const word = await testDb.createWord({ term: "word", userId: testUser.id, isPublic: true });
+      await testDb.createDefinition({ content: "def1", wordId: word.id, userId: testUser.id });
+      await testDb.createDefinition({ content: "def2", wordId: word.id, userId: testUser.id });
+
+      const result = await service.getUserPublicDefinitions(testUser.id, {
+        page: 1,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.data).toHaveLength(2);
+      expect(Number(result.meta.total)).toBe(2);
     });
   });
 });

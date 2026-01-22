@@ -37,16 +37,16 @@ export class FollowsService {
     }
 
     // Create new follow
-    const follow = this.followRepository.create({
+    const result = await this.followRepository.create({
       followerId,
       followingId,
     });
-    return follow;
+    return result[0];
   }
 
   async unfollow(followerId: string, followingId: string): Promise<void> {
     const follow = await this.followRepository.findExistingFollow(followerId, followingId);
-    if (!follow) {
+    if (!follow || follow.deletedAt) {
       throw new NotFoundException("Follow relationship not found");
     }
 
@@ -55,7 +55,7 @@ export class FollowsService {
 
   async checkFollowing(followerId: string, followingId: string): Promise<boolean> {
     const follow = await this.followRepository.findExistingFollow(followerId, followingId);
-    return !!follow;
+    return !!follow && !follow.deletedAt;
   }
 
   async getFollowers(
@@ -106,7 +106,10 @@ export class FollowsService {
       this.followRepository.getFollowingCount(userId),
     ]);
 
-    return { followersCount: followersCount.count, followingCount: followingCount.count };
+    return {
+      followersCount: Number(followersCount.count),
+      followingCount: Number(followingCount.count),
+    };
   }
 
   async getFollowingIds(userId: string): Promise<string[]> {

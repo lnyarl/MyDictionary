@@ -1,7 +1,18 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { destroyTestRedisInstance, TestCacheModule } from "../common/cache/test-cache.module";
+import {
+  cleanupTestDatabase,
+  getTestDatabaseHelper,
+  TestDatabaseHelper,
+} from "../common/database/test-database.helper";
+import { TestDatabaseModule } from "../common/database/test-database.module";
 import { MetadataService } from "../common/services/metadata.service";
+import { FeedRepository } from "../feed/feed.repository";
 import { FeedService } from "../feed/feed.service";
+import { FollowsRepository } from "../follows/follows.repository";
+import { FollowsService } from "../follows/follows.service";
+import { UsersRepository } from "../users/users.repository";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
@@ -9,49 +20,37 @@ import { CreateDefinitionDto } from "./dto/create-definition.dto";
 
 describe("DefinitionsService", () => {
   let service: DefinitionsService;
-  let definitionRepository: DefinitionsRepository;
-  let wordRepository: WordsRepository;
-  let metadataService: MetadataService;
+  let testDb: TestDatabaseHelper;
+  let testUser: { id: string };
+  let testWord: { id: string };
 
-  const mockWord = { id: "word-1", isPublic: true, userId: "owner-1" };
-  const mockDefinition = {
-    id: "def-1",
-    content: "test def",
-    wordId: "word-1",
-    userId: "user-1",
-    tags: [],
-    mediaUrls: [],
-    createdAt: new Date(),
-  };
+  beforeAll(async () => {
+    testDb = getTestDatabaseHelper();
+    await testDb.setupSchema();
+  });
+
+  afterAll(async () => {
+    await cleanupTestDatabase();
+    await destroyTestRedisInstance();
+  });
 
   beforeEach(async () => {
+    await testDb.cleanAll();
+
+    testUser = await testDb.createUser({ nickname: "defuser" });
+    testWord = await testDb.createWord({ term: "testword", userId: testUser.id, isPublic: true });
+
     const module: TestingModule = await Test.createTestingModule({
+      imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         DefinitionsService,
-        {
-          provide: DefinitionsRepository,
-          useValue: {
-            create: jest.fn(),
-            findByWordIdForEachUser: jest.fn(),
-            findByIdWithPublic: jest.fn(),
-            findById: jest.fn(),
-            delete: jest.fn(),
-            findByWordIdAndUserId: jest.fn(),
-          },
-        },
-        {
-          provide: WordsRepository,
-          useValue: {
-            findById: jest.fn(),
-          },
-        },
-        {
-          provide: FeedService,
-          useValue: {
-            invalidateFollowerFeeds: jest.fn().mockResolvedValue(undefined),
-            invalidateRecommendations: jest.fn().mockResolvedValue(undefined),
-          },
-        },
+        DefinitionsRepository,
+        WordsRepository,
+        FeedService,
+        FeedRepository,
+        FollowsService,
+        FollowsRepository,
+        UsersRepository,
         {
           provide: MetadataService,
           useValue: {
@@ -65,9 +64,6 @@ describe("DefinitionsService", () => {
     }).compile();
 
     service = module.get<DefinitionsService>(DefinitionsService);
-    definitionRepository = module.get<DefinitionsRepository>(DefinitionsRepository);
-    wordRepository = module.get<WordsRepository>(WordsRepository);
-    metadataService = module.get<MetadataService>(MetadataService);
   });
 
   it("should be defined", () => {
@@ -75,55 +71,109 @@ describe("DefinitionsService", () => {
   });
 
   describe("create", () => {
-    const dto: CreateDefinitionDto = { wordId: "word-1", content: "test" };
-
     it("should create a definition", async () => {
-      jest.spyOn(wordRepository, "findById").mockResolvedValue(mockWord as any);
-      jest.spyOn(definitionRepository, "create").mockResolvedValue(mockDefinition as any);
+      const dto: CreateDefinitionDto = { wordId: testWord.id, content: "test definition" };
 
-      const result = await service.create("user-1", dto);
-      expect(result).toEqual(mockDefinition);
+      const result = await service.create(testUser.id, dto);
+
+      expect(result.content).toBe("test definition");
+      expect(result.wordId).toBe(testWord.id);
+      expect(result.userId).toBe(testUser.id);
     });
 
     it("should throw NotFoundException if word not found", async () => {
-      jest.spyOn(wordRepository, "findById").mockResolvedValue(null as any);
-      await expect(service.create("user-1", dto)).rejects.toThrow(NotFoundException);
+      const dto: CreateDefinitionDto = {
+        wordId: "00000000-0000-0000-0000-000000000000",
+        content: "test",
+      };
+
+      await expect(service.create(testUser.id, dto)).rejects.toThrow(NotFoundException);
     });
 
-    it("should throw ForbiddenException if word private and user not owner", async () => {
-      jest
-        .spyOn(wordRepository, "findById")
-        .mockResolvedValue({ ...mockWord, isPublic: false } as any);
-      await expect(service.create("user-1", dto)).rejects.toThrow(ForbiddenException);
+    it("should throw ForbiddenException if word is private and user is not owner", async () => {
+      const owner = await testDb.createUser({ nickname: "owner" });
+      const privateWord = await testDb.createWord({
+        term: "private",
+        userId: owner.id,
+        isPublic: false,
+      });
+      const dto: CreateDefinitionDto = { wordId: privateWord.id, content: "test" };
+
+      await expect(service.create(testUser.id, dto)).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should allow owner to create definition for private word", async () => {
+      const privateWord = await testDb.createWord({
+        term: "myprivate",
+        userId: testUser.id,
+        isPublic: false,
+      });
+      const dto: CreateDefinitionDto = { wordId: privateWord.id, content: "my definition" };
+
+      const result = await service.create(testUser.id, dto);
+
+      expect(result.content).toBe("my definition");
     });
   });
 
   describe("findAllByWord", () => {
-    it("should return definitions for a word", async () => {
-      jest.spyOn(wordRepository, "findById").mockResolvedValue(mockWord as any);
-      jest
-        .spyOn(definitionRepository, "findByWordIdForEachUser")
-        .mockResolvedValue([
-          { id: "def-1", content: "test", word_id: "word-1", user_id: "user-1", likes_count: 0 },
-        ] as any);
+    it("should return definitions for a public word", async () => {
+      await testDb.createDefinition({ content: "def1", wordId: testWord.id, userId: testUser.id });
+      await testDb.createDefinition({ content: "def2", wordId: testWord.id, userId: testUser.id });
 
-      const result = await service.findAllByWord("word-1");
-      expect(result[0].id).toBe("def-1");
+      const result = await service.findAllByWord(testWord.id);
+
+      expect(result.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("should throw NotFoundException if word not found", async () => {
+      await expect(service.findAllByWord("00000000-0000-0000-0000-000000000000")).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it("should throw ForbiddenException for private word if not owner", async () => {
+      const owner = await testDb.createUser({ nickname: "wordowner" });
+      const privateWord = await testDb.createWord({
+        term: "secret",
+        userId: owner.id,
+        isPublic: false,
+      });
+
+      await expect(service.findAllByWord(privateWord.id, testUser.id)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
   describe("remove", () => {
     it("should remove definition", async () => {
-      jest.spyOn(definitionRepository, "findById").mockResolvedValue(mockDefinition as any);
-      jest.spyOn(definitionRepository, "delete").mockResolvedValue(undefined);
+      const definition = await testDb.createDefinition({
+        content: "to delete",
+        wordId: testWord.id,
+        userId: testUser.id,
+      });
 
-      await service.remove("def-1", "user-1");
-      expect(definitionRepository.delete).toHaveBeenCalledWith("def-1");
+      await service.remove(definition.id, testUser.id);
+
+      await expect(service.findOne(definition.id, testUser.id)).rejects.toThrow(NotFoundException);
     });
 
     it("should throw ForbiddenException if not owner", async () => {
-      jest.spyOn(definitionRepository, "findById").mockResolvedValue(mockDefinition as any);
-      await expect(service.remove("def-1", "other")).rejects.toThrow(ForbiddenException);
+      const otherUser = await testDb.createUser({ nickname: "other" });
+      const definition = await testDb.createDefinition({
+        content: "not mine",
+        wordId: testWord.id,
+        userId: otherUser.id,
+      });
+
+      await expect(service.remove(definition.id, testUser.id)).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw NotFoundException if definition not found", async () => {
+      await expect(
+        service.remove("00000000-0000-0000-0000-000000000000", testUser.id),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -12,7 +12,7 @@ export class WordsService {
     return this.wordsRepository.findByUserId(userId);
   }
 
-  async createDummyWord(userId: string): Promise<void> {
+  async createDummyWord(userId: string) {
     const randomWordIndex = Math.floor(Math.random() * CANDIDATE_WORDS.length);
     const term = CANDIDATE_WORDS[randomWordIndex];
 

@@ -22,21 +22,18 @@ export class LikesRepository extends BaseRepository {
       .where({ definition_id: definitionId });
   }
 
-  delete(id: string): Promise<void> {
+  delete(id: string) {
     return this.softDelete(this.tableName, id);
   }
 
-  async create(like: Partial<Like>): Promise<Like> {
+  create(like: Partial<Like>) {
     const now = new Date();
-    const [result] = await this.knex(this.tableName)
-      .insert({
-        id: like.id || generateId(),
-        user_id: like.userId,
-        definition_id: like.definitionId,
-        created_at: now,
-        updated_at: now,
-      })
-      .returning("*");
-    return result;
+    return this.knex(this.tableName).insert({
+      id: generateId(),
+      user_id: like.userId,
+      definition_id: like.definitionId,
+      created_at: now,
+      updated_at: now,
+    });
   }
 }

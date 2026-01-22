@@ -23,8 +23,9 @@ export const UserSelect = {
 } as const;
 
 // For database inserts (optional fields)
-export type UserInsert = Omit<User, "id" | "createdAt" | "updatedAt" | "deletedAt" | "googleId"> & {
-  id?: string;
+export type UserInsert = {
+  email: string;
+  nickname: string;
   googleId?: string | null;
   profilePicture?: string | null;
   createdAt?: Date;

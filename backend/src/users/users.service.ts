@@ -24,7 +24,6 @@ export class UsersService {
   ) {}
 
   async findByGoogleId(googleId: string): Promise<User | null> {
-    console.log("====", this.userRepository.findByGoogleId(googleId).toQuery());
     return await this.userRepository.findByGoogleId(googleId);
   }
 
@@ -37,7 +36,8 @@ export class UsersService {
   }
 
   async create(data: CreateUserDto): Promise<User> {
-    return await this.userRepository.insert(data);
+    const result = await this.userRepository.insert(data);
+    return result[0];
   }
 
   async updateNickname(userId: string, nickname: string): Promise<User> {

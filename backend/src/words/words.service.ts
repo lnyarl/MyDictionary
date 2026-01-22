@@ -12,39 +12,14 @@ import { WordsRepository } from "./words.repository";
 export class WordsService {
   constructor(private readonly wordRepository: WordsRepository) {}
 
-  /**
-   * Filter definitions to show only latest per user
-   */
-  private filterLatestDefinitionsPerUser(words: Word[]): Word[] {
-    return words.map((word) => {
-      if (!word.definitions || word.definitions.length === 0) {
-        return word;
-      }
-
-      // Group by userId and get latest
-      const definitionsByUser = new Map<string, Definition>();
-
-      for (const def of word.definitions) {
-        const existing = definitionsByUser.get(def.userId);
-        if (!existing || new Date(def.createdAt) > new Date(existing.createdAt)) {
-          definitionsByUser.set(def.userId, def);
-        }
-      }
-
-      return {
-        ...word,
-        definitions: Array.from(definitionsByUser.values()).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        ),
-      };
-    });
-  }
-
   async create(userId: string, createWordDto: CreateWordDto): Promise<Word> {
-    return this.wordRepository.create({
-      ...createWordDto,
+    const result = await this.wordRepository.create({
+      term: createWordDto.term,
+      isPublic: createWordDto.isPublic,
       userId,
     });
+
+    return await this.wordRepository.findById(result[0].id);
   }
 
   async findAllByUser(userId: string): Promise<Word[]> {

@@ -5,12 +5,19 @@ import { Word } from "./entities/word.entity";
 
 @Injectable()
 export class WordsRepository extends BaseRepository {
-  async findByUserId(userId: string): Promise<Word[]> {
-    const rows = await this.query(TABLES.WORDS)
+  findByUserId(userId: string) {
+    return this.query(TABLES.WORDS)
+      .select<Word[]>({
+        id: "id",
+        term: "term",
+        userId: "user_id",
+        isPublic: "is_public",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+      })
       .where({ user_id: userId })
       .orderBy("created_at", "desc");
-
-    return rows.map(this.toEntity);
   }
 
   async createWithDefinition(wordData: Partial<Word>, definitionContent: string): Promise<void> {
@@ -29,17 +36,5 @@ export class WordsRepository extends BaseRepository {
         content: definitionContent,
       });
     });
-  }
-
-  private toEntity(row: any): Word {
-    return {
-      id: row.id,
-      term: row.term,
-      userId: row.user_id,
-      isPublic: row.is_public,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      deletedAt: row.deleted_at,
-    };
   }
 }

@@ -1,58 +1,62 @@
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
-import type { User } from "../users/entities/user.entity";
+import {
+  cleanupTestDatabase,
+  getTestDatabaseHelper,
+  TestDatabaseHelper,
+} from "../common/database/test-database.helper";
+import { TestDatabaseModule } from "../common/database/test-database.module";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
+import { FollowsRepository } from "../follows/follows.repository";
+import { FollowsService } from "../follows/follows.service";
+import { UsersRepository } from "../users/users.repository";
 import { UsersService } from "../users/users.service";
+import { WordsRepository } from "../words/words.repository";
 import { AuthService } from "./auth.service";
 
 describe("AuthService", () => {
   let service: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
+  let testDb: TestDatabaseHelper;
 
-  const mockUser: User = {
-    id: "user-1",
-    googleId: "google-1",
-    email: "test@example.com",
-    nickname: "testuser",
-    profilePicture: "https://example.com/pic.jpg",
-    bio: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  };
+  beforeAll(async () => {
+    testDb = getTestDatabaseHelper();
+    await testDb.setupSchema();
+  });
+
+  afterAll(async () => {
+    await cleanupTestDatabase();
+  });
 
   beforeEach(async () => {
+    await testDb.cleanAll();
+
     const module: TestingModule = await Test.createTestingModule({
+      imports: [TestDatabaseModule],
       providers: [
         AuthService,
-        {
-          provide: UsersService,
-          useValue: {
-            findByGoogleId: jest.fn(),
-            updateProfile: jest.fn(),
-            findById: jest.fn(),
-            create: jest.fn(),
-          },
-        },
+        UsersService,
+        UsersRepository,
+        WordsRepository,
+        DefinitionsRepository,
+        FollowsService,
+        FollowsRepository,
         {
           provide: JwtService,
           useValue: {
-            sign: jest.fn().mockReturnValue("token"),
+            sign: jest.fn().mockReturnValue("test-jwt-token"),
           },
         },
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue("test-id"),
+            get: jest.fn().mockReturnValue("test-google-client-id"),
           },
         },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
-    jwtService = module.get<JwtService>(JwtService);
   });
 
   it("should be defined", () => {
@@ -61,37 +65,46 @@ describe("AuthService", () => {
 
   describe("validateGoogleUser", () => {
     const googleData = {
-      googleId: "google-1",
+      googleId: "google-123",
       email: "test@example.com",
       name: "Test User",
       picture: "https://example.com/pic.jpg",
     };
 
-    it("should update and return existing user", async () => {
-      jest.spyOn(usersService, "findByGoogleId").mockResolvedValue(mockUser as any);
-      jest.spyOn(usersService, "updateProfile").mockResolvedValue(mockUser as any);
-      jest.spyOn(usersService, "findById").mockResolvedValue(mockUser as any);
-
+    it("should create a new user if not exists", async () => {
       const result = await service.validateGoogleUser(googleData);
-      expect(result).toEqual(mockUser);
-      expect(usersService.updateProfile).toHaveBeenCalled();
+
+      expect(result.email).toBe("test@example.com");
+      expect(result.profilePicture).toBe("https://example.com/pic.jpg");
     });
 
-    it("should create and return new user", async () => {
-      jest.spyOn(usersService, "findByGoogleId").mockResolvedValue(null as any);
-      jest.spyOn(usersService, "create").mockResolvedValue(mockUser as any);
+    it("should update and return existing user", async () => {
+      await testDb.createUser({
+        googleId: "google-123",
+        email: "test@example.com",
+        nickname: "existinguser",
+        profilePicture: "https://old.com/pic.jpg",
+      });
 
-      const result = await service.validateGoogleUser(googleData);
-      expect(result).toEqual(mockUser);
-      expect(usersService.create).toHaveBeenCalled();
+      const result = await service.validateGoogleUser({
+        ...googleData,
+        picture: "https://new.com/pic.jpg",
+      });
+
+      expect(result.profilePicture).toBe("https://new.com/pic.jpg");
     });
   });
 
   describe("generateJwtToken", () => {
-    it("should sign a token", () => {
-      const token = service.generateJwtToken(mockUser);
-      expect(token).toBe("token");
-      expect(jwtService.sign).toHaveBeenCalled();
+    it("should generate a JWT token", async () => {
+      const user = await testDb.createUser({
+        email: "jwt@test.com",
+        nickname: "jwtuser",
+      });
+
+      const token = service.generateJwtToken(user as any);
+
+      expect(token).toBe("test-jwt-token");
     });
   });
 });

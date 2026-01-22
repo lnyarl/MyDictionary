@@ -46,7 +46,7 @@ export abstract class BaseRepository {
       .where({ id })
       .whereNull("deleted_at")
       .update({
-        data,
+        ...data,
         updated_at: new Date(),
       })
       .returning("*");

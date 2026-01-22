@@ -77,9 +77,9 @@ export class UsersRepository extends BaseRepository {
     return result;
   }
 
-  async insert(data: Partial<User>): Promise<User> {
+  insert(data: Partial<User>): Promise<User> {
     const now = new Date();
-    const [result] = await this.knex(this.tableName)
+    return this.knex(this.tableName)
       .insert({
         id: data.id || generateId(),
         google_id: data.googleId || null,
@@ -99,6 +99,5 @@ export class UsersRepository extends BaseRepository {
         "updated_at as updatedAt",
         "deleted_at as deletedAt",
       ]);
-    return result;
   }
 }

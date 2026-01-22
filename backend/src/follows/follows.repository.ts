@@ -20,7 +20,7 @@ export class FollowsRepository extends BaseRepository {
   }
 
   findFollowers(userId: string, offset: number, limit: number) {
-    const baseQuery = this.query(this.tableName).where({ follower_id: userId });
+    const baseQuery = this.query(this.tableName).where({ following_id: userId });
     const listQuery = baseQuery
       .clone()
       .leftJoin(TABLES.USERS, `${TABLES.FOLLOWS}.follower_id`, `${TABLES.USERS}.id`)
@@ -39,7 +39,7 @@ export class FollowsRepository extends BaseRepository {
 
   getFollowerCount(userId) {
     return this.query(this.tableName)
-      .where({ follower_id: userId })
+      .where({ following_id: userId })
       .count<{ count: number }>("id as count")
       .first();
   }
@@ -64,7 +64,7 @@ export class FollowsRepository extends BaseRepository {
 
   getFollowingCount(userId) {
     return this.query(this.tableName)
-      .where({ following_id: userId })
+      .where({ follower_id: userId })
       .count<{ count: number }>("id as count")
       .first();
   }
@@ -91,9 +91,9 @@ export class FollowsRepository extends BaseRepository {
     return this.softDelete(this.tableName, id);
   }
 
-  async create(follow: Partial<Follow>): Promise<Follow> {
+  create(follow: Partial<Follow>) {
     const now = new Date();
-    const [result] = await this.knex(this.tableName)
+    return this.knex(this.tableName)
       .insert({
         id: follow.id || generateId(),
         follower_id: follow.followerId,
@@ -101,7 +101,12 @@ export class FollowsRepository extends BaseRepository {
         created_at: now,
         updated_at: now,
       })
-      .returning("*");
-    return result;
+      .returning([
+        "id",
+        "follower_id as followerId",
+        "following_id as followingId",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+      ]);
   }
 }
