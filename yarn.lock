@@ -8964,6 +8964,11 @@ write-file-atomic@^4.0.2:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.7"
 
+wtfnode@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/wtfnode/-/wtfnode-0.10.1.tgz#aae4d7774abeffeff42d50d299f0d222a502b692"
+  integrity sha512-4mcHdlvcdSytsbFueN6QYZxmh5K7REawBk//ZOrJrtVOe548Qsq4GNEm/OUfZATqDnsX4g8uBbzmN7NdEZx09Q==
+
 xtend@^4.0.0, xtend@^4.0.2:
   version "4.0.2"
   resolved "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz"

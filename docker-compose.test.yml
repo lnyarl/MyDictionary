@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: stashy-db-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stashy_test
+    ports:
+      - '5433:5432'
+    tmpfs:
+      - /var/lib/postgresql/data
+    networks:
+      - stashy-network-test
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d stashy_test']
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: stashy-redis-test
+    command: redis-server --requirepass 'testpassword'
+    ports:
+      - '6380:6379'
+    tmpfs:
+      - /data
+    networks:
+      - stashy-network-test
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'testpassword', 'ping']
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+networks:
+  stashy-network-test:
+    driver: bridge
