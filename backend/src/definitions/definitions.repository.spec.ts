@@ -54,7 +54,9 @@ describe("DefinitionsRepository", () => {
     it("should generate correct query with joins", () => {
       const query = repository.findByIdWithPublic("def-123");
       const queryStr = query.toQuery();
-      expect(queryStr).toBe("");
+      expect(queryStr).toBe(
+        'select "definitions"."id", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."content", "definitions"."tags", "definitions"."media_urls" as "mediaUrls", COUNT(likes.id) as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "words"."is_public" as "isPublic", "words"."user_id" as "wordUserId" from "definitions" left join "words" on "words"."id" = "definitions"."word_id" left join "likes" on "likes"."definition_id" = "definitions"."id" where "definitions"."deleted_at" is null and "definitions"."id" = \'def-123\' group by "definitions"."id", "words"."id" limit 1',
+      );
     });
   });
 

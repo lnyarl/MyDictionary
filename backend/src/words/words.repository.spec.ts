@@ -62,13 +62,17 @@ describe("WordsRepository", () => {
   describe("searchWithDefinitions", () => {
     it("should generate correct query without userId", () => {
       const { listQuery, countQuery } = repository.searchWithDefinitions("test", undefined, 10, 0);
-      expect(countQuery.toQuery()).toBe("words");
+      expect(countQuery.toQuery()).toBe(
+        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and "words"."is_public" = true limit 1',
+      );
       expect(listQuery.toQuery()).toBe("definitions");
     });
 
     it("should generate correct query with userId", () => {
       const { listQuery, countQuery } = repository.searchWithDefinitions("test", "user-123", 10, 0);
-      expect(countQuery.toQuery()).toBe("user_id");
+      expect(countQuery.toQuery()).toBe(
+        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and ("words"."user_id" = \'user-123\' or "words"."is_public" = true) limit 1',
+      );
       expect(listQuery.toQuery()).toBe("user-123");
     });
   });

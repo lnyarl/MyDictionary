@@ -9,14 +9,14 @@ export class LikesRepository extends BaseRepository {
   /**
    * Find all words by user ID
    */
-  findByUserIdAndDefinitionId(userId: string, definitionId: string): Promise<Like> {
+  findByUserIdAndDefinitionId(userId: string, definitionId: string) {
     return this.query(this.tableName)
       .select<Like>(LikeSelect)
       .where({ user_id: userId, definition_id: definitionId })
       .first();
   }
 
-  findByDefinitionId(definitionId: string): Promise<Like[]> {
+  findByDefinitionId(definitionId: string) {
     return this.query(this.tableName)
       .select<Like[]>(LikeSelect)
       .where({ definition_id: definitionId });

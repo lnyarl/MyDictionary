@@ -3,7 +3,7 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
+} from "../test/helper/test-database.helper";
 import { LikesRepository } from "./likes.repository";
 
 describe("LikesRepository", () => {

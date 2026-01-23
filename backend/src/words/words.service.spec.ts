@@ -5,8 +5,8 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../../test/helper/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import type { CreateWordDto } from "./dto/create-word.dto";
 import type { UpdateWordDto } from "./dto/update-word.dto";
 import { WordsRepository } from "./words.repository";
