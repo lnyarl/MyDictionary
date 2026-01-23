@@ -51,4 +51,12 @@ export class UsersService {
   async getUserById(id: string): Promise<User | null> {
     return this.userRepository.findById(id);
   }
+
+  async suspendUser(id: string): Promise<User> {
+    return this.userRepository.updateStatus(id, new Date());
+  }
+
+  async unsuspendUser(id: string): Promise<User> {
+    return this.userRepository.updateStatus(id, null);
+  }
 }

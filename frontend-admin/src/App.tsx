@@ -5,6 +5,7 @@ import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
+import ReportsPage from "./pages/ReportsPage";
 import UserDetailPage from "./pages/UserDetailPage";
 import UsersListPage from "./pages/UsersListPage";
 
@@ -23,6 +24,7 @@ function App() {
 						<Route element={<PasswordChangeGuard />}>
 							<Route path="/users" element={<UsersListPage />} />
 							<Route path="/users/:id" element={<UserDetailPage />} />
+							<Route path="/reports" element={<ReportsPage />} />
 							<Route path="/admin-users" element={<AdminUsersPage />} />
 							<Route path="/" element={<Navigate to="/users" replace />} />
 						</Route>

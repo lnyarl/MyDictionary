@@ -1,4 +1,4 @@
-import { ExternalLink, History, Trash2 } from "lucide-react";
+import { ExternalLink, Flag, History, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { LikeButton } from "./LikeButton";
+import { ReportDialog } from "./ReportDialog";
 
 interface DefinitionCardProps {
 	definition: Definition;
@@ -90,6 +91,17 @@ export function DefinitionCard({
 						>
 							<History className="h-4 w-4" />
 						</Button>
+						{!isOwner && user && (
+							<ReportDialog
+								reportedUserId={definition.userId}
+								definitionId={definition.id}
+								trigger={
+									<Button variant="ghost" size="icon" title={t("common.report")}>
+										<Flag className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+									</Button>
+								}
+							/>
+						)}
 						{isOwner && (
 							<Button
 								variant="ghost"

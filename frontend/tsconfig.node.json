@@ -16,7 +16,14 @@
 		"strict": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true
+		"noFallthroughCasesInSwitch": true,
+
+		"paths": {
+			"@/*": ["./src/*"],
+			"@shared": ["../shared/src"],
+			"@shared/*": ["../shared/src/*"]
+		}
 	},
-	"include": ["vite.config.ts"]
+	"include": ["vite.config.ts"],
+	"references": [{ "path": "../shared" }]
 }

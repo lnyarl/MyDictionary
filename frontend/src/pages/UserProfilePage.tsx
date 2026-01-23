@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { BadgeList } from "../components/badges/BadgeList";
 import { DefinitionCard } from "../components/definitions/DefinitionCard";
 import { Page } from "../components/layout/Page";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
@@ -8,19 +9,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { ProfileStats } from "../components/users/ProfileStats";
 import { UserProfileHeader } from "../components/users/UserProfileHeader";
 import { useUserProfile } from "../hooks/useUserProfile";
+import { badgesApi } from "../lib/badges";
 import { followsApi } from "../lib/follows";
 import { usersApi } from "../lib/users";
+import type { BadgeWithProgress } from "../types/badge.types";
 import type { Definition } from "../types/definition.types";
 import type { Word } from "../types/word.types";
 
 export default function UserProfilePage() {
 	const { userId } = useParams<{ userId: string }>();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const initialTab = searchParams.get("tab") || "words";
+
 	const { profile, loading, fetchProfile } = useUserProfile(userId!);
 	const [isFollowing, setIsFollowing] = useState(false);
+
 	const [words, setWords] = useState<Word[]>([]);
 	const [definitions, setDefinitions] = useState<Definition[]>([]);
+	const [badges, setBadges] = useState<BadgeWithProgress[]>([]);
+
 	const [wordsLoading, setWordsLoading] = useState(false);
 	const [defsLoading, setDefsLoading] = useState(false);
+	const [badgesLoading, setBadgesLoading] = useState(false);
 
 	const checkFollowing = useCallback(async () => {
 		try {
@@ -31,7 +41,7 @@ export default function UserProfilePage() {
 		}
 	}, [userId]);
 
-	const fetchWords = async () => {
+	const fetchWords = useCallback(async () => {
 		setWordsLoading(true);
 		try {
 			const response = await usersApi.getUserWords(userId!);
@@ -41,9 +51,9 @@ export default function UserProfilePage() {
 		} finally {
 			setWordsLoading(false);
 		}
-	};
+	}, [userId]);
 
-	const fetchDefinitions = async () => {
+	const fetchDefinitions = useCallback(async () => {
 		setDefsLoading(true);
 		try {
 			const response = await usersApi.getUserDefinitions(userId!);
@@ -53,7 +63,19 @@ export default function UserProfilePage() {
 		} finally {
 			setDefsLoading(false);
 		}
-	};
+	}, [userId]);
+
+	const fetchBadges = useCallback(async () => {
+		setBadgesLoading(true);
+		try {
+			const response = await badgesApi.getUserBadges(userId!);
+			setBadges(response);
+		} catch (error) {
+			console.error("Failed to fetch badges", error);
+		} finally {
+			setBadgesLoading(false);
+		}
+	}, [userId]);
 
 	useEffect(() => {
 		if (userId) {
@@ -61,6 +83,29 @@ export default function UserProfilePage() {
 			checkFollowing();
 		}
 	}, [userId, fetchProfile, checkFollowing]);
+
+	// Initial data fetch based on tab
+	useEffect(() => {
+		if (!userId) return;
+
+		if (initialTab === "words" && words.length === 0) fetchWords();
+		else if (initialTab === "definitions" && definitions.length === 0) fetchDefinitions();
+		else if (initialTab === "badges" && badges.length === 0) fetchBadges();
+	}, [
+		userId,
+		initialTab,
+		fetchWords,
+		fetchDefinitions,
+		fetchBadges,
+		words.length,
+		definitions.length,
+		badges.length,
+	]);
+
+	const onTabChange = (value: string) => {
+		setSearchParams({ tab: value });
+		// Data fetching is handled by useEffect when tab changes
+	};
 
 	if (loading || !profile) {
 		return (
@@ -82,14 +127,11 @@ export default function UserProfilePage() {
 
 			<ProfileStats profile={profile} userId={userId!} />
 
-			<Tabs defaultValue="words" className="w-full">
+			<Tabs defaultValue={initialTab} onValueChange={onTabChange} className="w-full">
 				<TabsList>
-					<TabsTrigger value="words" onClick={fetchWords}>
-						단어
-					</TabsTrigger>
-					<TabsTrigger value="definitions" onClick={fetchDefinitions}>
-						정의
-					</TabsTrigger>
+					<TabsTrigger value="words">단어</TabsTrigger>
+					<TabsTrigger value="definitions">정의</TabsTrigger>
+					<TabsTrigger value="badges">뱃지</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="words">
@@ -134,13 +176,17 @@ export default function UserProfilePage() {
 								<DefinitionCard
 									key={definition.id}
 									definition={definition}
-									onDelete={() => { }}
-									onViewHistory={() => { }}
+									onDelete={() => {}}
+									onViewHistory={() => {}}
 									showWord={true}
 								/>
 							))}
 						</div>
 					)}
+				</TabsContent>
+
+				<TabsContent value="badges">
+					<BadgeList badges={badges} loading={badgesLoading} />
 				</TabsContent>
 			</Tabs>
 		</Page>

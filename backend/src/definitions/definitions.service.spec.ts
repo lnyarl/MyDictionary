@@ -1,12 +1,12 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { destroyTestRedisInstance, TestCacheModule } from "../common/cache/test-cache.module";
+import { destroyTestRedisInstance, TestCacheModule } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../common/database/test-database.helper";
-import { TestDatabaseModule } from "../common/database/test-database.module";
+} from "../../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../../test/helper/test-database.module";
 import { MetadataService } from "../common/services/metadata.service";
 import { FeedRepository } from "../feed/feed.repository";
 import { FeedService } from "../feed/feed.service";

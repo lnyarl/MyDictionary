@@ -6,17 +6,17 @@ import { OAuth2Client } from "google-auth-library";
 import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
 
-export interface GoogleUserData {
+export type GoogleUserData = {
   googleId: string;
   email: string;
   name: string;
   picture?: string;
-}
+};
 
-export interface JwtPayload {
+export type JwtPayload = {
   sub: string;
   email: string;
-}
+};
 
 @Injectable()
 export class AuthService {

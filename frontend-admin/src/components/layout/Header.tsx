@@ -27,6 +27,16 @@ export function Header() {
 						>
 							Users
 						</Link>
+						<Link
+							to="/reports"
+							className={`px-3 py-2 rounded-md text-sm font-medium ${
+								isActive("/reports")
+									? "bg-gray-100 text-gray-900"
+									: "text-gray-600 hover:bg-gray-50"
+							}`}
+						>
+							Reports
+						</Link>
 						{admin?.role === AdminRole.SUPER_ADMIN && (
 							<Link
 								to="/admin-users"

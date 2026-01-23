@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Type } from "class-transformer";
 import { IsInt, IsOptional, Max, Min } from "class-validator";
 
@@ -16,7 +17,7 @@ export class PaginationDto {
   limit?: number = 20;
 
   get offset(): number {
-    return (this.page - 1) * this.limit;
+    return ((this.page ?? 0) - 1) * (this.limit ?? 0);
   }
 }
 

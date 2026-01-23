@@ -5,8 +5,8 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../common/database/test-database.helper";
-import { TestDatabaseModule } from "../common/database/test-database.module";
+} from "../../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../../test/helper/test-database.module";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";

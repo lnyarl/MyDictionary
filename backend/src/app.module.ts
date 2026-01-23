@@ -6,15 +6,20 @@ import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } fro
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { BadgesModule } from "./badges/badges.module";
 import { CacheModule } from "./common/cache/cache.module";
 import { CommonModule } from "./common/common.module";
 import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
+import { EventsModule } from "./common/events/events.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
+import { SuspendedUserGuard } from "./common/guards/suspended-user.guard";
 import { DefinitionsModule } from "./definitions/definitions.module";
 import { FeedModule } from "./feed/feed.module";
 import { FollowsModule } from "./follows/follows.module";
 import { LikesModule } from "./likes/likes.module";
+import { NotificationsModule } from "./notifications/notifications.module";
+import { ReportsModule } from "./reports/reports.module";
 import { UsersModule } from "./users/users.module";
 import { WordsModule } from "./words/words.module";
 
@@ -42,6 +47,7 @@ import { WordsModule } from "./words/words.module";
     CacheModule,
     CommonModule,
     DatabaseModule,
+    EventsModule,
     UsersModule,
     AuthModule,
     WordsModule,
@@ -49,6 +55,9 @@ import { WordsModule } from "./words/words.module";
     LikesModule,
     FollowsModule,
     FeedModule,
+    NotificationsModule,
+    BadgesModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -57,6 +66,10 @@ import { WordsModule } from "./words/words.module";
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: SuspendedUserGuard,
     },
   ],
 })

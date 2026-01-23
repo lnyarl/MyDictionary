@@ -7,7 +7,7 @@ import { BaseRepository } from "../common/database/base.repository";
 export class UsersRepository extends BaseRepository {
   private tableName = TABLES.USERS;
 
-  findById(id: string): Promise<User | null> {
+  findById(id: string) {
     return this.query(this.tableName).select<User>(UserSelect).where({ id }).first();
   }
 

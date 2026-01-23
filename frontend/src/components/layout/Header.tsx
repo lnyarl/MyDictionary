@@ -6,6 +6,7 @@ import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
 import { MockLoginButton } from "../auth/MockLoginButton";
 import { UserMenu } from "../auth/UserMenu";
+import { NotificationDropdown } from "../notifications/NotificationDropdown";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Header() {
@@ -37,7 +38,7 @@ export function Header() {
 				<nav className="hidden md:flex items-center space-x-1">
 					{!isLoading && (
 						<>
-							{isAuthenticated && (
+							{isAuthenticated &&
 								navItems.map((item) => (
 									<Link
 										key={item.path}
@@ -51,12 +52,12 @@ export function Header() {
 									>
 										{item.name}
 									</Link>
-								))
-							)}
+								))}
 							<div className="ml-2 flex items-center space-x-2">
 								<LanguageSwitcher />
 								{isAuthenticated ? (
-									<div className="ml-2 pl-4 border-l h-6 border-border flex items-center">
+									<div className="ml-2 pl-4 border-l h-6 border-border flex items-center gap-2">
+										<NotificationDropdown />
 										<UserMenu />
 									</div>
 								) : (
@@ -74,7 +75,10 @@ export function Header() {
 					<LanguageSwitcher />
 					{!isLoading &&
 						(isAuthenticated ? (
-							<UserMenu />
+							<div className="flex items-center gap-2">
+								<NotificationDropdown />
+								<UserMenu />
+							</div>
 						) : (
 							<>
 								<MockLoginButton />

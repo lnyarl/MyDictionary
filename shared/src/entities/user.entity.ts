@@ -1,4 +1,4 @@
-export class User {
+export type User = {
   id: string;
   googleId: string | null;
   email: string;
@@ -8,7 +8,8 @@ export class User {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-}
+  suspendedAt: Date | null;
+};
 
 export const UserSelect = {
   id: "id",
@@ -20,6 +21,7 @@ export const UserSelect = {
   createdAt: "created_at",
   updatedAt: "updated_at",
   deletedAt: "deleted_at",
+  suspendedAt: "suspended_at",
 } as const;
 
 // For database inserts (optional fields)

@@ -1,0 +1,64 @@
+import { Injectable, Logger } from "@nestjs/common";
+import { BadgesService } from "../../../badges/badges.service";
+import { EventPayload, EventType, FollowEventPayload, LikeEventPayload } from "../event.types";
+import { PubSubMessage } from "../pubsub/pubsub.interface";
+import { EventHandler } from "./event-handler.interface";
+
+@Injectable()
+export class BadgeProgressHandler implements EventHandler {
+  private readonly logger = new Logger(BadgeProgressHandler.name);
+
+  constructor(private readonly badgesService: BadgesService) {}
+
+  readonly supportedEvents = [
+    EventType.WORD_CREATE,
+    EventType.DEFINITION_CREATE,
+    EventType.USER_FOLLOW,
+    EventType.DEFINITION_LIKE,
+  ];
+
+  async handle(message: PubSubMessage<EventPayload>): Promise<void> {
+    try {
+      await this.processBadgeProgress(message.type as EventType, message.payload);
+    } catch (error) {
+      this.logger.error(`Failed to process badge progress for event ${message.type}:`, error);
+    }
+  }
+
+  private async processBadgeProgress(eventType: EventType, payload: EventPayload): Promise<void> {
+    let targetUserId: string;
+    let badgeEventType: string;
+
+    switch (eventType) {
+      case EventType.WORD_CREATE:
+        targetUserId = payload.userId;
+        badgeEventType = "word_create";
+        break;
+
+      case EventType.DEFINITION_CREATE:
+        targetUserId = payload.userId;
+        badgeEventType = "definition_create";
+        break;
+
+      case EventType.USER_FOLLOW:
+        targetUserId = (payload as FollowEventPayload).targetUserId;
+        badgeEventType = "user_followed";
+        break;
+
+      case EventType.DEFINITION_LIKE:
+        targetUserId = (payload as LikeEventPayload).definitionOwnerId;
+        badgeEventType = "like_received";
+        break;
+
+      default:
+        return;
+    }
+
+    if (!targetUserId) {
+      this.logger.warn(`No target user ID found for event ${eventType}`);
+      return;
+    }
+
+    await this.badgesService.updateProgressAndCheckBadges(targetUserId, badgeEventType);
+  }
+}

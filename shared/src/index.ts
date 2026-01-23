@@ -11,7 +11,13 @@ export type { TableName } from "./constants/tables";
 export { TABLES } from "./constants/tables";
 // DTOs
 export { PaginatedResponseDto, PaginationDto } from "./dto/pagination.dto";
-export { User } from "./entities/user.entity";
+export type { Report, ReportInsert, ReportUpdate } from "./entities/report.entity";
+export {
+  ReportReason,
+  ReportSelect,
+  ReportStatus,
+} from "./entities/report.entity";
+export type { User } from "./entities/user.entity";
 // Types
 export * from "./types";
 export { generateRandomNickname, isValidNickname } from "./utils/generate-nickname.util";

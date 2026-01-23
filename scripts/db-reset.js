@@ -1,6 +1,6 @@
 const { execSync } = require("child_process");
-require('dotenv').config({
-  path: './backend/.env'
+require("dotenv").config({
+  path: "./backend/.env",
 });
 
 const DB_CONTAINER = "stashy-db-dev";
@@ -28,7 +28,15 @@ GRANT ALL ON SCHEMA public TO public;
 
     // Step 2: Run migrations
     console.log("Step 2: Running migrations via migrate.js...");
-    execSync(`docker exec --env-file ./backend/.env -i ${DB_CONTAINER} node /app/backend/scripts/migrate.js`, {
+    execSync(
+      `docker exec --env-file ./backend/.env -i ${DB_CONTAINER} node /app/backend/scripts/migrate.js`,
+      {
+        stdio: "inherit",
+      },
+    );
+
+    console.log("\nStep 3: Generating database types...");
+    execSync("node scripts/generate-db-types.js", {
       stdio: "inherit",
     });
 

@@ -1,4 +1,4 @@
-import { ChevronRight, Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { Word } from "../../types/word.types";
@@ -45,7 +45,13 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
 					</div>
 
 					<div className="flex gap-2">
-						<Button variant="ghost" size="icon" onClick={handleEditClick} title={t("common.edit")}>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={handleEditClick}
+							title={t("common.edit")}
+							className="hover:border-1"
+						>
 							<Edit2 className="h-4 w-4" />
 						</Button>
 						<Button
@@ -53,10 +59,10 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
 							size="icon"
 							onClick={handleDeleteClick}
 							title={t("common.delete")}
+							className="hover:border-1"
 						>
 							<Trash2 className="h-4 w-4 text-destructive" />
 						</Button>
-						<ChevronRight className="h-5 w-5 text-muted-foreground ml-2" />
 					</div>
 				</div>
 			</CardHeader>

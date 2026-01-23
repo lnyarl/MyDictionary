@@ -1,5 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { NotificationType } from "../notifications/entities/notification.entity";
+import { NotificationsService } from "../notifications/notifications.service";
 import { User } from "../users/entities/user.entity";
 import { UsersRepository } from "../users/users.repository";
 import { Follow } from "./entities/follow.entity";
@@ -10,6 +18,8 @@ export class FollowsService {
   constructor(
     private readonly followRepository: FollowsRepository,
     private readonly userRepository: UsersRepository,
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async follow(followerId: string, followingId: string): Promise<Follow> {
@@ -36,11 +46,22 @@ export class FollowsService {
       throw new BadRequestException("Already following this user");
     }
 
-    // Create new follow
     const result = await this.followRepository.create({
       followerId,
       followingId,
     });
+
+    const follower = await this.userRepository.findById(followerId);
+    if (follower) {
+      await this.notificationsService.createNotification({
+        userId: followingId,
+        type: NotificationType.FOLLOW,
+        title: `${follower.nickname}님이 회원님을 팔로우하기 시작했습니다`,
+        actorId: followerId,
+        targetUrl: `/users/${followerId}`,
+      });
+    }
+
     return result[0];
   }
 

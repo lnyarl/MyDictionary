@@ -27,4 +27,12 @@ export const usersApi = {
 	impersonateUser: async (id: string): Promise<{ token: string }> => {
 		return api.post<{ token: string }>(`/users/${id}/impersonate`, {});
 	},
+
+	suspendUser: async (id: string): Promise<User> => {
+		return api.post<User>(`/users/${id}/suspend`, {});
+	},
+
+	unsuspendUser: async (id: string): Promise<User> => {
+		return api.post<User>(`/users/${id}/unsuspend`, {});
+	},
 };

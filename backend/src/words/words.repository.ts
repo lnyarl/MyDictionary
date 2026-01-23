@@ -7,7 +7,7 @@ import { Word, WordSelect } from "./entities/word.entity";
 export class WordsRepository extends BaseRepository {
   private tableName: TableName = TABLES.WORDS;
 
-  findByUserId(userId: string): Promise<Word[]> {
+  findByUserId(userId: string) {
     return this.query(this.tableName)
       .select<Word[]>(WordSelect)
       .where({ user_id: userId })
@@ -27,7 +27,7 @@ export class WordsRepository extends BaseRepository {
     return { listQuery, countQuery };
   }
 
-  countPublicByUserId(userId: string): Promise<number> {
+  countPublicByUserId(userId: string) {
     return this.query(this.tableName)
       .where({ user_id: userId, is_public: true })
       .count("* as count")
@@ -48,15 +48,15 @@ export class WordsRepository extends BaseRepository {
       .returning("id");
   }
 
-  delete(id: string): Promise<void> {
+  delete(id: string) {
     return this.softDelete(this.tableName, id);
   }
 
-  updateAll(id: string, data: Partial<Word>): Promise<Word> {
-    return this.update(this.tableName, id, data);
+  async updateAll(id: string, data: Partial<Word>) {
+    return await this.update<Word>(this.tableName, id, data);
   }
 
-  findById(id: string): Promise<Word> {
+  findById(id: string) {
     return this.query(this.tableName).select<Word>(WordSelect).where({ id }).first();
   }
 

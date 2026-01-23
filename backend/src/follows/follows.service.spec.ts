@@ -4,11 +4,13 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../common/database/test-database.helper";
-import { TestDatabaseModule } from "../common/database/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { UsersRepository } from "../users/users.repository";
 import { FollowsRepository } from "./follows.repository";
 import { FollowsService } from "./follows.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("FollowsService", () => {
   let service: FollowsService;
@@ -33,7 +35,13 @@ describe("FollowsService", () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [TestDatabaseModule],
-      providers: [FollowsService, FollowsRepository, UsersRepository],
+      providers: [
+        FollowsService,
+        FollowsRepository,
+        UsersRepository,
+        NotificationsService,
+        NotificationsRepository,
+      ],
     }).compile();
 
     service = module.get<FollowsService>(FollowsService);

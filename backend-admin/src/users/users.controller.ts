@@ -45,4 +45,16 @@ export class UsersController {
     const token = this.authService.generateUserJwtToken(user);
     return { token };
   }
+
+  @Post("users/:id/suspend")
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.OPERATOR)
+  async suspendUser(@Param("id") id: string) {
+    return this.usersService.suspendUser(id);
+  }
+
+  @Post("users/:id/unsuspend")
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.OPERATOR)
+  async unsuspendUser(@Param("id") id: string) {
+    return this.usersService.unsuspendUser(id);
+  }
 }

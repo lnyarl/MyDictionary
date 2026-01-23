@@ -12,6 +12,7 @@ import { PasswordChangeRequiredGuard } from "./auth/guards/password-change-requi
 import { RolesGuard } from "./auth/guards/roles.guard";
 import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
+import { ReportsModule } from "./reports/reports.module";
 import { UsersModule } from "./users/users.module";
 import { WordsModule } from "./words/words.module";
 
@@ -41,6 +42,7 @@ import { WordsModule } from "./words/words.module";
     AuthModule,
     UsersModule,
     WordsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [

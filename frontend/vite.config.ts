@@ -25,6 +25,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+			"@shared": path.resolve(__dirname, "../shared/src"),
 			react: path.resolve(__dirname, "../node_modules/react"),
 			"react-dom": path.resolve(__dirname, "../node_modules/react-dom"),
 		},
@@ -37,6 +38,10 @@ export default defineConfig({
 				changeOrigin: true,
 				rewrite: (path) => path.replace(/^\/api/, ""),
 			},
+		},
+		fs: {
+			// 루트 외부의 파일 접근 허용
+			allow: [".."],
 		},
 	},
 });

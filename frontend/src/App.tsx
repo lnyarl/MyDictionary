@@ -9,6 +9,7 @@ import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";
 import HomePage from "./pages/HomePage";
 import ImpersonatePage from "./pages/ImpersonatePage";
+import NotificationsPage from "./pages/NotificationsPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import SettingsPage from "./pages/SettingsPage";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -32,6 +33,7 @@ function App() {
 								<Route path="/dashboard" element={<DashboardPage />} />
 								<Route path="/words/:wordId/edit" element={<WordEditPage />} />
 								<Route path="/settings" element={<SettingsPage />} />
+								<Route path="/notifications" element={<NotificationsPage />} />
 								<Route path="/users/:userId" element={<UserProfilePage />} />
 								<Route path="/users/:userId/followers" element={<FollowersPage />} />
 								<Route path="/users/:userId/following" element={<FollowingPage />} />

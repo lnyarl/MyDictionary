@@ -4,13 +4,13 @@ import {
   destroyTestRedisInstance,
   flushTestRedis,
   TestCacheModule,
-} from "../common/cache/test-cache.module";
+} from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../common/database/test-database.helper";
-import { TestDatabaseModule } from "../common/database/test-database.module";
+} from "../../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../../test/helper/test-database.module";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
 import { UsersRepository } from "../users/users.repository";

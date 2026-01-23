@@ -16,6 +16,7 @@ export class UsersRepository extends BaseRepository {
     createdAt: "created_at",
     updatedAt: "updated_at",
     deletedAt: "deleted_at",
+    suspendedAt: "suspended_at",
   };
 
   findUsers(offset: number, limit: number) {
@@ -79,6 +80,28 @@ export class UsersRepository extends BaseRepository {
         "created_at as createdAt",
         "updated_at as updatedAt",
         "deleted_at as deletedAt",
+        "suspended_at as suspendedAt",
+      ]);
+    return result;
+  }
+
+  async updateStatus(id: string, suspendedAt: Date | null): Promise<User> {
+    const [result] = await this.knex(this.tableName)
+      .where({ id })
+      .update({
+        suspended_at: suspendedAt,
+        updated_at: new Date(),
+      })
+      .returning([
+        "id",
+        "google_id as googleId",
+        "email",
+        "nickname",
+        "profile_picture as profilePicture",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+        "suspended_at as suspendedAt",
       ]);
     return result;
   }

@@ -26,7 +26,7 @@
     "build:backend-admin": "cd backend-admin && yarn build",
     "build:frontend": "cd frontend && yarn build",
     "build:frontend-admin": "cd frontend-admin && yarn build",
-    "build:all": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
+    "build": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
     "test": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:backend\" \"yarn test:backend-admin\"",
     "test:backend": "cd backend && yarn test",
     "test:backend-admin": "cd backend-admin && yarn test",
@@ -43,6 +43,7 @@
     "docker:down": "docker-compose down",
     "db:reset": "node scripts/db-reset.js",
     "db:migration": "node scripts/db-migration.js",
+    "db:generate-types": "node scripts/generate-db-types.js",
     "prepare": "husky"
   },
   "lint-staged": {

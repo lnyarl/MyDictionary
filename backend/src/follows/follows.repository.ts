@@ -69,25 +69,25 @@ export class FollowsRepository extends BaseRepository {
       .first();
   }
 
-  findById(id: string): Promise<Follow | null> {
+  findById(id: string) {
     return this.query(this.tableName).select<Follow>(FollowSelect).where({ id }).first();
   }
 
-  findFollowingIds(userId: string): Promise<string[]> {
+  findFollowingIds(userId: string) {
     return this.query(this.tableName)
       .select("following_id")
       .where({ follower_id: userId })
       .pluck("following_id");
   }
 
-  findFollowerIds(userId: string): Promise<string[]> {
+  findFollowerIds(userId: string) {
     return this.query(this.tableName)
       .select("follower_id")
       .where({ following_id: userId })
       .pluck("follower_id");
   }
 
-  delete(id: string): Promise<void> {
+  delete(id: string) {
     return this.softDelete(this.tableName, id);
   }
 
