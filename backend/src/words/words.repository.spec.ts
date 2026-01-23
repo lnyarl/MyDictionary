@@ -65,7 +65,45 @@ describe("WordsRepository", () => {
       expect(countQuery.toQuery()).toBe(
         'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and "words"."is_public" = true limit 1',
       );
-      expect(listQuery.toQuery()).toBe("definitions");
+      expect(listQuery.toQuery()).toBe(
+        `select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."is_public" as "isPublic", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', d.id,
+                'content', d.content,
+                'wordId', d.word_id,
+                'userId', d.user_id,
+                'likesCount', 0,
+                'createdAt', d.created_at,
+                'updatedAt', d.updated_at,
+                'user', json_build_object(
+                  'id', du.id,
+                  'nickname', du.nickname,
+                  'email', du.email,
+                  'googleId', du.google_id,
+                  'profilePicture', du.profile_picture,
+                  'createdAt', du.created_at,
+                  'updatedAt', du.updated_at,
+                  'deletedAt', du.deleted_at
+                )
+              ) ORDER BY d.created_at DESC
+            ) FILTER (WHERE d.id IS NOT NULL),
+            '[]'
+          ) as definitions
+        , 
+          json_build_object(
+            'id', wu.id,
+            'nickname', wu.nickname,
+            'email', wu.email,
+            'googleId', wu.google_id,
+            'profilePicture', wu.profile_picture,
+            'createdAt', wu.created_at,
+            'updatedAt', wu.updated_at,
+            'deletedAt', wu.deleted_at
+          ) as user
+         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and "words"."is_public" = true group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`,
+      );
     });
 
     it("should generate correct query with userId", () => {
@@ -73,7 +111,45 @@ describe("WordsRepository", () => {
       expect(countQuery.toQuery()).toBe(
         'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and ("words"."user_id" = \'user-123\' or "words"."is_public" = true) limit 1',
       );
-      expect(listQuery.toQuery()).toBe("user-123");
+      expect(
+        listQuery.toQuery(),
+      ).toBe(`select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."is_public" as "isPublic", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', d.id,
+                'content', d.content,
+                'wordId', d.word_id,
+                'userId', d.user_id,
+                'likesCount', 0,
+                'createdAt', d.created_at,
+                'updatedAt', d.updated_at,
+                'user', json_build_object(
+                  'id', du.id,
+                  'nickname', du.nickname,
+                  'email', du.email,
+                  'googleId', du.google_id,
+                  'profilePicture', du.profile_picture,
+                  'createdAt', du.created_at,
+                  'updatedAt', du.updated_at,
+                  'deletedAt', du.deleted_at
+                )
+              ) ORDER BY d.created_at DESC
+            ) FILTER (WHERE d.id IS NOT NULL),
+            '[]'
+          ) as definitions
+        , 
+          json_build_object(
+            'id', wu.id,
+            'nickname', wu.nickname,
+            'email', wu.email,
+            'googleId', wu.google_id,
+            'profilePicture', wu.profile_picture,
+            'createdAt', wu.created_at,
+            'updatedAt', wu.updated_at,
+            'deletedAt', wu.deleted_at
+          ) as user
+         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and ("words"."user_id" = 'user-123' or "words"."is_public" = true) group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`);
     });
   });
 });

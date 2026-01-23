@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { TABLES } from "@shared";
 import { Knex } from "knex";
 import { createTestKnexInstance, destroyTestKnexInstance } from "./test-database.module";
@@ -11,134 +13,25 @@ export class TestDatabaseHelper {
 
   async setupSchema(): Promise<void> {
     const hasUsers = await this.knex.schema.hasTable(TABLES.USERS);
-    if (!hasUsers) {
-      await this.knex.schema.createTable(TABLES.USERS, (table) => {
-        table.uuid("id").primary().defaultTo(this.knex.raw("gen_random_uuid()"));
-        table.string("google_id", 255).unique();
-        table.string("email", 255).unique().notNullable();
-        table.string("nickname", 255).unique().notNullable();
-        table.string("profile_picture", 500);
-        table.text("bio");
-        table.timestamp("created_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("updated_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("deleted_at");
-      });
+    if (hasUsers) {
+      return;
     }
 
-    const hasWords = await this.knex.schema.hasTable(TABLES.WORDS);
-    if (!hasWords) {
-      await this.knex.schema.createTable(TABLES.WORDS, (table) => {
-        table.uuid("id").primary().defaultTo(this.knex.raw("gen_random_uuid()"));
-        table.string("term", 100).notNullable();
-        table
-          .uuid("user_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.USERS)
-          .onDelete("CASCADE");
-        table.boolean("is_public").notNullable().defaultTo(false);
-        table.timestamp("created_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("updated_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("deleted_at");
-      });
+    const migrationsDir = path.resolve(process.cwd(), "migrations");
+
+    if (!fs.existsSync(migrationsDir)) {
+      throw new Error(`Migrations directory not found: ${migrationsDir}`);
     }
 
-    const hasDefinitions = await this.knex.schema.hasTable(TABLES.DEFINITIONS);
-    if (!hasDefinitions) {
-      await this.knex.schema.createTable(TABLES.DEFINITIONS, (table) => {
-        table.uuid("id").primary().defaultTo(this.knex.raw("gen_random_uuid()"));
-        table.text("content").notNullable();
-        table
-          .uuid("word_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.WORDS)
-          .onDelete("CASCADE");
-        table
-          .uuid("user_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.USERS)
-          .onDelete("CASCADE");
-        table.integer("likes_count").notNullable().defaultTo(0);
-        table.specificType("tags", "text[]").defaultTo("{}");
-        table.jsonb("media_urls").defaultTo("[]");
-        table.jsonb("link_metadata");
-        table.timestamp("created_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("updated_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("deleted_at");
-      });
-    }
+    const files = fs
+      .readdirSync(migrationsDir)
+      .filter((f) => f.endsWith(".sql"))
+      .sort();
 
-    const hasLikes = await this.knex.schema.hasTable(TABLES.LIKES);
-    if (!hasLikes) {
-      await this.knex.schema.createTable(TABLES.LIKES, (table) => {
-        table.uuid("id").primary().defaultTo(this.knex.raw("gen_random_uuid()"));
-        table
-          .uuid("user_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.USERS)
-          .onDelete("CASCADE");
-        table
-          .uuid("definition_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.DEFINITIONS)
-          .onDelete("CASCADE");
-        table.timestamp("created_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("updated_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("deleted_at");
-        table.unique(["user_id", "definition_id"]);
-      });
+    for (const filename of files) {
+      const sql = fs.readFileSync(path.join(migrationsDir, filename), "utf8");
+      await this.knex.raw(sql);
     }
-
-    const hasFollows = await this.knex.schema.hasTable(TABLES.FOLLOWS);
-    if (!hasFollows) {
-      await this.knex.schema.createTable(TABLES.FOLLOWS, (table) => {
-        table.uuid("id").primary().defaultTo(this.knex.raw("gen_random_uuid()"));
-        table
-          .uuid("follower_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.USERS)
-          .onDelete("CASCADE");
-        table
-          .uuid("following_id")
-          .notNullable()
-          .references("id")
-          .inTable(TABLES.USERS)
-          .onDelete("CASCADE");
-        table.timestamp("created_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("updated_at").notNullable().defaultTo(this.knex.fn.now());
-        table.timestamp("deleted_at");
-        table.unique(["follower_id", "following_id"]);
-      });
-    }
-
-    await this.knex.raw(`
-      CREATE OR REPLACE VIEW ${TABLES.DEFINITIONS_LIKE_VIEW} AS
-      SELECT 
-        d.id,
-        d.content,
-        d.word_id,
-        d.user_id,
-        d.tags,
-        d.media_urls,
-        d.link_metadata,
-        d.created_at,
-        d.updated_at,
-        d.deleted_at,
-        COALESCE(l.likes_count, 0)::integer as likes_count
-      FROM ${TABLES.DEFINITIONS} d
-      LEFT JOIN (
-        SELECT definition_id, COUNT(*) as likes_count
-        FROM ${TABLES.LIKES}
-        WHERE deleted_at IS NULL
-        GROUP BY definition_id
-      ) l ON d.id = l.definition_id
-      WHERE d.deleted_at IS NULL
-    `);
   }
 
   async cleanAll(): Promise<void> {

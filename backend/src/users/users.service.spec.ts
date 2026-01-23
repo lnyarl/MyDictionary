@@ -4,14 +4,16 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../../test/helper/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
 import { WordsRepository } from "../words/words.repository";
 import { UsersRepository } from "./users.repository";
 import { UsersService } from "./users.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("UsersService", () => {
   let service: UsersService;
@@ -45,6 +47,8 @@ describe("UsersService", () => {
         DefinitionsRepository,
         FollowsService,
         FollowsRepository,
+        NotificationsService,
+        NotificationsRepository,
       ],
     }).compile();
 

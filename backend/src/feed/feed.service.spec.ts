@@ -9,13 +9,15 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../../test/helper/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
 import { UsersRepository } from "../users/users.repository";
 import { FeedRepository } from "./feed.repository";
 import { FeedService } from "./feed.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("FeedService", () => {
   let service: FeedService;
@@ -40,7 +42,15 @@ describe("FeedService", () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [TestDatabaseModule, TestCacheModule],
-      providers: [FeedService, FeedRepository, FollowsService, FollowsRepository, UsersRepository],
+      providers: [
+        FeedService,
+        FeedRepository,
+        FollowsService,
+        FollowsRepository,
+        UsersRepository,
+        NotificationsService,
+        NotificationsRepository,
+      ],
     }).compile();
 
     service = module.get<FeedService>(FeedService);

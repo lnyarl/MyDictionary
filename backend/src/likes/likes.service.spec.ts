@@ -4,11 +4,15 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../../test/helper/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { LikesRepository } from "./likes.repository";
 import { LikesService } from "./likes.service";
+import { UsersRepository } from "../users/users.repository";
+import { WordsRepository } from "../words/words.repository";
+import { NotificationsService } from "../notifications/notifications.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("LikesService", () => {
   let service: LikesService;
@@ -41,7 +45,15 @@ describe("LikesService", () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [TestDatabaseModule],
-      providers: [LikesService, LikesRepository, DefinitionsRepository],
+      providers: [
+        LikesService,
+        LikesRepository,
+        DefinitionsRepository,
+        UsersRepository,
+        WordsRepository,
+        NotificationsService,
+        NotificationsRepository,
+      ],
     }).compile();
 
     service = module.get<LikesService>(LikesService);

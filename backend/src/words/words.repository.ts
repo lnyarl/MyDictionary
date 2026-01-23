@@ -94,43 +94,43 @@ export class WordsRepository extends BaseRepository {
         `${TABLES.WORDS}.updated_at as updatedAt`,
         `${TABLES.WORDS}.deleted_at as deletedAt`,
         this.knex.raw(`
-					COALESCE(
-						json_agg(
-							json_build_object(
-								'id', d.id,
-								'content', d.content,
-								'wordId', d.word_id,
-								'userId', d.user_id,
-								'likesCount', 0,
-								'createdAt', d.created_at,
-								'updatedAt', d.updated_at,
-								'user', json_build_object(
-									'id', du.id,
-									'nickname', du.nickname,
-									'email', du.email,
-									'googleId', du.google_id,
-									'profilePicture', du.profile_picture,
-									'createdAt', du.created_at,
-									'updatedAt', du.updated_at,
-									'deletedAt', du.deleted_at
-								)
-							) ORDER BY d.created_at DESC
-						) FILTER (WHERE d.id IS NOT NULL),
-						'[]'
-					) as definitions
-				`),
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', d.id,
+                'content', d.content,
+                'wordId', d.word_id,
+                'userId', d.user_id,
+                'likesCount', 0,
+                'createdAt', d.created_at,
+                'updatedAt', d.updated_at,
+                'user', json_build_object(
+                  'id', du.id,
+                  'nickname', du.nickname,
+                  'email', du.email,
+                  'googleId', du.google_id,
+                  'profilePicture', du.profile_picture,
+                  'createdAt', du.created_at,
+                  'updatedAt', du.updated_at,
+                  'deletedAt', du.deleted_at
+                )
+              ) ORDER BY d.created_at DESC
+            ) FILTER (WHERE d.id IS NOT NULL),
+            '[]'
+          ) as definitions
+        `),
         this.knex.raw(`
-					json_build_object(
-						'id', wu.id,
-						'nickname', wu.nickname,
-						'email', wu.email,
-						'googleId', wu.google_id,
-						'profilePicture', wu.profile_picture,
-						'createdAt', wu.created_at,
-						'updatedAt', wu.updated_at,
-						'deletedAt', wu.deleted_at
-					) as user
-				`),
+          json_build_object(
+            'id', wu.id,
+            'nickname', wu.nickname,
+            'email', wu.email,
+            'googleId', wu.google_id,
+            'profilePicture', wu.profile_picture,
+            'createdAt', wu.created_at,
+            'updatedAt', wu.updated_at,
+            'deletedAt', wu.deleted_at
+          ) as user
+        `),
       )
       .leftJoin(`${TABLES.DEFINITIONS} as d`, function () {
         this.on(`d.word_id`, "=", `${TABLES.WORDS}.id`).andOnNull("d.deleted_at");

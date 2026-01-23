@@ -44,7 +44,9 @@ describe("FollowsRepository", () => {
       expect(listQuery.toQuery()).toBe(
         'select "users"."id" as "id", "users"."google_id" as "googleId", "users"."email" as "email", "users"."nickname" as "nickname", "users"."bio" as "bio", "users"."profile_picture" as "profilePicture", "users"."created_at" as "createdAt", "users"."updated_at" as "updatedAt", "users"."deleted_at" as "deletedAt", "users"."suspended_at" as "suspendedAt" from "follows" left join "users" on "follows"."follower_id" = "users"."id" where "follows"."deleted_at" is null and "following_id" = \'user-123\' order by "follows"."created_at" desc limit 20 offset 10',
       );
-      expect(countQuery.toQuery()).toBe("");
+      expect(countQuery.toQuery()).toBe(
+        'select count("id") as "count" from "follows" where "follows"."deleted_at" is null and "following_id" = \'user-123\' limit 1',
+      );
     });
   });
 
@@ -54,7 +56,9 @@ describe("FollowsRepository", () => {
       expect(listQuery.toQuery()).toBe(
         'select "users"."id" as "id", "users"."google_id" as "googleId", "users"."email" as "email", "users"."nickname" as "nickname", "users"."bio" as "bio", "users"."profile_picture" as "profilePicture", "users"."created_at" as "createdAt", "users"."updated_at" as "updatedAt", "users"."deleted_at" as "deletedAt", "users"."suspended_at" as "suspendedAt" from "follows" left join "users" on "follows"."following_id" = "users"."id" where "follows"."deleted_at" is null and "follower_id" = \'user-123\' order by "follows"."created_at" desc limit 15 offset 5',
       );
-      expect(countQuery.toQuery()).toBe("");
+      expect(countQuery.toQuery()).toBe(
+        'select count("id") as "count" from "follows" where "follows"."deleted_at" is null and "follower_id" = \'user-123\' limit 1',
+      );
     });
   });
 

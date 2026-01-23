@@ -5,8 +5,8 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../../test/helper/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { MetadataService } from "../common/services/metadata.service";
 import { FeedRepository } from "../feed/feed.repository";
 import { FeedService } from "../feed/feed.service";
@@ -17,6 +17,8 @@ import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
+import { NotificationsService } from "../notifications/notifications.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("DefinitionsService", () => {
   let service: DefinitionsService;
@@ -51,6 +53,8 @@ describe("DefinitionsService", () => {
         FollowsService,
         FollowsRepository,
         UsersRepository,
+        NotificationsService,
+        NotificationsRepository,
         {
           provide: MetadataService,
           useValue: {

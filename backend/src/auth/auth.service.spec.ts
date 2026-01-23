@@ -5,8 +5,8 @@ import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
-} from "../../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../../test/helper/test-database.module";
+} from "../test/helper/test-database.helper";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
@@ -14,6 +14,8 @@ import { UsersRepository } from "../users/users.repository";
 import { UsersService } from "../users/users.service";
 import { WordsRepository } from "../words/words.repository";
 import { AuthService } from "./auth.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
 
 describe("AuthService", () => {
   let service: AuthService;
@@ -41,6 +43,8 @@ describe("AuthService", () => {
         DefinitionsRepository,
         FollowsService,
         FollowsRepository,
+        NotificationsService,
+        NotificationsRepository,
         {
           provide: JwtService,
           useValue: {
