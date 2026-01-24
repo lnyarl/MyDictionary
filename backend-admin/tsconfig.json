@@ -19,8 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
     "paths": {
-      "@shared": ["../shared/src"],
-      "@shared/*": ["../shared/src/*"]
+      "@shared": ["../shared/dist"],
+      "@shared/*": ["../shared/dist/*"]
     }
   },
   "include": ["src/**/*"],

@@ -11,22 +11,22 @@
     "shared"
   ],
   "scripts": {
-    "install:all": "yarn install",
     "dev": "concurrently -n \"shared,backend,admin-be,frontend,admin-fe\" -c \"cyan,green,yellow,blue,magenta\" \"yarn dev:shared\" \"yarn dev:backend\" \"yarn dev:backend-admin\" \"yarn dev:frontend\" \"yarn dev:frontend-admin\"",
-    "dev:all": "concurrently -n \"shared,backend,admin-be,frontend,admin-fe\" -c \"cyan,green,yellow,blue,magenta\" \"yarn dev:shared\" \"yarn dev:backend\" \"yarn dev:backend-admin\" \"yarn dev:frontend\" \"yarn dev:frontend-admin\"",
     "dev:main": "concurrently -n \"shared,backend,frontend\" -c \"cyan,green,blue\" \"yarn dev:shared\" \"yarn dev:backend\" \"yarn dev:frontend\"",
     "dev:admin": "concurrently -n \"shared,admin-be,admin-fe\" -c \"cyan,yellow,magenta\" \"yarn dev:shared\" \"yarn dev:backend-admin\" \"yarn dev:frontend-admin\"",
     "dev:shared": "cd shared && yarn watch",
-    "dev:backend": "cd backend && yarn start:dev",
-    "dev:backend-admin": "cd backend-admin && yarn start:dev",
+    "dev:backend": "cd backend && yarn dev",
+    "dev:backend-admin": "cd backend-admin && yarn dev",
     "dev:frontend": "cd frontend && yarn dev",
     "dev:frontend-admin": "cd frontend-admin && yarn dev",
+
     "build:shared": "cd shared && yarn build",
     "build:backend": "cd backend && yarn build",
     "build:backend-admin": "cd backend-admin && yarn build",
     "build:frontend": "cd frontend && yarn build",
     "build:frontend-admin": "cd frontend-admin && yarn build",
     "build": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
+
     "test": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:backend\" \"yarn test:backend-admin\"",
     "test:backend": "cd backend && yarn test",
     "test:backend-admin": "cd backend-admin && yarn test",
@@ -38,9 +38,12 @@
     "test:cov": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:cov:backend\" \"yarn test:cov:backend-admin\"",
     "test:cov:backend": "cd backend && yarn test:cov",
     "test:cov:backend-admin": "cd backend-admin && yarn test:cov",
-    "docker:dev": "docker-compose -f docker-compose.dev.yml --env-file ./backend/.env up -d --build  --force-recreate",
-    "docker:prod": "docker-compose up -d --build",
+
+    "docker:infra": "docker-compose --env-file ./backend/.env up -d postgres redis minio",
+    "docker": "docker-compose --env-file ./backend/.env up -d --build",
     "docker:down": "docker-compose down",
+    "docker:down-v": "docker-compose down -v #volumne까지 삭제",
+
     "db:reset": "node scripts/db-reset.js",
     "db:migration": "node scripts/db-migration.js",
     "db:generate-types": "node scripts/generate-db-types.js",
