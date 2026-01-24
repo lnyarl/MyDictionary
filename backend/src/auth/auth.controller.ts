@@ -40,40 +40,6 @@ export class AuthController {
     });
   }
 
-  @Public()
-  @Post("/auth/mock-login")
-  async mockLogin(@Body() body: { email?: string; name?: string } = {}, @Res() res: Response) {
-    const isDevelopment = this.configService.get("NODE_ENV") !== "production";
-    if (!isDevelopment) {
-      return res
-        .status(HttpStatus.FORBIDDEN)
-        .json({ message: "Mock login only available in development" });
-    }
-
-    const email = body.email || "test@example.com";
-    const name = body.name || "Test User";
-    const googleId = `google-id-${email}`;
-
-    const testUser = await this.authService.validateGoogleUser({
-      email,
-      name,
-      googleId,
-      picture: "https://example.com/test.jpg",
-    });
-
-    const token = this.authService.generateJwtToken(testUser);
-
-    res.cookie("access_token", token, {
-      httpOnly: true,
-      secure: !isDevelopment,
-      sameSite: isDevelopment ? "lax" : "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
-
-    return res.status(HttpStatus.OK).json({ user: testUser, token });
-  }
-
   @Get("/auth/me")
   @UseGuards(AuthGuard("jwt"))
   getMe(@Req() req: Request & { user: User }) {
