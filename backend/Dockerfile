@@ -22,6 +22,8 @@ COPY backend/ ./backend/
 
 # Build shared first
 RUN yarn build:shared
+RUN ls -al ./shared/
+RUN ls -al ./shared/dist/
 
 # Build backend
 RUN yarn build:backend 
