@@ -21,7 +21,7 @@ export default async function globalSetup(): Promise<void> {
     console.log("Starting test Docker containers...");
     try {
       execSync("docker compose -f docker-compose.test.yml up -d --wait", {
-        cwd: resolve(__dirname, "../.."),
+        cwd: resolve(__dirname, "../../.."),
         stdio: "inherit",
         timeout: 60000,
       });

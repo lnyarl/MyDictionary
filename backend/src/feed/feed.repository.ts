@@ -29,6 +29,30 @@ export class FeedRepository extends BaseRepository {
       });
   }
 
+  findAllFeeds(offset: number, limit: number) {
+    return this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
+      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .whereNull("words.deleted_at")
+      .where("words.is_public", true)
+      .limit(limit)
+      .offset(offset)
+      .orderBy("definitions.created_at", "desc")
+      .select<Feed[]>({
+        id: "definitions.id",
+        content: "definitions.content",
+        wordId: "definitions.word_id",
+        userId: "definitions.user_id",
+        likesCount: "definitions.likes_count",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        nickname: "users.nickname",
+        profilePicture: "users.profile_picture",
+        term: "words.term",
+      });
+  }
+
+
   findRecommendations(offset: number, limit: number, excludeUserId?: string) {
     const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")

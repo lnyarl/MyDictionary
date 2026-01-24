@@ -7,14 +7,14 @@ import { FeedRepository } from "./feed.repository";
 
 @Injectable()
 export class FeedService {
-  private readonly FEED_CACHE_TTL = 60;
+  private readonly FEED_CACHE_TTL = 10;
   private readonly RECOMMENDATIONS_CACHE_TTL = 300;
 
   constructor(
     private readonly feedRepository: FeedRepository,
     private readonly followsService: FollowsService,
     private readonly cacheService: CacheService,
-  ) {}
+  ) { }
 
   async getFeed(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Feed>> {
     const cacheKey = this.cacheService.feedKey(userId, paginationDto.page);
@@ -29,6 +29,26 @@ export class FeedService {
 
     const feeds = await this.feedRepository.findFeeds(
       userIds,
+      paginationDto.offset,
+      paginationDto.limit,
+    );
+
+    await this.cacheService.set(cacheKey, feeds, this.FEED_CACHE_TTL);
+
+    return new PaginatedResponseDto<Feed>(feeds, 0, paginationDto.page, paginationDto.limit);
+  }
+
+  async getAllFeeds(
+    paginationDto: PaginationDto,
+  ) {
+    const cacheKey = this.cacheService.allFeedKey(paginationDto.page);
+    const cached = await this.cacheService.get<Feed[]>(cacheKey);
+
+    if (cached) {
+      return new PaginatedResponseDto<Feed>(cached, 0, paginationDto.page, paginationDto.limit);
+    }
+
+    const feeds = await this.feedRepository.findAllFeeds(
       paginationDto.offset,
       paginationDto.limit,
     );
