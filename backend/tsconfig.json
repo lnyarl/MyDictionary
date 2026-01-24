@@ -19,8 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
     "paths": {
-      "@shared": ["../shared/dist"], // shared는 이미 빌드된 라이브러리처럼 생각해야한다
-      "@shared/*": ["../shared/dist/*"]
+      "@shared": ["../shared/dist", "../shared/src"], // shared는 이미 빌드된 라이브러리처럼 생각해야한다
+      "@shared/*": ["../shared/dist/*", "../shared/src/*"]
     }
   },
   "include": ["src"],

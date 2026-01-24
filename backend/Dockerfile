@@ -38,7 +38,10 @@ COPY package.json yarn.lock ./
 COPY shared/package.json ./shared/
 COPY backend/package.json ./backend/
 
-RUN yarn install --production --frozen-lockfile
+# RUN yarn install --production --frozen-lockfile
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/shared/node_modules ./shared/node_modules
+COPY --from=builder /app/backend/node_modules ./backend/node_modules
 
 COPY --from=builder /app/shared/dist ./shared/dist
 COPY --from=builder /app/backend/dist ./backend/dist
@@ -49,4 +52,4 @@ COPY backend/migrations ./backend/migrations
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "node scripts/migrate.js && node backend/dist/backend/src/main"]
+CMD ["sh", "-c", "node scripts/migrate.js && node backend/dist/main"]

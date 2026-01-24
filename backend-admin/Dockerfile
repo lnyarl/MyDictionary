@@ -21,10 +21,10 @@ COPY shared/ ./shared/
 COPY backend-admin/ ./backend-admin/
 
 # Build shared first
-RUN yarn workspace @stashy/shared build
+RUN yarn build:shared
 
 # Build backend-admin
-RUN yarn workspace stashy-backend-admin build
+RUN yarn build:backend-admin
 
 # Production stage
 FROM node:20-alpine
@@ -39,7 +39,10 @@ COPY shared/package.json ./shared/
 COPY backend-admin/package.json ./backend-admin/
 
 # Install production dependencies only
-RUN yarn install --production --frozen-lockfile
+# RUN yarn install --production --frozen-lockfile
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/shared/node_modules ./shared/node_modules
+COPY --from=builder /app/backend-admin/node_modules ./backend-admin/node_modules
 
 # Copy built application and shared dist
 COPY --from=builder /app/shared/dist ./shared/dist
@@ -49,4 +52,4 @@ COPY --from=builder /app/backend-admin/dist ./backend-admin/dist
 EXPOSE 3001
 
 # Start application
-CMD ["node", "backend-admin/dist/backend-admin/src/main"]
+CMD ["node", "backend-admin/dist/main"]
