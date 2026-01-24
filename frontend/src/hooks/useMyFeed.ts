@@ -2,14 +2,14 @@ import { useCallback, useState } from "react";
 import { feedApi } from "../lib/feed";
 import type { Definition } from "../types/definition.types";
 
-export function useFeed() {
+export function useMyFeed() {
 	const [definitions, setDefinitions] = useState<Definition[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
 
-	const fetchFeed = useCallback(async (pageNum = 1) => {
+	const fetchMyFeed = useCallback(async (pageNum = 1) => {
 		setLoading(true);
 		setError(null);
 		try {
@@ -33,15 +33,15 @@ export function useFeed() {
 
 	const loadMore = useCallback(() => {
 		if (!loading && hasMore) {
-			fetchFeed(page + 1);
+			fetchMyFeed(page + 1);
 		}
-	}, [loading, hasMore, page, fetchFeed]);
+	}, [loading, hasMore, page, fetchMyFeed]);
 
 	return {
 		definitions,
 		loading,
 		error,
-		fetchFeed,
+		fetchMyFeed,
 		loadMore,
 		hasMore,
 	};

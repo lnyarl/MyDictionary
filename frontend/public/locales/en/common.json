@@ -79,11 +79,13 @@
 		"current": "Current"
 	},
 	"feed": {
-		"subtitle": "Check the latest definitions from users you follow.",
-		"empty": "Your feed is empty. Try following other users!",
-		"recommendedTitle": "Recommended for you",
-		"recommendedDescription": "Discover popular definitions from the community while you build your feed.",
-		"noRecommendations": "No recommendations available yet. Check back later!"
+		"subtitle": "Check the latest definitions.",
+		"empty": "Your feed is empty.",
+		"emptyFollowing": "Your feed is empty. Try following other users!",
+		"tabs": {
+			"all": "All",
+			"following": "Following"
+		}
 	},
 	"search": {
 		"title": "Search Word",

@@ -79,11 +79,13 @@
 		"current": "현재"
 	},
 	"feed": {
-		"subtitle": "내가 팔로우하는 사용자들의 최신 정의를 확인하세요.",
-		"empty": "아직 피드가 비어있습니다. 다른 사용자를 팔로우해보세요!",
-		"recommendedTitle": "추천 정의",
-		"recommendedDescription": "피드를 채우는 동안 커뮤니티에서 인기 있는 정의를 발견해보세요.",
-		"noRecommendations": "아직 추천할 정의가 없습니다. 나중에 다시 확인해주세요!"
+		"subtitle": "최신 정의를 확인하세요.",
+		"empty": "아직 피드가 비어있습니다.",
+		"emptyFollowing": "아직 피드가 비어있습니다. 다른 사용자를 팔로우해보세요!",
+		"tabs": {
+			"all": "전체",
+			"following": "팔로잉"
+		}
 	},
 	"search": {
 		"title": "단어 검색",
