@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import logo from "../../assets/logo2.png";
 import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
-import { MockLoginButton } from "../auth/MockLoginButton";
 import { UserMenu } from "../auth/UserMenu";
 import { NotificationDropdown } from "../notifications/NotificationDropdown";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -62,7 +61,6 @@ export function Header() {
 									</div>
 								) : (
 									<div className="flex items-center space-x-2">
-										<MockLoginButton />
 										<GoogleLoginButton />
 									</div>
 								)}
@@ -81,7 +79,6 @@ export function Header() {
 							</div>
 						) : (
 							<>
-								<MockLoginButton />
 								<GoogleLoginButton />
 							</>
 						))}
