@@ -159,6 +159,8 @@ services:
       dockerfile: frontend-admin/Dockerfile
     container_name: stashy-frontend-admin
     restart: unless-stopped
+    environment:
+      - BACKEND_ADMIN_URL:http://backend-admin:3001
     ports:
       - '127.0.0.1:81:80'
     depends_on:
