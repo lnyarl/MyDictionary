@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { DefinitionsService } from "../definitions/definitions.service";
 import { Definition } from "../definitions/entities/definition.entity";
 import { CreateWordDto } from "./dto/create-word.dto";
 import { UpdateWordDto } from "./dto/update-word.dto";
@@ -10,15 +11,38 @@ import { WordsRepository } from "./words.repository";
 
 @Injectable()
 export class WordsService {
-  constructor(private readonly wordRepository: WordsRepository) {}
+  constructor(
+    private readonly wordRepository: WordsRepository,
+    private readonly definitionsService: DefinitionsService,
+  ) {}
 
   async create(userId: string, createWordDto: CreateWordDto): Promise<Word> {
-    const result = await this.wordRepository.create({
-      term: createWordDto.term,
-      userId,
+    let wordId: string;
+    const existWord = await this.wordRepository.findByTerm(userId, createWordDto.term);
+    await this.wordRepository.transaction(async (knex) => {
+      if (!existWord) {
+        const result = await this.wordRepository
+          .create({
+            term: createWordDto.term,
+            userId,
+          })
+          .transacting(knex);
+        wordId = result[0].id;
+      } else {
+        wordId = existWord.id;
+      }
+      await this.definitionsService.create(
+        userId,
+        {
+          ...createWordDto.definition,
+          wordId,
+        },
+        [],
+        knex,
+      );
     });
 
-    return await this.wordRepository.findById(result[0].id);
+    return await this.wordRepository.findById(wordId);
   }
 
   async findAllByUser(userId: string): Promise<Word[]> {

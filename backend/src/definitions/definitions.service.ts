@@ -8,6 +8,7 @@ import { DefinitionsRepository } from "./definitions.repository";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
 import { UpdateDefinitionDto } from "./dto/update-definition.dto";
 import { Definition } from "./entities/definition.entity";
+import { Knex } from "knex";
 
 @Injectable()
 export class DefinitionsService {
@@ -23,16 +24,19 @@ export class DefinitionsService {
     userId: string,
     createDefinitionDto: CreateDefinitionDto,
     mediaUrls: string[] = [],
+    transaction?: Knex.Transaction,
   ): Promise<Definition> {
-    const word = await this.wordRepository.findById(createDefinitionDto.wordId);
+    const word = await this.wordRepository
+      .withTransaction(transaction)
+      .findById(createDefinitionDto.wordId);
 
     if (!word) {
       throw new NotFoundException("Word not found");
     }
 
-    const hasPublicDefs = await this.wordRepository.hasPublicDefinitions(
-      createDefinitionDto.wordId,
-    );
+    const hasPublicDefs = await this.wordRepository
+      .withTransaction(transaction)
+      .hasPublicDefinitions(createDefinitionDto.wordId);
     if (!hasPublicDefs && word.userId !== userId) {
       throw new ForbiddenException("You do not have access to this word");
     }
@@ -44,7 +48,7 @@ export class DefinitionsService {
 
     const combinedMedia = [...mediaUrls.map((url) => ({ url, type: "image" })), ...metadataList];
 
-    const definition = await this.definitionRepository.create({
+    const definition = await this.definitionRepository.withTransaction(transaction).create({
       ...createDefinitionDto,
       userId,
       isPublic: createDefinitionDto.isPublic,

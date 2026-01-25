@@ -1,6 +1,7 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { PaginationDto } from "@shared";
+import { DefinitionsService } from "../definitions/definitions.service";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
@@ -16,6 +17,7 @@ describe("WordsService", () => {
   let service: WordsService;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string; nickname: string };
+  let testingModule: TestingModule;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -31,12 +33,21 @@ describe("WordsService", () => {
 
     testUser = await testDb.createUser({ nickname: "testuser" });
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       imports: [TestDatabaseModule],
-      providers: [WordsService, WordsRepository],
+      providers: [
+        WordsService,
+        WordsRepository,
+        {
+          provide: DefinitionsService,
+          useValue: {
+            create: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    service = module.get<WordsService>(WordsService);
+    service = testingModule.get<WordsService>(WordsService);
   });
 
   it("should be defined", () => {
@@ -44,13 +55,32 @@ describe("WordsService", () => {
   });
 
   describe("create", () => {
-    it("should create a word", async () => {
-      const dto: CreateWordDto = { term: "test" };
+    it("should create a word with definitions", async () => {
+      const dto: CreateWordDto = {
+        term: "test-with-def",
+        definition: {
+          content: "def1",
+          tags: ["tag1"],
+          isPublic: true,
+        },
+      };
+
+      // Mock definitionsService.create
+      const definitionsService = testingModule.get(DefinitionsService);
+      (definitionsService.create as jest.Mock).mockResolvedValue({} as any);
 
       const result = await service.create(testUser.id, dto);
 
-      expect(result.term).toBe("test");
-      expect(result.userId).toBe(testUser.id);
+      expect(result.term).toBe("test-with-def");
+      expect(definitionsService.create).toHaveBeenCalledWith(
+        testUser.id,
+        {
+          ...dto.definition,
+          wordId: result.id,
+        },
+        [],
+        expect.anything(), // knex transaction
+      );
     });
   });
 

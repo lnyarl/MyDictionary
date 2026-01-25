@@ -9,8 +9,15 @@ export interface Word {
 	updatedAt: string;
 }
 
+export interface CreateDefinitionInput {
+	content: string;
+	tags?: string[];
+	isPublic?: boolean;
+}
+
 export interface CreateWordInput {
 	term: string;
+	definition: CreateDefinitionInput;
 }
 
 export interface UpdateWordInput {

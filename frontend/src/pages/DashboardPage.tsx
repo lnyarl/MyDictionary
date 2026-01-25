@@ -1,12 +1,13 @@
-import { WordForm } from "@/components/words/WordForm";
-import { useAuth } from "@/hooks/useAuth";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { WordForm } from "@/components/words/WordForm";
+import { useAuth } from "@/hooks/useAuth";
 import { Page } from "../components/layout/Page";
 import { WordList } from "../components/words/WordList";
 import { useWords } from "../hooks/useWords";
 import { followsApi } from "../lib/follows";
 import type { FollowStats } from "../types/follow.types";
+import type { CreateWordInput } from "../types/word.types";
 
 export default function DashboardPage() {
 	const { t } = useTranslation();
@@ -14,8 +15,8 @@ export default function DashboardPage() {
 	const { words, createWord, loading, fetchWords, deleteWord } = useWords();
 
 	const [stats, setStats] = useState<FollowStats | null>(null);
-	const handleSubmit = async (term: string) => {
-		await createWord({ term });
+	const handleSubmit = async (data: CreateWordInput) => {
+		await createWord(data);
 	};
 
 	const fetchFollowStats = useCallback(async () => {
@@ -60,7 +61,7 @@ export default function DashboardPage() {
 				</div>
 			</div>
 			<div className="mb-8">
-				<WordForm onSubmit={handleSubmit} mode={"create"} />
+				<WordForm onCreate={handleSubmit} />
 			</div>
 			{loading && words.length === 0 ? (
 				<div className="rounded-lg border bg-muted/50 p-12 text-center">

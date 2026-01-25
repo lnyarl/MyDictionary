@@ -23,7 +23,15 @@ export interface PaginationOptions extends FindOptions {
 
 @Injectable()
 export abstract class BaseRepository {
-  constructor(@Inject(KNEX_CONNECTION) protected readonly knex: Knex) {}
+  constructor(@Inject(KNEX_CONNECTION) protected readonly knex: Knex) { }
+
+  public withTransaction<T extends typeof this>(trx?: Knex.Transaction): T {
+    const repo = Object.create(this);
+    if (trx) {
+      repo.knex = repo.knex.transacting(trx);
+    }
+    return repo;
+  }
 
   /**
    * Get base query with soft delete filtering
@@ -84,7 +92,7 @@ export abstract class BaseRepository {
   /**
    * Begin a transaction
    */
-  async transaction<R>(callback: (trx: Knex.Transaction) => Promise<R>): Promise<R> {
+  transaction<R>(callback: (trx: Knex.Transaction) => Promise<R>): Promise<R> {
     return this.knex.transaction(callback);
   }
 }

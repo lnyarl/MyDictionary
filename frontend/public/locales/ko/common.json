@@ -78,7 +78,8 @@
 		"history_desc_generic": "이전 정의 목록",
 		"history_error": "히스토리를 불러오는데 실패했습니다",
 		"history_empty": "히스토리가 없습니다",
-		"current": "현재"
+		"current": "현재",
+		"tags_placeholder": "태그 추가 (엔터 키를 눌러 추가)"
 	},
 	"feed": {
 		"subtitle": "최신 정의를 확인하세요.",

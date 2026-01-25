@@ -40,7 +40,7 @@ describe("AdminUsersService", () => {
   describe("create", () => {
     it("should create an admin user", async () => {
       jest.spyOn(repository, "findByUserName").mockResolvedValue(null as any);
-      jest.spyOn(repository, "insert").mockResolvedValue(mockAdmin as any);
+      jest.spyOn(repository, "insert").mockResolvedValue([mockAdmin as any]);
 
       const result = await service.create({
         username: "test",
@@ -51,9 +51,15 @@ describe("AdminUsersService", () => {
     });
 
     it("should throw ConflictException if username exists", async () => {
-      jest.spyOn(repository, "findByUserName").mockResolvedValue(mockAdmin as any);
+      jest
+        .spyOn(repository, "findByUserName")
+        .mockResolvedValue(mockAdmin as any);
       await expect(
-        service.create({ username: "test", password: "password", role: AdminRole.OPERATOR }),
+        service.create({
+          username: "test",
+          password: "password",
+          role: AdminRole.OPERATOR,
+        }),
       ).rejects.toThrow(ConflictException);
     });
   });
@@ -64,16 +70,19 @@ describe("AdminUsersService", () => {
       jest.spyOn(repository, "updateRole").mockResolvedValue(1 as any);
 
       await service.updateRole("a-1", AdminRole.DEVELOPER);
-      expect(repository.updateRole).toHaveBeenCalledWith("a-1", AdminRole.DEVELOPER);
+      expect(repository.updateRole).toHaveBeenCalledWith(
+        "a-1",
+        AdminRole.DEVELOPER,
+      );
     });
 
     it("should throw ForbiddenException for super admin", async () => {
       jest
         .spyOn(repository, "findById")
         .mockResolvedValue({ ...mockAdmin, username: "admin" } as any);
-      await expect(service.updateRole("a-1", AdminRole.DEVELOPER)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(
+        service.updateRole("a-1", AdminRole.DEVELOPER),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

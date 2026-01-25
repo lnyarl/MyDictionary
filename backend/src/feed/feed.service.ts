@@ -14,7 +14,7 @@ export class FeedService {
     private readonly feedRepository: FeedRepository,
     private readonly followsService: FollowsService,
     private readonly cacheService: CacheService,
-  ) { }
+  ) {}
 
   async getFeed(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Feed>> {
     const cacheKey = this.cacheService.feedKey(userId, paginationDto.page, paginationDto.limit);
@@ -33,19 +33,20 @@ export class FeedService {
       paginationDto.limit,
     );
 
-    console.log('listQuery:', listQuery.toQuery());
     const feeds = await listQuery;
     const count = (await countQuery)?.count ?? 0;
-    console.log("Feeds:", feeds, count);
 
-    const dto = new PaginatedResponseDto<Feed>(feeds, count, paginationDto.page, paginationDto.limit);
+    const dto = new PaginatedResponseDto<Feed>(
+      feeds,
+      count,
+      paginationDto.page,
+      paginationDto.limit,
+    );
     await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
     return dto;
   }
 
-  async getAllFeeds(
-    paginationDto: PaginationDto,
-  ) {
+  async getAllFeeds(paginationDto: PaginationDto) {
     const cacheKey = this.cacheService.allFeedKey(paginationDto.page);
     const cached = await this.cacheService.get<Feed[]>(cacheKey);
 
@@ -53,10 +54,7 @@ export class FeedService {
       return new PaginatedResponseDto<Feed>(cached, 0, paginationDto.page, paginationDto.limit);
     }
 
-    const feeds = await this.feedRepository.findAllFeeds(
-      paginationDto.offset,
-      paginationDto.limit,
-    );
+    const feeds = await this.feedRepository.findAllFeeds(paginationDto.offset, paginationDto.limit);
 
     await this.cacheService.set(cacheKey, feeds, this.FEED_CACHE_TTL);
 

@@ -71,15 +71,18 @@ export class WordsRepository extends BaseRepository {
     return await this.update<Word>(this.tableName, id, data);
   }
 
+  findByTerm(userId: string, term: string) {
+    return this.query(this.tableName).select<Word>(WordSelect).where({ user_id: userId, term }).first();
+  }
+
   findById(id: string) {
     return this.query(this.tableName).select<Word>(WordSelect).where({ id }).first();
   }
 
-  async hasPublicDefinitions(wordId: string): Promise<boolean> {
-    const result = await this.query(TABLES.DEFINITIONS)
+  hasPublicDefinitions(wordId: string) {
+    return this.query(TABLES.DEFINITIONS)
       .where({ word_id: wordId, is_public: true })
-      .first();
-    return !!result;
+      .first<boolean>();
   }
 
   /**

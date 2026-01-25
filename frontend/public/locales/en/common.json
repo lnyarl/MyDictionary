@@ -78,7 +78,8 @@
 		"history_desc_generic": "Previous definitions",
 		"history_error": "Failed to load history",
 		"history_empty": "No history available",
-		"current": "Current"
+		"current": "Current",
+		"tags_placeholder": "Add tags (press Enter to add)"
 	},
 	"feed": {
 		"subtitle": "Check the latest definitions.",
