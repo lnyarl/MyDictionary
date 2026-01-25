@@ -1,8 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-
 import { PaginatedResponseDto, PaginationDto } from "@shared";
 import { DefinitionsService } from "../definitions/definitions.service";
-import { Definition } from "../definitions/entities/definition.entity";
 import { CreateWordDto } from "./dto/create-word.dto";
 import { UpdateWordDto } from "./dto/update-word.dto";
 import { Word } from "./entities/word.entity";
@@ -11,54 +9,32 @@ import { WordsRepository } from "./words.repository";
 
 @Injectable()
 export class WordsService {
-  constructor(
-    private readonly wordRepository: WordsRepository,
-    private readonly definitionsService: DefinitionsService,
-  ) {}
+  constructor(private readonly wordRepository: WordsRepository) {}
 
   async create(userId: string, createWordDto: CreateWordDto): Promise<Word> {
-    let wordId: string;
+    let word: Word;
     const existWord = await this.wordRepository.findByTerm(userId, createWordDto.term);
-    await this.wordRepository.transaction(async (knex) => {
-      if (!existWord) {
-        const result = await this.wordRepository
-          .create({
-            term: createWordDto.term,
-            userId,
-          })
-          .transacting(knex);
-        wordId = result[0].id;
-      } else {
-        wordId = existWord.id;
-      }
-      await this.definitionsService.create(
+    if (!existWord) {
+      const result = await this.wordRepository.create({
+        term: createWordDto.term,
         userId,
-        {
-          ...createWordDto.definition,
-          wordId,
-        },
-        [],
-        knex,
-      );
-    });
-
-    return await this.wordRepository.findById(wordId);
+      });
+      word = result[0];
+    } else {
+      word = existWord;
+    }
+    return await this.wordRepository.findById(word.id);
   }
 
   async findAllByUser(userId: string): Promise<Word[]> {
     return this.wordRepository.findByUserId(userId);
   }
 
-  async findOne(id: string, userId?: string): Promise<Word> {
+  async findOne(id: string): Promise<Word> {
     const word = await this.wordRepository.findById(id);
 
     if (!word) {
       throw new NotFoundException("Word not found");
-    }
-
-    const hasPublicDefs = await this.wordRepository.hasPublicDefinitions(id);
-    if (!hasPublicDefs && (!userId || word.userId !== userId)) {
-      throw new ForbiddenException("You do not have access to this word");
     }
 
     return word;
@@ -73,7 +49,10 @@ export class WordsService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    await this.findOne(id, userId);
+    const word = await this.wordRepository.findById(id);
+    if (word.userId !== userId) {
+      throw new ForbiddenException("You do not have permission to delete this word");
+    }
     await this.wordRepository.delete(id);
   }
 

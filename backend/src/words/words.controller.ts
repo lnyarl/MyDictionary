@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -62,8 +63,12 @@ export class WordsController {
   @Get("/words/:wordId/definitions")
   @Public()
   @UseGuards(OptionalAuthGuard)
-  findDefinitions(@Param("wordId") wordId: string, @CurrentUser() user?: User) {
-    return this.definitionsService.findAllByWord(wordId, user?.id);
+  async findDefinitions(@Param("wordId") wordId: string, @CurrentUser() user?: User) {
+    const word = await this.wordsService.findOne(wordId, user?.id);
+    if (!word) {
+      throw new NotFoundException("Word not found");
+    }
+    return await this.definitionsService.findAllByWord(word, user?.id);
   }
 
   @Patch("/words/:id")

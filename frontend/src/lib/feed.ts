@@ -1,3 +1,4 @@
+import type { CreateWordInput } from "@/types/word.types";
 import type { Definition } from "../types/definition.types";
 import { api } from "./api";
 
@@ -12,6 +13,7 @@ interface PaginatedResponse<T> {
 }
 
 export const feedApi = {
+  create: (data: CreateWordInput) => api.post<Definition>("/feed", data),
   getFeed: (page = 1, limit = 20) =>
     api.get<PaginatedResponse<Definition>>(`/feed?page=${page}&limit=${limit}`),
 

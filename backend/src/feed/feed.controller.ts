@@ -1,13 +1,19 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { PaginationDto } from "../common/dto/pagination.dto";
 import { User } from "../users/entities/user.entity";
 import { FeedService } from "./feed.service";
+import { CreateWordDto } from "../words/dto/create-word.dto";
 
 @Controller()
 export class FeedController {
   constructor(private readonly feedService: FeedService) {}
+
+  @Post("/feed")
+  async createFeed(@CurrentUser() user: User, @Body() createWordDto: CreateWordDto) {
+    return await this.feedService.createFeed(user.id, createWordDto);
+  }
 
   @Get("/feed")
   async getFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {

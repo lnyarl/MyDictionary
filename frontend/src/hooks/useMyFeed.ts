@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { wordsApi } from "@/lib/words";
 import type { CreateWordInput } from "@/types/word.types";
 import { feedApi } from "../lib/feed";
 import type { Definition } from "../types/definition.types";
@@ -15,8 +14,8 @@ export function useMyFeed() {
     setLoading(true);
     setError(null);
     try {
-      await wordsApi.create(input);
-      const response = await feedApi.getFeed(1, 20);
+      await feedApi.create(input);
+      const response = await feedApi.getMyFeed(1, 20);
       setDefinitions(response.data);
     } catch (err: any) {
       setError(err.message || "Failed to create word");

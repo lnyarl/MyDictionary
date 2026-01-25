@@ -8,16 +8,25 @@ import {
   destroyTestRedisInstance,
   flushTestRedis,
   TestCacheModule,
+  testRedisProvider,
 } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../test/helper/test-database.module";
+import { TestDatabaseModule, testKnexProvider } from "../test/helper/test-database.module";
 import { UsersRepository } from "../users/users.repository";
 import { FeedRepository } from "./feed.repository";
 import { FeedService } from "./feed.service";
+import { DefinitionsService } from "../definitions/definitions.service";
+import { WordsRepository } from "../words/words.repository";
+import { MetadataService } from "../common/services/metadata.service";
+import { FeedModule } from "./feed.module";
+import { KNEX_CONNECTION } from "../common/database/knex.provider";
+import { REDIS_CLIENT } from "../common/cache/redis.provider";
+import { STORAGE_SERVICE } from "../common/services/storage/storage.interface";
+import { testStorageProvider } from "../test/helper/test-storage.module";
 
 describe("FeedService", () => {
   let service: FeedService;
@@ -41,17 +50,15 @@ describe("FeedService", () => {
     testUser = await testDb.createUser({ nickname: "feeduser" });
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [TestDatabaseModule, TestCacheModule],
-      providers: [
-        FeedService,
-        FeedRepository,
-        FollowsService,
-        FollowsRepository,
-        UsersRepository,
-        NotificationsService,
-        NotificationsRepository,
-      ],
-    }).compile();
+      imports: [FeedModule, TestDatabaseModule, TestCacheModule],
+    })
+      .overrideProvider(KNEX_CONNECTION)
+      .useFactory({ factory: testKnexProvider.useFactory })
+      .overrideProvider(REDIS_CLIENT)
+      .useFactory({ factory: testRedisProvider.useFactory })
+      .overrideProvider(STORAGE_SERVICE)
+      .useFactory({ factory: testStorageProvider.useFactory })
+      .compile();
 
     service = module.get<FeedService>(FeedService);
   });

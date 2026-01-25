@@ -1,10 +1,24 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { TABLES } from "@shared";
+import { generateId, TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Feed } from "./entities/feed.entity";
+import { Word } from "../words/entities/word.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
+  createWord(word: Omit<Word, "id" | "createdAt" | "updatedAt" | "deletedAt">) {
+    const now = new Date();
+    return this.knex(TABLES.WORDS)
+      .insert({
+        id: generateId(),
+        term: word.term,
+        user_id: word.userId,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning("id");
+  }
+
   findMyFeeds(userId: string, offset: number, limit: number) {
     const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
@@ -118,5 +132,19 @@ export class FeedRepository extends BaseRepository {
     }
 
     return query;
+  }
+
+  findWordByTerm(userId: string, term: string) {
+    return this.query(TABLES.WORDS)
+      .select({
+        id: "id",
+        term: "term",
+        userId: "user_id",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+      })
+      .where({ user_id: userId, term })
+      .first();
   }
 }

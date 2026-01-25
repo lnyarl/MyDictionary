@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -44,7 +45,8 @@ export class DefinitionsController {
       mediaUrls.push(...uploadedUrls);
     }
 
-    return this.definitionsService.create(user.id, createDefinitionDto, mediaUrls);
+    const word = await this.definitionsService.findWordById(createDefinitionDto.wordId);
+    return this.definitionsService.create(user.id, word, createDefinitionDto, mediaUrls);
   }
 
   @Get("/definitions/:id")

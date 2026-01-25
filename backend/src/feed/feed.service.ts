@@ -1,9 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@shared";
 import { CacheService } from "../common/cache/cache.service";
 import { FollowsService } from "../follows/follows.service";
 import { Feed } from "./entities/feed.entity";
 import { FeedRepository } from "./feed.repository";
+import { Word } from "../words/entities/word.entity";
+import { CreateWordDto } from "../words/dto/create-word.dto";
+import { DefinitionsService } from "../definitions/definitions.service";
 
 @Injectable()
 export class FeedService {
@@ -13,8 +16,44 @@ export class FeedService {
   constructor(
     private readonly feedRepository: FeedRepository,
     private readonly followsService: FollowsService,
+    @Inject(forwardRef(() => DefinitionsService))
+    private readonly definitionsService: DefinitionsService,
     private readonly cacheService: CacheService,
   ) {}
+
+  async createFeed(userId: string, createWordDto: CreateWordDto): Promise<Feed> {
+    return await this.feedRepository.transaction(async (knex) => {
+      let word: Word;
+      const existWord = await this.feedRepository
+        .findWordByTerm(userId, createWordDto.term)
+        .transacting(knex);
+      if (!existWord) {
+        const result = await this.feedRepository
+          .createWord({
+            term: createWordDto.term,
+            userId,
+          })
+          .transacting(knex);
+        word = result[0];
+      } else {
+        word = existWord;
+      }
+      const definition = await this.definitionsService.create(
+        userId,
+        word,
+        {
+          ...createWordDto.definition,
+          wordId: word.id,
+        },
+        [],
+        knex,
+      );
+      return {
+        ...word,
+        ...definition,
+      } as Feed;
+    });
+  }
 
   async getMyFeed(
     userId: string,

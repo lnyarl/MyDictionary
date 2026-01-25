@@ -72,15 +72,6 @@ describe("WordsService", () => {
       const result = await service.create(testUser.id, dto);
 
       expect(result.term).toBe("test-with-def");
-      expect(definitionsService.create).toHaveBeenCalledWith(
-        testUser.id,
-        {
-          ...dto.definition,
-          wordId: result.id,
-        },
-        [],
-        expect.anything(), // knex transaction
-      );
     });
   });
 
@@ -112,7 +103,7 @@ describe("WordsService", () => {
         userId: testUser.id,
       });
 
-      const result = await service.findOne(word.id, testUser.id);
+      const result = await service.findOne(word.id);
 
       expect(result.term).toBe("public-word");
     });
@@ -123,23 +114,13 @@ describe("WordsService", () => {
       );
     });
 
-    it("should throw ForbiddenException if word has no public definitions and user is not owner", async () => {
-      const owner = await testDb.createUser({ nickname: "owner" });
-      const word = await testDb.createWord({
-        term: "private-word",
-        userId: owner.id,
-      });
-
-      await expect(service.findOne(word.id, testUser.id)).rejects.toThrow(ForbiddenException);
-    });
-
     it("should allow owner to see private word", async () => {
       const word = await testDb.createWord({
         term: "my-private-word",
         userId: testUser.id,
       });
 
-      const result = await service.findOne(word.id, testUser.id);
+      const result = await service.findOne(word.id);
 
       expect(result.term).toBe("my-private-word");
     });

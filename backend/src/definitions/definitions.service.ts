@@ -1,39 +1,40 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { MetadataService } from "../common/services/metadata.service";
 import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
 import type { DefinitionHistory } from "../definition-histories/entities/definition-history.entity";
 import { FeedService } from "../feed/feed.service";
-import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
 import { UpdateDefinitionDto } from "./dto/update-definition.dto";
 import { Definition } from "./entities/definition.entity";
 import { Knex } from "knex";
+import { Word } from "../words/entities/word.entity";
+import { WordsRepository } from "../words/words.repository";
 
 @Injectable()
 export class DefinitionsService {
   constructor(
     private readonly definitionRepository: DefinitionsRepository,
     private readonly definitionHistoriesRepository: DefinitionHistoriesRepository,
-    private readonly wordRepository: WordsRepository,
+    @Inject(forwardRef(() => FeedService))
     private readonly feedService: FeedService,
     private readonly metadataService: MetadataService,
+    private readonly wordRepository: WordsRepository,
   ) {}
 
   async create(
     userId: string,
+    word: Word,
     createDefinitionDto: CreateDefinitionDto,
     mediaUrls: string[] = [],
     transaction?: Knex.Transaction,
   ): Promise<Definition> {
-    const word = await this.wordRepository
-      .withTransaction(transaction)
-      .findById(createDefinitionDto.wordId);
-
-    if (!word) {
-      throw new NotFoundException("Word not found");
-    }
-
     if (word.userId !== userId) {
       throw new ForbiddenException("You do not have access to this word");
     }
@@ -59,20 +60,22 @@ export class DefinitionsService {
     return definition[0];
   }
 
-  async findAllByWord(wordId: string, userId?: string): Promise<Definition[]> {
-    // Check if word exists and verify access
-    const word = await this.wordRepository.findById(wordId);
+  async findWordById(id: string): Promise<Word> {
+    const word = await this.wordRepository.findById(id);
 
     if (!word) {
       throw new NotFoundException("Word not found");
     }
 
-    const hasPublicDefs = await this.wordRepository.hasPublicDefinitions(wordId);
-    if (!hasPublicDefs && (!userId || word.userId !== userId)) {
+    return word;
+  }
+
+  async findAllByWord(word: Word, userId?: string): Promise<Definition[]> {
+    if (userId && word.userId !== userId) {
       throw new ForbiddenException("You do not have access to this word");
     }
 
-    const results = await this.definitionRepository.findAllByWordId(wordId);
+    const results = await this.definitionRepository.findAllByWordId(word.id);
     const rows = Array.isArray(results) ? results : results.rows;
 
     return rows.map((row: any) => ({

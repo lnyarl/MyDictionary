@@ -20,12 +20,13 @@ import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
+import { Word } from "../words/entities/word.entity";
 
 describe("DefinitionsService", () => {
   let service: DefinitionsService;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string };
-  let testWord: { id: string };
+  let testWord: Word;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -80,20 +81,11 @@ describe("DefinitionsService", () => {
     it("should create a definition", async () => {
       const dto: CreateDefinitionDto = { wordId: testWord.id, content: "test definition" };
 
-      const result = await service.create(testUser.id, dto);
+      const result = await service.create(testUser.id, testWord, dto);
 
       expect(result.content).toBe("test definition");
       expect(result.wordId).toBe(testWord.id);
       expect(result.userId).toBe(testUser.id);
-    });
-
-    it("should throw NotFoundException if word not found", async () => {
-      const dto: CreateDefinitionDto = {
-        wordId: "00000000-0000-0000-0000-000000000000",
-        content: "test",
-      };
-
-      await expect(service.create(testUser.id, dto)).rejects.toThrow(NotFoundException);
     });
 
     it("should throw ForbiddenException if word is private and user is not owner", async () => {
@@ -104,7 +96,9 @@ describe("DefinitionsService", () => {
       });
       const dto: CreateDefinitionDto = { wordId: privateWord.id, content: "test" };
 
-      await expect(service.create(testUser.id, dto)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(testUser.id, privateWord, dto)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it("should allow owner to create definition for private word", async () => {
@@ -114,7 +108,7 @@ describe("DefinitionsService", () => {
       });
       const dto: CreateDefinitionDto = { wordId: privateWord.id, content: "my definition" };
 
-      const result = await service.create(testUser.id, dto);
+      const result = await service.create(testUser.id, privateWord, dto);
 
       expect(result.content).toBe("my definition");
     });
@@ -135,15 +129,9 @@ describe("DefinitionsService", () => {
         isPublic: true,
       });
 
-      const result = await service.findAllByWord(testWord.id);
+      const result = await service.findAllByWord(testWord);
 
       expect(result.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it("should throw NotFoundException if word not found", async () => {
-      await expect(service.findAllByWord("00000000-0000-0000-0000-000000000000")).rejects.toThrow(
-        NotFoundException,
-      );
     });
 
     it("should throw ForbiddenException for private word if not owner", async () => {
@@ -153,7 +141,7 @@ describe("DefinitionsService", () => {
         userId: owner.id,
       });
 
-      await expect(service.findAllByWord(privateWord.id, testUser.id)).rejects.toThrow(
+      await expect(service.findAllByWord(privateWord, testUser.id)).rejects.toThrow(
         ForbiddenException,
       );
     });
