@@ -1,36 +1,19 @@
 import { useCallback, useState } from "react";
-import { wordsApi } from "@/lib/words";
-import type { CreateWordInput } from "@/types/word.types";
 import { feedApi } from "../lib/feed";
 import type { Definition } from "../types/definition.types";
 
-export function useMyFeed() {
+export function useFeed() {
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const createFeed = useCallback(async (input: CreateWordInput) => {
+  const fetchFeed = useCallback(async (pageNum = 1) => {
     setLoading(true);
     setError(null);
     try {
-      await wordsApi.create(input);
-      const response = await feedApi.getFeed(1, 20);
-      setDefinitions(response.data);
-    } catch (err: any) {
-      setError(err.message || "Failed to create word");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchMyFeed = useCallback(async (pageNum = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await feedApi.getMyFeed(pageNum, 20);
+      const response = await feedApi.getFeed(pageNum, 20);
 
       if (pageNum === 1) {
         setDefinitions(response.data);
@@ -50,16 +33,15 @@ export function useMyFeed() {
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
-      fetchMyFeed(page + 1);
+      fetchFeed(page + 1);
     }
-  }, [loading, hasMore, page, fetchMyFeed]);
+  }, [loading, hasMore, page, fetchFeed]);
 
   return {
     definitions,
-    createFeed,
     loading,
     error,
-    fetchMyFeed,
+    fetchFeed,
     loadMore,
     hasMore,
   };

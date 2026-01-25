@@ -6,7 +6,7 @@ import { REDIS_CLIENT } from "./redis.provider";
 export class CacheService implements OnModuleDestroy {
   private readonly defaultTTL = 60;
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) { }
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   async onModuleDestroy() {
     await this.redis.quit();
@@ -39,6 +39,10 @@ export class CacheService implements OnModuleDestroy {
 
   feedKey(userId: string, page: number, limit: number): string {
     return `feed:${userId}:${page}:${limit}`;
+  }
+
+  myFeedKey(userId: string, page: number, limit: number): string {
+    return `my_feed:${userId}:${page}:${limit}`;
   }
 
   allFeedKey(page: number): string {

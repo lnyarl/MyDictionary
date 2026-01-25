@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAllFeed } from "@/hooks/useAllFeed";
-import { useMyFeed } from "@/hooks/useMyFeed";
+import { useFeed } from "@/hooks/useFeed";
 import { DefinitionCard } from "../components/definitions/DefinitionCard";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
@@ -28,7 +28,7 @@ function FeedList({
 }: FeedListProps) {
 	const { t } = useTranslation();
 
-	const handleViewHistory = () => {};
+	const handleViewHistory = () => { };
 
 	if (loading && definitions.length === 0) {
 		return (
@@ -84,15 +84,15 @@ export default function FeedPage() {
 	const [activeTab, setActiveTab] = useState("all");
 
 	const allFeed = useAllFeed();
-	const myFeed = useMyFeed();
+	const myFeed = useFeed();
 
 	useEffect(() => {
 		if (activeTab === "all") {
 			allFeed.fetchAllFeed();
 		} else {
-			myFeed.fetchMyFeed();
+			myFeed.fetchFeed();
 		}
-	}, [activeTab]);
+	}, [activeTab, allFeed.fetchAllFeed]);
 
 	return (
 		<Page>
@@ -124,7 +124,7 @@ export default function FeedPage() {
 						loading={myFeed.loading}
 						hasMore={myFeed.hasMore}
 						loadMore={myFeed.loadMore}
-						onRefresh={() => myFeed.fetchMyFeed(1)}
+						onRefresh={() => myFeed.fetchFeed(1)}
 						emptyMessage={t("feed.emptyFollowing")}
 					/>
 				</TabsContent>

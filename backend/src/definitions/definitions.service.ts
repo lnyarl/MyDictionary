@@ -34,10 +34,7 @@ export class DefinitionsService {
       throw new NotFoundException("Word not found");
     }
 
-    const hasPublicDefs = await this.wordRepository
-      .withTransaction(transaction)
-      .hasPublicDefinitions(createDefinitionDto.wordId);
-    if (!hasPublicDefs && word.userId !== userId) {
+    if (word.userId !== userId) {
       throw new ForbiddenException("You do not have access to this word");
     }
 

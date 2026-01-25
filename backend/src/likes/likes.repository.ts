@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Scope } from "@nestjs/common";
 import { generateId, TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Like, LikeSelect } from "./entities/like.entity";
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class LikesRepository extends BaseRepository {
   private tableName = TABLES.LIKES;
   /**

@@ -16,6 +16,36 @@ export class FeedService {
     private readonly cacheService: CacheService,
   ) {}
 
+  async getMyFeed(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Feed>> {
+    const cacheKey = this.cacheService.myFeedKey(userId, paginationDto.page, paginationDto.limit);
+    const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const { listQuery, countQuery } = await this.feedRepository.findMyFeeds(
+      userId,
+      paginationDto.offset,
+      paginationDto.limit,
+    );
+
+    const feeds = await listQuery;
+    const count = (await countQuery)?.count ?? 0;
+
+    const dto = new PaginatedResponseDto<Feed>(
+      feeds,
+      count,
+      paginationDto.page,
+      paginationDto.limit,
+    );
+    await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
+    return dto;
+  }
+
   async getFeed(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Feed>> {
     const cacheKey = this.cacheService.feedKey(userId, paginationDto.page, paginationDto.limit);
     const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);

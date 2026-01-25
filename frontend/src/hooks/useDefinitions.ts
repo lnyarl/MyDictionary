@@ -6,12 +6,12 @@ import type {
 	UpdateDefinitionInput,
 } from "../types/definition.types";
 
-export function useDefinitions(wordId: string) {
+export function useDefinitions() {
 	const [definitions, setDefinitions] = useState<Definition[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const fetchDefinitions = useCallback(async () => {
+	const fetchDefinitions = useCallback(async (wordId: string) => {
 		setLoading(true);
 		setError(null);
 		try {
@@ -22,7 +22,7 @@ export function useDefinitions(wordId: string) {
 		} finally {
 			setLoading(false);
 		}
-	}, [wordId]);
+	}, []);
 
 	const createDefinition = useCallback(async (input: CreateDefinitionInput) => {
 		setLoading(true);
@@ -39,22 +39,27 @@ export function useDefinitions(wordId: string) {
 		}
 	}, []);
 
-	const updateDefinition = useCallback(async (id: string, input: UpdateDefinitionInput) => {
-		setLoading(true);
-		setError(null);
-		try {
-			const updatedDefinition = await definitionsApi.update(id, input);
-			setDefinitions((prev) =>
-				prev.map((def) => (def.id === id ? { ...def, ...updatedDefinition } : def)),
-			);
-			return updatedDefinition;
-		} catch (err: any) {
-			setError(err.message || "Failed to update definition");
-			throw err;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+	const updateDefinition = useCallback(
+		async (id: string, input: UpdateDefinitionInput) => {
+			setLoading(true);
+			setError(null);
+			try {
+				const updatedDefinition = await definitionsApi.update(id, input);
+				setDefinitions((prev) =>
+					prev.map((def) =>
+						def.id === id ? { ...def, ...updatedDefinition } : def,
+					),
+				);
+				return updatedDefinition;
+			} catch (err: any) {
+				setError(err.message || "Failed to update definition");
+				throw err;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[],
+	);
 
 	const deleteDefinition = useCallback(async (id: string) => {
 		setLoading(true);

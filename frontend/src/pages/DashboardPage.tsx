@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DefinitionHistoryDialog } from "@/components/definitions/DefinitionHistoryDialog";
+import { DefinitionList } from "@/components/definitions/DefinitionList";
 import { WordForm } from "@/components/words/WordForm";
 import { useAuth } from "@/hooks/useAuth";
+import { useDefinitions } from "@/hooks/useDefinitions";
+import { useMyFeed } from "@/hooks/useMyFeed";
 import { Page } from "../components/layout/Page";
-import { WordList } from "../components/words/WordList";
-import { useWords } from "../hooks/useWords";
 import { followsApi } from "../lib/follows";
 import type { FollowStats } from "../types/follow.types";
 import type { CreateWordInput } from "../types/word.types";
@@ -12,11 +14,21 @@ import type { CreateWordInput } from "../types/word.types";
 export default function DashboardPage() {
 	const { t } = useTranslation();
 	const { user } = useAuth();
-	const { words, createWord, loading, fetchWords, deleteWord } = useWords();
+	const { definitions, createFeed, fetchMyFeed, loading } = useMyFeed();
+	const { deleteDefinition, updateDefinition } = useDefinitions();
+	const [selectedDefinitionId, setSelectedDefinitionId] = useState<
+		string | null
+	>(null);
+	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
 	const [stats, setStats] = useState<FollowStats | null>(null);
 	const handleSubmit = async (data: CreateWordInput) => {
-		await createWord(data);
+		await createFeed(data);
+	};
+
+	const handleViewHistory = (definitionId: string) => {
+		setSelectedDefinitionId(definitionId);
+		setIsHistoryOpen(true);
 	};
 
 	const fetchFollowStats = useCallback(async () => {
@@ -29,14 +41,25 @@ export default function DashboardPage() {
 	}, []);
 
 	useEffect(() => {
-		fetchWords();
+		fetchMyFeed();
 		fetchFollowStats();
-	}, [fetchWords, fetchFollowStats]);
+	}, [fetchMyFeed, fetchFollowStats]);
 
-	const handleDelete = async (id: string) => {
+	const handleDelete = async (definitionId: string) => {
 		if (confirm(t("dashboard.delete_confirm"))) {
-			await deleteWord(id);
+			await deleteDefinition(definitionId);
 		}
+	};
+
+	const handleEdit = async (
+		id: string,
+		data: { content: string; tags: string[]; isPublic: boolean },
+	) => {
+		await updateDefinition(id, {
+			content: data.content,
+			tags: data.tags,
+			isPublic: data.isPublic,
+		});
 	};
 
 	return (
@@ -46,7 +69,9 @@ export default function DashboardPage() {
 					<h1 className="text-3xl font-bold">
 						{t("dashboard.welcome", { nickname: user?.nickname })}
 					</h1>
-					<p className="text-muted-foreground mt-2">{t("dashboard.subtitle")}</p>
+					<p className="text-muted-foreground mt-2">
+						{t("dashboard.subtitle")}
+					</p>
 				</div>
 			</div>
 
@@ -63,17 +88,23 @@ export default function DashboardPage() {
 			<div className="mb-8">
 				<WordForm onCreate={handleSubmit} />
 			</div>
-			{loading && words.length === 0 ? (
+			{loading && definitions.length === 0 ? (
 				<div className="rounded-lg border bg-muted/50 p-12 text-center">
 					<p className="text-muted-foreground">{t("common.loading")}</p>
 				</div>
 			) : (
-				<WordList
-					words={words}
-					onEdit={() => {
-						throw new Error("TODO Edit Word");
-					}}
+				<DefinitionList
+					definitions={definitions}
 					onDelete={handleDelete}
+					onViewHistory={handleViewHistory}
+					onEdit={handleEdit}
+				/>
+			)}
+			{selectedDefinitionId && (
+				<DefinitionHistoryDialog
+					open={isHistoryOpen}
+					onOpenChange={setIsHistoryOpen}
+					definitionId={selectedDefinitionId}
 				/>
 			)}
 		</Page>

@@ -25,7 +25,7 @@ export default function WordEditPage() {
 		createDefinition,
 		updateDefinition,
 		deleteDefinition,
-	} = useDefinitions(wordId || "");
+	} = useDefinitions();
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function WordEditPage() {
 
 	useEffect(() => {
 		if (wordId) {
-			fetchDefinitions();
+			fetchDefinitions(wordId);
 		}
 	}, [fetchDefinitions, wordId]);
 

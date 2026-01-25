@@ -1,10 +1,40 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Scope } from "@nestjs/common";
 import { TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Feed } from "./entities/feed.entity";
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
+  findMyFeeds(userId: string, offset: number, limit: number) {
+    const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
+      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .where("definitions.user_id", userId)
+      .whereNull("words.deleted_at");
+    const listQuery = baseQuery
+      .clone()
+      .select<Feed[]>({
+        id: "definitions.id",
+        content: "definitions.content",
+        wordId: "definitions.word_id",
+        userId: "definitions.user_id",
+        likesCount: "definitions.likes_count",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        nickname: "users.nickname",
+        profilePicture: "users.profile_picture",
+        term: "words.term",
+      })
+      .limit(limit)
+      .offset(offset)
+      .orderBy("definitions.created_at", "desc");
+    const countQuery = baseQuery
+      .clone()
+      .count<{ count: number }>("definitions.id as count")
+      .first();
+    return { listQuery, countQuery };
+  }
+
   findFeeds(userIds: string[], offset: number, limit: number) {
     const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")

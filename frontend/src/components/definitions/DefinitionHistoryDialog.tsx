@@ -46,7 +46,6 @@ export function DefinitionHistoryDialog({
 			<DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
 				<DialogHeader>
 					<DialogTitle>{t("word.history_title")}</DialogTitle>
-					<DialogDescription>{t("word.history_desc_generic")}</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex-1 overflow-y-auto pr-4">

@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Scope } from "@nestjs/common";
 import { generateId, TABLES, User } from "@shared";
 import { UserSelect } from "@shared/entities/user.entity";
 import { BaseRepository } from "../common/database/base.repository";
 import { Follow, FollowSelect } from "./entities/follow.entity";
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class FollowsRepository extends BaseRepository {
   private tableName = TABLES.FOLLOWS;
 

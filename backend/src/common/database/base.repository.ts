@@ -23,14 +23,13 @@ export interface PaginationOptions extends FindOptions {
 
 @Injectable()
 export abstract class BaseRepository {
-  constructor(@Inject(KNEX_CONNECTION) protected readonly knex: Knex) { }
+  constructor(@Inject(KNEX_CONNECTION) protected knex: Knex) {}
 
-  public withTransaction<T extends typeof this>(trx?: Knex.Transaction): T {
-    const repo = Object.create(this);
+  public withTransaction(trx?: Knex.Transaction) {
     if (trx) {
-      repo.knex = repo.knex.transacting(trx);
+      this.knex = trx;
     }
-    return repo;
+    return this;
   }
 
   /**
