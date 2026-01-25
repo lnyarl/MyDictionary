@@ -6,15 +6,13 @@ import { Feed } from "./entities/feed.entity";
 @Injectable()
 export class FeedRepository extends BaseRepository {
   findFeeds(userIds: string[], offset: number, limit: number) {
-    return this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+    const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
       .where("words.is_public", true)
-      .limit(limit)
-      .offset(offset)
-      .orderBy("definitions.created_at", "desc")
+    const listQuery = baseQuery.clone()
       .select<Feed[]>({
         id: "definitions.id",
         content: "definitions.content",
@@ -26,7 +24,15 @@ export class FeedRepository extends BaseRepository {
         nickname: "users.nickname",
         profilePicture: "users.profile_picture",
         term: "words.term",
-      });
+      })
+      .limit(limit)
+      .offset(offset)
+      .orderBy("definitions.created_at", "desc");
+    const countQuery = baseQuery.clone()
+      .count<{ count: number }>("definitions.id as count")
+      .first();
+    return { listQuery, countQuery };
+
   }
 
   findAllFeeds(offset: number, limit: number) {

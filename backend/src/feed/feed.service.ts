@@ -17,25 +17,30 @@ export class FeedService {
   ) { }
 
   async getFeed(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Feed>> {
-    const cacheKey = this.cacheService.feedKey(userId, paginationDto.page);
-    const cached = await this.cacheService.get<Feed[]>(cacheKey);
+    const cacheKey = this.cacheService.feedKey(userId, paginationDto.page, paginationDto.limit);
+    const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
 
     if (cached) {
-      return new PaginatedResponseDto<Feed>(cached, 0, paginationDto.page, paginationDto.limit);
+      return cached;
     }
 
     const followingIds = await this.followsService.getFollowingIds(userId);
     const userIds = [...followingIds, userId];
 
-    const feeds = await this.feedRepository.findFeeds(
+    const { listQuery, countQuery } = await this.feedRepository.findFeeds(
       userIds,
       paginationDto.offset,
       paginationDto.limit,
     );
 
-    await this.cacheService.set(cacheKey, feeds, this.FEED_CACHE_TTL);
+    console.log('listQuery:', listQuery.toQuery());
+    const feeds = await listQuery;
+    const count = (await countQuery)?.count ?? 0;
+    console.log("Feeds:", feeds, count);
 
-    return new PaginatedResponseDto<Feed>(feeds, 0, paginationDto.page, paginationDto.limit);
+    const dto = new PaginatedResponseDto<Feed>(feeds, count, paginationDto.page, paginationDto.limit);
+    await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
+    return dto;
   }
 
   async getAllFeeds(

@@ -37,8 +37,8 @@ export class CacheService implements OnModuleDestroy {
     }
   }
 
-  feedKey(userId: string, page: number): string {
-    return `feed:${userId}:${page}`;
+  feedKey(userId: string, page: number, limit: number): string {
+    return `feed:${userId}:${page}:${limit}`;
   }
 
   allFeedKey(page: number): string {

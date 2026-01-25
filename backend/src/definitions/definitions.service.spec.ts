@@ -19,6 +19,7 @@ import { DefinitionsService } from "./definitions.service";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
 import { NotificationsService } from "../notifications/notifications.service";
 import { NotificationsRepository } from "../notifications/notifications.repository";
+import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
 
 describe("DefinitionsService", () => {
   let service: DefinitionsService;
@@ -46,6 +47,7 @@ describe("DefinitionsService", () => {
       imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         DefinitionsService,
+        DefinitionHistoriesRepository,
         DefinitionsRepository,
         WordsRepository,
         FeedService,
