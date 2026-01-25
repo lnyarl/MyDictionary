@@ -22,7 +22,9 @@
 		"back_to_dashboard": "Back to Dashboard",
 		"user": "User",
 		"search": "Search",
-		"close": "Close"
+		"close": "Close",
+		"press_cmd_enter_to_save": "Press ⌘ + Enter to save",
+		"editing": "Editing..."
 	},
 	"home": {
 		"title": "Build your own word stash",

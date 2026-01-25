@@ -1,4 +1,9 @@
-import type { CreateDefinitionInput, Definition } from "../types/definition.types";
+import type {
+	CreateDefinitionInput,
+	Definition,
+	DefinitionHistory,
+	UpdateDefinitionInput,
+} from "../types/definition.types";
 import { api } from "./api";
 
 export const definitionsApi = {
@@ -21,8 +26,26 @@ export const definitionsApi = {
 		return api.post<Definition>("/definitions", formData);
 	},
 
+	update: (id: string, data: UpdateDefinitionInput) => {
+		const formData = new FormData();
+		if (data.content !== undefined) {
+			formData.append("content", data.content);
+		}
+		if (data.tags) {
+			data.tags.forEach((tag) => {
+				formData.append("tags[]", tag);
+			});
+		}
+		if (data.files) {
+			data.files.forEach((file) => {
+				formData.append("files", file);
+			});
+		}
+		return api.patch<Definition>(`/definitions/${id}`, formData);
+	},
+
 	delete: (id: string) => api.delete(`/definitions/${id}`),
 
-	getHistory: (wordId: string, userId: string) =>
-		api.get<Definition[]>(`/definitions/history/${wordId}/${userId}`),
+	getHistory: (definitionId: string) =>
+		api.get<DefinitionHistory[]>(`/definitions/${definitionId}/history`),
 };

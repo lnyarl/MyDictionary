@@ -45,10 +45,10 @@ export class NotificationsRepository extends BaseRepository {
     return this.query(this.tableName).select(NotificationSelect).where({ id }).first();
   }
 
-  getUnreadCount(userId: string): Promise<{ count: number }> {
+  getUnreadCount(userId: string) {
     return this.query(this.tableName)
       .where({ user_id: userId, is_read: false })
-      .count<{ count: number }>("id as count")
+      .count<{ count: number }>("* as count")
       .first();
   }
 

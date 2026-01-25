@@ -2,6 +2,7 @@ export const TABLES = {
   USERS: "users",
   WORDS: "words",
   DEFINITIONS: "definitions",
+  DEFINITION_HISTORIES: "definition_histories",
   DEFINITIONS_LIKE_VIEW: "vw_definitions_with_likes",
   LIKES: "likes",
   FOLLOWS: "follows",

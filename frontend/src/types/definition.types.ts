@@ -25,3 +25,24 @@ export interface CreateDefinitionInput {
 	tags?: string[];
 	files?: File[];
 }
+
+export interface UpdateDefinitionInput {
+	content?: string;
+	tags?: string[];
+	files?: File[];
+}
+
+export interface DefinitionHistory {
+	id: string;
+	definitionId: string;
+	content: string;
+	tags: string[];
+	mediaUrls: Array<{
+		url: string;
+		type: string;
+		title?: string;
+		description?: string;
+		image?: string;
+	}>;
+	createdAt: string;
+}

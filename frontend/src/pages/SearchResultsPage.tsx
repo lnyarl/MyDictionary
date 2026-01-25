@@ -24,8 +24,7 @@ export default function SearchResultsPage() {
 
 	const [searchTerm, setSearchTerm] = useState(searchParams.get("term") || "");
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-	const [selectedWordId, setSelectedWordId] = useState<string | null>(null);
+	const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
 
 	useEffect(() => {
 		const term = searchParams.get("term");
@@ -52,9 +51,8 @@ export default function SearchResultsPage() {
 		}
 	};
 
-	const handleViewHistory = (wordId: string, userId: string) => {
-		setSelectedWordId(wordId);
-		setSelectedUserId(userId);
+	const handleViewHistory = (definitionId: string) => {
+		setSelectedDefinitionId(definitionId);
 		setIsHistoryOpen(true);
 	};
 
@@ -140,7 +138,7 @@ export default function SearchResultsPage() {
 												<DefinitionList
 													definitions={word.definitions as Definition[]}
 													onDelete={() => {}}
-													onViewHistory={(userId) => handleViewHistory(word.id, userId)}
+													onViewHistory={handleViewHistory}
 												/>
 											</div>
 										) : (
@@ -154,17 +152,11 @@ export default function SearchResultsPage() {
 				</div>
 			)}
 
-			{selectedWordId && selectedUserId && (
+			{selectedDefinitionId && (
 				<DefinitionHistoryDialog
 					open={isHistoryOpen}
 					onOpenChange={setIsHistoryOpen}
-					wordId={selectedWordId}
-					userId={selectedUserId}
-					userName={
-						results
-							.find((w) => w.id === selectedWordId)
-							?.definitions?.find((d) => d.userId === selectedUserId)?.nickname
-					}
+					definitionId={selectedDefinitionId}
 				/>
 			)}
 		</Page>

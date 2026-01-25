@@ -22,7 +22,9 @@
 		"back_to_dashboard": "대시보드로 돌아가기",
 		"user": "사용자",
 		"search": "검색",
-		"close": "닫기"
+		"close": "닫기",
+		"press_cmd_enter_to_save": "⌘ + Enter로 저장",
+		"editing": "편집 중..."
 	},
 	"home": {
 		"title": "나만의 단어 사전을 만드세요",

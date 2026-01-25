@@ -21,7 +21,7 @@ export class UsersService {
     private readonly wordRepository: WordsRepository,
     private readonly definitionRepository: DefinitionsRepository,
     private readonly followsService: FollowsService,
-  ) {}
+  ) { }
 
   async findByGoogleId(googleId: string): Promise<User | null> {
     return await this.userRepository.findByGoogleId(googleId);
@@ -102,8 +102,8 @@ export class UsersService {
         createdAt: user.createdAt,
       },
       stats: {
-        wordsCount,
-        definitionsCount,
+        wordsCount: Number(wordsCount.count),
+        definitionsCount: Number(definitionsCount.count),
         followersCount,
         followingCount,
       },

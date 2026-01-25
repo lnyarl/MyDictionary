@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Inject,
   Param,
+  Patch,
   Post,
   UploadedFiles,
   UseGuards,
@@ -19,6 +20,7 @@ import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/sto
 import type { User } from "../users/entities/user.entity";
 import { DefinitionsService } from "./definitions.service";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
+import { UpdateDefinitionDto } from "./dto/update-definition.dto";
 
 @Controller()
 export class DefinitionsController {
@@ -50,14 +52,29 @@ export class DefinitionsController {
     return this.definitionsService.findOne(id, user?.id);
   }
 
-  @Get("/definitions/history/:wordId/:userId")
+  @Get("/definitions/:id/history")
   @UseGuards(OptionalAuthGuard)
-  getHistory(
-    @Param("wordId") wordId: string,
-    @Param("userId") userId: string,
-    @CurrentUser() user?: User,
+  getDefinitionHistory(@Param("id") id: string, @CurrentUser() user?: User) {
+    return this.definitionsService.getDefinitionHistory(id, user?.id);
+  }
+
+  @Patch("/definitions/:id")
+  @UseInterceptors(FilesInterceptor("files"))
+  async update(
+    @Param("id") id: string,
+    @CurrentUser() user: User,
+    @Body() updateDefinitionDto: UpdateDefinitionDto,
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    return this.definitionsService.getHistory(wordId, userId, user?.id);
+    const mediaUrls: string[] = [];
+    if (files && files.length > 0) {
+      const uploadedUrls = await Promise.all(
+        files.map((file) => this.storageService.uploadFile(file, "definitions")),
+      );
+      mediaUrls.push(...uploadedUrls);
+    }
+
+    return this.definitionsService.update(id, user.id, updateDefinitionDto, mediaUrls);
   }
 
   @Delete("/definitions/:id")

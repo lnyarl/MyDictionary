@@ -1,4 +1,4 @@
-import { ExternalLink, Flag, History, Trash2 } from "lucide-react";
+import { ExternalLink, Flag, History, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +14,8 @@ import { ReportDialog } from "./ReportDialog";
 interface DefinitionCardProps {
 	definition: Definition;
 	onDelete: (id: string) => void;
-	onViewHistory: (userId: string) => void;
+	onViewHistory: (definitionId: string) => void;
+	onStartEdit?: () => void;
 	showWord?: boolean;
 }
 
@@ -22,6 +23,7 @@ export function DefinitionCard({
 	definition,
 	onDelete,
 	onViewHistory,
+	onStartEdit,
 	showWord = false,
 }: DefinitionCardProps) {
 	const { t } = useTranslation();
@@ -86,11 +88,16 @@ export function DefinitionCard({
 						<Button
 							variant="ghost"
 							size="icon"
-							onClick={() => onViewHistory(definition.userId)}
+							onClick={() => onViewHistory(definition.id)}
 							title={t("word.history")}
 						>
 							<History className="h-4 w-4" />
 						</Button>
+						{isOwner && onStartEdit && (
+							<Button variant="ghost" size="icon" onClick={onStartEdit} title={t("common.edit")}>
+								<Pencil className="h-4 w-4" />
+							</Button>
+						)}
 						{!isOwner && user && (
 							<ReportDialog
 								reportedUserId={definition.userId}

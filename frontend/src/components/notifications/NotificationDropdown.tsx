@@ -120,7 +120,7 @@ export function NotificationDropdown() {
 						<button
 							type="button"
 							onClick={handleMarkAllAsRead}
-							className="text-xs text-primary hover:underline font-normal"
+							className="text-xs text-primary hover:underline font-normal cursor-pointer"
 						>
 							모두 읽음
 						</button>
@@ -137,12 +137,9 @@ export function NotificationDropdown() {
 						<DropdownMenuItem
 							key={notification.id}
 							onClick={() => handleNotificationClick(notification)}
-							className={cn(
-								"flex items-start gap-3 p-3 cursor-pointer",
-								!notification.isRead && "bg-primary/5",
-							)}
+							className={cn("flex items-start gap-3 p-3", !notification.isRead && "bg-primary/5")}
 						>
-							<div className="relative flex-shrink-0">
+							<div className="relative shrink-0">
 								<Avatar className="h-9 w-9">
 									<AvatarImage
 										src={notification.actor?.profilePicture || undefined}

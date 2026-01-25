@@ -24,14 +24,14 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     @Inject(STORAGE_SERVICE) private readonly storageService: IStorageService,
-  ) {}
+  ) { }
 
   @Get("/users/me")
   getMe(@CurrentUser() user: User) {
     return user;
   }
 
-  @Patch("users/me/profile")
+  @Patch("/users/me/profile")
   @UseInterceptors(FileInterceptor("profilePicture"))
   async updateProfile(
     @CurrentUser() user: User,
@@ -50,24 +50,24 @@ export class UsersController {
     });
   }
 
-  @Patch("users/me/nickname")
+  @Patch("/users/me/nickname")
   async updateNickname(@CurrentUser() user: User, @Body() updateNicknameDto: UpdateNicknameDto) {
     return this.usersService.updateNickname(user.id, updateNicknameDto.nickname);
   }
 
-  @Get("users/:userId/profile")
+  @Get("/users/:userId/profile")
   @Public()
   async getUserProfile(@Param("userId") userId: string) {
     return this.usersService.getUserProfile(userId);
   }
 
-  @Get("users/:userId/words")
+  @Get("/users/:userId/words")
   @Public()
   async getUserWords(@Param("userId") userId: string, @Query() paginationDto: PaginationDto) {
     return this.usersService.getUserPublicWords(userId, paginationDto);
   }
 
-  @Get("users/:userId/definitions")
+  @Get("/users/:userId/definitions")
   @Public()
   async getUserDefinitions(@Param("userId") userId: string, @Query() paginationDto: PaginationDto) {
     return this.usersService.getUserPublicDefinitions(userId, paginationDto);

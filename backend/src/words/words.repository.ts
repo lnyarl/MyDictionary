@@ -30,7 +30,7 @@ export class WordsRepository extends BaseRepository {
   countPublicByUserId(userId: string) {
     return this.query(this.tableName)
       .where({ user_id: userId, is_public: true })
-      .count("* as count")
+      .count<{ count: number }>("* as count")
       .first();
   }
 

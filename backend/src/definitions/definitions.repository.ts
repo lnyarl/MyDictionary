@@ -63,36 +63,32 @@ export class DefinitionsRepository extends BaseRepository {
       .first();
   }
 
-  findByWordIdForEachUser(wordId: string) {
+  findAllByWordId(wordId: string) {
     return this.knex.raw(
       `
-			SELECT 
+      SELECT 
         d.id, 
         d.word_id as wordId, 
         d.user_id as userId, 
         d.content, 
         d.tags,
-        d.media_urls as mediaUrls,
-        COALESCE(l.likes_count, 0) as likesCount, 
-        d.created_at as createdAt, 
-        d.updated_at as updatedAt,
-        u.nickname as nickname
-			FROM (
-				SELECT *,
-					ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at DESC) as rn
-				FROM definitions
-				WHERE word_id = ? AND deleted_at IS NULL
-			) d
-			LEFT JOIN (
-				SELECT definition_id, COUNT(*) as likes_count
-				FROM likes
-				WHERE deleted_at IS NULL
-				GROUP BY definition_id
-			) l ON d.id = l.definition_id
-			LEFT JOIN users u ON d.user_id = u.id
-			WHERE d.rn = 1
-			ORDER BY d.created_at DESC
-			`,
+        d.media_urls as "mediaUrls",
+        COALESCE(l.likes_count, 0) as "likesCount", 
+        d.created_at as "createdAt", 
+        d.updated_at as "updatedAt",
+        u.nickname as nickname,
+        u.profile_picture as "profilePicture"
+      FROM definitions d
+      LEFT JOIN (
+        SELECT definition_id, COUNT(*) as likes_count
+        FROM likes
+        WHERE deleted_at IS NULL
+        GROUP BY definition_id
+      ) l ON d.id = l.definition_id
+      LEFT JOIN users u ON d.user_id = u.id
+      WHERE d.word_id = ? AND d.deleted_at IS NULL
+      ORDER BY d.created_at DESC
+      `,
       [wordId],
     );
   }
@@ -128,6 +124,43 @@ export class DefinitionsRepository extends BaseRepository {
 
     return this.knex(this.tableName)
       .insert(insertData)
+      .returning([
+        "id",
+        "word_id as wordId",
+        "user_id as userId",
+        "content",
+        "tags",
+        "media_urls as mediaUrls",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+      ]);
+  }
+
+  updateDefinition(
+    id: string,
+    definition: Partial<Pick<Definition, "content" | "tags" | "mediaUrls">>,
+  ) {
+    const updateData: any = {
+      updated_at: new Date(),
+    };
+
+    if (definition.content !== undefined) {
+      updateData.content = definition.content;
+    }
+
+    if (definition.tags !== undefined) {
+      updateData.tags =
+        definition.tags.length > 0 ? definition.tags : this.knex.raw("'{}'::text[]");
+    }
+
+    if (definition.mediaUrls !== undefined) {
+      updateData.media_urls = JSON.stringify(definition.mediaUrls);
+    }
+
+    return this.knex(this.tableName)
+      .where({ id })
+      .whereNull("deleted_at")
+      .update(updateData)
       .returning([
         "id",
         "word_id as wordId",

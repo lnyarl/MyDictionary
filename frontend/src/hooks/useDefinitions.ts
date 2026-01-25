@@ -1,6 +1,10 @@
 import { useCallback, useState } from "react";
 import { definitionsApi } from "../lib/definitions";
-import type { CreateDefinitionInput, Definition } from "../types/definition.types";
+import type {
+	CreateDefinitionInput,
+	Definition,
+	UpdateDefinitionInput,
+} from "../types/definition.types";
 
 export function useDefinitions(wordId: string) {
 	const [definitions, setDefinitions] = useState<Definition[]>([]);
@@ -35,6 +39,23 @@ export function useDefinitions(wordId: string) {
 		}
 	}, []);
 
+	const updateDefinition = useCallback(async (id: string, input: UpdateDefinitionInput) => {
+		setLoading(true);
+		setError(null);
+		try {
+			const updatedDefinition = await definitionsApi.update(id, input);
+			setDefinitions((prev) =>
+				prev.map((def) => (def.id === id ? { ...def, ...updatedDefinition } : def)),
+			);
+			return updatedDefinition;
+		} catch (err: any) {
+			setError(err.message || "Failed to update definition");
+			throw err;
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
 	const deleteDefinition = useCallback(async (id: string) => {
 		setLoading(true);
 		setError(null);
@@ -55,6 +76,7 @@ export function useDefinitions(wordId: string) {
 		error,
 		fetchDefinitions,
 		createDefinition,
+		updateDefinition,
 		deleteDefinition,
 	};
 }

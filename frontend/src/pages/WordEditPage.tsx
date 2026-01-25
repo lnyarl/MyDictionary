@@ -18,12 +18,18 @@ export default function WordEditPage() {
 	const navigate = useNavigate();
 
 	const { words, fetchWords } = useWords();
-	const { definitions, loading, fetchDefinitions, createDefinition, deleteDefinition } =
-		useDefinitions(wordId || "");
+	const {
+		definitions,
+		loading,
+		fetchDefinitions,
+		createDefinition,
+		updateDefinition,
+		deleteDefinition,
+	} = useDefinitions(wordId || "");
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+	const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!wordId) {
@@ -68,9 +74,16 @@ export default function WordEditPage() {
 		}
 	};
 
-	const handleViewHistory = (userId: string) => {
-		setSelectedUserId(userId);
+	const handleViewHistory = (definitionId: string) => {
+		setSelectedDefinitionId(definitionId);
 		setIsHistoryOpen(true);
+	};
+
+	const handleEdit = async (id: string, data: { content: string; tags: string[] }) => {
+		await updateDefinition(id, {
+			content: data.content,
+			tags: data.tags,
+		});
 	};
 
 	return (
@@ -130,19 +143,18 @@ export default function WordEditPage() {
 						definitions={definitions}
 						onDelete={handleDelete}
 						onViewHistory={handleViewHistory}
+						onEdit={handleEdit}
 					/>
 				)}
 			</div>
 
 			<DefinitionForm open={isFormOpen} onOpenChange={setIsFormOpen} onSubmit={handleSubmit} />
 
-			{selectedUserId && (
+			{selectedDefinitionId && (
 				<DefinitionHistoryDialog
 					open={isHistoryOpen}
 					onOpenChange={setIsHistoryOpen}
-					wordId={wordId}
-					userId={selectedUserId}
-					userName={definitions.find((d) => d.userId === selectedUserId)?.nickname}
+					definitionId={selectedDefinitionId}
 				/>
 			)}
 		</Page>
