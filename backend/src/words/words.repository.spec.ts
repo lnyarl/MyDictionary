@@ -102,7 +102,7 @@ describe("WordsRepository", () => {
             'updatedAt', wu.updated_at,
             'deletedAt', wu.deleted_at
           ) as user
-         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`,
+         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) group by "words"."id", "wu"."id" order by CASE WHEN words.user_id = '00000000-0000-0000-0000-000000000000' THEN 0 ELSE 1 END, "words"."created_at" desc limit 10`,
       );
     });
 
@@ -149,7 +149,7 @@ describe("WordsRepository", () => {
             'updatedAt', wu.updated_at,
             'deletedAt', wu.deleted_at
           ) as user
-         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and ("words"."user_id" = 'user-123' or exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null)) group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`);
+         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and ("words"."user_id" = 'user-123' or exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null)) group by "words"."id", "wu"."id" order by CASE WHEN words.user_id = 'user-123' THEN 0 ELSE 1 END, "words"."created_at" desc limit 10`);
     });
   });
 });

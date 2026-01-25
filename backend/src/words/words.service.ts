@@ -77,6 +77,34 @@ export class WordsService {
     await this.wordRepository.delete(id);
   }
 
+  async autocomplete(
+    term: string,
+    userId?: string,
+  ): Promise<{ myWords: Word[]; othersWords: Word[] }> {
+    const normalizedTerm = normalizeSearchTerm(term);
+    if (!normalizedTerm) {
+      return { myWords: [], othersWords: [] };
+    }
+
+    if (!userId) {
+      const othersWords = await this.wordRepository.findOthersWordsForAutocomplete(
+        normalizedTerm,
+        undefined,
+        10,
+      );
+      return { myWords: [], othersWords };
+    }
+
+    const myWords = await this.wordRepository.findMyWordsForAutocomplete(normalizedTerm, userId, 3);
+    const othersWords = await this.wordRepository.findOthersWordsForAutocomplete(
+      normalizedTerm,
+      userId,
+      7,
+    );
+
+    return { myWords, othersWords };
+  }
+
   async search(
     term: string,
     paginationDto: PaginationDto,

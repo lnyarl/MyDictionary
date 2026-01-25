@@ -72,7 +72,10 @@ export class WordsRepository extends BaseRepository {
   }
 
   findByTerm(userId: string, term: string) {
-    return this.query(this.tableName).select<Word>(WordSelect).where({ user_id: userId, term }).first();
+    return this.query(this.tableName)
+      .select<Word>(WordSelect)
+      .where({ user_id: userId, term })
+      .first();
   }
 
   findById(id: string) {
@@ -83,6 +86,29 @@ export class WordsRepository extends BaseRepository {
     return this.query(TABLES.DEFINITIONS)
       .where({ word_id: wordId, is_public: true })
       .first<boolean>();
+  }
+
+  findMyWordsForAutocomplete(term: string, userId: string, limit: number) {
+    return this.query(this.tableName)
+      .select<Word[]>(WordSelect)
+      .where({ user_id: userId })
+      .where("term", "ilike", `%${term}%`)
+      .orderBy("created_at", "desc")
+      .limit(limit);
+  }
+
+  findOthersWordsForAutocomplete(term: string, userId: string | undefined, limit: number) {
+    const query = this.query(this.tableName)
+      .select<Word[]>(WordSelect)
+      .where("term", "ilike", `%${term}%`)
+      .orderBy("created_at", "desc")
+      .limit(limit);
+
+    if (userId) {
+      query.whereNot({ user_id: userId });
+    }
+
+    return query;
   }
 
   /**
@@ -178,6 +204,9 @@ export class WordsRepository extends BaseRepository {
         this.on(`wu.id`, "=", `${TABLES.WORDS}.user_id`).andOnNull("wu.deleted_at");
       })
       .groupBy(`${TABLES.WORDS}.id`, "wu.id")
+      .orderByRaw(`CASE WHEN ${TABLES.WORDS}.user_id = ? THEN 0 ELSE 1 END`, [
+        userId || "00000000-0000-0000-0000-000000000000",
+      ])
       .orderBy(`${TABLES.WORDS}.created_at`, "desc")
       .limit(limit)
       .offset(offset);

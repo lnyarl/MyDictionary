@@ -4,15 +4,12 @@ import { authApi } from "../lib/auth";
 import type { User } from "../types/user.types";
 import { AuthContext, type AuthContextType, type GoogleCredentialResponse } from "./AuthContext";
 
-let count = 0;
-console.log("@!", count++);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const fetchUser = useCallback(async () => {
-    console.log("@!", count++);
     try {
       const userData = await authApi.getMe();
       setUser(userData);

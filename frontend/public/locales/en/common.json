@@ -60,7 +60,6 @@
 		"add_desc": "Enter the word you want to add to your stash.",
 		"edit_desc": "Modify the word.",
 		"term": "Word",
-		"term_placeholder": "e.g. Happiness",
 		"public_setting": "Public Setting",
 		"public_desc": "When set to public, other users can see this word and definition",
 		"public": "Public",
@@ -79,7 +78,9 @@
 		"history_error": "Failed to load history",
 		"history_empty": "No history available",
 		"current": "Current",
-		"tags_placeholder": "Add tags (press Enter to add)"
+		"tags_placeholder": "Add tags (press Enter to add)",
+		"my_words": "My Words",
+		"others_words": "Other users' words"
 	},
 	"feed": {
 		"subtitle": "Check the latest definitions.",

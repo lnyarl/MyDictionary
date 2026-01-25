@@ -11,7 +11,6 @@ export class WordsRepository extends BaseRepository {
         id: "id",
         term: "term",
         userId: "user_id",
-        isPublic: "is_public",
         createdAt: "created_at",
         updatedAt: "updated_at",
         deletedAt: "deleted_at",
@@ -20,13 +19,15 @@ export class WordsRepository extends BaseRepository {
       .orderBy("created_at", "desc");
   }
 
-  async createWithDefinition(wordData: Partial<Word>, definitionContent: string): Promise<void> {
+  async createWithDefinition(
+    wordData: Partial<Word>,
+    definitionContent: string,
+  ): Promise<void> {
     await this.transaction(async (trx) => {
       const [word] = await trx(TABLES.WORDS)
         .insert({
           term: wordData.term,
           user_id: wordData.userId,
-          is_public: true,
         })
         .returning("*");
 

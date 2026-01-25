@@ -38,11 +38,19 @@ export class WordsController {
     return this.wordsService.findAllByUser(user.id);
   }
 
+  @Get("/words/autocomplete")
+  @Public()
+  @UseGuards(OptionalAuthGuard)
+  autocomplete(@Query("term") term: string, @CurrentUser() user?: User) {
+    return this.wordsService.autocomplete(term, user?.id);
+  }
+
   @Get("/words/search")
   @Public()
-  search(@Query() searchParam: SearchWordDto) {
+  @UseGuards(OptionalAuthGuard)
+  search(@Query() searchParam: SearchWordDto, @CurrentUser() user?: User) {
     const { term } = searchParam;
-    return this.wordsService.search(term, searchParam);
+    return this.wordsService.search(term, searchParam, user?.id);
   }
 
   @Get("/words/:id")
