@@ -76,22 +76,11 @@ describe("WordsService", () => {
         term: "public-word",
         userId: testUser.id,
       });
-      // Mock hasPublicDefinitions or create a definition
-      // Since we use real DB helper, we need to create a definition
       await testDb.createDefinition({
         content: "def",
         wordId: word.id,
         userId: testUser.id,
       });
-      // But wait, the Service test uses real Repository?
-      // It uses TestDatabaseModule which uses real DB?
-      // Yes, `getTestDatabaseHelper` uses Knex.
-      // But `WordsService` calls `wordRepository.hasPublicDefinitions`.
-      // I need to add definition creation if I want `hasPublicDefinitions` to return true.
-      // However, for this test "return a word if found", we are testing `findOne`.
-      // If I am the owner (`testUser`), I should see it regardless of definitions.
-      // So this test case "return a word if found and public" is redundant if I am owner.
-      // The test creates word with `testUser.id`.
 
       const result = await service.findOne(word.id, testUser.id);
 

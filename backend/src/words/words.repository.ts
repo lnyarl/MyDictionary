@@ -76,9 +76,8 @@ export class WordsRepository extends BaseRepository {
   }
 
   async hasPublicDefinitions(wordId: string): Promise<boolean> {
-    const result = await this.knex(TABLES.DEFINITIONS)
+    const result = await this.query(TABLES.DEFINITIONS)
       .where({ word_id: wordId, is_public: true })
-      .whereNull("deleted_at")
       .first();
     return !!result;
   }
