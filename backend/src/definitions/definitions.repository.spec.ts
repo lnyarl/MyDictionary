@@ -24,7 +24,7 @@ describe("DefinitionsRepository", () => {
     it("should generate correct query", () => {
       const { listQuery, countQuery } = repository.findByUserId("user-123", 10, 20);
       expect(listQuery.toQuery()).toBe(
-        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' order by "created_at" DESC limit 20 offset 10',
+        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "is_public" as "isPublic", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' order by "created_at" DESC limit 20 offset 10',
       );
       expect(countQuery.toQuery()).toBe(
         'select count(*) as "count" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' limit 1',
@@ -36,7 +36,7 @@ describe("DefinitionsRepository", () => {
     it("should generate correct query", () => {
       const query = repository.findById("def-123");
       expect(query.toQuery()).toBe(
-        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "id" = \'def-123\' limit 1',
+        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "is_public" as "isPublic", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "id" = \'def-123\' limit 1',
       );
     });
   });
@@ -45,7 +45,7 @@ describe("DefinitionsRepository", () => {
     it("should generate correct query", () => {
       const query = repository.findByWordIdAndUserId("word-123", "user-456");
       expect(query.toQuery()).toBe(
-        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "word_id" = \'word-123\' and "user_id" = \'user-456\' order by "created_at" desc',
+        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "is_public" as "isPublic", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "word_id" = \'word-123\' and "user_id" = \'user-456\' order by "created_at" desc',
       );
     });
   });
@@ -55,7 +55,7 @@ describe("DefinitionsRepository", () => {
       const query = repository.findByIdWithPublic("def-123");
       const queryStr = query.toQuery();
       expect(queryStr).toBe(
-        'select "definitions"."id", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."content", "definitions"."tags", "definitions"."media_urls" as "mediaUrls", COUNT(likes.id) as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "words"."is_public" as "isPublic", "words"."user_id" as "wordUserId" from "definitions" left join "words" on "words"."id" = "definitions"."word_id" left join "likes" on "likes"."definition_id" = "definitions"."id" where "definitions"."deleted_at" is null and "definitions"."id" = \'def-123\' group by "definitions"."id", "words"."id" limit 1',
+        'select "definitions"."id", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."content", "definitions"."tags", "definitions"."media_urls" as "mediaUrls", COUNT(likes.id) as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "words"."user_id" as "wordUserId" from "definitions" left join "words" on "words"."id" = "definitions"."word_id" left join "likes" on "likes"."definition_id" = "definitions"."id" where "definitions"."deleted_at" is null and "definitions"."id" = \'def-123\' group by "definitions"."id", "words"."id" limit 1',
       );
     });
   });

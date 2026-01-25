@@ -24,7 +24,7 @@ describe("WordsRepository", () => {
     it("should generate correct query", () => {
       const query = repository.findByUserId("user-123");
       expect(query.toQuery()).toBe(
-        'select "id" as "id", "term" as "term", "user_id" as "userId", "is_public" as "isPublic", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' order by "created_at" desc',
+        'select "id" as "id", "term" as "term", "user_id" as "userId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' order by "created_at" desc',
       );
     });
   });
@@ -33,10 +33,10 @@ describe("WordsRepository", () => {
     it("should generate correct query", () => {
       const { listQuery, countQuery } = repository.findPublicByUserId("user-123", 10, 5);
       expect(listQuery.toQuery()).toBe(
-        'select "id" as "id", "term" as "term", "user_id" as "userId", "is_public" as "isPublic", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and "is_public" = true order by "created_at" desc limit 10 offset 5',
+        'select "id" as "id", "term" as "term", "user_id" as "userId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) order by "created_at" desc limit 10 offset 5',
       );
       expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and "is_public" = true limit 1',
+        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) limit 1',
       );
     });
   });
@@ -45,7 +45,7 @@ describe("WordsRepository", () => {
     it("should generate correct query", () => {
       const query = repository.countPublicByUserId("user-123");
       expect(query.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and "is_public" = true limit 1',
+        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) limit 1',
       );
     });
   });
@@ -54,7 +54,7 @@ describe("WordsRepository", () => {
     it("should generate correct query", () => {
       const query = repository.findById("word-123");
       expect(query.toQuery()).toBe(
-        'select "id" as "id", "term" as "term", "user_id" as "userId", "is_public" as "isPublic", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "id" = \'word-123\' limit 1',
+        'select "id" as "id", "term" as "term", "user_id" as "userId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "id" = \'word-123\' limit 1',
       );
     });
   });
@@ -63,10 +63,10 @@ describe("WordsRepository", () => {
     it("should generate correct query without userId", () => {
       const { listQuery, countQuery } = repository.searchWithDefinitions("test", undefined, 10, 0);
       expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and "words"."is_public" = true limit 1',
+        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) limit 1',
       );
       expect(listQuery.toQuery()).toBe(
-        `select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."is_public" as "isPublic", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
+        `select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
           COALESCE(
             json_agg(
               json_build_object(
@@ -102,18 +102,18 @@ describe("WordsRepository", () => {
             'updatedAt', wu.updated_at,
             'deletedAt', wu.deleted_at
           ) as user
-         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and "words"."is_public" = true group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`,
+         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`,
       );
     });
 
     it("should generate correct query with userId", () => {
       const { listQuery, countQuery } = repository.searchWithDefinitions("test", "user-123", 10, 0);
       expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and ("words"."user_id" = \'user-123\' or "words"."is_public" = true) limit 1',
+        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and ("words"."user_id" = \'user-123\' or exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null)) limit 1',
       );
       expect(
         listQuery.toQuery(),
-      ).toBe(`select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."is_public" as "isPublic", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
+      ).toBe(`select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
           COALESCE(
             json_agg(
               json_build_object(
@@ -149,7 +149,7 @@ describe("WordsRepository", () => {
             'updatedAt', wu.updated_at,
             'deletedAt', wu.deleted_at
           ) as user
-         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and ("words"."user_id" = 'user-123' or "words"."is_public" = true) group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`);
+         from "words" left join "definitions" as "d" on "d"."word_id" = "words"."id" and "d"."deleted_at" is null left join "users" as "du" on "du"."id" = "d"."user_id" and "du"."deleted_at" is null left join "users" as "wu" on "wu"."id" = "words"."user_id" and "wu"."deleted_at" is null where "words"."deleted_at" is null and "words"."term" ilike '%test%' and ("words"."user_id" = 'user-123' or exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null)) group by "words"."id", "wu"."id" order by "words"."created_at" desc limit 10`);
     });
   });
 });

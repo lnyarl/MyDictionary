@@ -15,7 +15,16 @@ export class WordsRepository extends BaseRepository {
   }
 
   findPublicByUserId(userId: string, limit: number, offset: number) {
-    const baseQuery = this.query(this.tableName).where({ user_id: userId, is_public: true });
+    const baseQuery = this.query(this.tableName)
+      .where({ user_id: userId })
+      .whereExists(function () {
+        this.select("*")
+          .from(TABLES.DEFINITIONS)
+          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
+          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
+          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+      });
+
     const listQuery = baseQuery
       .clone()
       .select<Word[]>(WordSelect)
@@ -29,7 +38,14 @@ export class WordsRepository extends BaseRepository {
 
   countPublicByUserId(userId: string) {
     return this.query(this.tableName)
-      .where({ user_id: userId, is_public: true })
+      .where({ user_id: userId })
+      .whereExists(function () {
+        this.select("*")
+          .from(TABLES.DEFINITIONS)
+          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
+          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
+          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+      })
       .count<{ count: number }>("* as count")
       .first();
   }
@@ -41,7 +57,6 @@ export class WordsRepository extends BaseRepository {
         id: generateId(),
         term: word.term,
         user_id: word.userId,
-        is_public: word.isPublic,
         created_at: now,
         updated_at: now,
       })
@@ -60,6 +75,14 @@ export class WordsRepository extends BaseRepository {
     return this.query(this.tableName).select<Word>(WordSelect).where({ id }).first();
   }
 
+  async hasPublicDefinitions(wordId: string): Promise<boolean> {
+    const result = await this.knex(TABLES.DEFINITIONS)
+      .where({ word_id: wordId, is_public: true })
+      .whereNull("deleted_at")
+      .first();
+    return !!result;
+  }
+
   /**
    * Search words with definitions
    * Includes complex joins and aggregation
@@ -75,10 +98,22 @@ export class WordsRepository extends BaseRepository {
     // Apply visibility filter
     if (userId) {
       baseQuery.where((builder) => {
-        builder.where(`${TABLES.WORDS}.user_id`, userId).orWhere(`${TABLES.WORDS}.is_public`, true);
+        builder.where(`${TABLES.WORDS}.user_id`, userId).orWhereExists(function () {
+          this.select("*")
+            .from(TABLES.DEFINITIONS)
+            .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
+            .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
+            .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+        });
       });
     } else {
-      baseQuery.where(`${TABLES.WORDS}.is_public`, true);
+      baseQuery.whereExists(function () {
+        this.select("*")
+          .from(TABLES.DEFINITIONS)
+          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
+          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
+          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+      });
     }
 
     const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
@@ -89,7 +124,6 @@ export class WordsRepository extends BaseRepository {
         `${TABLES.WORDS}.id`,
         `${TABLES.WORDS}.term`,
         `${TABLES.WORDS}.user_id as userId`,
-        `${TABLES.WORDS}.is_public as isPublic`,
         `${TABLES.WORDS}.created_at as createdAt`,
         `${TABLES.WORDS}.updated_at as updatedAt`,
         `${TABLES.WORDS}.deleted_at as deletedAt`,

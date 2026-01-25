@@ -12,12 +12,18 @@ import {
 } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 import { Textarea } from "../ui/textarea";
 
 interface DefinitionFormProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSubmit: (data: { content: string; tags: string[]; files: File[] }) => Promise<void>;
+	onSubmit: (data: {
+		content: string;
+		tags: string[];
+		isPublic: boolean;
+		files: File[];
+	}) => Promise<void>;
 }
 
 export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormProps) {
@@ -26,6 +32,7 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 
 	const [content, setContent] = useState("");
 	const [tagsString, setTagsString] = useState("");
+	const [isPublic, setIsPublic] = useState(false);
 	const [files, setFiles] = useState<File[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,11 +61,13 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 			await onSubmit({
 				content: content.trim(),
 				tags,
+				isPublic,
 				files,
 			});
 
 			setContent("");
 			setTagsString("");
+			setIsPublic(false);
 			setFiles([]);
 			onOpenChange(false);
 		} catch (error) {
@@ -71,6 +80,7 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 	const handleClose = () => {
 		setContent("");
 		setTagsString("");
+		setIsPublic(false);
 		setFiles([]);
 		onOpenChange(false);
 	};
@@ -99,6 +109,14 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
 								disabled={isSubmitting}
 							/>
 							<p className="text-sm text-muted-foreground text-right">{content.length}/5000</p>
+						</div>
+
+						<div className="flex items-center justify-between rounded-lg border p-4">
+							<div className="space-y-0.5">
+								<Label htmlFor="isPublic">{t("word.public_setting")}</Label>
+								<p className="text-sm text-muted-foreground">{t("word.public_desc")}</p>
+							</div>
+							<Switch id="isPublic" checked={isPublic} onCheckedChange={setIsPublic} />
 						</div>
 
 						<div className="grid gap-2">

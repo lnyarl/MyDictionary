@@ -41,7 +41,6 @@ export class DefinitionsRepository extends BaseRepository {
       .leftJoin(TABLES.LIKES, `${TABLES.LIKES}.definition_id`, `${this.tableName}.id`)
       .select<
         Definition & {
-          isPublic: boolean;
           wordUserId: string;
           likesCount: number;
         }
@@ -55,7 +54,6 @@ export class DefinitionsRepository extends BaseRepository {
         this.knex.raw(`COUNT(${TABLES.LIKES}.id) as "likesCount"`),
         `${this.tableName}.created_at as createdAt`,
         `${this.tableName}.updated_at as updatedAt`,
-        `${TABLES.WORDS}.is_public as isPublic`,
         `${TABLES.WORDS}.user_id as wordUserId`,
       )
       .where({ [`${this.tableName}.id`]: definitionId })
@@ -110,6 +108,7 @@ export class DefinitionsRepository extends BaseRepository {
       id: definition.id || generateId(),
       word_id: definition.wordId,
       user_id: definition.userId,
+      is_public: definition.isPublic,
       content: definition.content,
       created_at: now,
       updated_at: now,
@@ -138,7 +137,7 @@ export class DefinitionsRepository extends BaseRepository {
 
   updateDefinition(
     id: string,
-    definition: Partial<Pick<Definition, "content" | "tags" | "mediaUrls">>,
+    definition: Partial<Pick<Definition, "content" | "tags" | "mediaUrls" | "isPublic">>,
   ) {
     const updateData: any = {
       updated_at: new Date(),
@@ -146,6 +145,10 @@ export class DefinitionsRepository extends BaseRepository {
 
     if (definition.content !== undefined) {
       updateData.content = definition.content;
+    }
+
+    if (definition.isPublic !== undefined) {
+      updateData.is_public = definition.isPublic;
     }
 
     if (definition.tags !== undefined) {

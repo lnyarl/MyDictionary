@@ -2,7 +2,6 @@ export class Word {
   id: string;
   term: string;
   userId: string;
-  isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -12,7 +11,6 @@ export const WordSelect = {
   id: "id",
   term: "term",
   userId: "user_id",
-  isPublic: "is_public",
   createdAt: "created_at",
   updatedAt: "updated_at",
   deletedAt: "deleted_at",
@@ -24,7 +22,6 @@ export type WordInsert = Omit<
   "id" | "createdAt" | "updatedAt" | "deletedAt" | "user" | "definitions"
 > & {
   id?: string;
-  isPublic?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date | null;

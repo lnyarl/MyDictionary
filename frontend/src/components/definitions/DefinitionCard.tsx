@@ -1,4 +1,4 @@
-import { ExternalLink, Flag, History, Pencil, Trash2 } from "lucide-react";
+import { ExternalLink, Flag, Globe, History, Lock, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -81,6 +81,8 @@ export function DefinitionCard({
 						</Button>
 						<span>•</span>
 						<span>{formattedDate}</span>
+						<span>•</span>
+						{definition.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
 						{isEdited && <span className="text-xs text-muted-foreground">(edited)</span>}
 					</div>
 

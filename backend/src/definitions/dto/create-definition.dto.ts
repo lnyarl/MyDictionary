@@ -1,4 +1,12 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from "class-validator";
 
 export class CreateDefinitionDto {
   @IsString()
@@ -14,4 +22,8 @@ export class CreateDefinitionDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsBoolean()
+  @IsOptional()
+  isPublic?: boolean;
 }

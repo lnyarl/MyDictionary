@@ -6,8 +6,4 @@ export class CreateWordDto {
   @MaxLength(100)
   @IsString()
   public readonly term: string;
-
-  @IsBoolean()
-  @IsOptional()
-  public readonly isPublic?: boolean;
 }

@@ -1,5 +1,9 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { PaginationDto } from "@shared";
+import { FollowsRepository } from "../follows/follows.repository";
+import { FollowsService } from "../follows/follows.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
 import {
   destroyTestRedisInstance,
   flushTestRedis,
@@ -11,13 +15,9 @@ import {
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
-import { FollowsRepository } from "../follows/follows.repository";
-import { FollowsService } from "../follows/follows.service";
 import { UsersRepository } from "../users/users.repository";
 import { FeedRepository } from "./feed.repository";
 import { FeedService } from "./feed.service";
-import { NotificationsService } from "../notifications/notifications.service";
-import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("FeedService", () => {
   let service: FeedService;
@@ -76,12 +76,12 @@ describe("FeedService", () => {
       const word = await testDb.createWord({
         term: "feedword",
         userId: followedUser.id,
-        isPublic: true,
       });
       await testDb.createDefinition({
         content: "feed content",
         wordId: word.id,
         userId: followedUser.id,
+        isPublic: true,
       });
 
       const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };
@@ -92,11 +92,12 @@ describe("FeedService", () => {
     });
 
     it("should include user's own content in feed", async () => {
-      const word = await testDb.createWord({ term: "myword", userId: testUser.id, isPublic: true });
+      const word = await testDb.createWord({ term: "myword", userId: testUser.id });
       await testDb.createDefinition({
         content: "my content",
         wordId: word.id,
         userId: testUser.id,
+        isPublic: true,
       });
 
       const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };
@@ -113,12 +114,12 @@ describe("FeedService", () => {
       const word = await testDb.createWord({
         term: "popular",
         userId: otherUser.id,
-        isPublic: true,
       });
       await testDb.createDefinition({
         content: "popular def",
         wordId: word.id,
         userId: otherUser.id,
+        isPublic: true,
       });
 
       const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };
@@ -132,12 +133,12 @@ describe("FeedService", () => {
       const word = await testDb.createWord({
         term: "myword",
         userId: testUser.id,
-        isPublic: true,
       });
       await testDb.createDefinition({
         content: "my def",
         wordId: word.id,
         userId: testUser.id,
+        isPublic: true,
       });
 
       const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };

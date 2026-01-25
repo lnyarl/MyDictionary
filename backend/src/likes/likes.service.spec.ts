@@ -1,18 +1,18 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
-import { DefinitionsRepository } from "../definitions/definitions.repository";
-import { LikesRepository } from "./likes.repository";
-import { LikesService } from "./likes.service";
 import { UsersRepository } from "../users/users.repository";
 import { WordsRepository } from "../words/words.repository";
-import { NotificationsService } from "../notifications/notifications.service";
-import { NotificationsRepository } from "../notifications/notifications.repository";
+import { LikesRepository } from "./likes.repository";
+import { LikesService } from "./likes.service";
 
 describe("LikesService", () => {
   let service: LikesService;
@@ -36,7 +36,7 @@ describe("LikesService", () => {
 
     testUser = await testDb.createUser({ nickname: "liker" });
     otherUser = await testDb.createUser({ nickname: "defowner" });
-    testWord = await testDb.createWord({ term: "likeword", userId: otherUser.id, isPublic: true });
+    testWord = await testDb.createWord({ term: "likeword", userId: otherUser.id });
     testDefinition = await testDb.createDefinition({
       content: "likeable def",
       wordId: testWord.id,

@@ -8,7 +8,10 @@ interface DefinitionListProps {
 	definitions: Definition[];
 	onDelete: (id: string) => void;
 	onViewHistory: (definitionId: string) => void;
-	onEdit?: (id: string, data: { content: string; tags: string[] }) => Promise<void>;
+	onEdit?: (
+		id: string,
+		data: { content: string; tags: string[]; isPublic: boolean },
+	) => Promise<void>;
 }
 
 export function DefinitionList({
@@ -28,7 +31,10 @@ export function DefinitionList({
 		);
 	}
 
-	const handleSave = async (id: string, data: { content: string; tags: string[] }) => {
+	const handleSave = async (
+		id: string,
+		data: { content: string; tags: string[]; isPublic: boolean },
+	) => {
 		if (!onEdit) return;
 		await onEdit(id, data);
 		setEditingId(null);

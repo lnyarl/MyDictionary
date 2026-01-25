@@ -111,19 +111,6 @@ export default function SearchResultsPage() {
 										<div className="flex items-center justify-between">
 											<CardTitle className="text-2xl">{word.term}</CardTitle>
 											<div className="flex items-center gap-4">
-												<div className="flex items-center gap-2 text-sm text-muted-foreground">
-													{word.isPublic ? (
-														<>
-															<Globe className="h-4 w-4" />
-															<span>{t("word.public")}</span>
-														</>
-													) : (
-														<>
-															<Lock className="h-4 w-4" />
-															<span>{t("word.private")}</span>
-														</>
-													)}
-												</div>
 												<p className="text-sm text-muted-foreground">
 													{new Date(word.createdAt).toLocaleDateString("ko-KR")}
 												</p>

@@ -4,6 +4,7 @@ export interface Definition {
 	wordId: string;
 	userId: string;
 	term: string;
+	isPublic: boolean;
 	profilePicture?: string;
 	nickname?: string;
 	likesCount: number;
@@ -22,12 +23,14 @@ export interface Definition {
 export interface CreateDefinitionInput {
 	content: string;
 	wordId: string;
+	isPublic?: boolean;
 	tags?: string[];
 	files?: File[];
 }
 
 export interface UpdateDefinitionInput {
 	content?: string;
+	isPublic?: boolean;
 	tags?: string[];
 	files?: File[];
 }

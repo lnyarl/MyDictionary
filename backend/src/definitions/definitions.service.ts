@@ -30,7 +30,10 @@ export class DefinitionsService {
       throw new NotFoundException("Word not found");
     }
 
-    if (!word.isPublic && word.userId !== userId) {
+    const hasPublicDefs = await this.wordRepository.hasPublicDefinitions(
+      createDefinitionDto.wordId,
+    );
+    if (!hasPublicDefs && word.userId !== userId) {
       throw new ForbiddenException("You do not have access to this word");
     }
 
@@ -44,6 +47,7 @@ export class DefinitionsService {
     const definition = await this.definitionRepository.create({
       ...createDefinitionDto,
       userId,
+      isPublic: createDefinitionDto.isPublic,
       tags: createDefinitionDto.tags || [],
       mediaUrls: combinedMedia,
     });
@@ -62,8 +66,8 @@ export class DefinitionsService {
       throw new NotFoundException("Word not found");
     }
 
-    // Check access based on word's isPublic
-    if (!word.isPublic && (!userId || word.userId !== userId)) {
+    const hasPublicDefs = await this.wordRepository.hasPublicDefinitions(wordId);
+    if (!hasPublicDefs && (!userId || word.userId !== userId)) {
       throw new ForbiddenException("You do not have access to this word");
     }
 
@@ -92,7 +96,6 @@ export class DefinitionsService {
       throw new NotFoundException("Definition not found");
     }
 
-    // Check access based on word's isPublic
     if (!definition.isPublic) {
       if (!userId || (definition.wordUserId !== userId && definition.userId !== userId)) {
         throw new ForbiddenException("You do not have access to this definition");
@@ -139,6 +142,7 @@ export class DefinitionsService {
     const updated = await this.definitionRepository.updateDefinition(id, {
       content: updateDefinitionDto.content,
       tags: updateDefinitionDto.tags,
+      isPublic: updateDefinitionDto.isPublic,
       mediaUrls: combinedMedia,
     });
 

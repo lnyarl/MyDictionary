@@ -6,8 +6,4 @@ export class UpdateWordDto {
   @MinLength(1)
   @MaxLength(100)
   term: string;
-
-  @IsBoolean()
-  @IsOptional()
-  isPublic?: boolean;
 }

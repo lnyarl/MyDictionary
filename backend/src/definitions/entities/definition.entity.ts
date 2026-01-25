@@ -3,6 +3,7 @@ export type Definition = {
   content: string;
   wordId: string;
   userId: string;
+  isPublic: boolean;
   tags: string[];
   mediaUrls: any[];
   likesCount: number;
@@ -18,6 +19,7 @@ export const DefinitionSelect = {
   content: "content",
   wordId: "word_id",
   userId: "user_id",
+  isPublic: "is_public",
   tags: "tags",
   mediaUrls: "media_urls",
   createdAt: "created_at",

@@ -11,8 +11,9 @@ export class FeedRepository extends BaseRepository {
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
-      .where("words.is_public", true)
-    const listQuery = baseQuery.clone()
+      .where("definitions.is_public", true);
+    const listQuery = baseQuery
+      .clone()
       .select<Feed[]>({
         id: "definitions.id",
         content: "definitions.content",
@@ -28,11 +29,11 @@ export class FeedRepository extends BaseRepository {
       .limit(limit)
       .offset(offset)
       .orderBy("definitions.created_at", "desc");
-    const countQuery = baseQuery.clone()
+    const countQuery = baseQuery
+      .clone()
       .count<{ count: number }>("definitions.id as count")
       .first();
     return { listQuery, countQuery };
-
   }
 
   findAllFeeds(offset: number, limit: number) {
@@ -40,7 +41,7 @@ export class FeedRepository extends BaseRepository {
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereNull("words.deleted_at")
-      .where("words.is_public", true)
+      .where("definitions.is_public", true)
       .limit(limit)
       .offset(offset)
       .orderBy("definitions.created_at", "desc")
@@ -58,14 +59,13 @@ export class FeedRepository extends BaseRepository {
       });
   }
 
-
   findRecommendations(offset: number, limit: number, excludeUserId?: string) {
     const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
-      .where("words.is_public", true)
+      .where("definitions.is_public", true)
       .offset(offset)
       .limit(limit)
       .orderBy("definitions.likes_count", "desc")

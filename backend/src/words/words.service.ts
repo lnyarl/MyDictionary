@@ -15,7 +15,6 @@ export class WordsService {
   async create(userId: string, createWordDto: CreateWordDto): Promise<Word> {
     const result = await this.wordRepository.create({
       term: createWordDto.term,
-      isPublic: createWordDto.isPublic,
       userId,
     });
 
@@ -33,7 +32,8 @@ export class WordsService {
       throw new NotFoundException("Word not found");
     }
 
-    if (!word.isPublic && (!userId || word.userId !== userId)) {
+    const hasPublicDefs = await this.wordRepository.hasPublicDefinitions(id);
+    if (!hasPublicDefs && (!userId || word.userId !== userId)) {
       throw new ForbiddenException("You do not have access to this word");
     }
 

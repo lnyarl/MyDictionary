@@ -1,4 +1,4 @@
-import { ArrowLeft, Globe, Lock, Plus } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -59,11 +59,17 @@ export default function WordEditPage() {
 		setIsFormOpen(true);
 	};
 
-	const handleSubmit = async (data: { content: string; tags: string[]; files: File[] }) => {
+	const handleSubmit = async (data: {
+		content: string;
+		tags: string[];
+		isPublic: boolean;
+		files: File[];
+	}) => {
 		await createDefinition({
 			wordId: wordId || "",
 			content: data.content,
 			tags: data.tags,
+			isPublic: data.isPublic,
 			files: data.files,
 		});
 	};
@@ -79,10 +85,14 @@ export default function WordEditPage() {
 		setIsHistoryOpen(true);
 	};
 
-	const handleEdit = async (id: string, data: { content: string; tags: string[] }) => {
+	const handleEdit = async (
+		id: string,
+		data: { content: string; tags: string[]; isPublic: boolean },
+	) => {
 		await updateDefinition(id, {
 			content: data.content,
 			tags: data.tags,
+			isPublic: data.isPublic,
 		});
 	};
 
@@ -97,21 +107,6 @@ export default function WordEditPage() {
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<CardTitle className="text-4xl">{word?.term || t("common.loading")}</CardTitle>
-						{word && (
-							<div className="flex items-center gap-2 text-sm text-muted-foreground">
-								{word.isPublic ? (
-									<>
-										<Globe className="h-4 w-4" />
-										<span>{t("word.public")}</span>
-									</>
-								) : (
-									<>
-										<Lock className="h-4 w-4" />
-										<span>{t("word.private")}</span>
-									</>
-								)}
-							</div>
-						)}
 					</div>
 				</CardHeader>
 				<CardContent>

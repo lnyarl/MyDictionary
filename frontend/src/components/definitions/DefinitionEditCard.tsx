@@ -7,12 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+import { Switch } from "../ui/switch";
 import { Textarea } from "../ui/textarea";
 
 interface DefinitionEditCardProps {
 	definition: Definition;
-	onSave: (data: { content: string; tags: string[] }) => Promise<void>;
+	onSave: (data: { content: string; tags: string[]; isPublic: boolean }) => Promise<void>;
 	onCancel: () => void;
 	showWord?: boolean;
 }
@@ -28,6 +30,7 @@ export function DefinitionEditCard({
 
 	const [content, setContent] = useState(definition.content);
 	const [tagsString, setTagsString] = useState(definition.tags?.join(" ") || "");
+	const [isPublic, setIsPublic] = useState(definition.isPublic);
 	const [isSaving, setIsSaving] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -58,7 +61,7 @@ export function DefinitionEditCard({
 				.map((tag) => tag.trim())
 				.filter((tag) => tag.length > 0);
 
-			await onSave({ content: content.trim(), tags });
+			await onSave({ content: content.trim(), tags, isPublic });
 		} catch (error) {
 			console.error("Failed to save:", error);
 		} finally {
@@ -149,6 +152,19 @@ export function DefinitionEditCard({
 					<span className="text-xs text-muted-foreground whitespace-nowrap">
 						{content.length}/5000
 					</span>
+				</div>
+				<div className="flex items-center justify-between rounded-lg border p-3">
+					<div className="space-y-0.5">
+						<Label htmlFor="isPublic" className="text-sm">
+							{t("word.public_setting")}
+						</Label>
+					</div>
+					<Switch
+						id="isPublic"
+						checked={isPublic}
+						onCheckedChange={setIsPublic}
+						disabled={isSaving}
+					/>
 				</div>
 				<p className="text-xs text-muted-foreground">{t("common.press_cmd_enter_to_save")}</p>
 			</CardContent>

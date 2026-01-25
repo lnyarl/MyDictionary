@@ -1,5 +1,13 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { MetadataService } from "../common/services/metadata.service";
+import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
+import { FeedRepository } from "../feed/feed.repository";
+import { FeedService } from "../feed/feed.service";
+import { FollowsRepository } from "../follows/follows.repository";
+import { FollowsService } from "../follows/follows.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
 import { destroyTestRedisInstance, TestCacheModule } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
@@ -7,19 +15,11 @@ import {
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
-import { MetadataService } from "../common/services/metadata.service";
-import { FeedRepository } from "../feed/feed.repository";
-import { FeedService } from "../feed/feed.service";
-import { FollowsRepository } from "../follows/follows.repository";
-import { FollowsService } from "../follows/follows.service";
 import { UsersRepository } from "../users/users.repository";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
 import { CreateDefinitionDto } from "./dto/create-definition.dto";
-import { NotificationsService } from "../notifications/notifications.service";
-import { NotificationsRepository } from "../notifications/notifications.repository";
-import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
 
 describe("DefinitionsService", () => {
   let service: DefinitionsService;
@@ -41,7 +41,7 @@ describe("DefinitionsService", () => {
     await testDb.cleanAll();
 
     testUser = await testDb.createUser({ nickname: "defuser" });
-    testWord = await testDb.createWord({ term: "testword", userId: testUser.id, isPublic: true });
+    testWord = await testDb.createWord({ term: "testword", userId: testUser.id });
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [TestDatabaseModule, TestCacheModule],
@@ -101,7 +101,6 @@ describe("DefinitionsService", () => {
       const privateWord = await testDb.createWord({
         term: "private",
         userId: owner.id,
-        isPublic: false,
       });
       const dto: CreateDefinitionDto = { wordId: privateWord.id, content: "test" };
 
@@ -112,7 +111,6 @@ describe("DefinitionsService", () => {
       const privateWord = await testDb.createWord({
         term: "myprivate",
         userId: testUser.id,
-        isPublic: false,
       });
       const dto: CreateDefinitionDto = { wordId: privateWord.id, content: "my definition" };
 
@@ -124,8 +122,18 @@ describe("DefinitionsService", () => {
 
   describe("findAllByWord", () => {
     it("should return definitions for a public word", async () => {
-      await testDb.createDefinition({ content: "def1", wordId: testWord.id, userId: testUser.id });
-      await testDb.createDefinition({ content: "def2", wordId: testWord.id, userId: testUser.id });
+      await testDb.createDefinition({
+        content: "def1",
+        wordId: testWord.id,
+        userId: testUser.id,
+        isPublic: true,
+      });
+      await testDb.createDefinition({
+        content: "def2",
+        wordId: testWord.id,
+        userId: testUser.id,
+        isPublic: true,
+      });
 
       const result = await service.findAllByWord(testWord.id);
 
@@ -143,7 +151,6 @@ describe("DefinitionsService", () => {
       const privateWord = await testDb.createWord({
         term: "secret",
         userId: owner.id,
-        isPublic: false,
       });
 
       await expect(service.findAllByWord(privateWord.id, testUser.id)).rejects.toThrow(

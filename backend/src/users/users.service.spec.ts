@@ -1,19 +1,19 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
+import { FollowsRepository } from "../follows/follows.repository";
+import { FollowsService } from "../follows/follows.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
-import { DefinitionsRepository } from "../definitions/definitions.repository";
-import { FollowsRepository } from "../follows/follows.repository";
-import { FollowsService } from "../follows/follows.service";
 import { WordsRepository } from "../words/words.repository";
 import { UsersRepository } from "./users.repository";
 import { UsersService } from "./users.service";
-import { NotificationsService } from "../notifications/notifications.service";
-import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("UsersService", () => {
   let service: UsersService;
@@ -160,8 +160,21 @@ describe("UsersService", () => {
 
   describe("getUserProfile", () => {
     it("should return user profile with stats", async () => {
-      await testDb.createWord({ term: "word1", userId: testUser.id, isPublic: true });
-      await testDb.createWord({ term: "word2", userId: testUser.id, isPublic: true });
+      const w1 = await testDb.createWord({ term: "word1", userId: testUser.id });
+      await testDb.createDefinition({
+        content: "def1",
+        wordId: w1.id,
+        userId: testUser.id,
+        isPublic: true,
+      });
+
+      const w2 = await testDb.createWord({ term: "word2", userId: testUser.id });
+      await testDb.createDefinition({
+        content: "def2",
+        wordId: w2.id,
+        userId: testUser.id,
+        isPublic: true,
+      });
 
       const otherUser = await testDb.createUser({ nickname: "follower" });
       await testDb.createFollow({ followerId: otherUser.id, followingId: testUser.id });
@@ -183,9 +196,29 @@ describe("UsersService", () => {
 
   describe("getUserPublicWords", () => {
     it("should return paginated public words", async () => {
-      await testDb.createWord({ term: "public1", userId: testUser.id, isPublic: true });
-      await testDb.createWord({ term: "public2", userId: testUser.id, isPublic: true });
-      await testDb.createWord({ term: "private1", userId: testUser.id, isPublic: false });
+      const w1 = await testDb.createWord({ term: "public1", userId: testUser.id });
+      await testDb.createDefinition({
+        content: "def1",
+        wordId: w1.id,
+        userId: testUser.id,
+        isPublic: true,
+      });
+
+      const w2 = await testDb.createWord({ term: "public2", userId: testUser.id });
+      await testDb.createDefinition({
+        content: "def2",
+        wordId: w2.id,
+        userId: testUser.id,
+        isPublic: true,
+      });
+
+      const w3 = await testDb.createWord({ term: "private1", userId: testUser.id });
+      await testDb.createDefinition({
+        content: "def3",
+        wordId: w3.id,
+        userId: testUser.id,
+        isPublic: false,
+      });
 
       const result = await service.getUserPublicWords(testUser.id, {
         page: 1,
@@ -200,7 +233,7 @@ describe("UsersService", () => {
 
   describe("getUserPublicDefinitions", () => {
     it("should return paginated definitions", async () => {
-      const word = await testDb.createWord({ term: "word", userId: testUser.id, isPublic: true });
+      const word = await testDb.createWord({ term: "word", userId: testUser.id });
       await testDb.createDefinition({ content: "def1", wordId: word.id, userId: testUser.id });
       await testDb.createDefinition({ content: "def2", wordId: word.id, userId: testUser.id });
 

@@ -87,16 +87,10 @@ export class TestDatabaseHelper {
     };
   }
 
-  async createWord(data: {
-    id?: string;
-    term: string;
-    userId: string;
-    isPublic?: boolean;
-  }): Promise<{
+  async createWord(data: { id?: string; term: string; userId: string }): Promise<{
     id: string;
     term: string;
     userId: string;
-    isPublic: boolean;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
@@ -107,7 +101,6 @@ export class TestDatabaseHelper {
         id,
         term: data.term,
         user_id: data.userId,
-        is_public: data.isPublic ?? true,
       })
       .returning("*");
 
@@ -115,7 +108,6 @@ export class TestDatabaseHelper {
       id: word.id,
       term: word.term,
       userId: word.user_id,
-      isPublic: word.is_public,
       createdAt: word.created_at,
       updatedAt: word.updated_at,
       deletedAt: word.deleted_at,
@@ -128,6 +120,7 @@ export class TestDatabaseHelper {
     wordId: string;
     userId: string;
     tags?: string[];
+    isPublic?: boolean;
     mediaUrls?: string[];
   }): Promise<{
     id: string;
@@ -136,6 +129,7 @@ export class TestDatabaseHelper {
     userId: string;
     likesCount: number;
     tags: string[];
+    isPublic: boolean;
     mediaUrls: string[];
     createdAt: Date;
     updatedAt: Date;
@@ -149,6 +143,7 @@ export class TestDatabaseHelper {
         word_id: data.wordId,
         user_id: data.userId,
         tags: data.tags ?? [],
+        is_public: data.isPublic ?? false,
         media_urls: data.mediaUrls ?? [],
       })
       .returning("*");
@@ -160,6 +155,7 @@ export class TestDatabaseHelper {
       userId: definition.user_id,
       likesCount: definition.likes_count,
       tags: definition.tags ?? [],
+      isPublic: definition.is_public,
       mediaUrls: definition.media_urls ?? [],
       createdAt: definition.created_at,
       updatedAt: definition.updated_at,
