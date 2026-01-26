@@ -22,7 +22,8 @@ interface WordFormProps {
 
 export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 	const { t } = useTranslation();
-	const [term, setTerm] = useState(initialData?.term || toDayString());
+	const today = toDayString();
+	const [term, setTerm] = useState(initialData?.term || today);
 	const [suggestions, setSuggestions] = useState<{
 		myWords: Word[];
 		othersWords: Word[];
@@ -37,11 +38,11 @@ export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 
 	useEffect(() => {
 		const fetchSuggestions = async () => {
+			if (term === initialData?.term || term === today) return;
 			if (!term.trim() || term.length < 2) {
 				setSuggestions({ myWords: [], othersWords: [] });
 				return;
 			}
-
 			try {
 				const response = await wordsApi.autocomplete(term);
 				setSuggestions(response);
@@ -53,7 +54,7 @@ export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 
 		const timeoutId = setTimeout(fetchSuggestions, 300);
 		return () => clearTimeout(timeoutId);
-	}, [term]);
+	}, [term, initialData?.term, today]);
 
 	const handleSelectSuggestion = (word: Word) => {
 		setTerm(word.term);
@@ -118,7 +119,6 @@ export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 								setTimeout(() => setShowSuggestions(false), 200);
 							}}
 							maxLength={100}
-							autoFocus
 							autoComplete="off"
 						/>
 						{showSuggestions &&
