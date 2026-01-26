@@ -11,7 +11,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
-import { Textarea } from "../ui/textarea";
+import { RichTextEditor } from "../ui/rich-text-editor";
 import { toDayString } from "@/lib/utils/date";
 
 interface WordFormProps {
@@ -174,12 +174,11 @@ export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 							</Label>
 						</div>
 
-						<Textarea
+						<RichTextEditor
 							value={definition.content}
-							onChange={(e) =>
-								setDefinition({ ...definition, content: e.target.value })
+							onChange={(value) =>
+								setDefinition({ ...definition, content: value })
 							}
-							placeholder={t("word.definition_placeholder")}
 							className="min-h-25"
 						/>
 

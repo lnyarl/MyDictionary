@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -56,17 +57,28 @@ export class WordsController {
 
   @Get("/words/:id")
   @UseGuards(OptionalAuthGuard)
-  findOne(@Param("id") id: string, @CurrentUser() user?: User) {
-    return this.wordsService.findOne(id, user?.id);
+  async findOne(@Param("id") id: string, @CurrentUser() user?: User) {
+    const word = await this.wordsService.findOne(id);
+    if (!word) {
+      throw new NotFoundException("Word not found");
+    }
+    if (user && word.userId !== user.id) {
+      throw new ForbiddenException("You do not have access to this word");
+    }
+
+    return word;
   }
 
   @Get("/words/:wordId/definitions")
   @Public()
   @UseGuards(OptionalAuthGuard)
   async findDefinitions(@Param("wordId") wordId: string, @CurrentUser() user?: User) {
-    const word = await this.wordsService.findOne(wordId, user?.id);
+    const word = await this.wordsService.findOne(wordId);
     if (!word) {
       throw new NotFoundException("Word not found");
+    }
+    if (user && word.userId !== user.id) {
+      throw new ForbiddenException("You do not have access to this word");
     }
     return await this.definitionsService.findAllByWord(word, user?.id);
   }
