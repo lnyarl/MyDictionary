@@ -2,8 +2,7 @@
   "header": {
     "feed": "Feed",
     "my_stash": "My Stash",
-    "search": "Search",
-    "stash_gems": "Stash your gems"
+    "search": "Search"
   },
   "common": {
     "confirm": "Confirm",

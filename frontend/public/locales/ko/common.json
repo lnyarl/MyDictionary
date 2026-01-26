@@ -2,8 +2,7 @@
   "header": {
     "feed": "피드",
     "my_stash": "내 사전",
-    "search": "검색",
-    "stash_gems": "보석을 모으세요"
+    "search": "검색"
   },
   "common": {
     "confirm": "확인",
@@ -74,7 +73,6 @@
     "history": "수정 내역 보기",
     "history_title": "수정 내역",
     "history_desc": "{{userName}}님의 이전 정의 목록",
-    "history_desc_generic": "이전 정의 목록",
     "history_error": "히스토리를 불러오는데 실패했습니다",
     "history_empty": "히스토리가 없습니다",
     "current": "현재",

@@ -28,9 +28,6 @@ export function Header() {
 					</div>
 					<div className="flex flex-col">
 						<span className="font-black text-2xl tracking-tighter text-primary">STASHY</span>
-						<span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground leading-none">
-							{t("header.stash_gems")}
-						</span>
 					</div>
 				</Link>
 
