@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { DefinitionHistoryDialog } from "../components/definitions/DefinitionHistoryDialog";
-import { DefinitionList } from "../components/definitions/DefinitionList";
+import { FeedList } from "../components/feed/FeedList";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -122,9 +122,9 @@ export default function SearchResultsPage() {
 											<div className="space-y-2">
 												<h3 className="font-semibold mb-2">{t("word.definition")}</h3>
 												<Separator />
-												<DefinitionList
+												<FeedList
 													definitions={word.definitions as Definition[]}
-													onDelete={() => {}}
+													onDelete={() => { }}
 													onViewHistory={handleViewHistory}
 												/>
 											</div>

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES } from "@shared";
-import { UserSelect } from "@shared/entities/user.entity";
+import { generateId, TABLES } from "@stashy/shared";
+import { UserSelect } from "@stashy/shared/entities/user.entity";
 import { BaseRepository } from "../common/database/base.repository";
 import { Notification, NotificationSelect, NotificationType } from "./entities/notification.entity";
 

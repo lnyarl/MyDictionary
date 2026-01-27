@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { generateId } from "@shared";
+import { generateId } from "@stashy/shared";
 import type { EventPayload } from "./event.types";
 import { EventChannel, EventType } from "./event.types";
 import type { PubSubMessage, PubSubProvider } from "./pubsub/pubsub.interface";

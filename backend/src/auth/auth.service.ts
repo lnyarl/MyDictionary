@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { generateRandomNickname } from "@shared";
+import { generateRandomNickname } from "@stashy/shared";
 import { OAuth2Client } from "google-auth-library";
 import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";

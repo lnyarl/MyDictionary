@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { DefinitionForm } from "../components/definitions/DefinitionForm";
 import { DefinitionHistoryDialog } from "../components/definitions/DefinitionHistoryDialog";
-import { DefinitionList } from "../components/definitions/DefinitionList";
+import { FeedList } from "../components/feed/FeedList";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -134,7 +134,7 @@ export default function WordEditPage() {
 						<p className="text-muted-foreground">{t("common.loading")}</p>
 					</div>
 				) : (
-					<DefinitionList
+					<FeedList
 						definitions={definitions}
 						onDelete={handleDelete}
 						onViewHistory={handleViewHistory}

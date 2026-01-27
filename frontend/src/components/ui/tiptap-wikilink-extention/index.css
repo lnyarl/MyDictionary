@@ -1,7 +1,6 @@
 .ProseMirror {
   background-color: var(--alt-bg-color);
   padding: 8px;
-  border-radius: 8px;
   font-size: 1.2rem;
 }
 
@@ -12,16 +11,15 @@
   position: absolute;
   width: 24rem;
   background-color: white;
-  padding: 0.5rem;
-  border-radius: 1rem;
+  padding: 0rem;
   border: 1px solid rgba(110, 226, 199, 0.428);
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.3);
 }
 
 .suggestion-option {
-  width: 95%;
+  width: 100%;
   background-color: white;
   padding: 5px;
-  border-radius: 5px;
 }
 .suggestion-container .suggestion-option {
   border-bottom: 1px solid rgba(110, 226, 199, 0.428);
@@ -54,11 +52,7 @@
   position: absolute;
   background-color: rgba(145, 233, 255, 0.322);
   width: calc(100% + var(--wikilink-padding));
-  left: 1ch;
-  top: 0.5ch;
-  height: 2ch;
   left: calc(-0.5 * var(--wikilink-padding));
   top: 0;
   height: 100%;
-  border-radius: 5px;
 }

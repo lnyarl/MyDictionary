@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { TABLES } from "@shared";
+import { TABLES } from "@stashy/shared";
 import { Knex } from "knex";
 import { createTestKnexInstance, destroyTestKnexInstance } from "./test-database.module";
 

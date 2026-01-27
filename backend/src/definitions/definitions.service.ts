@@ -5,17 +5,17 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
+import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
+import { Knex } from "knex";
 import { MetadataService } from "../common/services/metadata.service";
 import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
 import type { DefinitionHistory } from "../definition-histories/entities/definition-history.entity";
 import { FeedService } from "../feed/feed.service";
-import { DefinitionsRepository } from "./definitions.repository";
-import { CreateDefinitionDto } from "./dto/create-definition.dto";
-import { UpdateDefinitionDto } from "./dto/update-definition.dto";
-import { Definition } from "./entities/definition.entity";
-import { Knex } from "knex";
 import { Word } from "../words/entities/word.entity";
 import { WordsRepository } from "../words/words.repository";
+import { DefinitionsRepository } from "./definitions.repository";
+import { Definition } from "./entities/definition.entity";
 
 @Injectable()
 export class DefinitionsService {

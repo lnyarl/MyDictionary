@@ -1,18 +1,16 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-// biome-ignore lint/style/useImportType: ConfigService is needed at runtime for dependency injection
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import type { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
-// biome-ignore lint/style/useImportType: UsersService is needed at runtime for dependency injection
 import { UsersService } from "../../users/users.service";
 
-export interface JwtPayload {
+export type JwtPayload = {
   sub: string;
   email: string;
   iat: number;
   exp: number;
-}
+};
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {

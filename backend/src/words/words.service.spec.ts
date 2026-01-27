@@ -1,6 +1,8 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { PaginationDto } from "@shared";
+import { PaginationDto } from "@stashy/shared";
+import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
+import { UpdateWordDto } from "@stashy/shared/dto/word/update-word.dto";
 import { DefinitionsService } from "../definitions/definitions.service";
 import {
   cleanupTestDatabase,
@@ -8,8 +10,6 @@ import {
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
-import type { CreateWordDto } from "./dto/create-word.dto";
-import type { UpdateWordDto } from "./dto/update-word.dto";
 import { WordsRepository } from "./words.repository";
 import { WordsService } from "./words.service";
 
@@ -123,47 +123,6 @@ describe("WordsService", () => {
       const result = await service.findOne(word.id);
 
       expect(result.term).toBe("my-private-word");
-    });
-  });
-
-  describe("update", () => {
-    it("should update a word", async () => {
-      const word = await testDb.createWord({
-        term: "original",
-        userId: testUser.id,
-      });
-      const dto: UpdateWordDto = { term: "updated" };
-
-      const result = await service.update(word.id, dto);
-
-      expect(result.term).toBe("updated");
-    });
-
-    it("should throw NotFoundException if word to update not found", async () => {
-      await expect(
-        service.update("00000000-0000-0000-0000-000000000000", { term: "test" }),
-      ).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe("remove", () => {
-    it("should remove a word", async () => {
-      const word = await testDb.createWord({
-        term: "to-delete",
-        userId: testUser.id,
-      });
-
-      await service.remove(word.id, testUser.id);
-
-      const words = await service.findAllByUser(testUser.id);
-      expect(words).toHaveLength(0);
-    });
-
-    it("should throw ForbiddenException when non-owner tries to delete", async () => {
-      const owner = await testDb.createUser({ nickname: "owner2" });
-      const word = await testDb.createWord({ term: "not-mine", userId: owner.id });
-
-      await expect(service.remove(word.id, testUser.id)).rejects.toThrow(ForbiddenException);
     });
   });
 

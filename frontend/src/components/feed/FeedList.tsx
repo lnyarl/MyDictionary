@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { Definition } from "../../types/definition.types";
-import { FeedCard } from "../feed/FeedCard";
-import { FeedEditCard } from "../feed/FeedEditCard";
+import { FeedCard } from "./FeedCard";
+import { FeedEditCard } from "./FeedEditCard";
 
-interface DefinitionListProps {
+interface FeedListProps {
 	definitions: Definition[];
 	onDelete: (id: string) => void;
 	onViewHistory: (definitionId: string) => void;
@@ -14,12 +14,12 @@ interface DefinitionListProps {
 	) => Promise<void>;
 }
 
-export function DefinitionList({
+export function FeedList({
 	definitions,
 	onDelete,
 	onViewHistory,
 	onEdit,
-}: DefinitionListProps) {
+}: FeedListProps) {
 	const { user } = useAuth();
 	const [editingId, setEditingId] = useState<string | null>(null);
 

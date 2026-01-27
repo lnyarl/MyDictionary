@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DefinitionHistoryDialog } from "@/components/definitions/DefinitionHistoryDialog";
-import { DefinitionList } from "@/components/definitions/DefinitionList";
-import { WordForm } from "@/components/words/WordForm";
+import { FeedList } from "@/components/feed/FeedList";
+import { FeedForm } from "@/components/feed/FeedForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useDefinitions } from "@/hooks/useDefinitions";
 import { useMyFeed } from "@/hooks/useMyFeed";
@@ -86,14 +86,14 @@ export default function DashboardPage() {
 				</div>
 			</div>
 			<div className="mb-8">
-				<WordForm onCreate={handleSubmit} />
+				<FeedForm onCreate={handleSubmit} />
 			</div>
 			{loading && definitions.length === 0 ? (
 				<div className="rounded-lg border bg-muted/50 p-12 text-center">
 					<p className="text-muted-foreground">{t("common.loading")}</p>
 				</div>
 			) : (
-				<DefinitionList
+				<FeedList
 					definitions={definitions}
 					onDelete={handleDelete}
 					onViewHistory={handleViewHistory}

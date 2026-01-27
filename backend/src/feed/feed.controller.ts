@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { PaginationDto } from "@stashy/shared";
+import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
-import { PaginationDto } from "../common/dto/pagination.dto";
 import { User } from "../users/entities/user.entity";
 import { FeedService } from "./feed.service";
-import { CreateWordDto } from "../words/dto/create-word.dto";
 
 @Controller()
 export class FeedController {

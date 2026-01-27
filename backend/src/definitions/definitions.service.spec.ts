@@ -19,7 +19,7 @@ import { UsersRepository } from "../users/users.repository";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
-import { CreateDefinitionDto } from "./dto/create-definition.dto";
+import { CreateDefinitionDto } from "@stashy/shared/src/dto/definition/create-definition.dto";
 import { Word } from "../words/entities/word.entity";
 
 describe("DefinitionsService", () => {

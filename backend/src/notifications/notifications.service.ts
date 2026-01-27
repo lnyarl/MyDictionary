@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { Notification, NotificationType } from "./entities/notification.entity";
 import { NotificationsRepository } from "./notifications.repository";
 
@@ -13,7 +13,7 @@ export interface NotificationWithActor extends Omit<Notification, "actor"> {
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly notificationsRepository: NotificationsRepository) { }
+  constructor(private readonly notificationsRepository: NotificationsRepository) {}
 
   async getNotifications(
     userId: string,
@@ -41,10 +41,10 @@ export class NotificationsService {
       deletedAt: row.deletedAt,
       actor: row.actor_id
         ? {
-          id: row.actor_id,
-          nickname: row.actor_nickname,
-          profilePicture: row.actor_profilePicture,
-        }
+            id: row.actor_id,
+            nickname: row.actor_nickname,
+            profilePicture: row.actor_profilePicture,
+          }
         : undefined,
     }));
 

@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query } from "@nestjs/common";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { PaginationDto } from "../common/dto/pagination.dto";
 import { User } from "../users/entities/user.entity";
 import { FollowsService } from "./follows.service";
+import { PaginationDto } from "@stashy/shared";
 
 @Controller()
 export class FollowsController {

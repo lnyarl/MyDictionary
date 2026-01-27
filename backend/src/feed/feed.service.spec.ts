@@ -1,5 +1,10 @@
 import { Test, type TestingModule } from "@nestjs/testing";
-import { PaginationDto } from "@shared";
+import { PaginationDto } from "@stashy/shared";
+import { REDIS_CLIENT } from "../common/cache/redis.provider";
+import { KNEX_CONNECTION } from "../common/database/knex.provider";
+import { MetadataService } from "../common/services/metadata.service";
+import { STORAGE_SERVICE } from "../common/services/storage/storage.interface";
+import { DefinitionsService } from "../definitions/definitions.service";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
 import { NotificationsRepository } from "../notifications/notifications.repository";
@@ -16,17 +21,12 @@ import {
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule, testKnexProvider } from "../test/helper/test-database.module";
+import { testStorageProvider } from "../test/helper/test-storage.module";
 import { UsersRepository } from "../users/users.repository";
+import { WordsRepository } from "../words/words.repository";
+import { FeedModule } from "./feed.module";
 import { FeedRepository } from "./feed.repository";
 import { FeedService } from "./feed.service";
-import { DefinitionsService } from "../definitions/definitions.service";
-import { WordsRepository } from "../words/words.repository";
-import { MetadataService } from "../common/services/metadata.service";
-import { FeedModule } from "./feed.module";
-import { KNEX_CONNECTION } from "../common/database/knex.provider";
-import { REDIS_CLIENT } from "../common/cache/redis.provider";
-import { STORAGE_SERVICE } from "../common/services/storage/storage.interface";
-import { testStorageProvider } from "../test/helper/test-storage.module";
 
 describe("FeedService", () => {
   let service: FeedService;

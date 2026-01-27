@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -15,13 +14,13 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
+import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
+import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { OptionalAuthGuard } from "../common/guards/optional-auth.guard";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
 import type { User } from "../users/entities/user.entity";
 import { DefinitionsService } from "./definitions.service";
-import { CreateDefinitionDto } from "./dto/create-definition.dto";
-import { UpdateDefinitionDto } from "./dto/update-definition.dto";
 
 @Controller()
 export class DefinitionsController {

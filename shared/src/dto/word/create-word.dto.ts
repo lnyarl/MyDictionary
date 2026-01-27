@@ -1,4 +1,3 @@
-import { Type } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
@@ -7,7 +6,6 @@ import {
   IsString,
   MaxLength,
   MinLength,
-  ValidateNested,
 } from "class-validator";
 
 export class CreateDefinitionSubDto {

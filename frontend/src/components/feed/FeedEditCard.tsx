@@ -12,19 +12,19 @@ import { RichTextEditor } from "../ui/rich-text-editor";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 
-interface DefinitionEditCardProps {
+interface FeedEditCardProps {
   definition: Definition;
   onSave: (data: { content: string; tags: string[]; isPublic: boolean }) => Promise<void>;
   onCancel: () => void;
   showWord?: boolean;
 }
 
-export function DefinitionEditCard({
+export function FeedEditCard({
   definition,
   onSave,
   onCancel,
   showWord = false,
-}: DefinitionEditCardProps) {
+}: FeedEditCardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 

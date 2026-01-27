@@ -1,5 +1,5 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES, TableName } from "@shared";
+import { generateId, TABLES, TableName } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Word, WordSelect } from "./entities/word.entity";
 

@@ -1,8 +1,8 @@
 import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { CreateReportDto } from "@stashy/shared/dto/report/create-report.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { User } from "../users/entities/user.entity";
-import { CreateReportDto } from "./dto/create-report.dto";
 import { ReportsService } from "./reports.service";
 
 @Controller("reports")

@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto, User } from "@shared";
+import { PaginatedResponseDto, PaginationDto, User } from "@stashy/shared";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { Definition } from "../definitions/entities/definition.entity";
 import { FollowsService } from "../follows/follows.service";
@@ -7,12 +7,12 @@ import { Word } from "../words/entities/word.entity";
 import { WordsRepository } from "../words/words.repository";
 import { UsersRepository } from "./users.repository";
 
-export interface CreateUserDto {
+export type CreateUserDto = {
   googleId: string;
   email: string;
   nickname: string;
   profilePicture?: string;
-}
+};
 
 @Injectable()
 export class UsersService {
@@ -21,7 +21,7 @@ export class UsersService {
     private readonly wordRepository: WordsRepository,
     private readonly definitionRepository: DefinitionsRepository,
     private readonly followsService: FollowsService,
-  ) { }
+  ) {}
 
   async findByGoogleId(googleId: string): Promise<User | null> {
     return await this.userRepository.findByGoogleId(googleId);

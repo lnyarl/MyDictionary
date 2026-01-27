@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
 import { User } from "../users/entities/user.entity";

@@ -8,10 +8,10 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { LikeButton } from "./LikeButton";
-import { ReportDialog } from "./ReportDialog";
+import { LikeButton } from "../definitions/LikeButton";
+import { ReportDialog } from "../definitions/ReportDialog";
 
-interface DefinitionCardProps {
+interface FeedCardProps {
 	definition: Definition;
 	onDelete: (id: string) => void;
 	onViewHistory: (definitionId: string) => void;
@@ -19,13 +19,13 @@ interface DefinitionCardProps {
 	showWord?: boolean;
 }
 
-export function DefinitionCard({
+export function FeedCard({
 	definition,
 	onDelete,
 	onViewHistory,
 	onStartEdit,
 	showWord = false,
-}: DefinitionCardProps) {
+}: FeedCardProps) {
 	const { t } = useTranslation();
 	const { user } = useAuth();
 	const navigate = useNavigate();

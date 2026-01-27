@@ -8,8 +8,8 @@ import { destroyTestRedisInstance } from "./helper/test-cache.module";
 register({
   baseUrl: resolve(__dirname, ".."),
   paths: {
-    "@shared": ["../shared/src"],
-    "@shared/*": ["../shared/src/*"],
+    "@stashy/shared": ["../shared/src"],
+    "@stashy/shared/*": ["../shared/src/*"],
   },
 });
 

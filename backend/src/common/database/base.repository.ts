@@ -1,25 +1,25 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { TableName } from "@shared";
+import { TableName } from "@stashy/shared";
 import { Knex } from "knex";
 import { KNEX_CONNECTION } from "./knex.provider";
 
-export interface BaseEntity {
+export type BaseEntity = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-}
+};
 
-export interface FindOptions {
+export type FindOptions = {
   withDeleted?: boolean;
   orderBy?: { column: string; order: "asc" | "desc" };
   select?: string[];
-}
+};
 
-export interface PaginationOptions extends FindOptions {
+export type PaginationOptions = FindOptions & {
   limit: number;
   offset: number;
-}
+};
 
 @Injectable()
 export abstract class BaseRepository {

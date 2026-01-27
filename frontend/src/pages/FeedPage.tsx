@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAllFeed } from "@/hooks/useAllFeed";
 import { useFeed } from "@/hooks/useFeed";
-import { DefinitionCard } from "../components/definitions/DefinitionCard";
+import { FeedCard } from "../components/feed/FeedCard";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -51,7 +51,7 @@ function FeedList({
 		<>
 			<div className="space-y-4">
 				{definitions.map((definition) => (
-					<DefinitionCard
+					<FeedCard
 						key={definition.id}
 						definition={definition}
 						onDelete={onRefresh}

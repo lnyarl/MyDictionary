@@ -1,12 +1,12 @@
 import { Controller, Get, Param, Patch, Query } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import type { Notification } from "./entities/notification.entity";
 import { NotificationsService, NotificationWithActor } from "./notifications.service";
 
 @Controller()
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) { }
+  constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get("/notifications")
   async getNotifications(

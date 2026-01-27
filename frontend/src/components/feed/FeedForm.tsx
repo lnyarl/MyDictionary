@@ -20,7 +20,7 @@ interface WordFormProps {
 	initialData?: Partial<CreateWordInput>;
 }
 
-export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
+export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 	const { t } = useTranslation();
 	const today = toDayString();
 	const [term, setTerm] = useState(initialData?.term || today);

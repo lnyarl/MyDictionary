@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES } from "@shared";
+import { generateId, TABLES } from "@stashy/shared";
 import { BaseRepository } from "../database/base.repository";
 import type { Event, EventAggregate } from "./entities/event.entity";
 import { EventAggregateSelect, EventSelect } from "./entities/event.entity";

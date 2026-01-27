@@ -1,12 +1,12 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@shared";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
+import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CacheService } from "../common/cache/cache.service";
+import { DefinitionsService } from "../definitions/definitions.service";
 import { FollowsService } from "../follows/follows.service";
+import { Word } from "../words/entities/word.entity";
 import { Feed } from "./entities/feed.entity";
 import { FeedRepository } from "./feed.repository";
-import { Word } from "../words/entities/word.entity";
-import { CreateWordDto } from "../words/dto/create-word.dto";
-import { DefinitionsService } from "../definitions/definitions.service";
 
 @Injectable()
 export class FeedService {

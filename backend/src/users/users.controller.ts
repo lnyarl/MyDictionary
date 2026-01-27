@@ -10,12 +10,12 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { PaginationDto } from "@stashy/shared";
+import { UpdateNicknameDto } from "@stashy/shared/dto/user/update-nickname.dto";
+import { UpdateProfileDto } from "@stashy/shared/dto/user/update-profile.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
-import { PaginationDto } from "../common/dto/pagination.dto";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
-import { UpdateNicknameDto } from "./dto/update-nickname.dto";
-import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 
@@ -24,7 +24,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     @Inject(STORAGE_SERVICE) private readonly storageService: IStorageService,
-  ) { }
+  ) {}
 
   @Get("/users/me")
   getMe(@CurrentUser() user: User) {

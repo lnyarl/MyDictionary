@@ -1,5 +1,11 @@
-import { ReportReason } from "@shared/entities/report.entity";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from "class-validator";
+import { ReportReason } from "../../entities/report.entity";
 
 export class CreateReportDto {
   @IsUUID()

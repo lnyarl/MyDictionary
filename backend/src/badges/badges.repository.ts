@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { TABLES, TableName } from "@shared";
+import { TABLES, TableName } from "@stashy/shared";
 import { Knex } from "knex";
 import { BaseRepository } from "../common/database/base.repository";
 import { KNEX_CONNECTION } from "../common/database/knex.provider";

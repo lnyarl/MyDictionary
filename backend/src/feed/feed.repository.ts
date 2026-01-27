@@ -1,8 +1,8 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES } from "@shared";
+import { generateId, TABLES } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
-import { Feed } from "./entities/feed.entity";
 import { Word } from "../words/entities/word.entity";
+import { Feed } from "./entities/feed.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {

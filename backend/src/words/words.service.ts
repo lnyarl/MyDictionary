@@ -1,8 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@shared";
-import { DefinitionsService } from "../definitions/definitions.service";
-import { CreateWordDto } from "./dto/create-word.dto";
-import { UpdateWordDto } from "./dto/update-word.dto";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
+import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { Word } from "./entities/word.entity";
 import { normalizeSearchTerm } from "./logic/word-search.logic";
 import { WordsRepository } from "./words.repository";
@@ -38,22 +36,6 @@ export class WordsService {
     }
 
     return word;
-  }
-
-  async update(id: string, updateWordDto: UpdateWordDto): Promise<Word> {
-    const updated = await this.wordRepository.updateAll(id, updateWordDto as any);
-    if (!updated) {
-      throw new NotFoundException("Word not found");
-    }
-    return updated;
-  }
-
-  async remove(id: string, userId: string): Promise<void> {
-    const word = await this.wordRepository.findById(id);
-    if (word.userId !== userId) {
-      throw new ForbiddenException("You do not have permission to delete this word");
-    }
-    await this.wordRepository.delete(id);
   }
 
   async autocomplete(

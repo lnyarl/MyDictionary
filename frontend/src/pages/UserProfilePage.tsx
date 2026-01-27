@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { BadgeList } from "../components/badges/BadgeList";
-import { DefinitionCard } from "../components/definitions/DefinitionCard";
+import { FeedCard } from "../components/feed/FeedCard";
 import { Page } from "../components/layout/Page";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -173,11 +173,11 @@ export default function UserProfilePage() {
 					) : (
 						<div className="space-y-4 mt-4">
 							{definitions.map((definition) => (
-								<DefinitionCard
+								<FeedCard
 									key={definition.id}
 									definition={definition}
-									onDelete={() => {}}
-									onViewHistory={() => {}}
+									onDelete={() => { }}
+									onViewHistory={() => { }}
 									showWord={true}
 								/>
 							))}

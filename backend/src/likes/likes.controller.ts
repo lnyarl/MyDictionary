@@ -1,7 +1,6 @@
 import { Controller, Param, Post } from "@nestjs/common";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import type { User } from "../users/entities/user.entity";
-// biome-ignore lint/style/useImportType: <explanation>
 import { LikesService } from "./likes.service";
 
 @Controller()

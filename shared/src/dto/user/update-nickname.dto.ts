@@ -5,7 +5,8 @@ export class UpdateNicknameDto {
   @IsNotEmpty()
   @Length(2, 20)
   @Matches(/^[a-zA-Z0-9가-힣_]+$/, {
-    message: "Nickname can only contain letters, numbers, Korean characters, and underscores",
+    message:
+      "Nickname can only contain letters, numbers, Korean characters, and underscores",
   })
   nickname: string;
 }

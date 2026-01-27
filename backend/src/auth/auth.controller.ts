@@ -1,11 +1,11 @@
 import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AuthGuard } from "@nestjs/passport";
+import { GoogleLoginDto } from "@stashy/shared/dto/auth/google-login.dto";
 import type { Request, Response } from "express";
 import { Public } from "../common/decorators/public.decorator";
 import type { User } from "../users/entities/user.entity";
 import { AuthService } from "./auth.service";
-import { GoogleLoginDto } from "./dto/google-login.dto";
 
 @Controller()
 export class AuthController {

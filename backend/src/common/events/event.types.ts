@@ -18,41 +18,41 @@ export enum EventChannel {
   ANALYTICS = "events:analytics",
 }
 
-export interface BaseEventPayload {
+export type BaseEventPayload = {
   userId: string;
   sessionId?: string;
   userAgent?: string;
   ipAddress?: string;
-}
+};
 
-export interface PageViewPayload extends BaseEventPayload {
+export type PageViewPayload = BaseEventPayload & {
   path: string;
   referrer?: string;
-}
+};
 
-export interface WordEventPayload extends BaseEventPayload {
+export type WordEventPayload = BaseEventPayload & {
   wordId: string;
   term?: string;
-}
+};
 
-export interface DefinitionEventPayload extends BaseEventPayload {
+export type DefinitionEventPayload = BaseEventPayload & {
   definitionId: string;
   wordId: string;
-}
+};
 
-export interface FollowEventPayload extends BaseEventPayload {
+export type FollowEventPayload = BaseEventPayload & {
   targetUserId: string;
-}
+};
 
-export interface LikeEventPayload extends BaseEventPayload {
+export type LikeEventPayload = BaseEventPayload & {
   definitionId: string;
   definitionOwnerId: string;
-}
+};
 
-export interface SearchEventPayload extends BaseEventPayload {
+export type SearchEventPayload = BaseEventPayload & {
   query: string;
   resultsCount: number;
-}
+};
 
 export type EventPayload =
   | PageViewPayload

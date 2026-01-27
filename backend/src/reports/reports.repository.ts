@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES } from "@shared/constants/tables";
+import { TABLES } from "@stashy/shared/constants/tables";
+import { CreateReportDto } from "@stashy/shared/src/dto/dto/create-report.dto";
 import { BaseRepository } from "../common/database/base.repository";
-import { CreateReportDto } from "./dto/create-report.dto";
 import { Report, ReportSelect } from "./entities/report.entity";
 
 @Injectable()
