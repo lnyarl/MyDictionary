@@ -179,7 +179,7 @@ export function WordForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 							onChange={(value) =>
 								setDefinition({ ...definition, content: value })
 							}
-							className="min-h-25"
+							className="min-h-25 max-h-100"
 						/>
 
 						<div className="flex items-center gap-4">
