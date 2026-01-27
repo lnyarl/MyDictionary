@@ -46,14 +46,15 @@ export class DefinitionsService {
 
     const combinedMedia = [...mediaUrls.map((url) => ({ url, type: "image" })), ...metadataList];
 
-    const definition = await this.definitionRepository.withTransaction(transaction).create({
-      ...createDefinitionDto,
-      userId,
-      isPublic: createDefinitionDto.isPublic,
-      tags: createDefinitionDto.tags || [],
-      mediaUrls: combinedMedia,
-    });
-
+    const definition = await this.definitionRepository
+      .create({
+        ...createDefinitionDto,
+        userId,
+        isPublic: createDefinitionDto.isPublic,
+        tags: createDefinitionDto.tags || [],
+        mediaUrls: combinedMedia,
+      })
+      .maybeTransacting(transaction);
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
 

@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
+import { ReportSelect } from "@stashy/shared";
 import { TABLES } from "@stashy/shared/constants/tables";
-import { CreateReportDto } from "@stashy/shared/src/dto/dto/create-report.dto";
+import { CreateReportDto } from "@stashy/shared/dto/report/create-report.dto";
 import { BaseRepository } from "../common/database/base.repository";
-import { Report, ReportSelect } from "./entities/report.entity";
 
 @Injectable()
 export class ReportsRepository extends BaseRepository {
-  async create(data: CreateReportDto & { reporterId: string }): Promise<Report> {
+  async create(data: CreateReportDto & { reporterId: string }) {
     const [report] = await this.knex(TABLES.REPORTS)
       .insert({
         reporter_id: data.reporterId,

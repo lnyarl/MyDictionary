@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toDayString } from "@/lib/utils/date";
 import { wordsApi } from "../../lib/words";
 import type {
 	CreateWordInput,
@@ -9,10 +10,9 @@ import type {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { RichTextEditor } from "../ui/rich-text-editor";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
-import { RichTextEditor } from "../ui/rich-text-editor";
-import { toDayString } from "@/lib/utils/date";
 
 interface WordFormProps {
 	onCreate?: (data: CreateWordInput) => Promise<void>;
@@ -33,7 +33,7 @@ export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 		content: string;
 		tags: string;
 		isPublic: boolean;
-	}>({ content: "", tags: "", isPublic: false });
+	}>({ content: "", tags: "", isPublic: true });
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
@@ -84,8 +84,8 @@ export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 				} as CreateWordInput);
 
 				// Reset form
-				setTerm("");
-				setDefinition({ content: "", tags: "", isPublic: false });
+				setTerm(toDayString());
+				setDefinition({ content: "", tags: "", isPublic: true });
 			} else if (onUpdate) {
 				await onUpdate({ term: term.trim() });
 			}

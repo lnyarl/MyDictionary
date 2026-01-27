@@ -15,7 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { reportsService } from "@/services/reports.service";
+import { reportsApi } from "@/lib/reports";
 
 interface ReportDialogProps {
 	reportedUserId: string;
@@ -36,7 +36,7 @@ export function ReportDialog({ reportedUserId, definitionId, trigger }: ReportDi
 
 		try {
 			setLoading(true);
-			await reportsService.create({
+			await reportsApi.create({
 				reportedUserId,
 				definitionId,
 				reason: reason as ReportReason,

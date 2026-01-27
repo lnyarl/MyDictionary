@@ -1,6 +1,9 @@
 import { Global, Module } from "@nestjs/common";
 import knex, { Knex } from "knex";
+import { patchKnex } from "../../common/database/knex.extention";
 import { KNEX_CONNECTION } from "../../common/database/knex.provider";
+
+patchKnex();
 
 let testKnexInstance: Knex | null = null;
 

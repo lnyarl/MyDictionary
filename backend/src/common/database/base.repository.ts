@@ -25,13 +25,6 @@ export type PaginationOptions = FindOptions & {
 export abstract class BaseRepository {
   constructor(@Inject(KNEX_CONNECTION) protected knex: Knex) {}
 
-  public withTransaction(trx?: Knex.Transaction) {
-    if (trx) {
-      this.knex = trx;
-    }
-    return this;
-  }
-
   /**
    * Get base query with soft delete filtering
    */

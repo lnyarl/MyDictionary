@@ -15,7 +15,6 @@ export function Header() {
 
 	const navItems = [
 		{ name: t("header.feed"), path: "/feed" },
-		{ name: t("header.my_stash"), path: "/dashboard" },
 		{ name: t("header.search"), path: "/search" },
 	];
 
