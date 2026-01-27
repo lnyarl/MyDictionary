@@ -16,7 +16,14 @@ export class FeedRepository extends BaseRepository {
         created_at: now,
         updated_at: now,
       })
-      .returning("id");
+      .returning([
+        "id",
+        "term",
+        "user_id as userId",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+      ]);
   }
 
   findMyFeeds(userId: string, offset: number, limit: number) {
@@ -36,6 +43,7 @@ export class FeedRepository extends BaseRepository {
         createdAt: "definitions.created_at",
         updatedAt: "definitions.updated_at",
         nickname: "users.nickname",
+        isPublic: "definitions.is_public",
         profilePicture: "users.profile_picture",
         term: "words.term",
       })

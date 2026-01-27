@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
@@ -23,6 +24,12 @@ export class CreateDefinitionDto {
   @IsString({ each: true })
   tags?: string[];
 
+  @Transform(({ value }) => {
+    if (value === "true") return true;
+    if (value === "false") return false;
+    if (!value) return false;
+    return value;
+  })
   @IsBoolean()
   @IsOptional()
   isPublic?: boolean;
