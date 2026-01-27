@@ -23,17 +23,21 @@ describe("FeedRepository", () => {
   describe("findFeeds", () => {
     it("should generate correct query with user IDs filter", () => {
       const { listQuery, countQuery } = repository.findFeeds(["user-1", "user-2"], 0, 10);
-      const queryStr = listQuery.toQuery();
-      expect(queryStr).toBe(
-        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\', \'user-2\') and "words"."deleted_at" is null and "definitions"."is_public" = true order by "definitions"."created_at" desc limit 10',
+      expect(listQuery.toQuery()).toBe(
+        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "definitions"."tags" as "tags", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\', \'user-2\') and "words"."deleted_at" is null and "definitions"."is_public" = true order by "definitions"."created_at" desc limit 10',
+      );
+      expect(countQuery.toQuery()).toBe(
+        'select count("definitions"."id") as "count" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\', \'user-2\') and "words"."deleted_at" is null and "definitions"."is_public" = true limit 1',
       );
     });
 
     it("should order by created_at desc", () => {
       const { listQuery, countQuery } = repository.findFeeds(["user-1"], 0, 10);
-      const queryStr = listQuery.toQuery();
-      expect(queryStr).toBe(
-        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\') and "words"."deleted_at" is null and "definitions"."is_public" = true order by "definitions"."created_at" desc limit 10',
+      expect(listQuery.toQuery()).toBe(
+        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "definitions"."tags" as "tags", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\') and "words"."deleted_at" is null and "definitions"."is_public" = true order by "definitions"."created_at" desc limit 10',
+      );
+      expect(countQuery.toQuery()).toBe(
+        'select count("definitions"."id") as "count" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\') and "words"."deleted_at" is null and "definitions"."is_public" = true limit 1',
       );
     });
   });

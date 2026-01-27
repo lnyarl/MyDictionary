@@ -46,6 +46,7 @@ export class FeedRepository extends BaseRepository {
         isPublic: "definitions.is_public",
         profilePicture: "users.profile_picture",
         term: "words.term",
+        tags: "definitions.tags",
       })
       .limit(limit)
       .offset(offset)
@@ -76,6 +77,7 @@ export class FeedRepository extends BaseRepository {
         updatedAt: "definitions.updated_at",
         nickname: "users.nickname",
         profilePicture: "users.profile_picture",
+        tags: "definitions.tags",
         term: "words.term",
       })
       .limit(limit)

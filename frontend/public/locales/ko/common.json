@@ -1,6 +1,7 @@
 {
   "header": {
     "feed": "피드",
+    "my_stash": "내 사전",
     "search": "검색"
   },
   "common": {
@@ -119,5 +120,12 @@
     "unfollowed": "팔로우를 취소했습니다.",
     "followed": "팔로우했습니다.",
     "error": "오류가 발생했습니다."
+  },
+  "errorBoundary": {
+    "title": "문제가 발생했습니다",
+    "description": "예상치 못한 오류가 발생했습니다. 다시 시도하거나 홈으로 이동해주세요.",
+    "retry": "다시 시도",
+    "goHome": "홈으로",
+    "toastMessage": "화면을 표시하는 중 오류가 발생했습니다."
   }
 }

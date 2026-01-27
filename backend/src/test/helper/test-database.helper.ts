@@ -6,17 +6,31 @@ import { createTestKnexInstance, destroyTestKnexInstance } from "./test-database
 
 export class TestDatabaseHelper {
   private knex: Knex;
+  private config: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
+  };
 
   constructor() {
-    this.knex = createTestKnexInstance();
+    const { instance, config } = createTestKnexInstance();
+    this.knex = instance;
+    this.config = config;
   }
 
   async setupSchema(): Promise<void> {
-    const hasUsers = await this.knex.schema.hasTable(TABLES.USERS);
-    if (hasUsers) {
-      return;
+    try {
+      await this.knex.raw(
+        `DROP SCHEMA public CASCADE; 
+      CREATE SCHEMA public; 
+      GRANT ALL ON SCHEMA public TO ${this.config.user};`,
+      );
+    } catch (error) {
+      console.log("Schema drop/create error (might not exist yet):", error);
+      throw error;
     }
-
     const migrationsDir = path.resolve(process.cwd(), "migrations");
 
     if (!fs.existsSync(migrationsDir)) {
@@ -28,9 +42,14 @@ export class TestDatabaseHelper {
       .filter((f) => f.endsWith(".sql"))
       .sort();
 
-    for (const filename of files) {
-      const sql = fs.readFileSync(path.join(migrationsDir, filename), "utf8");
-      await this.knex.raw(sql);
+    try {
+      for (const filename of files) {
+        const sql = fs.readFileSync(path.join(migrationsDir, filename), "utf8");
+        await this.knex.raw(sql);
+      }
+    } catch (error) {
+      console.error("Error applying migrations:", error);
+      throw error;
     }
   }
 

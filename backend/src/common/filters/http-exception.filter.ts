@@ -6,7 +6,17 @@ import {
   HttpStatus,
   Logger,
 } from "@nestjs/common";
+import { ERROR_CODES, type ErrorCode } from "@stashy/shared";
 import type { Request, Response } from "express";
+
+import { BusinessException } from "../exceptions/business.exception";
+
+interface ExceptionResponseObject {
+  message?: string;
+  error?: string;
+  errorCode?: ErrorCode;
+  details?: Record<string, unknown>;
+}
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -19,35 +29,64 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = "Internal server error";
-    let error = "Internal Server Error";
+    let errorCode: ErrorCode = ERROR_CODES.INTERNAL_SERVER_ERROR;
+    let details: Record<string, unknown> | undefined;
 
-    if (exception instanceof HttpException) {
+    if (exception instanceof BusinessException) {
+      status = exception.getStatus();
+      message = exception.message;
+      errorCode = exception.errorCode;
+      details = exception.details;
+    } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
       if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
       } else if (typeof exceptionResponse === "object" && exceptionResponse !== null) {
-        message = (exceptionResponse as any).message || exception.message;
-        error = (exceptionResponse as any).error || exception.name;
+        const responseObj = exceptionResponse as ExceptionResponseObject;
+        message = responseObj.message || exception.message;
+        if (responseObj.errorCode) {
+          errorCode = responseObj.errorCode;
+        }
       }
+
+      errorCode = this.mapHttpStatusToErrorCode(status, errorCode);
     } else if (exception instanceof Error) {
       message = exception.message;
-      error = exception.name;
     }
 
-    // Log error for server-side debugging
     this.logger.error(
-      `${request.method} ${request.url} - ${status} - ${message}`,
+      `${request.method} ${request.url} - ${status} - [${errorCode}] ${message}`,
       exception instanceof Error ? exception.stack : undefined,
     );
 
     response.status(status).json({
       statusCode: status,
+      errorCode,
       message,
-      error,
       timestamp: new Date().toISOString(),
       path: request.url,
+      ...(details && { details }),
     });
+  }
+
+  private mapHttpStatusToErrorCode(status: HttpStatus, currentCode: ErrorCode): ErrorCode {
+    if (currentCode !== ERROR_CODES.INTERNAL_SERVER_ERROR) {
+      return currentCode;
+    }
+
+    switch (status) {
+      case HttpStatus.UNAUTHORIZED:
+        return ERROR_CODES.AUTH_UNAUTHORIZED;
+      case HttpStatus.FORBIDDEN:
+        return ERROR_CODES.FORBIDDEN_ACCESS;
+      case HttpStatus.NOT_FOUND:
+        return ERROR_CODES.UNKNOWN_ERROR;
+      case HttpStatus.BAD_REQUEST:
+        return ERROR_CODES.VALIDATION_FAILED;
+      default:
+        return ERROR_CODES.INTERNAL_SERVER_ERROR;
+    }
   }
 }

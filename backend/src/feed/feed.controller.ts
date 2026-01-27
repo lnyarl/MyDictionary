@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { PaginationDto } from "@stashy/shared";
+import { ERROR_CODES, PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
+import { badRequest } from "../common/exceptions/business.exception";
 import { User } from "../users/entities/user.entity";
 import { FeedService } from "./feed.service";
 
@@ -22,7 +23,11 @@ export class FeedController {
 
   @Get("/feed/me")
   async getMyFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
-    return this.feedService.getMyFeed(user.id, paginationDto);
+    throw badRequest(
+      ERROR_CODES.FILE_INVALID_TYPE,
+      "This endpoint is deprecated. Please use /feed instead.",
+    );
+    // return this.feedService.getMyFeed(user.id, paginationDto);
   }
 
   @Get("/feed/all")

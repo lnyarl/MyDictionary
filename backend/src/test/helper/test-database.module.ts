@@ -7,24 +7,25 @@ patchKnex();
 
 let testKnexInstance: Knex | null = null;
 
-export function createTestKnexInstance(): Knex {
+export function createTestKnexInstance() {
+  const connectionConfig = {
+    host: process.env.TEST_DB_HOST || "localhost",
+    port: Number(process.env.TEST_DB_PORT) || 5433,
+    user: process.env.TEST_DB_USERNAME || "postgres",
+    password: process.env.TEST_DB_PASSWORD || "postgres",
+    database: process.env.TEST_DB_DATABASE || "stashy_test",
+  };
   if (!testKnexInstance) {
     testKnexInstance = knex({
       client: "pg",
-      connection: {
-        host: process.env.TEST_DB_HOST || "localhost",
-        port: Number(process.env.TEST_DB_PORT) || 5433,
-        user: process.env.TEST_DB_USERNAME || "postgres",
-        password: process.env.TEST_DB_PASSWORD || "postgres",
-        database: process.env.TEST_DB_DATABASE || "stashy_test",
-      },
+      connection: connectionConfig,
       pool: {
         min: 1,
         max: 5,
       },
     });
   }
-  return testKnexInstance;
+  return { instance: testKnexInstance, config: connectionConfig };
 }
 
 export async function destroyTestKnexInstance(): Promise<void> {
@@ -36,7 +37,7 @@ export async function destroyTestKnexInstance(): Promise<void> {
 
 export const testKnexProvider = {
   provide: KNEX_CONNECTION,
-  useFactory: (): Knex => createTestKnexInstance(),
+  useFactory: (): Knex => createTestKnexInstance().instance,
 };
 
 @Global()

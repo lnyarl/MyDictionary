@@ -7,29 +7,29 @@ const DEFAULT_LANGUAGE = "ko";
 const SUPPORTED_LANGUAGES = ["ko", "en"];
 
 i18n
-	.use(HttpBackend)
-	.use(LanguageDetector)
-	.use(initReactI18next)
-	.init({
-		fallbackLng: DEFAULT_LANGUAGE,
-		supportedLngs: SUPPORTED_LANGUAGES,
-		debug: false,
+  .use(HttpBackend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: DEFAULT_LANGUAGE,
+    supportedLngs: SUPPORTED_LANGUAGES,
+    debug: false,
 
-		interpolation: {
-			escapeValue: false,
-		},
+    interpolation: {
+      escapeValue: false,
+    },
 
-		backend: {
-			loadPath: "/locales/{{lng}}/{{ns}}.json",
-		},
+    backend: {
+      loadPath: "/locales/{{lng}}/{{ns}}.json",
+    },
 
-		ns: ["common"],
-		defaultNS: "common",
+    ns: ["common", "errors"],
+    defaultNS: "common",
 
-		detection: {
-			order: ["querystring", "cookie", "localStorage", "navigator", "htmlTag"],
-			caches: ["localStorage", "cookie"],
-		},
-	});
+    detection: {
+      order: ["querystring", "cookie", "localStorage", "navigator", "htmlTag"],
+      caches: ["localStorage", "cookie"],
+    },
+  });
 
 export default i18n;

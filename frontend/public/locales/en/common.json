@@ -1,6 +1,7 @@
 {
   "header": {
     "feed": "Feed",
+    "my_stash": "My Stash",
     "search": "Search"
   },
   "common": {
@@ -119,5 +120,12 @@
     "unfollowed": "Unfollowed successfully.",
     "followed": "Followed successfully.",
     "error": "An error occurred."
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again or go back to home.",
+    "retry": "Try again",
+    "goHome": "Go home",
+    "toastMessage": "An error occurred while rendering the page."
   }
 }

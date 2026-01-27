@@ -5,13 +5,7 @@ DROP VIEW IF EXISTS vw_definitions_with_likes;
 
 CREATE OR REPLACE VIEW vw_definitions_with_likes AS
 SELECT
-    d.id,
-    d.content,
-    d.word_id,
-    d.user_id,
-    d.created_at,
-    d.updated_at,
-    d.deleted_at,
+    d.*,
     COALESCE(l.likes_count, 0) AS likes_count
 FROM definitions d
 LEFT JOIN (

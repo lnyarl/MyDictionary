@@ -1,0 +1,55 @@
+{
+  "AUTH_UNAUTHORIZED": "Please log in to continue.",
+  "AUTH_TOKEN_EXPIRED": "Your session has expired. Please log in again.",
+  "AUTH_TOKEN_INVALID": "Invalid authentication.",
+  "AUTH_LOGIN_FAILED": "Login failed.",
+  "AUTH_SESSION_EXPIRED": "Your session has expired. Please log in again.",
+
+  "FORBIDDEN_ACCESS": "You do not have permission to access this.",
+  "FORBIDDEN_RESOURCE": "You do not have permission to access this resource.",
+
+  "USER_NOT_FOUND": "User not found.",
+  "USER_ALREADY_EXISTS": "User already exists.",
+  "USER_NICKNAME_TAKEN": "This nickname is already taken.",
+  "USER_NICKNAME_INVALID": "Invalid nickname.",
+
+  "WORD_NOT_FOUND": "Word not found.",
+  "WORD_ALREADY_EXISTS": "This word already exists.",
+  "WORD_CREATE_FAILED": "Failed to create word.",
+  "WORD_UPDATE_FAILED": "Failed to update word.",
+  "WORD_DELETE_FAILED": "Failed to delete word.",
+
+  "DEFINITION_NOT_FOUND": "Definition not found.",
+  "DEFINITION_CREATE_FAILED": "Failed to create definition.",
+  "DEFINITION_UPDATE_FAILED": "Failed to update definition.",
+  "DEFINITION_DELETE_FAILED": "Failed to delete definition.",
+
+  "LIKE_ALREADY_EXISTS": "You have already liked this definition.",
+  "LIKE_NOT_FOUND": "Like not found.",
+
+  "FOLLOW_ALREADY_EXISTS": "You are already following this user.",
+  "FOLLOW_NOT_FOUND": "Follow relationship not found.",
+  "FOLLOW_SELF_NOT_ALLOWED": "You cannot follow yourself.",
+
+  "REPORT_ALREADY_EXISTS": "You have already reported this item.",
+  "REPORT_NOT_FOUND": "Report not found.",
+  "REPORT_SELF_NOT_ALLOWED": "You cannot report your own content.",
+
+  "VALIDATION_FAILED": "Invalid input.",
+  "VALIDATION_REQUIRED_FIELD": "This field is required.",
+  "VALIDATION_INVALID_FORMAT": "Invalid format.",
+  "VALIDATION_TOO_LONG": "Input is too long.",
+  "VALIDATION_TOO_SHORT": "Input is too short.",
+
+  "FILE_UPLOAD_FAILED": "Failed to upload file.",
+  "FILE_TOO_LARGE": "File is too large.",
+  "FILE_INVALID_TYPE": "Unsupported file type.",
+
+  "INTERNAL_SERVER_ERROR": "A server error occurred. Please try again later.",
+  "SERVICE_UNAVAILABLE": "Service is temporarily unavailable.",
+
+  "NETWORK_ERROR": "Please check your network connection.",
+  "NETWORK_TIMEOUT": "Request timed out. Please try again.",
+
+  "UNKNOWN_ERROR": "An unknown error occurred."
+}
