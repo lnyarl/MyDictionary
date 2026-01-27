@@ -84,7 +84,8 @@ export const WikiLinkSuggestion = Extension.create<{
             const nextVal = { ...prevVal };
             if (selection.from === selection.to) {
               const pos = selection.$from;
-              const text = pos.doc.textBetween(pos.before(-1), pos.end());
+              const before = pos.depth === 0 ? 0 : pos.before();
+              const text = pos.doc.textBetween(before, pos.end());
               const match = matchRegex.exec(text);
               if (
                 text.startsWith("[[ ") ||

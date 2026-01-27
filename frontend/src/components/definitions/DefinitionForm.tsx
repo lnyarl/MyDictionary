@@ -102,9 +102,8 @@ export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormP
                 <RichTextEditor
                   value={content}
                   onChange={setContent}
-                  placeholder={t("word.definition_placeholder")}
                   disabled={isSubmitting}
-                  className="min-h-[200px]"
+                  className="min-h-50"
                 />
               </div>
               <p className="text-sm text-muted-foreground text-right">{content.length}/5000</p>
