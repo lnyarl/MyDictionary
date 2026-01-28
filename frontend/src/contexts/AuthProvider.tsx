@@ -9,9 +9,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = useCallback(async ({ showErrorToast } = { showErrorToast: true }) => {
     try {
-      const userData = await authApi.getMe();
+      const userData = await authApi.getMe({ showErrorToast });
       setUser(userData);
     } catch (_error) {
       setUser(null);
@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchUser();
+    fetchUser({ showErrorToast: false })
   }, [fetchUser]);
 
   const handleGoogleLogin = useCallback(
