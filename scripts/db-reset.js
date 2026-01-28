@@ -9,20 +9,25 @@ const DB_NAME = process.env.DB_DATABASE;
 
 function run() {
   console.log("=== Stashy Database Reset ===");
-  console.log(`Resetting database '${DB_NAME}' in container '${DB_CONTAINER}'...`);
+  console.log(
+    `Resetting database '${DB_NAME}' in container '${DB_CONTAINER}'...`,
+  );
 
   try {
     const sql = `
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
-GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO ${DB_USER};
 GRANT ALL ON SCHEMA public TO public;
 `.trim();
 
-    execSync(`docker exec -i ${DB_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME}`, {
-      input: sql,
-      stdio: ["pipe", "inherit", "inherit"],
-    });
+    execSync(
+      `docker exec -i ${DB_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME}`,
+      {
+        input: sql,
+        stdio: ["pipe", "inherit", "inherit"],
+      },
+    );
 
     console.log("Database schema wiped.\n");
 
