@@ -115,7 +115,18 @@
     "change": "Change",
     "changing": "Changing...",
     "account_info": "Account Information",
-    "google_account": "Logged in with Google account"
+    "google_account": "Logged in with Google account",
+    "language": "Language",
+    "language_desc": "Select the display language for the app",
+    "logout": "Log out",
+    "logout_desc": "Sign out from your account",
+    "profile_updated": "Profile updated successfully",
+    "update_failed": "Failed to update profile",
+    "upload_image": "Upload Image",
+    "remove_image": "Remove Image",
+    "image_help": "JPG, PNG, GIF. Max 5MB",
+    "bio": "Bio",
+    "bio_placeholder": "Tell us about yourself"
   },
   "follow": {
     "unfollowed": "Unfollowed successfully.",

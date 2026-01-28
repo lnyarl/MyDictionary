@@ -115,7 +115,18 @@
     "change": "변경",
     "changing": "변경 중...",
     "account_info": "계정 정보",
-    "google_account": "Google 계정으로 로그인했습니다"
+    "google_account": "Google 계정으로 로그인했습니다",
+    "language": "언어 설정",
+    "language_desc": "앱의 표시 언어를 선택합니다",
+    "logout": "로그아웃",
+    "logout_desc": "계정에서 로그아웃합니다",
+    "profile_updated": "프로필이 업데이트되었습니다",
+    "update_failed": "프로필 업데이트에 실패했습니다",
+    "upload_image": "이미지 업로드",
+    "remove_image": "이미지 제거",
+    "image_help": "JPG, PNG, GIF. 최대 5MB",
+    "bio": "소개",
+    "bio_placeholder": "자신을 소개하세요"
   },
   "follow": {
     "unfollowed": "팔로우를 취소했습니다.",
