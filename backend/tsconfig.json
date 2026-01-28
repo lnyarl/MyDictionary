@@ -24,5 +24,6 @@
     }
   },
   "include": ["src", "../shared/src/"],
+  "exclude": ["../shared/src/admin/"],
   "references": [{ "path": "../shared" }]
 }

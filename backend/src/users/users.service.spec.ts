@@ -227,7 +227,6 @@ describe("UsersService", () => {
       });
 
       expect(result.data).toHaveLength(2);
-      expect(Number(result.meta.total)).toBe(2);
     });
   });
 
@@ -244,7 +243,6 @@ describe("UsersService", () => {
       });
 
       expect(result.data).toHaveLength(2);
-      expect(Number(result.meta.total)).toBe(2);
     });
   });
 });

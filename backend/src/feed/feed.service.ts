@@ -59,34 +59,44 @@ export class FeedService {
     userId: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponseDto<Feed>> {
-    const cacheKey = this.cacheService.myFeedKey(userId, paginationDto.page, paginationDto.limit);
+    const cacheKey = this.cacheService.myFeedKey(
+      userId,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
     const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
 
     if (cached) {
       return cached;
     }
 
-    const { listQuery, countQuery } = await this.feedRepository.findMyFeeds(
+    const listQuery = await this.feedRepository.findMyFeeds(
       userId,
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
 
     const feeds = await listQuery;
-    const count = (await countQuery)?.count ?? 0;
+    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
-      count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
     await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
     return dto;
   }
 
   async getFeed(userId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<Feed>> {
-    const cacheKey = this.cacheService.feedKey(userId, paginationDto.page, paginationDto.limit);
+    const cacheKey = this.cacheService.feedKey(
+      userId,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
     const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
 
     if (cached) {
@@ -96,67 +106,94 @@ export class FeedService {
     const followingIds = await this.followsService.getFollowingIds(userId);
     const userIds = [...followingIds, userId];
 
-    const { listQuery, countQuery } = await this.feedRepository.findFeeds(
+    const listQuery = await this.feedRepository.findFeeds(
       userIds,
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
 
     const feeds = await listQuery;
-    const count = (await countQuery)?.count ?? 0;
+    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
-      count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
     await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
     return dto;
   }
 
   async getAllFeeds(paginationDto: PaginationDto) {
-    const cacheKey = this.cacheService.allFeedKey(paginationDto.page);
-    const cached = await this.cacheService.get<Feed[]>(cacheKey);
+    const cacheKey = this.cacheService.allFeedKey(
+      paginationDto.page || 1,
+      paginationDto.cursor || "",
+    );
+    console.log("Cache Key:", cacheKey);
+    const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
 
+    console.log("Cached Feed:", cached);
     if (cached) {
-      return new PaginatedResponseDto<Feed>(cached, 0, paginationDto.page, paginationDto.limit);
+      return cached;
     }
 
-    const feeds = await this.feedRepository.findAllFeeds(paginationDto.offset, paginationDto.limit);
+    const feeds = await this.feedRepository.findAllFeeds(
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
+    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    console.log("Fetched Feeds:", feeds, nextCursor);
 
-    await this.cacheService.set(cacheKey, feeds, this.FEED_CACHE_TTL);
+    const dto = new PaginatedResponseDto<Feed>(
+      feeds,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
+    );
 
-    return new PaginatedResponseDto<Feed>(feeds, 0, paginationDto.page, paginationDto.limit);
+    await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
+
+    return dto;
   }
 
   async getRecommendations(
     paginationDto: PaginationDto,
     excludeUserId?: string,
   ): Promise<PaginatedResponseDto<Feed>> {
-    const cacheKey = this.cacheService.recommendationsKey(paginationDto.page);
-    const cached = await this.cacheService.get<Feed[]>(cacheKey);
+    const cacheKey = this.cacheService.recommendationsKey(
+      paginationDto.page || 1,
+      paginationDto.cursor || "",
+    );
+    const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
 
     if (cached && !excludeUserId) {
-      return new PaginatedResponseDto<Feed>(cached, 0, paginationDto.page, paginationDto.limit);
+      return cached;
     }
 
     const recommendations = await this.feedRepository.findRecommendations(
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
       excludeUserId,
     );
 
+    const nextCursor =
+      recommendations.length > 0
+        ? (recommendations[recommendations.length - 1].createdAt as any)
+        : undefined;
+
+    const dto = new PaginatedResponseDto<Feed>(
+      recommendations,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
+    );
+
     if (!excludeUserId) {
-      await this.cacheService.set(cacheKey, recommendations, this.RECOMMENDATIONS_CACHE_TTL);
+      await this.cacheService.set(cacheKey, dto, this.RECOMMENDATIONS_CACHE_TTL);
     }
 
-    return new PaginatedResponseDto<Feed>(
-      recommendations,
-      0,
-      paginationDto.page,
-      paginationDto.limit,
-    );
+    return dto;
   }
 
   async invalidateUserFeed(userId: string): Promise<void> {

@@ -1,9 +1,11 @@
 import { Bell, Heart, Loader2, UserPlus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Page } from "@/components/layout/Page";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { notificationsApi } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 import type { Notification, NotificationsResponse } from "@/types/notification.types";
@@ -32,10 +34,12 @@ export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [page, setPage] = useState(1);
+	const [cursor, setCursor] = useState<string | undefined>(undefined);
 	const [hasMore, setHasMore] = useState(false);
 	const [loadingMore, setLoadingMore] = useState(false);
+	const { t } = useTranslation();
 
-	const fetchNotifications = useCallback(async (pageNum: number, append = false) => {
+	const fetchNotifications = useCallback(async (pageNum: number, nextCursor?: string, append = false) => {
 		if (append) {
 			setLoadingMore(true);
 		} else {
@@ -43,13 +47,20 @@ export default function NotificationsPage() {
 		}
 
 		try {
-			const response: NotificationsResponse = await notificationsApi.getNotifications(pageNum, 10);
+			const response: NotificationsResponse = await notificationsApi.getNotifications(pageNum, 10, nextCursor);
 			if (append) {
-				setNotifications((prev) => [...prev, ...response.data]);
+				setNotifications((prev) => {
+					const newItems = response.data.filter(
+						(newItem) => !prev.some((existingItem) => existingItem.id === newItem.id)
+					);
+					return [...prev, ...newItems];
+				});
 			} else {
 				setNotifications(response.data);
 			}
-			setHasMore(pageNum < response.meta.totalPages);
+			setHasMore(!!response.meta.nextCursor);
+			setPage(pageNum);
+			setCursor(response.meta.nextCursor);
 		} catch {
 		} finally {
 			setIsLoading(false);
@@ -61,11 +72,15 @@ export default function NotificationsPage() {
 		fetchNotifications(1);
 	}, [fetchNotifications]);
 
-	const handleLoadMore = () => {
-		const nextPage = page + 1;
-		setPage(nextPage);
-		fetchNotifications(nextPage, true);
-	};
+	const handleLoadMore = useCallback(() => {
+		fetchNotifications(page + 1, cursor, true);
+	}, [page, cursor, fetchNotifications]);
+
+	const { sentinelRef } = useInfiniteScroll({
+		onLoadMore: handleLoadMore,
+		hasMore,
+		isLoading: loadingMore,
+	});
 
 	const handleNotificationClick = async (notification: Notification) => {
 		if (!notification.isRead) {
@@ -74,7 +89,7 @@ export default function NotificationsPage() {
 				setNotifications((prev) =>
 					prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)),
 				);
-			} catch {}
+			} catch { }
 		}
 
 		if (notification.targetUrl) {
@@ -86,7 +101,7 @@ export default function NotificationsPage() {
 		try {
 			await notificationsApi.markAllAsRead();
 			setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-		} catch {}
+		} catch { }
 	};
 
 	const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -108,7 +123,7 @@ export default function NotificationsPage() {
 				)}
 			</div>
 
-			{isLoading ? (
+			{isLoading && notifications.length === 0 ? (
 				<div className="rounded-lg border bg-muted/50 p-12 text-center">
 					<Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
 					<p className="text-muted-foreground">로딩 중...</p>
@@ -165,20 +180,15 @@ export default function NotificationsPage() {
 						))}
 					</div>
 
-					{hasMore && (
-						<div className="mt-8 text-center">
-							<Button onClick={handleLoadMore} disabled={loadingMore} variant="outline">
-								{loadingMore ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										로딩 중...
-									</>
-								) : (
-									"더 보기"
-								)}
-							</Button>
-						</div>
-					)}
+					<div ref={sentinelRef} className="py-4 flex justify-center">
+						{(loadingMore && hasMore) ? (
+							<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+						) : (
+							notifications.length > 0 && (
+								<p className="text-sm text-muted-foreground italic">{t("common.end_of_list")}</p>
+							)
+						)}
+					</div>
 				</>
 			)}
 		</Page>

@@ -23,7 +23,8 @@
     "search": "검색",
     "close": "닫기",
     "press_cmd_enter_to_save": "⌘ + Enter로 저장",
-    "editing": "편집 중..."
+    "editing": "편집 중...",
+    "end_of_list": "목록의 마지막입니다."
   },
   "home": {
     "title": "나만의 단어 사전을 만드세요",

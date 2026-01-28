@@ -14,7 +14,7 @@ export class WordsRepository extends BaseRepository {
       .orderBy("created_at", "desc");
   }
 
-  findPublicByUserId(userId: string, limit: number, offset: number) {
+  findPublicByUserId(userId: string, limit: number, cursor?: string) {
     const baseQuery = this.query(this.tableName)
       .where({ user_id: userId })
       .whereExists(function () {
@@ -25,15 +25,17 @@ export class WordsRepository extends BaseRepository {
           .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
       });
 
+    if (cursor) {
+      baseQuery.where(`${TABLES.WORDS}.created_at`, "<", cursor);
+    }
+
     const listQuery = baseQuery
       .clone()
       .select<Word[]>(WordSelect)
       .limit(limit)
-      .offset(offset)
       .orderBy("created_at", "desc");
-    const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
 
-    return { listQuery, countQuery };
+    return listQuery;
   }
 
   countPublicByUserId(userId: string) {
@@ -111,19 +113,17 @@ export class WordsRepository extends BaseRepository {
     return query;
   }
 
-  /**
-   * Search words with definitions
-   * Includes complex joins and aggregation
-   */
-  searchWithDefinitions(term: string, userId: string | undefined, limit: number, offset: number) {
+  searchWithDefinitions(term: string, userId: string | undefined, limit: number, cursor?: string) {
     const normalizedTerm = `%${term}%`;
 
-    // Base query for count
     const baseQuery = this.knex(TABLES.WORDS)
       .whereNull(`${TABLES.WORDS}.deleted_at`)
       .where(`${TABLES.WORDS}.term`, "ilike", normalizedTerm);
 
-    // Apply visibility filter
+    if (cursor) {
+      baseQuery.where(`${TABLES.WORDS}.created_at`, "<", cursor);
+    }
+
     if (userId) {
       baseQuery.where((builder) => {
         builder.where(`${TABLES.WORDS}.user_id`, userId).orWhereExists(function () {
@@ -143,8 +143,6 @@ export class WordsRepository extends BaseRepository {
           .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
       });
     }
-
-    const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
 
     const listQuery = baseQuery
       .clone()
@@ -208,9 +206,8 @@ export class WordsRepository extends BaseRepository {
         userId || "00000000-0000-0000-0000-000000000000",
       ])
       .orderBy(`${TABLES.WORDS}.created_at`, "desc")
-      .limit(limit)
-      .offset(offset);
+      .limit(limit);
 
-    return { listQuery, countQuery };
+    return listQuery;
   }
 }

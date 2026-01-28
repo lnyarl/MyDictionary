@@ -8,8 +8,12 @@ import { Notification, NotificationSelect, NotificationType } from "./entities/n
 export class NotificationsRepository extends BaseRepository {
   private tableName = TABLES.NOTIFICATIONS;
 
-  findByUserId(userId: string, offset: number, limit: number) {
+  findByUserId(userId: string, limit: number, cursor?: string) {
     const baseQuery = this.query(this.tableName).where({ user_id: userId });
+
+    if (cursor) {
+      baseQuery.where(`${this.tableName}.created_at`, "<", cursor);
+    }
 
     const listQuery = baseQuery
       .clone()
@@ -33,12 +37,9 @@ export class NotificationsRepository extends BaseRepository {
         ),
       )
       .orderBy(`${this.tableName}.created_at`, "desc")
-      .offset(offset)
       .limit(limit);
 
-    const countQuery = baseQuery.clone().count<{ count: number }>("id as count").first();
-
-    return { listQuery, countQuery };
+    return listQuery;
   }
 
   findById(id: string): Promise<Notification | null> {

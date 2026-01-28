@@ -7,22 +7,30 @@ export function useFeed() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchFeed = useCallback(async (pageNum = 1) => {
+  const fetchFeed = useCallback(async (pageNum = 1, nextCursor?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await feedApi.getFeed(pageNum, 20);
+      const response = await feedApi.getFeed(pageNum, 20, nextCursor);
 
       if (pageNum === 1) {
         setDefinitions(response.data);
       } else {
-        setDefinitions((prev) => [...prev, ...response.data]);
+        // Simple duplicate prevention on client side
+        setDefinitions((prev) => {
+          const newItems = response.data.filter(
+            (newItem) => !prev.some((existingItem) => existingItem.id === newItem.id)
+          );
+          return [...prev, ...newItems];
+        });
       }
 
-      setHasMore(response.meta.page < response.meta.totalPages);
+      setHasMore(!!response.meta.nextCursor);
       setPage(pageNum);
+      setCursor(response.meta.nextCursor);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch feed";
       setError(errorMessage);
@@ -33,9 +41,9 @@ export function useFeed() {
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
-      fetchFeed(page + 1);
+      fetchFeed(page + 1, cursor);
     }
-  }, [loading, hasMore, page, fetchFeed]);
+  }, [loading, hasMore, page, cursor, fetchFeed]);
 
   return {
     definitions,

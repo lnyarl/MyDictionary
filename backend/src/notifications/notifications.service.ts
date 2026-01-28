@@ -19,13 +19,13 @@ export class NotificationsService {
     userId: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponseDto<NotificationWithActor>> {
-    const { listQuery, countQuery } = this.notificationsRepository.findByUserId(
+    const listQuery = this.notificationsRepository.findByUserId(
       userId,
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
 
-    const [notifications, total] = await Promise.all([listQuery, countQuery]);
+    const notifications = await listQuery;
 
     const mappedNotifications: NotificationWithActor[] = notifications.map((row: any) => ({
       id: row.id,
@@ -39,20 +39,25 @@ export class NotificationsService {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
-      actor: row.actor_id
+      actor: row.actorId
         ? {
-            id: row.actor_id,
+            id: row.actorId,
             nickname: row.actor_nickname,
             profilePicture: row.actor_profilePicture,
           }
         : undefined,
     }));
 
+    const nextCursor =
+      mappedNotifications.length > 0
+        ? (mappedNotifications[mappedNotifications.length - 1].createdAt as any)
+        : undefined;
+
     return new PaginatedResponseDto<NotificationWithActor>(
       mappedNotifications,
-      total.count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
   }
 

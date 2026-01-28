@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { Word } from "./entities/word.entity";
@@ -74,23 +74,24 @@ export class WordsService {
     const normalizedTerm = normalizeSearchTerm(term);
 
     if (!normalizedTerm) {
-      return new PaginatedResponseDto<Word>([], 0, paginationDto.page, paginationDto.limit);
+      return new PaginatedResponseDto<Word>([], paginationDto.page || 1, paginationDto.limit || 20);
     }
 
-    const { listQuery, countQuery } = this.wordRepository.searchWithDefinitions(
+    const listQuery = this.wordRepository.searchWithDefinitions(
       term,
       userId,
-      paginationDto.limit,
-      paginationDto.offset,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
 
-    const [words, total] = await Promise.all([listQuery, countQuery]);
+    const words = await listQuery;
+    const nextCursor = words.length > 0 ? (words[words.length - 1].createdAt as any) : undefined;
 
     return new PaginatedResponseDto<Word>(
       words,
-      total.count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
   }
 }

@@ -23,11 +23,7 @@ export class FeedController {
 
   @Get("/feed/me")
   async getMyFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
-    throw badRequest(
-      ERROR_CODES.FILE_INVALID_TYPE,
-      "This endpoint is deprecated. Please use /feed instead.",
-    );
-    // return this.feedService.getMyFeed(user.id, paginationDto);
+    return this.feedService.getMyFeed(user.id, paginationDto);
   }
 
   @Get("/feed/all")

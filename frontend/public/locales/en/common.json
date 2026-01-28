@@ -23,7 +23,8 @@
     "search": "Search",
     "close": "Close",
     "press_cmd_enter_to_save": "Press ⌘ + Enter to save",
-    "editing": "Editing..."
+    "editing": "Editing...",
+    "end_of_list": "You've reached the end of the list."
   },
   "home": {
     "title": "Build your own word stash",

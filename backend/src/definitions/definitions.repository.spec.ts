@@ -22,13 +22,15 @@ describe("DefinitionsRepository", () => {
 
   describe("findByUserId", () => {
     it("should generate correct query", () => {
-      const { listQuery, countQuery } = repository.findByUserId("user-123", 10, 20);
+      const listQuery = repository.findByUserId("user-123", 20);
       expect(listQuery.toQuery()).toBe(
-        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "is_public" as "isPublic", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' order by "created_at" DESC limit 20 offset 10',
+        'select "id" as "id", "content" as "content", "word_id" as "wordId", "user_id" as "userId", "is_public" as "isPublic", "tags" as "tags", "media_urls" as "mediaUrls", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' order by "created_at" DESC limit 20',
       );
-      expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' limit 1',
-      );
+    });
+
+    it("should generate correct query with cursor", () => {
+      const listQuery = repository.findByUserId("user-123", 20, "2024-01-01");
+      expect(listQuery.toQuery()).toContain("\"created_at\" < '2024-01-01'");
     });
   });
 

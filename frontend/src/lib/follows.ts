@@ -9,6 +9,7 @@ interface PaginatedResponse<T> {
 		limit: number;
 		total: number;
 		totalPages: number;
+		nextCursor?: string;
 	};
 }
 
@@ -19,14 +20,18 @@ export const followsApi = {
 
 	checkFollowing: (userId: string) => api.get<{ isFollowing: boolean }>(`/follows/check/${userId}`),
 
-	getFollowers: (userId?: string, page = 1, limit = 20) => {
+	getFollowers: (userId?: string, page = 1, limit = 20, cursor?: string) => {
 		const endpoint = userId ? `/follows/${userId}/followers` : "/follows/followers";
-		return api.get<PaginatedResponse<User>>(`${endpoint}?page=${page}&limit=${limit}`);
+		const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+		if (cursor) params.append("cursor", cursor);
+		return api.get<PaginatedResponse<User>>(`${endpoint}?${params.toString()}`);
 	},
 
-	getFollowing: (userId?: string, page = 1, limit = 20) => {
+	getFollowing: (userId?: string, page = 1, limit = 20, cursor?: string) => {
 		const endpoint = userId ? `/follows/${userId}/following` : "/follows/following";
-		return api.get<PaginatedResponse<User>>(`${endpoint}?page=${page}&limit=${limit}`);
+		const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+		if (cursor) params.append("cursor", cursor);
+		return api.get<PaginatedResponse<User>>(`${endpoint}?${params.toString()}`);
 	},
 
 	getStats: (userId?: string) => {

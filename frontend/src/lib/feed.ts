@@ -9,20 +9,33 @@ interface PaginatedResponse<T> {
     limit: number;
     total: number;
     totalPages: number;
+    nextCursor?: string;
   };
 }
 
 export const feedApi = {
   create: (data: CreateWordInput) => api.post<Definition>("/feed", data),
-  getFeed: (page = 1, limit = 20) =>
-    api.get<PaginatedResponse<Definition>>(`/feed?page=${page}&limit=${limit}`),
+  getFeed: (page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/feed?${params.toString()}`);
+  },
 
-  getMyFeed: (page = 1, limit = 20) =>
-    api.get<PaginatedResponse<Definition>>(`/feed/me?page=${page}&limit=${limit}`),
+  getMyFeed: (page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/feed/me?${params.toString()}`);
+  },
 
-  getAllFeed: (page = 1, limit = 20) =>
-    api.get<PaginatedResponse<Definition>>(`/feed/all?page=${page}&limit=${limit}`),
+  getAllFeed: (page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/feed/all?${params.toString()}`);
+  },
 
-  getRecommendations: (page = 1, limit = 20) =>
-    api.get<PaginatedResponse<Definition>>(`/feed/recommendations?page=${page}&limit=${limit}`),
+  getRecommendations: (page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/feed/recommendations?${params.toString()}`);
+  },
 };

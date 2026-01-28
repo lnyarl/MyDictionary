@@ -1,4 +1,4 @@
-import { ArrowLeft, Globe, Lock, Search } from "lucide-react";
+import { ArrowLeft, Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Input } from "../components/ui/input";
 import { Separator } from "../components/ui/separator";
 import { useToast } from "../hooks/use-toast";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import { useSearch } from "../hooks/useSearch";
 import type { Definition } from "../types/definition.types";
 
@@ -18,7 +19,7 @@ export default function SearchResultsPage() {
 	const { t } = useTranslation();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const { results, loading, error, total, search } = useSearch();
+	const { results, loading, loadingMore, error, total, hasMore, search, loadMore } = useSearch();
 	const { isAuthenticated } = useAuth();
 	const { toast } = useToast();
 
@@ -26,10 +27,15 @@ export default function SearchResultsPage() {
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 	const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
 
+	const { sentinelRef } = useInfiniteScroll({
+		onLoadMore: loadMore,
+		hasMore,
+		isLoading: loadingMore,
+	});
+
 	useEffect(() => {
 		const term = searchParams.get("term");
 		if (term) {
-			console.log("@! search term", searchParams, term);
 			search(term);
 		}
 	}, [searchParams, search]);
@@ -86,6 +92,7 @@ export default function SearchResultsPage() {
 
 			{loading && (
 				<div className="rounded-lg border bg-muted/50 p-12 text-center">
+					<Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
 					<p className="text-muted-foreground">{t("search.searching")}</p>
 				</div>
 			)}
@@ -104,37 +111,49 @@ export default function SearchResultsPage() {
 							<p className="text-muted-foreground">{t("search.no_results")}</p>
 						</div>
 					) : (
-						<div className="space-y-6">
-							{results.map((word) => (
-								<Card key={word.id}>
-									<CardHeader>
-										<div className="flex items-center justify-between">
-											<CardTitle className="text-2xl">{word.term}</CardTitle>
-											<div className="flex items-center gap-4">
-												<p className="text-sm text-muted-foreground">
-													{new Date(word.createdAt).toLocaleDateString("ko-KR")}
-												</p>
+						<>
+							<div className="space-y-6">
+								{results.map((word) => (
+									<Card key={word.id}>
+										<CardHeader>
+											<div className="flex items-center justify-between">
+												<CardTitle className="text-2xl">{word.term}</CardTitle>
+												<div className="flex items-center gap-4">
+													<p className="text-sm text-muted-foreground">
+														{new Date(word.createdAt).toLocaleDateString("ko-KR")}
+													</p>
+												</div>
 											</div>
-										</div>
-									</CardHeader>
-									<CardContent>
-										{word.definitions && word.definitions.length > 0 ? (
-											<div className="space-y-2">
-												<h3 className="font-semibold mb-2">{t("word.definition")}</h3>
-												<Separator />
-												<FeedList
-													definitions={word.definitions as Definition[]}
-													onDelete={() => { }}
-													onViewHistory={handleViewHistory}
-												/>
-											</div>
-										) : (
-											<p className="text-muted-foreground">{t("word.no_definitions")}</p>
-										)}
-									</CardContent>
-								</Card>
-							))}
-						</div>
+										</CardHeader>
+										<CardContent>
+											{word.definitions && word.definitions.length > 0 ? (
+												<div className="space-y-2">
+													<h3 className="font-semibold mb-2">{t("word.definition")}</h3>
+													<Separator />
+													<FeedList
+														definitions={word.definitions as Definition[]}
+														onDelete={() => { }}
+														onViewHistory={handleViewHistory}
+													/>
+												</div>
+											) : (
+												<p className="text-muted-foreground">{t("word.no_definitions")}</p>
+											)}
+										</CardContent>
+									</Card>
+								))}
+							</div>
+
+							<div ref={sentinelRef} className="py-4 flex justify-center">
+								{(loadingMore && hasMore) ? (
+									<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+								) : (
+									results.length > 0 && (
+										<p className="text-sm text-muted-foreground italic">{t("common.end_of_list")}</p>
+									)
+								)}
+							</div>
+						</>
 					)}
 				</div>
 			)}

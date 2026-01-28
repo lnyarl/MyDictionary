@@ -1,5 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@shared";
+import {
+  PaginatedResponseDto,
+  PaginationDto,
+} from "@shared/admin/dto/pagination.dto";
 import { Report, ReportStatus } from "./entities/report.entity";
 import { ReportsRepository } from "./reports.repository";
 
@@ -7,7 +10,9 @@ import { ReportsRepository } from "./reports.repository";
 export class ReportsService {
   constructor(private readonly reportsRepository: ReportsRepository) {}
 
-  async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<Report>> {
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Report>> {
     const { listQuery, countQuery } = await this.reportsRepository.findAll(
       paginationDto.offset,
       paginationDto.limit,

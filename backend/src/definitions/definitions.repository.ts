@@ -7,18 +7,20 @@ import { Definition, DefinitionSelect } from "./entities/definition.entity";
 export class DefinitionsRepository extends BaseRepository {
   private tableName = TABLES.DEFINITIONS;
 
-  findByUserId(userId: string, offset: number, limit: number) {
+  findByUserId(userId: string, limit: number, cursor?: string) {
     const baseQuery = this.query(this.tableName).where({ user_id: userId });
+
+    if (cursor) {
+      baseQuery.where("created_at", "<", cursor);
+    }
 
     const listQuery = baseQuery
       .clone()
       .orderBy("created_at", "DESC")
       .select<Definition[]>(DefinitionSelect)
-      .offset(offset)
       .limit(limit);
-    const countQuery = baseQuery.clone().count<{ count: number }>("* as count").first();
 
-    return { listQuery, countQuery };
+    return listQuery;
   }
 
   findById(definitionId: string) {
@@ -137,7 +139,9 @@ export class DefinitionsRepository extends BaseRepository {
 
   updateDefinition(
     id: string,
-    definition: Partial<Pick<Definition, "content" | "tags" | "mediaUrls" | "isPublic">>,
+    definition: Partial<
+      Pick<Definition, "content" | "tags" | "mediaUrls" | "isPublic" | "createdAt">
+    >,
   ) {
     const updateData: any = {
       updated_at: new Date(),

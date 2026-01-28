@@ -29,14 +29,22 @@ export class PaginatedResponseDto<T> {
   data: T[];
   meta: {
     page: number;
+    total: number;
     limit: number;
     nextCursor?: string;
   };
 
-  constructor(data: T[], page: number, limit: number, nextCursor?: string) {
+  constructor(
+    data: T[],
+    total: number,
+    page: number,
+    limit: number,
+    nextCursor?: string,
+  ) {
     this.data = data;
     this.meta = {
       page,
+      total,
       limit,
       nextCursor,
     };

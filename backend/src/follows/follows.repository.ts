@@ -19,22 +19,27 @@ export class FollowsRepository extends BaseRepository {
     return this.restore(this.tableName, id);
   }
 
-  findFollowers(userId: string, offset: number, limit: number) {
+  findFollowers(userId: string, limit: number, cursor?: string) {
     const baseQuery = this.query(this.tableName).where({ following_id: userId });
+
+    if (cursor) {
+      baseQuery.where(`${TABLES.FOLLOWS}.created_at`, "<", cursor);
+    }
+
     const listQuery = baseQuery
       .clone()
       .leftJoin(TABLES.USERS, `${TABLES.FOLLOWS}.follower_id`, `${TABLES.USERS}.id`)
-      .select<User[]>(
+      .select<any[]>(
         Object.keys(UserSelect).reduce((acc, key) => {
           acc[key] = `${TABLES.USERS}.${UserSelect[key]}`;
           return acc;
         }, {}),
       )
-      .offset(offset)
+      .select({ followCreatedAt: `${TABLES.FOLLOWS}.created_at` })
       .limit(limit)
       .orderBy(`${TABLES.FOLLOWS}.created_at`, "desc");
-    const countQuery = baseQuery.clone().count<{ count: number }>("id as count").first();
-    return { listQuery, countQuery };
+
+    return listQuery;
   }
 
   getFollowerCount(userId) {
@@ -44,22 +49,26 @@ export class FollowsRepository extends BaseRepository {
       .first();
   }
 
-  findFollowings(userId: string, offset: number, limit: number) {
+  findFollowings(userId: string, limit: number, cursor?: string) {
     const baseQuery = this.query(this.tableName).where({ follower_id: userId });
+
+    if (cursor) {
+      baseQuery.where(`${TABLES.FOLLOWS}.created_at`, "<", cursor);
+    }
+
     const listQuery = baseQuery
       .clone()
       .leftJoin(TABLES.USERS, `${TABLES.FOLLOWS}.following_id`, `${TABLES.USERS}.id`)
-      .select<User[]>(
+      .select<any[]>(
         Object.keys(UserSelect).reduce((acc, key) => {
           acc[key] = `${TABLES.USERS}.${UserSelect[key]}`;
           return acc;
         }, {}),
       )
-      .offset(offset)
+      .select({ followCreatedAt: `${TABLES.FOLLOWS}.created_at` })
       .limit(limit)
       .orderBy(`${TABLES.FOLLOWS}.created_at`, "desc");
-    const countQuery = baseQuery.clone().count<{ count: number }>("id as count").first();
-    return { listQuery, countQuery };
+    return listQuery;
   }
 
   getFollowingCount(userId) {

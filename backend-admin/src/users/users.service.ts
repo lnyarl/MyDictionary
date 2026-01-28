@@ -1,5 +1,9 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { generateRandomNickname, PaginatedResponseDto, PaginationDto, User } from "@shared";
+import { generateRandomNickname, User } from "@shared";
+import {
+  PaginatedResponseDto,
+  PaginationDto,
+} from "@shared/admin/dto/pagination.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 
@@ -7,7 +11,9 @@ import { UsersRepository } from "./users.repository";
 export class UsersService {
   constructor(private readonly userRepository: UsersRepository) {}
 
-  async getUsers(paginationDto: PaginationDto): Promise<PaginatedResponseDto<User>> {
+  async getUsers(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<User>> {
     const { listQuery, countQuery } = await this.userRepository.findUsers(
       paginationDto.offset,
       paginationDto.limit,
@@ -16,16 +22,25 @@ export class UsersService {
     const totalResult = await countQuery;
     const total = totalResult ? totalResult.count : 0;
 
-    return new PaginatedResponseDto<User>(users, total, paginationDto.page, paginationDto.limit);
+    return new PaginatedResponseDto<User>(
+      users,
+      total,
+      paginationDto.page,
+      paginationDto.limit,
+    );
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingByEmail = await this.userRepository.findByEmail(createUserDto.email);
+    const existingByEmail = await this.userRepository.findByEmail(
+      createUserDto.email,
+    );
     if (existingByEmail) {
       throw new ConflictException("Email is already registered");
     }
 
-    const existingByNickname = await this.userRepository.findByNickname(createUserDto.nickname);
+    const existingByNickname = await this.userRepository.findByNickname(
+      createUserDto.nickname,
+    );
     if (existingByNickname) {
       throw new ConflictException("Nickname is already taken");
     }

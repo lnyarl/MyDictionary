@@ -11,6 +11,7 @@ interface PaginatedResponse<T> {
 		limit: number;
 		total: number;
 		totalPages: number;
+		nextCursor?: string;
 	};
 }
 
@@ -28,11 +29,17 @@ export const usersApi = {
 
 	getUserProfile: (userId: string) => api.get<UserProfile>(`/users/${userId}/profile`),
 
-	getUserWords: (userId: string, page = 1, limit = 20) =>
-		api.get<PaginatedResponse<Word>>(`/users/${userId}/words?page=${page}&limit=${limit}`),
+	getUserWords: (userId: string, page = 1, limit = 20, cursor?: string) => {
+		const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+		if (cursor) params.append("cursor", cursor);
+		return api.get<PaginatedResponse<Word>>(`/users/${userId}/words?${params.toString()}`);
+	},
 
-	getUserDefinitions: (userId: string, page = 1, limit = 20) =>
-		api.get<PaginatedResponse<Definition>>(
-			`/users/${userId}/definitions?page=${page}&limit=${limit}`,
-		),
+	getUserDefinitions: (userId: string, page = 1, limit = 20, cursor?: string) => {
+		const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+		if (cursor) params.append("cursor", cursor);
+		return api.get<PaginatedResponse<Definition>>(
+			`/users/${userId}/definitions?${params.toString()}`,
+		);
+	},
 };

@@ -83,19 +83,19 @@ export class FollowsService {
     userId: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponseDto<User>> {
-    const { listQuery, countQuery } = this.followRepository.findFollowers(
+    const followers = await this.followRepository.findFollowers(
       userId,
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
-
-    const [followers, total] = await Promise.all([listQuery, countQuery]);
+    const nextCursor =
+      followers.length > 0 ? (followers[followers.length - 1].followCreatedAt as any) : undefined;
 
     return new PaginatedResponseDto<User>(
       followers,
-      total.count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
   }
 
@@ -103,19 +103,22 @@ export class FollowsService {
     userId: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponseDto<User>> {
-    const { listQuery, countQuery } = this.followRepository.findFollowings(
+    const followings = await this.followRepository.findFollowings(
       userId,
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
 
-    const [followings, total] = await Promise.all([listQuery, countQuery]);
+    const nextCursor =
+      followings.length > 0
+        ? (followings[followings.length - 1].followCreatedAt as any)
+        : undefined;
 
     return new PaginatedResponseDto<User>(
       followings,
-      total.count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
   }
 

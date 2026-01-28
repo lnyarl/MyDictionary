@@ -37,24 +37,24 @@ export class CacheService implements OnModuleDestroy {
     }
   }
 
-  feedKey(userId: string, page: number, limit: number): string {
-    return `feed:${userId}:${page}:${limit}`;
+  feedKey(userId: string, page: number, limit: number, cursor?: string): string {
+    return `feed:${userId}:${page}:${limit}:${cursor || "none"}`;
   }
 
-  myFeedKey(userId: string, page: number, limit: number): string {
-    return `my_feed:${userId}:${page}:${limit}`;
+  myFeedKey(userId: string, page: number, limit: number, cursor?: string): string {
+    return `my_feed:${userId}:${page}:${limit}:${cursor || "none"}`;
   }
 
-  allFeedKey(page: number): string {
-    return `all_feed:${page}`;
+  allFeedKey(page: number, cursor?: string): string {
+    return `all_feed:${page}:${cursor || "none"}`;
   }
 
   feedPattern(userId: string): string {
     return `feed:${userId}:*`;
   }
 
-  recommendationsKey(page: number): string {
-    return `recommendations:${page}`;
+  recommendationsKey(page: number, cursor?: string): string {
+    return `recommendations:${page}:${cursor || "none"}`;
   }
 
   recommendationsPattern(): string {

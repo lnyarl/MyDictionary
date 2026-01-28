@@ -41,13 +41,11 @@ export class UsersService {
   }
 
   async updateNickname(userId: string, nickname: string): Promise<User> {
-    // Check if user exists
     const user = await this.findById(userId);
     if (!user) {
       throw new NotFoundException("User not found");
     }
 
-    // Check if nickname is already taken by another user
     const existingUser = await this.userRepository.findByNickname(nickname);
 
     if (existingUser && existingUser.id !== userId) {
@@ -114,18 +112,19 @@ export class UsersService {
     userId: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponseDto<Word>> {
-    const { listQuery, countQuery } = this.wordRepository.findPublicByUserId(
+    const listQuery = this.wordRepository.findPublicByUserId(
       userId,
-      paginationDto.limit,
-      paginationDto.offset,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
-    const [words, total] = await Promise.all([listQuery, countQuery]);
+    const words = await listQuery;
+    const nextCursor = words.length > 0 ? (words[words.length - 1].createdAt as any) : undefined;
 
     return new PaginatedResponseDto<Word>(
       words,
-      total.count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
   }
 
@@ -133,18 +132,20 @@ export class UsersService {
     userId: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponseDto<Definition>> {
-    const { listQuery, countQuery } = this.definitionRepository.findByUserId(
+    const listQuery = this.definitionRepository.findByUserId(
       userId,
-      paginationDto.offset,
-      paginationDto.limit,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
     );
-    const [definitions, total] = await Promise.all([listQuery, countQuery]);
+    const definitions = await listQuery;
+    const nextCursor =
+      definitions.length > 0 ? (definitions[definitions.length - 1].createdAt as any) : undefined;
 
     return new PaginatedResponseDto<Definition>(
       definitions,
-      total.count,
-      paginationDto.page,
-      paginationDto.limit,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
     );
   }
 }

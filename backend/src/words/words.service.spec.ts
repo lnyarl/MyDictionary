@@ -133,7 +133,6 @@ describe("WordsService", () => {
       const result = await service.search("", paginationDto);
 
       expect(result.data).toEqual([]);
-      expect(result.meta.total).toBe(0);
     });
 
     it("should search for public words", async () => {

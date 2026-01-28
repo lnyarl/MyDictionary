@@ -31,13 +31,15 @@ describe("WordsRepository", () => {
 
   describe("findPublicByUserId", () => {
     it("should generate correct query", () => {
-      const { listQuery, countQuery } = repository.findPublicByUserId("user-123", 10, 5);
+      const listQuery = repository.findPublicByUserId("user-123", 10);
       expect(listQuery.toQuery()).toBe(
-        'select "id" as "id", "term" as "term", "user_id" as "userId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) order by "created_at" desc limit 10 offset 5',
+        'select "id" as "id", "term" as "term", "user_id" as "userId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) order by "created_at" desc limit 10',
       );
-      expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "user_id" = \'user-123\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) limit 1',
-      );
+    });
+
+    it("should generate correct query with cursor", () => {
+      const listQuery = repository.findPublicByUserId("user-123", 10, "2024-01-01");
+      expect(listQuery.toQuery()).toContain('"words"."created_at" < \'2024-01-01\'');
     });
   });
 
@@ -61,10 +63,7 @@ describe("WordsRepository", () => {
 
   describe("searchWithDefinitions", () => {
     it("should generate correct query without userId", () => {
-      const { listQuery, countQuery } = repository.searchWithDefinitions("test", undefined, 10, 0);
-      expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null) limit 1',
-      );
+      const listQuery = repository.searchWithDefinitions("test", undefined, 10);
       expect(listQuery.toQuery()).toBe(
         `select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 
           COALESCE(
@@ -106,11 +105,13 @@ describe("WordsRepository", () => {
       );
     });
 
+    it("should generate correct query with cursor", () => {
+      const listQuery = repository.searchWithDefinitions("test", undefined, 10, "2024-01-01");
+      expect(listQuery.toQuery()).toContain('"words"."created_at" < \'2024-01-01\'');
+    });
+
     it("should generate correct query with userId", () => {
-      const { listQuery, countQuery } = repository.searchWithDefinitions("test", "user-123", 10, 0);
-      expect(countQuery.toQuery()).toBe(
-        'select count(*) as "count" from "words" where "words"."deleted_at" is null and "words"."term" ilike \'%test%\' and ("words"."user_id" = \'user-123\' or exists (select * from "definitions" where definitions.word_id = words.id and "definitions"."is_public" = true and "definitions"."deleted_at" is null)) limit 1',
-      );
+      const listQuery = repository.searchWithDefinitions("test", "user-123", 10);
       expect(
         listQuery.toQuery(),
       ).toBe(`select "words"."id", "words"."term", "words"."user_id" as "userId", "words"."created_at" as "createdAt", "words"."updated_at" as "updatedAt", "words"."deleted_at" as "deletedAt", 

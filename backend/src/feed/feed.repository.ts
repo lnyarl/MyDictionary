@@ -26,12 +26,17 @@ export class FeedRepository extends BaseRepository {
       ]);
   }
 
-  findMyFeeds(userId: string, offset: number, limit: number) {
+  findMyFeeds(userId: string, limit: number, cursor?: string) {
     const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .where("definitions.user_id", userId)
       .whereNull("words.deleted_at");
+
+    if (cursor) {
+      baseQuery.where("definitions.created_at", "<", cursor);
+    }
+
     const listQuery = baseQuery
       .clone()
       .select<Feed[]>({
@@ -49,22 +54,23 @@ export class FeedRepository extends BaseRepository {
         tags: "definitions.tags",
       })
       .limit(limit)
-      .offset(offset)
       .orderBy("definitions.created_at", "desc");
-    const countQuery = baseQuery
-      .clone()
-      .count<{ count: number }>("definitions.id as count")
-      .first();
-    return { listQuery, countQuery };
+
+    return listQuery;
   }
 
-  findFeeds(userIds: string[], offset: number, limit: number) {
+  findFeeds(userIds: string[], limit: number, cursor?: string) {
     const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
       .where("definitions.is_public", true);
+
+    if (cursor) {
+      baseQuery.where("definitions.created_at", "<", cursor);
+    }
+
     const listQuery = baseQuery
       .clone()
       .select<Feed[]>({
@@ -81,46 +87,54 @@ export class FeedRepository extends BaseRepository {
         term: "words.term",
       })
       .limit(limit)
-      .offset(offset)
       .orderBy("definitions.created_at", "desc");
-    const countQuery = baseQuery
-      .clone()
-      .count<{ count: number }>("definitions.id as count")
-      .first();
-    return { listQuery, countQuery };
+
+    return listQuery;
   }
 
-  findAllFeeds(offset: number, limit: number) {
-    return this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+  findAllFeeds(limit: number, cursor?: string) {
+    console.log("Find all feeds called with limit:", limit, "cursor:", cursor);
+    const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereNull("words.deleted_at")
-      .where("definitions.is_public", true)
-      .limit(limit)
-      .offset(offset)
-      .orderBy("definitions.created_at", "desc")
-      .select<Feed[]>({
-        id: "definitions.id",
-        content: "definitions.content",
-        wordId: "definitions.word_id",
-        userId: "definitions.user_id",
-        likesCount: "definitions.likes_count",
-        createdAt: "definitions.created_at",
-        updatedAt: "definitions.updated_at",
-        nickname: "users.nickname",
-        profilePicture: "users.profile_picture",
-        term: "words.term",
-      });
+      .where("definitions.is_public", true);
+
+    if (cursor) {
+      query.where("definitions.created_at", "<", cursor);
+    }
+
+    return query.limit(limit).orderBy("definitions.created_at", "desc").select<Feed[]>({
+      id: "definitions.id",
+      content: "definitions.content",
+      wordId: "definitions.word_id",
+      userId: "definitions.user_id",
+      likesCount: "definitions.likes_count",
+      createdAt: "definitions.created_at",
+      updatedAt: "definitions.updated_at",
+      nickname: "users.nickname",
+      profilePicture: "users.profile_picture",
+      term: "words.term",
+    });
   }
 
-  findRecommendations(offset: number, limit: number, excludeUserId?: string) {
+  findRecommendations(limit: number, cursor?: string, excludeUserId?: string) {
     const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
-      .where("definitions.is_public", true)
-      .offset(offset)
+      .where("definitions.is_public", true);
+
+    if (cursor) {
+      query.where("definitions.created_at", "<", cursor);
+    }
+
+    if (excludeUserId) {
+      query.whereNot("definitions.user_id", excludeUserId);
+    }
+
+    return query
       .limit(limit)
       .orderBy("definitions.likes_count", "desc")
       .orderBy("definitions.created_at", "desc")
@@ -136,12 +150,6 @@ export class FeedRepository extends BaseRepository {
         profilePicture: "users.profile_picture",
         term: "words.term",
       });
-
-    if (excludeUserId) {
-      query.whereNot("definitions.user_id", excludeUserId);
-    }
-
-    return query;
   }
 
   findWordByTerm(userId: string, term: string) {
