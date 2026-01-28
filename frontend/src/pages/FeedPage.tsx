@@ -4,10 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useAllFeed } from "@/hooks/useAllFeed";
 import { useFeed } from "@/hooks/useFeed";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useMyFeed } from "@/hooks/useMyFeed";
 import { FeedCard } from "../components/feed/FeedCard";
+import { FeedForm } from "../components/feed/FeedForm";
 import { Page } from "../components/layout/Page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import type { Definition } from "../types/definition.types";
+import type { CreateWordInput } from "../types/word.types";
 
 interface FeedListProps {
   definitions: Definition[];
@@ -85,21 +88,31 @@ export default function FeedPage() {
   const [activeTab, setActiveTab] = useState("all");
 
   const allFeed = useAllFeed();
-  const myFeed = useFeed();
+  const followingFeed = useFeed();
+  const myFeed = useMyFeed();
+
+  const handleSubmit = async (data: CreateWordInput) => {
+    await myFeed.createFeed(data);
+    allFeed.fetchAllFeed(1);
+  };
 
   useEffect(() => {
     if (activeTab === "all") {
       allFeed.fetchAllFeed();
     } else {
-      myFeed.fetchFeed();
+      followingFeed.fetchFeed();
     }
-  }, [activeTab, allFeed.fetchAllFeed, myFeed.fetchFeed]);
+  }, [activeTab, allFeed.fetchAllFeed, followingFeed.fetchFeed]);
 
   return (
     <Page>
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{t("header.feed")}</h1>
         <p className="text-muted-foreground mt-2">{t("feed.subtitle")}</p>
+      </div>
+
+      <div className="mb-8">
+        <FeedForm onCreate={handleSubmit} />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -121,11 +134,11 @@ export default function FeedPage() {
 
         <TabsContent value="following">
           <FeedList
-            definitions={myFeed.definitions}
-            loading={myFeed.loading}
-            hasMore={myFeed.hasMore}
-            loadMore={myFeed.loadMore}
-            onRefresh={() => myFeed.fetchFeed(1)}
+            definitions={followingFeed.definitions}
+            loading={followingFeed.loading}
+            hasMore={followingFeed.hasMore}
+            loadMore={followingFeed.loadMore}
+            onRefresh={() => followingFeed.fetchFeed(1)}
             emptyMessage={t("feed.emptyFollowing")}
           />
         </TabsContent>
