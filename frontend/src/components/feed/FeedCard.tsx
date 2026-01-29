@@ -3,13 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import type { Definition } from "../../types/definition.types";
+import { LikeButton } from "../definitions/LikeButton";
+import { ReportDialog } from "../definitions/ReportDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { LikeButton } from "../definitions/LikeButton";
-import { ReportDialog } from "../definitions/ReportDialog";
 
 interface FeedCardProps {
 	definition: Definition;
