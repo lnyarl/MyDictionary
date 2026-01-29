@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from '@tiptap/markdown';
@@ -6,14 +5,16 @@ import { type Content, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { cn } from "@/lib/utils";
+import { PasteMarkdown } from "./tiptap-markdown-paste-extention/paste-markdown";
 import { WikiLinkExtension } from "./tiptap-wikilink-extention";
 import Selector from "./tiptap-wikilink-extention/selector";
-import { PasteMarkdown } from "./tiptap-markdown-paste-extention/paste-markdown";
 import "./rich-text-editor.css";
 
 type RichTextEditorProps = {
   value: string;
   onChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -31,6 +32,7 @@ const ALL_OPTIONS = [
 export function RichTextEditor({
   value,
   onChange,
+  onKeyDown,
   placeholder = "",
   className,
   disabled,
@@ -98,14 +100,16 @@ export function RichTextEditor({
   });
 
   useEffect(() => {
+    if (autoFocus && editor) {
+      editor.commands.focus();
+    }
+  }, [editor, autoFocus]);
+
+  useEffect(() => {
     if (editor && value !== (editor).getMarkdown()) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
 
-  if (!editor) {
-    return null;
-  }
-
-  return <EditorContent editor={editor} />
+  return <EditorContent editor={editor} onKeyDown={onKeyDown} />
 }

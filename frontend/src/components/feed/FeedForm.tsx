@@ -62,9 +62,19 @@ export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 		setSuggestions({ myWords: [], othersWords: [] });
 	};
 
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && e.metaKey) {
+			handleSubmit(e);
+		}
+	}
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!term.trim()) return;
+		if (!term.trim()) {
+			document.getElementById("term")?.focus();
+			return;
+		}
+		if (!definition.content.trim()) return;
 
 		setIsSubmitting(true);
 		try {
@@ -108,6 +118,7 @@ export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 							id="term"
 							value={term}
 							onChange={(e) => setTerm(e.target.value)}
+							onKeyDown={handleKeyDown}
 							onFocus={() => {
 								if (
 									suggestions.myWords.length > 0 ||
@@ -179,7 +190,9 @@ export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 							onChange={(value) =>
 								setDefinition({ ...definition, content: value })
 							}
+							onKeyDown={handleKeyDown}
 							className="min-h-25 max-h-100"
+							autoFocus
 						/>
 
 						<div className="flex items-center gap-4">
@@ -210,7 +223,7 @@ export function FeedForm({ onCreate, onUpdate, initialData }: WordFormProps) {
 			<Separator />
 
 			<div className="flex justify-end">
-				<Button type="submit" disabled={isSubmitting || !term.trim()}>
+				<Button type="submit" disabled={isSubmitting}>
 					{isSubmitting
 						? t("common.saving")
 						: onCreate
