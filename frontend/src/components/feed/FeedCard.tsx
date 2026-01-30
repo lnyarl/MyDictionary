@@ -2,6 +2,7 @@ import { ExternalLink, Flag, Globe, History, Lock, Pencil, Trash2 } from "lucide
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 import type { Definition } from "../../types/definition.types";
 import { LikeButton } from "../definitions/LikeButton";
 import { ReportDialog } from "../definitions/ReportDialog";
@@ -12,199 +13,208 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
 
 interface FeedCardProps {
-	definition: Definition;
-	onDelete: (id: string) => void;
-	onViewHistory: (definitionId: string) => void;
-	onStartEdit?: () => void;
-	showWord?: boolean;
+  definition: Definition;
+  onDelete: (id: string) => void;
+  onViewHistory: (definitionId: string) => void;
+  onStartEdit?: () => void;
+  showWord?: boolean;
+  variant?: "default" | "borderless";
 }
 
 export function FeedCard({
-	definition,
-	onDelete,
-	onViewHistory,
-	onStartEdit,
-	showWord = false,
+  definition,
+  onDelete,
+  onViewHistory,
+  onStartEdit,
+  showWord = false,
+  variant = "default",
 }: FeedCardProps) {
-	const { t } = useTranslation();
-	const { user } = useAuth();
-	const navigate = useNavigate();
-	const isOwner = user?.id === definition.userId;
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isOwner = user?.id === definition.userId;
 
-	const formattedDate = new Date(definition.createdAt).toLocaleDateString("ko-KR", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
+  const formattedDate = new Date(definition.createdAt).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-	const isEdited = definition.updatedAt !== definition.createdAt;
+  const isEdited = definition.updatedAt !== definition.createdAt;
 
-	const handleUserClick = (e: React.MouseEvent) => {
-		e.stopPropagation();
-		navigate(`/users/${definition.userId}`);
-	};
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/users/${definition.userId}`);
+  };
 
-	const getHostname = (url: string) => {
-		try {
-			return new URL(url).hostname;
-		} catch {
-			return url;
-		}
-	};
+  const getHostname = (url: string) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return url;
+    }
+  };
 
-	return (
-		<Card className="hover:shadow-md transition-shadow">
-			<CardHeader>
-				{showWord && definition.term && (
-					<div className="mb-2">
-						<Button
-							variant="link"
-							className="p-0 h-auto font-semibold text-lg"
-							onClick={() => navigate(`/words/${definition.wordId}/edit`)}
-						>
-							{definition.term}
-						</Button>
-					</div>
-				)}
-				<div className="flex items-start justify-between gap-2">
-					<div className="flex items-center gap-2 text-sm text-muted-foreground">
-						<Avatar className="h-6 w-6 cursor-pointer border" onClick={handleUserClick}>
-							<AvatarImage src={definition.profilePicture} className="object-cover" />
-							<AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
-						</Avatar>
-						<Button
-							variant="link"
-							className="p-0 h-auto text-sm text-muted-foreground"
-							onClick={handleUserClick}
-						>
-							{definition.nickname || t("common.user")}
-						</Button>
-						<span>•</span>
-						<span>{formattedDate}</span>
-						<span>•</span>
-						{definition.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-						{isEdited && <span className="text-xs text-muted-foreground">(edited)</span>}
-					</div>
+  return (
+    <Card
+      className={cn(
+        "transition-all",
+        variant === "default"
+          ? "hover:shadow-md"
+          : "border-none shadow-none bg-transparent hover:bg-muted/30",
+      )}
+    >
+      <CardHeader className={cn(variant === "borderless" && "px-0")}>
+        {showWord && definition.term && (
+          <div className="mb-2">
+            <Button
+              variant="link"
+              className="p-0 h-auto font-semibold text-lg"
+              onClick={() => navigate(`/words/${definition.wordId}/edit`)}
+            >
+              {definition.term}
+            </Button>
+          </div>
+        )}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Avatar className="h-6 w-6 cursor-pointer border" onClick={handleUserClick}>
+              <AvatarImage src={definition.profilePicture} className="object-cover" />
+              <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
+            </Avatar>
+            <Button
+              variant="link"
+              className="p-0 h-auto text-sm text-muted-foreground"
+              onClick={handleUserClick}
+            >
+              {definition.nickname || t("common.user")}
+            </Button>
+            <span>•</span>
+            <span>{formattedDate}</span>
+            <span>•</span>
+            {definition.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+            {isEdited && <span className="text-xs text-muted-foreground">(edited)</span>}
+          </div>
 
-					<div className="flex gap-1">
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={() => onViewHistory(definition.id)}
-							title={t("word.history")}
-						>
-							<History className="h-4 w-4" />
-						</Button>
-						{isOwner && onStartEdit && (
-							<Button variant="ghost" size="icon" onClick={onStartEdit} title={t("common.edit")}>
-								<Pencil className="h-4 w-4" />
-							</Button>
-						)}
-						{!isOwner && user && (
-							<ReportDialog
-								reportedUserId={definition.userId}
-								definitionId={definition.id}
-								trigger={
-									<Button variant="ghost" size="icon" title={t("common.report")}>
-										<Flag className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-									</Button>
-								}
-							/>
-						)}
-						{isOwner && (
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={() => onDelete(definition.id)}
-								title={t("common.delete")}
-							>
-								<Trash2 className="h-4 w-4 text-destructive" />
-							</Button>
-						)}
-					</div>
-				</div>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<p className="text-base whitespace-pre-wrap">{definition.content}</p>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewHistory(definition.id)}
+              title={t("word.history")}
+            >
+              <History className="h-4 w-4" />
+            </Button>
+            {isOwner && onStartEdit && (
+              <Button variant="ghost" size="icon" onClick={onStartEdit} title={t("common.edit")}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+            {!isOwner && user && (
+              <ReportDialog
+                reportedUserId={definition.userId}
+                definitionId={definition.id}
+                trigger={
+                  <Button variant="ghost" size="icon" title={t("common.report")}>
+                    <Flag className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                }
+              />
+            )}
+            {isOwner && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(definition.id)}
+                title={t("common.delete")}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className={cn("space-y-4", variant === "borderless" && "px-0")}>
+        <p className="text-base whitespace-pre-wrap">{definition.content}</p>
 
-				{definition.mediaUrls && definition.mediaUrls.length > 0 && (
-					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-						{definition.mediaUrls.map((media) => {
-							if (media.type === "image") {
-								return (
-									<img
-										key={media.url}
-										src={media.url}
-										alt="media"
-										className="rounded-lg object-cover w-full h-48 border"
-									/>
-								);
-							}
-							if (media.type === "video") {
-								return (
-									<video
-										key={media.url}
-										src={media.url}
-										controls
-										className="rounded-lg w-full h-48 object-cover border"
-									>
-										<track kind="captions" />
-									</video>
-								);
-							}
-							return (
-								<a
-									key={media.url}
-									href={media.url}
-									target="_blank"
-									rel="noreferrer"
-									className="block group rounded-lg border overflow-hidden hover:bg-muted/50 transition-colors"
-								>
-									{media.image && (
-										<img
-											src={media.image}
-											alt={media.title || "Link preview"}
-											className="w-full h-32 object-cover"
-										/>
-									)}
-									<div className="p-3">
-										<h4 className="font-semibold text-sm truncate group-hover:text-primary">
-											{media.title || media.url}
-										</h4>
-										{media.description && (
-											<p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-												{media.description}
-											</p>
-										)}
-										<div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-											<ExternalLink className="h-3 w-3" />
-											<span className="truncate">{getHostname(media.url)}</span>
-										</div>
-									</div>
-								</a>
-							);
-						})}
-					</div>
-				)}
+        {definition.mediaUrls && definition.mediaUrls.length > 0 && (
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+            {definition.mediaUrls.map((media) => {
+              if (media.type === "image") {
+                return (
+                  <img
+                    key={media.url}
+                    src={media.url}
+                    alt="media"
+                    className="rounded-lg object-cover w-full h-48 border"
+                  />
+                );
+              }
+              if (media.type === "video") {
+                return (
+                  <video
+                    key={media.url}
+                    src={media.url}
+                    controls
+                    className="rounded-lg w-full h-48 object-cover border"
+                  >
+                    <track kind="captions" />
+                  </video>
+                );
+              }
+              return (
+                <a
+                  key={media.url}
+                  href={media.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block group rounded-lg border overflow-hidden hover:bg-muted/50 transition-colors"
+                >
+                  {media.image && (
+                    <img
+                      src={media.image}
+                      alt={media.title || "Link preview"}
+                      className="w-full h-32 object-cover"
+                    />
+                  )}
+                  <div className="p-3">
+                    <h4 className="font-semibold text-sm truncate group-hover:text-primary">
+                      {media.title || media.url}
+                    </h4>
+                    {media.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                        {media.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                      <ExternalLink className="h-3 w-3" />
+                      <span className="truncate">{getHostname(media.url)}</span>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        )}
 
-				{definition.tags && definition.tags.length > 0 && (
-					<div className="flex flex-wrap gap-2">
-						{definition.tags.map((tag) => (
-							<Badge key={tag} variant="secondary" className="text-xs">
-								#{tag}
-							</Badge>
-						))}
-					</div>
-				)}
-			</CardContent>
-			<Separator />
-			<CardFooter className="pt-4">
-				<LikeButton
-					definitionId={definition.id}
-					initialLikesCount={definition.likesCount}
-					isOwnDefinition={isOwner}
-				/>
-			</CardFooter>
-		</Card>
-	);
+        {definition.tags && definition.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {definition.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="text-xs">
+                #{tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </CardContent>
+      <Separator className={cn(variant === "borderless" && "hidden")} />
+      <CardFooter className={cn("pt-4", variant === "borderless" && "px-0 pb-0")}>
+        <LikeButton
+          definitionId={definition.id}
+          initialLikesCount={definition.likesCount}
+          isOwnDefinition={isOwner}
+        />
+      </CardFooter>
+    </Card>
+  );
 }
