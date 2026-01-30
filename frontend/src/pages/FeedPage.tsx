@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAllFeed } from "@/hooks/useAllFeed";
 import { useFeed } from "@/hooks/useFeed";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
@@ -85,7 +86,9 @@ function FeedList({
 
 export default function FeedPage() {
 	const { t } = useTranslation();
-	const [activeTab, setActiveTab] = useState("all");
+	const navigate = useNavigate();
+	const { tab } = useParams<{ tab: string }>();
+	const activeTab = tab || "all";
 
 	const allFeed = useAllFeed();
 	const followingFeed = useFeed();
@@ -103,6 +106,11 @@ export default function FeedPage() {
 			followingFeed.fetchFeed();
 		}
 	}, [activeTab, allFeed.fetchAllFeed, followingFeed.fetchFeed]);
+	if (activeTab === "all") {
+		console.log("Render FeedPage(all)", allFeed.definitions);
+	} else {
+		console.log("Render FeedPage(following)", followingFeed.definitions);
+	}
 
 	return (
 		<Page>
@@ -110,7 +118,7 @@ export default function FeedPage() {
 				<FeedForm onCreate={handleSubmit} />
 			</div>
 
-			<Tabs value={activeTab} onValueChange={setActiveTab}>
+			<Tabs value={activeTab} onValueChange={(value) => navigate(`/feed/${value}`)}>
 				<TabsList className="mb-6">
 					<TabsTrigger value="all">{t("feed.tabs.all")}</TabsTrigger>
 					<TabsTrigger value="following">{t("feed.tabs.following")}</TabsTrigger>

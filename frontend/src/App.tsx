@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AuthLayout } from "./components/layout/AuthLayout";
@@ -28,7 +28,8 @@ function App() {
               <Route path="/auth/impersonate" element={<ImpersonatePage />} />
 
               <Route element={<AuthLayout />}>
-                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/feed" element={<Navigate to="/feed/all" replace />} />
+                <Route path="/feed/:tab" element={<FeedPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/words/:wordId/edit" element={<WordEditPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
