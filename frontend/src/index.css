@@ -12,12 +12,14 @@
     --popover-foreground: 222.2 84% 4.9%;
     --primary: 173 58% 39%;
     --primary-foreground: 210 40% 98%;
+    --border: 102.2 0% 0%;
     --radius: 0.25rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --color-seperator: oklch(87.61% 0.0001 271.152);
   }
 
   .dark {
