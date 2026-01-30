@@ -130,10 +130,8 @@ export class FeedService {
       paginationDto.page || 1,
       paginationDto.cursor || "",
     );
-    console.log("Cache Key:", cacheKey);
     const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
 
-    console.log("Cached Feed:", cached);
     if (cached) {
       return cached;
     }
@@ -143,7 +141,6 @@ export class FeedService {
       paginationDto.cursor,
     );
     const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
-    console.log("Fetched Feeds:", feeds, nextCursor);
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,

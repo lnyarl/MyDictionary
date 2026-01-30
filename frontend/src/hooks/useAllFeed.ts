@@ -1,55 +1,33 @@
-import { useCallback, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { feedApi } from "../lib/feed";
-import type { Definition } from "../types/definition.types";
 
 export function useAllFeed() {
-  const [definitions, setDefinitions] = useState<Definition[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [cursor, setCursor] = useState<string | undefined>(undefined);
-  const [hasMore, setHasMore] = useState(true);
+  const query = useInfiniteQuery({
+    queryKey: ["feed", "all"],
+    queryFn: ({ pageParam }) => feedApi.getAllFeed(pageParam.page, 20, pageParam.cursor),
+    initialPageParam: { page: 1, cursor: undefined as string | undefined },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.meta.nextCursor) return undefined;
+      return {
+        page: lastPage.meta.page + 1,
+        cursor: lastPage.meta.nextCursor,
+      };
+    },
+  });
 
-  const fetchAllFeed = useCallback(async (pageNum = 1, nextCursor?: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await feedApi.getAllFeed(pageNum, 20, nextCursor);
-
-      if (pageNum === 1) {
-        setDefinitions(response.data);
-      } else {
-        setDefinitions((prev) => {
-          const newItems = response.data.filter(
-            (newItem) => !prev.some((existingItem) => existingItem.id === newItem.id),
-          );
-          return [...prev, ...newItems];
-        });
-      }
-
-      setHasMore(!!response.meta.nextCursor);
-      setPage(pageNum);
-      setCursor(response.meta.nextCursor);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch feed";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const loadMore = useCallback(() => {
-    if (!loading && hasMore) {
-      fetchAllFeed(page + 1, cursor);
-    }
-  }, [loading, hasMore, page, cursor, fetchAllFeed]);
+  const definitions = query.data?.pages.flatMap((page) => page.data) ?? [];
 
   return {
     definitions,
-    loading,
-    error,
-    fetchAllFeed,
-    loadMore,
-    hasMore,
+    loading: query.isLoading || query.isFetchingNextPage,
+    error: query.error ? (query.error as Error).message : null,
+    fetchAllFeed: (pageNum?: number) => {
+      if (pageNum === 1) {
+        query.refetch();
+      }
+    },
+    loadMore: query.fetchNextPage,
+    hasMore: !!query.hasNextPage,
+    isRefetching: query.isRefetching,
   };
 }

@@ -1,3 +1,4 @@
+import { QueryClient } from "@tanstack/react-query";
 import i18n from "@/lib/i18n";
 
 import { toast } from "../hooks/use-toast";
@@ -31,6 +32,16 @@ function showErrorToast(error: ApiError) {
     description: getLocalizedErrorMessage(error),
   });
 }
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5,
+    },
+  },
+});
 
 export class ApiClient {
   private baseUrl: string;

@@ -1,14 +1,16 @@
 export interface PaginatedResponse<T> {
-	data: T[];
-	meta: {
-		page: number;
-		limit: number;
-		total: number;
-		totalPages: number;
-	};
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    nextCursor?: string;
+  };
 }
 
 export interface PaginationParams {
-	page?: number;
-	limit?: number;
+  page?: number;
+  limit?: number;
+  cursor?: string;
 }

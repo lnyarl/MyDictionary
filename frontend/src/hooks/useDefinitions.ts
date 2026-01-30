@@ -1,87 +1,67 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { definitionsApi } from "../lib/definitions";
 import type {
-	CreateDefinitionInput,
-	Definition,
-	UpdateDefinitionInput,
+  CreateDefinitionInput,
+  Definition,
+  UpdateDefinitionInput,
 } from "../types/definition.types";
 
 export function useDefinitions() {
-	const [definitions, setDefinitions] = useState<Definition[]>([]);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [definitions, setDefinitions] = useState<Definition[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-	const fetchDefinitions = useCallback(async (wordId: string) => {
-		setLoading(true);
-		setError(null);
-		try {
-			const data = await definitionsApi.getByWord(wordId);
-			setDefinitions(data);
-		} catch (err: any) {
-			setError(err.message || "Failed to fetch definitions");
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+  const fetchDefinitions = useCallback(async (wordId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await definitionsApi.getByWord(wordId);
+      setDefinitions(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch definitions");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-	const createDefinition = useCallback(async (input: CreateDefinitionInput) => {
-		setLoading(true);
-		setError(null);
-		try {
-			const newDefinition = await definitionsApi.create(input);
-			setDefinitions((prev) => [newDefinition, ...prev]);
-			return newDefinition;
-		} catch (err: any) {
-			setError(err.message || "Failed to create definition");
-			throw err;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+  const createMutation = useMutation({
+    mutationFn: (input: CreateDefinitionInput) => definitionsApi.create(input),
+    onSuccess: (newDefinition) => {
+      setDefinitions((prev) => [newDefinition, ...prev]);
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
 
-	const updateDefinition = useCallback(
-		async (id: string, input: UpdateDefinitionInput) => {
-			setLoading(true);
-			setError(null);
-			try {
-				const updatedDefinition = await definitionsApi.update(id, input);
-				setDefinitions((prev) =>
-					prev.map((def) =>
-						def.id === id ? { ...def, ...updatedDefinition } : def,
-					),
-				);
-				return updatedDefinition;
-			} catch (err: any) {
-				setError(err.message || "Failed to update definition");
-				throw err;
-			} finally {
-				setLoading(false);
-			}
-		},
-		[],
-	);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateDefinitionInput }) =>
+      definitionsApi.update(id, input),
+    onSuccess: (updatedDefinition, variables) => {
+      setDefinitions((prev) =>
+        prev.map((def) => (def.id === variables.id ? { ...def, ...updatedDefinition } : def)),
+      );
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
 
-	const deleteDefinition = useCallback(async (id: string) => {
-		setLoading(true);
-		setError(null);
-		try {
-			await definitionsApi.delete(id);
-			setDefinitions((prev) => prev.filter((def) => def.id !== id));
-		} catch (err: any) {
-			setError(err.message || "Failed to delete definition");
-			throw err;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => definitionsApi.delete(id),
+    onSuccess: (_, id) => {
+      setDefinitions((prev) => prev.filter((def) => def.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
 
-	return {
-		definitions,
-		loading,
-		error,
-		fetchDefinitions,
-		createDefinition,
-		updateDefinition,
-		deleteDefinition,
-	};
+  return {
+    definitions,
+    loading:
+      loading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
+    error,
+    fetchDefinitions,
+    createDefinition: createMutation.mutateAsync,
+    updateDefinition: (id: string, input: UpdateDefinitionInput) =>
+      updateMutation.mutateAsync({ id, input }),
+    deleteDefinition: deleteMutation.mutateAsync,
+  };
 }

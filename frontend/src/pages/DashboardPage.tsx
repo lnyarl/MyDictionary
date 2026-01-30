@@ -14,7 +14,7 @@ import type { FollowStats } from "../types/follow.types";
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { definitions, fetchMyFeed, loadMore, hasMore, loading } = useMyFeed();
+  const { definitions, loadMore, hasMore, loading } = useMyFeed();
   const { deleteDefinition, updateDefinition } = useDefinitions();
   const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -42,9 +42,8 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    fetchMyFeed();
     fetchFollowStats();
-  }, [fetchMyFeed, fetchFollowStats]);
+  }, [fetchFollowStats]);
 
   const handleDelete = async (definitionId: string) => {
     if (confirm(t("dashboard.delete_confirm"))) {

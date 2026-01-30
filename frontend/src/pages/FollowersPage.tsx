@@ -1,118 +1,72 @@
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Page } from "../components/layout/Page";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { useFollowers } from "../hooks/useFollowers";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
-import { followsApi } from "../lib/follows";
-import type { User } from "../types/user.types";
 
 export default function FollowersPage() {
-	const { userId } = useParams<{ userId: string }>();
-	const navigate = useNavigate();
-	const [followers, setFollowers] = useState<User[]>([]);
-	const [loading, setLoading] = useState(false);
-	const [loadingMore, setLoadingMore] = useState(false);
-	const [page, setPage] = useState(1);
-	const [cursor, setCursor] = useState<string | undefined>(undefined);
-	const [hasMore, setHasMore] = useState(false);
+  const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useFollowers(userId);
 
-	const fetchFollowers = useCallback(
-		async (pageNum: number, nextCursor?: string, append = false) => {
-			if (append) {
-				setLoadingMore(true);
-			} else {
-				setLoading(true);
-			}
+  const followers = data?.pages.flatMap((page) => page.data) ?? [];
 
-			try {
-				const response = await followsApi.getFollowers(userId, pageNum, 20, nextCursor);
-				if (append) {
-					setFollowers((prev) => {
-						const newItems = response.data.filter(
-							(newItem) => !prev.some((existingItem) => existingItem.id === newItem.id)
-						);
-						return [...prev, ...newItems];
-					});
-				} else {
-					setFollowers(response.data);
-				}
-				setHasMore(!!response.meta.nextCursor);
-				setPage(pageNum);
-				setCursor(response.meta.nextCursor);
-			} catch (error) {
-				console.error("Failed to fetch followers", error);
-			} finally {
-				setLoading(false);
-				setLoadingMore(false);
-			}
-		},
-		[userId],
-	);
+  const { sentinelRef } = useInfiniteScroll({
+    onLoadMore: fetchNextPage,
+    hasMore: !!hasNextPage,
+    isLoading: isFetchingNextPage,
+  });
 
-	useEffect(() => {
-		fetchFollowers(1);
-	}, [fetchFollowers]);
+  return (
+    <Page maxWidth="2xl">
+      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        뒤로 가기
+      </Button>
 
-	const handleLoadMore = useCallback(() => {
-		fetchFollowers(page + 1, cursor, true);
-	}, [page, cursor, fetchFollowers]);
+      <h1 className="text-3xl font-bold mb-6">팔로워</h1>
 
-	const { sentinelRef } = useInfiniteScroll({
-		onLoadMore: handleLoadMore,
-		hasMore,
-		isLoading: loadingMore,
-	});
+      {isLoading && followers.length === 0 ? (
+        <div className="flex items-center justify-center p-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : followers.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground">아직 팔로워가 없습니다.</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {followers.map((user) => (
+              <Card
+                key={user.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate(`/users/${user.id}`)}
+              >
+                <CardContent className="flex items-center gap-4 p-6">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={user.profilePicture} />
+                    <AvatarFallback>{user.nickname[0]}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold">{user.nickname}</h3>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-	return (
-		<Page maxWidth="2xl">
-			<Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-				<ArrowLeft className="mr-2 h-4 w-4" />
-				뒤로 가기
-			</Button>
-
-			<h1 className="text-3xl font-bold mb-6">팔로워</h1>
-
-			{loading && followers.length === 0 ? (
-				<div className="flex items-center justify-center p-12">
-					<Loader2 className="h-8 w-8 animate-spin" />
-				</div>
-			) : followers.length === 0 ? (
-				<div className="rounded-lg border border-dashed p-12 text-center">
-					<p className="text-muted-foreground">아직 팔로워가 없습니다.</p>
-				</div>
-			) : (
-				<>
-					<div className="space-y-4">
-						{followers.map((user) => (
-							<Card
-								key={user.id}
-								className="hover:shadow-md transition-shadow cursor-pointer"
-								onClick={() => navigate(`/users/${user.id}`)}
-							>
-								<CardContent className="flex items-center gap-4 p-6">
-									<Avatar className="h-12 w-12">
-										<AvatarImage src={user.profilePicture} />
-										<AvatarFallback>{user.nickname[0]}</AvatarFallback>
-									</Avatar>
-									<div>
-										<h3 className="font-semibold">{user.nickname}</h3>
-										<p className="text-sm text-muted-foreground">{user.email}</p>
-									</div>
-								</CardContent>
-							</Card>
-						))}
-					</div>
-
-					<div ref={sentinelRef} className="py-4 flex justify-center">
-						{loadingMore && hasMore && (
-							<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-						)}
-					</div>
-				</>
-			)}
-		</Page>
-	);
+          <div ref={sentinelRef} className="py-4 flex justify-center">
+            {isFetchingNextPage && hasNextPage && (
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            )}
+          </div>
+        </>
+      )}
+    </Page>
+  );
 }

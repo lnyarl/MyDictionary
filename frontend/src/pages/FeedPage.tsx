@@ -1,5 +1,4 @@
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAllFeed } from "@/hooks/useAllFeed";
@@ -38,7 +37,7 @@ function FeedList({
     isLoading: loading,
   });
 
-  const handleViewHistory = () => {};
+  const handleViewHistory = () => { };
 
   if (loading && definitions.length === 0) {
     return (
@@ -98,21 +97,7 @@ export default function FeedPage() {
 
   const handleSubmit = async (data: CreateWordInput) => {
     await myFeed.createFeed(data);
-    allFeed.fetchAllFeed(1);
   };
-
-  useEffect(() => {
-    if (activeTab === "all") {
-      allFeed.fetchAllFeed();
-    } else {
-      followingFeed.fetchFeed();
-    }
-  }, [activeTab, allFeed.fetchAllFeed, followingFeed.fetchFeed]);
-  if (activeTab === "all") {
-    console.log("Render FeedPage(all)", allFeed.definitions);
-  } else {
-    console.log("Render FeedPage(following)", followingFeed.definitions);
-  }
 
   return (
     <Page>
