@@ -16,7 +16,7 @@ export class FollowsRepository extends BaseRepository {
   }
 
   restoreRelation(id: string): Promise<void> {
-    return this.restore(this.tableName, id);
+    return this.undelete(this.tableName, id);
   }
 
   findFollowers(userId: string, limit: number, cursor?: string) {

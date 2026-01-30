@@ -67,7 +67,7 @@ export abstract class BaseRepository {
   /**
    * Restore a soft-deleted record
    */
-  protected async restore(tableName: TableName, id: string): Promise<void> {
+  protected async undelete(tableName: TableName, id: string): Promise<void> {
     await this.knex(tableName).where({ id }).whereNotNull("deleted_at").update({
       deleted_at: null,
       updated_at: new Date(),

@@ -20,11 +20,11 @@ describe("LikesRepository", () => {
     await cleanupTestDatabase();
   });
 
-  describe("findByUserIdAndDefinitionId", () => {
+  describe("findByUserIdAndDefinitionIdWithDeleted", () => {
     it("should generate correct query", () => {
-      const query = repository.findByUserIdAndDefinitionId("user-123", "def-456");
+      const query = repository.findByUserIdAndDefinitionIdWithDeleted("user-123", "def-456");
       expect(query.toQuery()).toBe(
-        'select "id" as "id", "user_id" as "userId", "definition_id" as "definitionId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "likes" where "likes"."deleted_at" is null and "user_id" = \'user-123\' and "definition_id" = \'def-456\' limit 1',
+        'select "id" as "id", "user_id" as "userId", "definition_id" as "definitionId", "created_at" as "createdAt", "updated_at" as "updatedAt", "deleted_at" as "deletedAt" from "likes" where "user_id" = \'user-123\' and "definition_id" = \'def-456\' limit 1',
       );
     });
   });

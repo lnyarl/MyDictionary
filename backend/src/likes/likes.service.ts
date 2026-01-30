@@ -36,17 +36,23 @@ export class LikesService {
     }
 
     // Check if like already exists
-    const existingLike = await this.likeRepository.findByUserIdAndDefinitionId(
+    const existingLike = await this.likeRepository.findByUserIdAndDefinitionIdWithDeleted(
       userId,
       definitionId,
     );
 
-    if (existingLike) {
+    let result = false;
+    if (existingLike && !existingLike.deletedAt) {
       await this.likeRepository.delete(existingLike.id);
-      return false;
+      result = false;
+    } else if (existingLike?.deletedAt) {
+      // Restore soft-deleted like
+      await this.likeRepository.restore(existingLike.id);
+      result = true;
+    } else {
+      await this.likeRepository.create({ userId, definitionId });
+      result = true;
     }
-
-    await this.likeRepository.create({ userId, definitionId });
 
     if (definition.userId !== userId) {
       const liker = await this.usersRepository.findById(userId);
@@ -62,12 +68,15 @@ export class LikesService {
       }
     }
 
-    return true;
+    return result;
   }
 
   async checkUserLike(userId: string, definitionId: string): Promise<boolean> {
-    const like = await this.likeRepository.findByUserIdAndDefinitionId(userId, definitionId);
-    return !!like;
+    const like = await this.likeRepository.findByUserIdAndDefinitionIdWithDeleted(
+      userId,
+      definitionId,
+    );
+    return !!(like && !like.deletedAt);
   }
 
   async getLikesByDefinition(definitionId: string): Promise<Like[]> {

@@ -151,12 +151,9 @@ CREATE TABLE "public"."admin_users" (
     PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX admin_users_username_key ON public.admin_users USING btree (username);
-IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'admin_role') THEN
-    CREATE TYPE admin_role AS ENUM ('super_admin', 'developer', 'operator');
-END IF;
 INSERT INTO admin_users (username, password, role, must_change_password)
-VALUES ('admin', '$2b$10$HlgRj4yUJJhCcVeUQr0i8e.9Ed6V1yWBY8g3pu9i25/DpxxglExEq', 'super_admin', TRUE)
-ON CONFLICT (username) DO NOTHING;
+    VALUES ('admin', '$2b$10$HlgRj4yUJJhCcVeUQr0i8e.9Ed6V1yWBY8g3pu9i25/DpxxglExEq', 'super_admin', TRUE)
+    ON CONFLICT (username) DO NOTHING;
 
 
 

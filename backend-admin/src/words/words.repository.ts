@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES } from "@shared";
+import { generateId, TABLES } from "@shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Word } from "./entities/word.entity";
 
@@ -26,15 +26,18 @@ export class WordsRepository extends BaseRepository {
     await this.transaction(async (trx) => {
       const [word] = await trx(TABLES.WORDS)
         .insert({
+          id: generateId(),
           term: wordData.term,
           user_id: wordData.userId,
         })
         .returning("*");
 
       await trx(TABLES.DEFINITIONS).insert({
+        id: generateId(),
         word_id: word.id,
         user_id: wordData.userId,
         content: definitionContent,
+        is_public: true,
       });
     });
   }

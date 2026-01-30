@@ -104,7 +104,7 @@ export class FeedService {
     }
 
     const followingIds = await this.followsService.getFollowingIds(userId);
-    const userIds = [...followingIds, userId];
+    const userIds = [...followingIds];
 
     const listQuery = await this.feedRepository.findFeeds(
       userIds,

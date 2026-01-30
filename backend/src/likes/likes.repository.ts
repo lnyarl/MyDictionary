@@ -9,8 +9,8 @@ export class LikesRepository extends BaseRepository {
   /**
    * Find all words by user ID
    */
-  findByUserIdAndDefinitionId(userId: string, definitionId: string) {
-    return this.query(this.tableName)
+  findByUserIdAndDefinitionIdWithDeleted(userId: string, definitionId: string) {
+    return this.knex(this.tableName)
       .select<Like>(LikeSelect)
       .where({ user_id: userId, definition_id: definitionId })
       .first();
@@ -24,6 +24,10 @@ export class LikesRepository extends BaseRepository {
 
   delete(id: string) {
     return this.softDelete(this.tableName, id);
+  }
+
+  restore(id: string) {
+    return this.undelete(this.tableName, id);
   }
 
   create(like: Partial<Like>) {
