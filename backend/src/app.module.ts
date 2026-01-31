@@ -1,6 +1,7 @@
 import * as path from "node:path";
+import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { AppController } from "./app.controller";
@@ -28,6 +29,16 @@ import { WordsModule } from "./words/words.module";
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: {
+          host: config.get("REDIS_HOST", "localhost"),
+          port: config.get("REDIS_PORT", 6379),
+          password: config.get("REDIS_PASSWORD"),
+        },
+      }),
     }),
     I18nModule.forRoot({
       fallbackLanguage: "ko",

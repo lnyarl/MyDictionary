@@ -1,8 +1,8 @@
 import { Injectable, Scope } from "@nestjs/common";
 import { generateId, TABLES } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
-import { Word } from "../words/entities/word.entity";
-import { Feed } from "./entities/feed.entity";
+import type { Word } from "../words/entities/word.entity";
+import type { Feed } from "./entities/feed.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
@@ -27,7 +27,9 @@ export class FeedRepository extends BaseRepository {
   }
 
   findMyFeeds(userId: string, limit: number, cursor?: string) {
-    const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+    const baseQuery = this.query({
+      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
+    })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .where("definitions.user_id", userId)
@@ -37,9 +39,9 @@ export class FeedRepository extends BaseRepository {
       baseQuery.where("definitions.created_at", "<", cursor);
     }
 
-    const listQuery = baseQuery
+    return baseQuery
       .clone()
-      .select<Feed[]>({
+      .select({
         id: "definitions.id",
         content: "definitions.content",
         wordId: "definitions.word_id",
@@ -55,14 +57,19 @@ export class FeedRepository extends BaseRepository {
       })
       .limit(limit)
       .orderBy("definitions.created_at", "desc");
-
-    return listQuery;
   }
 
-  findFeeds(userIds: string[], limit: number, cursor?: string) {
-    const baseQuery = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+  findFeeds(myUserId: string, userIds: string[], limit: number, cursor?: string) {
+    const baseQuery = this.query({
+      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
+    })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .leftJoin(TABLES.LIKES, (on) => {
+        on.on("definitions.id", "=", "likes.definition_id");
+        on.andOnVal("likes.user_id", "=", myUserId);
+        on.andOnNull("likes.deleted_at");
+      })
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
       .where("definitions.is_public", true);
@@ -71,9 +78,9 @@ export class FeedRepository extends BaseRepository {
       baseQuery.where("definitions.created_at", "<", cursor);
     }
 
-    const listQuery = baseQuery
+    return baseQuery
       .clone()
-      .select<Feed[]>({
+      .select({
         id: "definitions.id",
         content: "definitions.content",
         wordId: "definitions.word_id",
@@ -82,44 +89,55 @@ export class FeedRepository extends BaseRepository {
         createdAt: "definitions.created_at",
         updatedAt: "definitions.updated_at",
         nickname: "users.nickname",
+        isLiked: this.knex.raw("?? IS NOT NULL", ["likes.id"]),
         profilePicture: "users.profile_picture",
         tags: "definitions.tags",
         term: "words.term",
       })
       .limit(limit)
       .orderBy("definitions.created_at", "desc");
-
-    return listQuery;
   }
 
-  findAllFeeds(limit: number, cursor?: string) {
-    console.log("Find all feeds called with limit:", limit, "cursor:", cursor);
-    const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+  findAllFeeds(myUserId: string, limit: number, cursor?: string) {
+    const query = this.query({
+      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
+    })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .leftJoin(TABLES.LIKES, (on) => {
+        on.on("definitions.id", "=", "likes.definition_id");
+        on.andOnVal("likes.user_id", "=", myUserId);
+        on.andOnNull("likes.deleted_at");
+      })
       .whereNull("words.deleted_at")
-      .where("definitions.is_public", true);
+      .andWhere("definitions.is_public", true);
 
     if (cursor) {
       query.where("definitions.created_at", "<", cursor);
     }
 
-    return query.limit(limit).orderBy("definitions.created_at", "desc").select<Feed[]>({
-      id: "definitions.id",
-      content: "definitions.content",
-      wordId: "definitions.word_id",
-      userId: "definitions.user_id",
-      likesCount: "definitions.likes_count",
-      createdAt: "definitions.created_at",
-      updatedAt: "definitions.updated_at",
-      nickname: "users.nickname",
-      profilePicture: "users.profile_picture",
-      term: "words.term",
-    });
+    return query
+      .limit(limit)
+      .orderBy("definitions.created_at", "desc")
+      .select({
+        id: "definitions.id",
+        content: "definitions.content",
+        wordId: "definitions.word_id",
+        userId: "definitions.user_id",
+        likesCount: "definitions.likes_count",
+        isLiked: this.knex.raw("?? IS NOT NULL", ["likes.id"]),
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        nickname: "users.nickname",
+        profilePicture: "users.profile_picture",
+        term: "words.term",
+      });
   }
 
   findRecommendations(limit: number, cursor?: string, excludeUserId?: string) {
-    const query = this.query({ [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW })
+    const query = this.query({
+      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
+    })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
       .whereNull("words.deleted_at")
@@ -138,7 +156,7 @@ export class FeedRepository extends BaseRepository {
       .limit(limit)
       .orderBy("definitions.likes_count", "desc")
       .orderBy("definitions.created_at", "desc")
-      .select<Feed[]>({
+      .select({
         id: "definitions.id",
         content: "definitions.content",
         wordId: "definitions.word_id",

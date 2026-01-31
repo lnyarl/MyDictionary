@@ -1,4 +1,6 @@
+import { getQueueToken } from "@nestjs/bullmq";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { NotificationsRepository } from "../notifications/notifications.repository";
@@ -16,11 +18,16 @@ import { LikesService } from "./likes.service";
 
 describe("LikesService", () => {
   let service: LikesService;
+  let module: TestingModule;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string };
   let otherUser: { id: string };
   let testWord: { id: string };
   let testDefinition: { id: string; userId: string };
+
+  const mockLikesQueue = {
+    add: jest.fn(),
+  };
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -43,7 +50,7 @@ describe("LikesService", () => {
       userId: otherUser.id,
     });
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [TestDatabaseModule],
       providers: [
         LikesService,
@@ -53,10 +60,30 @@ describe("LikesService", () => {
         WordsRepository,
         NotificationsService,
         NotificationsRepository,
+        {
+          provide: getQueueToken("likes"),
+          useValue: mockLikesQueue,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue("localhost"),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<LikesService>(LikesService);
+
+    jest.spyOn(service, "toggle").mockImplementation(async (userId, definitionId) => {
+      await service.executeToggle(userId, definitionId);
+    });
+  });
+
+  afterEach(async () => {
+    if (module) {
+      await module.close();
+    }
   });
 
   it("should be defined", () => {
@@ -65,15 +92,17 @@ describe("LikesService", () => {
 
   describe("toggle", () => {
     it("should create a like if none exists", async () => {
-      const result = await service.toggle(testUser.id, testDefinition.id);
+      await service.toggle(testUser.id, testDefinition.id);
+      const result = await service.checkUserLike(testUser.id, testDefinition.id);
 
       expect(result).toBe(true);
     });
 
     it("should delete a like if it exists", async () => {
       await service.toggle(testUser.id, testDefinition.id);
+      await service.toggle(testUser.id, testDefinition.id);
 
-      const result = await service.toggle(testUser.id, testDefinition.id);
+      const result = await service.checkUserLike(testUser.id, testDefinition.id);
 
       expect(result).toBe(false);
     });

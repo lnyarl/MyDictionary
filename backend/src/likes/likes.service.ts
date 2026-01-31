@@ -1,16 +1,20 @@
+import { InjectQueue } from "@nestjs/bullmq";
 import {
   ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Queue, QueueEvents } from "bullmq";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
 import { UsersRepository } from "../users/users.repository";
 import { WordsRepository } from "../words/words.repository";
-import { Like } from "./entities/like.entity";
+import type { Like } from "./entities/like.entity";
 import { LikesRepository } from "./likes.repository";
 
 @Injectable()
@@ -22,20 +26,26 @@ export class LikesService {
     private readonly wordsRepository: WordsRepository,
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
+    @InjectQueue("likes") private readonly likesQueue: Queue,
   ) {}
 
-  async toggle(userId: string, definitionId: string): Promise<boolean> {
+  async toggle(userId: string, definitionId: string) {
+    await this.likesQueue.add("toggle", {
+      userId,
+      definitionId,
+    });
+  }
+
+  async executeToggle(userId: string, definitionId: string): Promise<boolean> {
     const definition = await this.definitionRepository.findById(definitionId);
     if (!definition) {
       throw new NotFoundException("Definition not found");
     }
 
-    // Cannot like your own definition
     if (definition.userId === userId) {
       throw new ForbiddenException("You cannot like your own definition");
     }
 
-    // Check if like already exists
     const existingLike = await this.likeRepository.findByUserIdAndDefinitionIdWithDeleted(
       userId,
       definitionId,
@@ -46,7 +56,6 @@ export class LikesService {
       await this.likeRepository.delete(existingLike.id);
       result = false;
     } else if (existingLike?.deletedAt) {
-      // Restore soft-deleted like
       await this.likeRepository.restore(existingLike.id);
       result = true;
     } else {

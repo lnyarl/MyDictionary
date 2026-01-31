@@ -212,6 +212,7 @@ export function FeedCard({
         <LikeButton
           definitionId={definition.id}
           initialLikesCount={definition.likesCount}
+          initialIsLiked={definition.isLiked}
           isOwnDefinition={isOwner}
         />
       </CardFooter>

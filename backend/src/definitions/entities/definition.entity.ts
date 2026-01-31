@@ -7,6 +7,7 @@ export type Definition = {
   tags: string[];
   mediaUrls: any[];
   likesCount: number;
+  isLiked: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

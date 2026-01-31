@@ -107,6 +107,7 @@ export class FeedService {
     const userIds = [...followingIds];
 
     const listQuery = await this.feedRepository.findFeeds(
+      userId,
       userIds,
       paginationDto.limit || 20,
       paginationDto.cursor,
@@ -125,7 +126,7 @@ export class FeedService {
     return dto;
   }
 
-  async getAllFeeds(paginationDto: PaginationDto) {
+  async getAllFeeds(userId: string, paginationDto: PaginationDto) {
     const cacheKey = this.cacheService.allFeedKey(
       paginationDto.page || 1,
       paginationDto.cursor || "",
@@ -137,6 +138,7 @@ export class FeedService {
     }
 
     const feeds = await this.feedRepository.findAllFeeds(
+      userId,
       paginationDto.limit || 20,
       paginationDto.cursor,
     );

@@ -27,8 +27,8 @@ export class FeedController {
   }
 
   @Get("/feed/all")
-  async getAllFeed(@Query() paginationDto: PaginationDto) {
-    return this.feedService.getAllFeeds(paginationDto);
+  async getAllFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
+    return this.feedService.getAllFeeds(user.id, paginationDto);
   }
 
   @Get("/feed/recommendations")

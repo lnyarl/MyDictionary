@@ -1,9 +1,16 @@
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
+import pg from "pg";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { setApp } from "./globalApp";
+
+// pg 설정: BigInt를 JavaScript의 number로 변환
+// 일반으로는 안전하지 않지만, 이 프로젝트에서는 BigInt가 안전한 범위 내에 있다고 가정
+pg.types.setTypeParser(20, (val) => {
+  return parseInt(val, 10);
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
