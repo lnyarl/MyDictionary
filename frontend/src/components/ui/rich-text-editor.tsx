@@ -10,6 +10,8 @@ import { PasteMarkdown } from "./tiptap-markdown-paste-extention/paste-markdown"
 import { WikiLinkExtension } from "./tiptap-wikilink-extention";
 import Selector from "./tiptap-wikilink-extention/selector";
 import "./rich-text-editor.css";
+import { useNavigate } from "react-router-dom";
+import { wordsApi } from "@/lib/words";
 
 type RichTextEditorProps = {
   value: string;
@@ -39,6 +41,7 @@ export function RichTextEditor({
   autoFocus,
 }: RichTextEditorProps) {
   const elRoot = useRef<Root>(undefined);
+  const navigate = useNavigate();
   useEffect(() => {
     elRoot.current = undefined;
   }, []);
@@ -52,13 +55,18 @@ export function RichTextEditor({
         placeholder,
       }),
       WikiLinkExtension.configure({
-        renderSuggestionFunction: (element, text, editor, range) => {
+        renderSuggestionFunction: async (element, text, editor, range) => {
           if (!elRoot.current) {
             elRoot.current = createRoot(element);
           }
+          const words = await wordsApi.autocomplete(text.substring(2));
+          if (words.myWords.length === 0) {
+            return { selector: (<></>), root: elRoot.current }
+          }
+          const options = words.myWords.map(i => ({ id: i.id, text: i.term }))
           const selector = (<Selector
             text={text}
-            options={ALL_OPTIONS}
+            options={options}
             onSelection={({ id, text }: { id: string; text: string }) => {
               const content: Content = [
                 {
@@ -72,7 +80,7 @@ export function RichTextEditor({
           return { selector, root: elRoot.current };
         },
         onWikiLinkClick: (id, name, event) => {
-          console.log({ id, name, event });
+          navigate(`/word/${name}`);
         },
       }),
     ],

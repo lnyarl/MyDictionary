@@ -8,7 +8,7 @@ export type RenderSuggestionFunction = (
   text: string,
   editor: Editor,
   range: { from: number; to: number },
-) => any;
+) => Promise<any>;
 
 export const matchRegex = /\[\[[^\s]?[^\]]*\]*/;
 
@@ -20,7 +20,7 @@ export const WikiLinkSuggestion = Extension.create<{
 
   addOptions() {
     return {
-      renderSuggestionFunction: () => {},
+      renderSuggestionFunction: () => Promise.resolve(),
     };
   },
 
@@ -51,13 +51,16 @@ export const WikiLinkSuggestion = Extension.create<{
               element.style.position = "relative";
               element.style.zIndex = "9999";
               element.style.display = "block";
-              const result = this.options.renderSuggestionFunction(
-                element,
-                nextWikiState.text,
-                this.editor,
-                nextWikiState.range,
-              );
-              result.root.render(result.selector);
+              this.options
+                .renderSuggestionFunction(
+                  element,
+                  nextWikiState.text,
+                  this.editor,
+                  nextWikiState.range,
+                )
+                .then((result) => {
+                  result.root.render(result.selector);
+                });
               const boundingRect = suggestionNode.getBoundingClientRect();
               const editorRect = (this.editor.options.element as Element)?.getBoundingClientRect();
               const margin = 8;
