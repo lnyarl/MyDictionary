@@ -1,0 +1,79 @@
+import { Pencil } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import type { FollowStats } from "@/types/follow.types";
+import type { User } from "@/types/user.types";
+import { stringToColor } from "@/utils/color-generator";
+
+interface ProfileCardProps {
+  user: User;
+  stats: FollowStats | null;
+  onEdit: () => void;
+}
+
+export function ProfileCard({ user, stats, onEdit }: ProfileCardProps) {
+  const { t } = useTranslation();
+  const bioColor = stringToColor(user.bio || "");
+
+  return (
+    <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm dark:bg-zinc-900/50">
+      <CardContent className="p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div className="relative group">
+          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-white dark:border-zinc-800 shadow-lg">
+            <AvatarImage src={user.profilePicture} className="object-cover" />
+            <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
+              {user.nickname?.[0]?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+
+        <div className="flex-1 text-center sm:text-left space-y-4 w-full">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                {user.nickname}
+              </h2>
+              <p className="text-sm text-muted-foreground font-medium mt-1">{user.email}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onEdit}
+              className="shrink-0 gap-2 rounded-full hover:bg-secondary transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+              {t("common.edit")}
+            </Button>
+          </div>
+
+          {user.bio && (
+            <div
+              className="relative p-4 rounded-2xl text-sm leading-relaxed text-zinc-800 dark:text-zinc-900 font-medium shadow-sm"
+              style={{ backgroundColor: bioColor }}
+            >
+              <div
+                className="absolute -top-2 left-1/2 sm:left-8 -translate-x-1/2 sm:translate-x-0 w-4 h-4 rotate-45"
+                style={{ backgroundColor: bioColor }}
+              />
+              {user.bio}
+            </div>
+          )}
+
+          {stats && (
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
+              <span>
+                {t("dashboard.followers")}: {stats.followersCount}
+              </span>
+              <span>•</span>
+              <span>
+                {t("dashboard.following")}: {stats.followingCount}
+              </span>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

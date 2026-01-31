@@ -1,6 +1,8 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ProfileCard } from "@/components/dashboard/ProfileCard";
+import { ProfileEditCard } from "@/components/dashboard/ProfileEditCard";
 import { DefinitionHistoryDialog } from "@/components/definitions/DefinitionHistoryDialog";
 import { FeedList } from "@/components/feed/FeedList";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,11 +15,12 @@ import type { FollowStats } from "../types/follow.types";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, refetchUser } = useAuth();
   const { definitions, loadMore, hasMore, loading } = useMyFeed();
   const { deleteDefinition, updateDefinition } = useDefinitions();
   const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const { sentinelRef } = useInfiniteScroll({
     onLoadMore: loadMore,
@@ -62,27 +65,25 @@ export default function DashboardPage() {
     });
   };
 
+  const handleSaveProfile = async () => {
+    await refetchUser();
+    setIsEditing(false);
+  };
+
   return (
     <Page>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {t("dashboard.welcome", { nickname: user?.nickname })}
-          </h1>
-          <p className="text-muted-foreground mt-2">{t("dashboard.subtitle")}</p>
-        </div>
+      <div className="mb-8">
+        {isEditing && user ? (
+          <ProfileEditCard
+            user={user}
+            onCancel={() => setIsEditing(false)}
+            onSave={handleSaveProfile}
+          />
+        ) : user ? (
+          <ProfileCard user={user} stats={stats} onEdit={() => setIsEditing(true)} />
+        ) : null}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-8 mb-8">
-        <div>
-          <span className="font-semibold mb-2">{t("dashboard.followers")}</span>
-          <span className="font-bold ml-2">{stats?.followersCount || 0}</span>
-        </div>
-        <div>
-          <span className="font-semibold mb-2">{t("dashboard.following")}</span>
-          <span className="font-bold ml-2">{stats?.followingCount || 0}</span>
-        </div>
-      </div>
       <div className="space-y-4">
         {loading && definitions.length === 0 ? (
           <div className="rounded-lg border bg-muted/50 p-12 text-center">
