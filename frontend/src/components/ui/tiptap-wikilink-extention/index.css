@@ -1,7 +1,7 @@
 .ProseMirror {
   background-color: var(--alt-bg-color);
   padding: 8px;
-  font-size: 1.2rem;
+  font-size: 1.2em;
 }
 
 .editor-suggestion {
@@ -9,7 +9,7 @@
 }
 .suggestion-container {
   position: absolute;
-  width: 24rem;
+  width: 24em;
   background-color: white;
   padding: 0rem;
   border: 1px solid rgba(110, 226, 199, 0.428);

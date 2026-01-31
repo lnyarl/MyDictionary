@@ -1,7 +1,5 @@
-import { Markdown } from "@tiptap/markdown";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { RichTextEditor } from "../ui/rich-text-editor";
 
 interface FeedCardContentProps {
   content: string;
@@ -9,26 +7,10 @@ interface FeedCardContentProps {
 }
 
 export function FeedCardContent({ content, className }: FeedCardContentProps) {
-  const editor = useEditor({
-    extensions: [StarterKit, Markdown],
-    content,
-    editable: false,
-    editorProps: {
-      attributes: {
-        class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none",
-      },
-    },
-  });
-
-  useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
-    }
-  }, [content, editor]);
-
-  if (!editor) {
-    return null;
-  }
-
-  return <EditorContent editor={editor} className={className} />;
+  return <RichTextEditor
+    value={content}
+    disabled={true}
+    className={cn(`prose prose-sm dark:prose-invert max-w-none focus:outline-none border-none min-h-20`, className)}
+    onChange={(_value: string) => { }}
+  />;
 }
