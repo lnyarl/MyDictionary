@@ -1,25 +1,26 @@
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { DefinitionsRepository } from "../definitions/definitions.repository";
+import { FollowsRepository } from "../follows/follows.repository";
+import { FollowsService } from "../follows/follows.service";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
-import { DefinitionsRepository } from "../definitions/definitions.repository";
-import { FollowsRepository } from "../follows/follows.repository";
-import { FollowsService } from "../follows/follows.service";
 import { UsersRepository } from "../users/users.repository";
 import { UsersService } from "../users/users.service";
 import { WordsRepository } from "../words/words.repository";
 import { AuthService } from "./auth.service";
-import { NotificationsRepository } from "../notifications/notifications.repository";
-import { NotificationsService } from "../notifications/notifications.service";
 
 describe("AuthService", () => {
   let service: AuthService;
   let testDb: TestDatabaseHelper;
+  let module: TestingModule;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -33,7 +34,7 @@ describe("AuthService", () => {
   beforeEach(async () => {
     await testDb.cleanAll();
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [TestDatabaseModule],
       providers: [
         AuthService,

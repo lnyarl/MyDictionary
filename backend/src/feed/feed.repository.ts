@@ -2,7 +2,6 @@ import { Injectable, Scope } from "@nestjs/common";
 import { generateId, TABLES } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import type { Word } from "../words/entities/word.entity";
-import type { Feed } from "./entities/feed.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
@@ -59,17 +58,12 @@ export class FeedRepository extends BaseRepository {
       .orderBy("definitions.created_at", "desc");
   }
 
-  findFeeds(myUserId: string, userIds: string[], limit: number, cursor?: string) {
+  findFeeds(userIds: string[], limit: number, cursor?: string) {
     const baseQuery = this.query({
       [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
     })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.LIKES, (on) => {
-        on.on("definitions.id", "=", "likes.definition_id");
-        on.andOnVal("likes.user_id", "=", myUserId);
-        on.andOnNull("likes.deleted_at");
-      })
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
       .where("definitions.is_public", true);
@@ -85,11 +79,9 @@ export class FeedRepository extends BaseRepository {
         content: "definitions.content",
         wordId: "definitions.word_id",
         userId: "definitions.user_id",
-        likesCount: "definitions.likes_count",
         createdAt: "definitions.created_at",
         updatedAt: "definitions.updated_at",
         nickname: "users.nickname",
-        isLiked: this.knex.raw("?? IS NOT NULL", ["likes.id"]),
         profilePicture: "users.profile_picture",
         tags: "definitions.tags",
         term: "words.term",
@@ -104,11 +96,6 @@ export class FeedRepository extends BaseRepository {
     })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.LIKES, (on) => {
-        on.on("definitions.id", "=", "likes.definition_id");
-        on.andOnVal("likes.user_id", "=", myUserId);
-        on.andOnNull("likes.deleted_at");
-      })
       .whereNull("words.deleted_at")
       .andWhere("definitions.is_public", true);
 
@@ -116,22 +103,17 @@ export class FeedRepository extends BaseRepository {
       query.where("definitions.created_at", "<", cursor);
     }
 
-    return query
-      .limit(limit)
-      .orderBy("definitions.created_at", "desc")
-      .select({
-        id: "definitions.id",
-        content: "definitions.content",
-        wordId: "definitions.word_id",
-        userId: "definitions.user_id",
-        likesCount: "definitions.likes_count",
-        isLiked: this.knex.raw("?? IS NOT NULL", ["likes.id"]),
-        createdAt: "definitions.created_at",
-        updatedAt: "definitions.updated_at",
-        nickname: "users.nickname",
-        profilePicture: "users.profile_picture",
-        term: "words.term",
-      });
+    return query.limit(limit).orderBy("definitions.created_at", "desc").select({
+      id: "definitions.id",
+      content: "definitions.content",
+      wordId: "definitions.word_id",
+      userId: "definitions.user_id",
+      createdAt: "definitions.created_at",
+      updatedAt: "definitions.updated_at",
+      nickname: "users.nickname",
+      profilePicture: "users.profile_picture",
+      term: "words.term",
+    });
   }
 
   findRecommendations(limit: number, cursor?: string, excludeUserId?: string) {
@@ -161,7 +143,6 @@ export class FeedRepository extends BaseRepository {
         content: "definitions.content",
         wordId: "definitions.word_id",
         userId: "definitions.user_id",
-        likesCount: "definitions.likes_count",
         createdAt: "definitions.created_at",
         updatedAt: "definitions.updated_at",
         nickname: "users.nickname",

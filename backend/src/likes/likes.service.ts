@@ -5,10 +5,9 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
+  OnModuleDestroy,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { Queue, QueueEvents } from "bullmq";
+import { Queue } from "bullmq";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -90,5 +89,17 @@ export class LikesService {
 
   async getLikesByDefinition(definitionId: string): Promise<Like[]> {
     return this.likeRepository.findByDefinitionId(definitionId);
+  }
+
+  async getLikeInfoByDefinitions(userId: string, definitionIds: string[]) {
+    const result = await this.likeRepository.findLikeInfoByDefinitionIds(userId, definitionIds);
+    const likes: { [definitionId: string]: { isLiked: boolean; likeCount: number } } =
+      result.reduce((prev, current) => {
+        return {
+          ...prev,
+          [current.definitionId]: { isLiked: current.isLiked, likeCount: current.likeCount },
+        };
+      }, {});
+    return likes;
   }
 }

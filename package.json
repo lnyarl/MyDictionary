@@ -27,7 +27,7 @@
     "build:frontend-admin": "cd frontend-admin && yarn build",
     "build": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
 
-    "test": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:backend\" \"yarn test:backend-admin\"",
+    "test": "concurrently -n \"backend\" -c \"green\" \"yarn test:backend\" &&  concurrently -n \"admin-be\" -c \"yellow\" \"yarn test:backend-admin\"",
     "test:backend": "cd backend && yarn test",
     "test:backend-admin": "cd backend-admin && yarn test",
     "test:e2e": "concurrently -n \"backend,admin-be\" -c \"green,yellow\" \"yarn test:e2e:backend\" \"yarn test:e2e:backend-admin\"",

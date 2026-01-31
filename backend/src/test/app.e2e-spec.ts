@@ -2,19 +2,28 @@ import type { INestApplication } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { AppModule } from "../app.module";
+import { CacheModule } from "../common/cache/cache.module";
+import { DatabaseModule } from "../common/database/database.module";
+import { TestCacheModule } from "./helper/test-cache.module";
+import { TestDatabaseModule } from "./helper/test-database.module";
 
 describe("AppController (e2e)", () => {
   let app: INestApplication;
+  let moduleFixture: TestingModule;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .overrideModule(CacheModule)
+      .useModule(TestCacheModule)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
-
   it("/ (GET)", () => {
     return request(app.getHttpServer()).get("/").expect(200).expect("Stashy API is running!");
   });

@@ -1,5 +1,7 @@
 import { ConflictException, ForbiddenException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { DatabaseModule } from "../common/database/database.module";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { AdminUsersRepository } from "./admin-users.repository";
 import { AdminUsersService } from "./admin-users.service";
 import { AdminRole } from "./entities/admin-user.entity";
@@ -7,11 +9,12 @@ import { AdminRole } from "./entities/admin-user.entity";
 describe("AdminUsersService", () => {
   let service: AdminUsersService;
   let repository: AdminUsersRepository;
+  let module: TestingModule;
 
   const mockAdmin = { id: "a-1", username: "test", role: AdminRole.OPERATOR };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         AdminUsersService,
         {
@@ -27,7 +30,10 @@ describe("AdminUsersService", () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .compile();
 
     service = module.get<AdminUsersService>(AdminUsersService);
     repository = module.get<AdminUsersRepository>(AdminUsersRepository);

@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { register } from "tsconfig-paths";
 import { cleanupTestDatabase } from "./helper/test-database.helper";
 import { destroyTestRedisInstance } from "./helper/test-cache.module";
+import { destroyRedisInstance } from "../common/cache/redis.provider";
 
 register({
   baseUrl: resolve(__dirname, ".."),
@@ -17,8 +18,9 @@ export default async function globalTeardown(): Promise<void> {
   console.log("🧹 Cleaning up test environment...");
   await cleanupTestDatabase();
   await destroyTestRedisInstance();
+  await destroyRedisInstance();
 
   console.log("✅ Cleanup complete!");
-  // var wtf = require("wtfnode");
-  // wtf.dump();
+  var wtf = require("wtfnode");
+  wtf.dump();
 }

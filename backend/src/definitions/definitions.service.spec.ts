@@ -1,5 +1,6 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { CreateDefinitionDto } from "@stashy/shared/src/dto/definition/create-definition.dto";
 import { MetadataService } from "../common/services/metadata.service";
 import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
 import { FeedRepository } from "../feed/feed.repository";
@@ -16,17 +17,17 @@ import {
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { UsersRepository } from "../users/users.repository";
+import { Word } from "../words/entities/word.entity";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 import { DefinitionsService } from "./definitions.service";
-import { CreateDefinitionDto } from "@stashy/shared/src/dto/definition/create-definition.dto";
-import { Word } from "../words/entities/word.entity";
 
 describe("DefinitionsService", () => {
   let service: DefinitionsService;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string };
   let testWord: Word;
+  let module: TestingModule;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -44,7 +45,7 @@ describe("DefinitionsService", () => {
     testUser = await testDb.createUser({ nickname: "defuser" });
     testWord = await testDb.createWord({ term: "testword", userId: testUser.id });
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         DefinitionsService,

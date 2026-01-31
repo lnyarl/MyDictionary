@@ -1,5 +1,8 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { NotificationsRepository } from "../notifications/notifications.repository";
+import { NotificationsService } from "../notifications/notifications.service";
+import { TestCacheModule } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
@@ -9,14 +12,13 @@ import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { UsersRepository } from "../users/users.repository";
 import { FollowsRepository } from "./follows.repository";
 import { FollowsService } from "./follows.service";
-import { NotificationsService } from "../notifications/notifications.service";
-import { NotificationsRepository } from "../notifications/notifications.repository";
 
 describe("FollowsService", () => {
   let service: FollowsService;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string };
   let otherUser: { id: string };
+  let module: TestingModule;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -33,8 +35,8 @@ describe("FollowsService", () => {
     testUser = await testDb.createUser({ nickname: "follower" });
     otherUser = await testDb.createUser({ nickname: "following" });
 
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [TestDatabaseModule],
+    module = await Test.createTestingModule({
+      imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         FollowsService,
         FollowsRepository,

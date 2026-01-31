@@ -13,7 +13,11 @@ declare module "knex" {
   }
 }
 export const patchKnex = () => {
-  knex.QueryBuilder.extend("maybeTransacting", function (trx?: Knex.Transaction) {
-    return trx ? this.transacting(trx) : this;
-  });
+  try {
+    knex.QueryBuilder.extend("maybeTransacting", function (trx?: Knex.Transaction) {
+      return trx ? this.transacting(trx) : this;
+    });
+  } catch {
+    // ignore
+  }
 };

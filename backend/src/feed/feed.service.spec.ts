@@ -1,9 +1,13 @@
+import { ConfigModule } from "@nestjs/config";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { PaginationDto } from "@stashy/shared";
+import { CacheModule } from "../common/cache/cache.module";
 import { REDIS_CLIENT } from "../common/cache/redis.provider";
+import { DatabaseModule } from "../common/database/database.module";
 import { KNEX_CONNECTION } from "../common/database/knex.provider";
 import { MetadataService } from "../common/services/metadata.service";
 import { STORAGE_SERVICE } from "../common/services/storage/storage.interface";
+import { StorageModule } from "../common/services/storage/storage.module";
 import { DefinitionsService } from "../definitions/definitions.service";
 import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
@@ -21,17 +25,15 @@ import {
   TestDatabaseHelper,
 } from "../test/helper/test-database.helper";
 import { TestDatabaseModule, testKnexProvider } from "../test/helper/test-database.module";
-import { testStorageProvider } from "../test/helper/test-storage.module";
-import { UsersRepository } from "../users/users.repository";
-import { WordsRepository } from "../words/words.repository";
+import { TestStorageModule, testStorageProvider } from "../test/helper/test-storage.module";
 import { FeedModule } from "./feed.module";
-import { FeedRepository } from "./feed.repository";
 import { FeedService } from "./feed.service";
 
 describe("FeedService", () => {
   let service: FeedService;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string };
+  let module: TestingModule = null;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -44,24 +46,27 @@ describe("FeedService", () => {
   });
 
   beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        FeedModule,
+        TestDatabaseModule,
+        TestCacheModule,
+      ],
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .overrideModule(CacheModule)
+      .useModule(TestCacheModule)
+      .compile();
+    service = module.get<FeedService>(FeedService);
     await testDb.cleanAll();
     await flushTestRedis();
-
     testUser = await testDb.createUser({ nickname: "feeduser" });
-
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [FeedModule, TestDatabaseModule, TestCacheModule],
-    })
-      .overrideProvider(KNEX_CONNECTION)
-      .useFactory({ factory: testKnexProvider.useFactory })
-      .overrideProvider(REDIS_CLIENT)
-      .useFactory({ factory: testRedisProvider.useFactory })
-      .overrideProvider(STORAGE_SERVICE)
-      .useFactory({ factory: testStorageProvider.useFactory })
-      .compile();
-
-    service = module.get<FeedService>(FeedService);
   });
+  // afterEach(async () => {
+  //   await module?.close();
+  // });
 
   it("should be defined", () => {
     expect(service).toBeDefined();

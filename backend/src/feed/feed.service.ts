@@ -107,7 +107,6 @@ export class FeedService {
     const userIds = [...followingIds];
 
     const listQuery = await this.feedRepository.findFeeds(
-      userId,
       userIds,
       paginationDto.limit || 20,
       paginationDto.cursor,

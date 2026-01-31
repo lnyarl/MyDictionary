@@ -6,9 +6,12 @@ import { REDIS_CLIENT } from "./redis.provider";
 export class CacheService implements OnModuleDestroy {
   private readonly defaultTTL = 60;
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
+  constructor(@Inject(REDIS_CLIENT) public readonly redis: Redis) {}
 
   async onModuleDestroy() {
+    if (this.redis.status === "close" || this.redis.status === "end") {
+      return;
+    }
     await this.redis.quit();
   }
 
@@ -22,8 +25,26 @@ export class CacheService implements OnModuleDestroy {
     }
   }
 
+  async getMany<T>(keys: string[]): Promise<T[] | null> {
+    const cached = await this.redis.mget(keys);
+    if (!cached) return null;
+    try {
+      return cached.map((i) => JSON.parse(i) as T);
+    } catch {
+      return null;
+    }
+  }
+
   async set<T>(key: string, value: T, ttlSeconds = this.defaultTTL): Promise<void> {
     await this.redis.setex(key, ttlSeconds, JSON.stringify(value));
+  }
+
+  async setMany<T>(keyValuePair: [string, T][], ttlSeconds = this.defaultTTL): Promise<void> {
+    const stringified = Object.entries(keyValuePair).map((i) => [i[0], JSON.stringify(i[1])]);
+    const setCommands = stringified.map((k) => {
+      return ["set", k[0], k[1], "ex", ttlSeconds];
+    });
+    await this.redis.multi(setCommands);
   }
 
   async delete(key: string): Promise<void> {
@@ -35,6 +56,12 @@ export class CacheService implements OnModuleDestroy {
     if (keys.length > 0) {
       await this.redis.del(...keys);
     }
+  }
+
+  isLikedKey(userId: string, definitionIds: string[]) {
+    return definitionIds.map((id) => {
+      return `likes:isLiked:${userId}:${id}`;
+    });
   }
 
   feedKey(userId: string, page: number, limit: number, cursor?: string): string {

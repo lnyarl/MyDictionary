@@ -4,6 +4,8 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import * as bcrypt from "bcrypt";
 import { AdminUsersService } from "../admin-users/admin-users.service";
 import { AdminRole } from "../admin-users/entities/admin-user.entity";
+import { DatabaseModule } from "../common/database/database.module";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { AuthService } from "./auth.service";
 
 jest.mock("bcrypt");
@@ -11,7 +13,7 @@ jest.mock("bcrypt");
 describe("AuthService", () => {
   let service: AuthService;
   let adminUsersService: AdminUsersService;
-
+  let module: TestingModule;
   const mockAdmin = {
     id: "a-1",
     username: "admin",
@@ -21,7 +23,7 @@ describe("AuthService", () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         AuthService,
         {
@@ -45,7 +47,10 @@ describe("AuthService", () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .compile();
 
     service = module.get<AuthService>(AuthService);
     adminUsersService = module.get<AdminUsersService>(AdminUsersService);
@@ -57,7 +62,9 @@ describe("AuthService", () => {
 
   describe("validateCredentials", () => {
     it("should return admin if credentials are valid", async () => {
-      jest.spyOn(adminUsersService, "findByUsername").mockResolvedValue(mockAdmin as any);
+      jest
+        .spyOn(adminUsersService, "findByUsername")
+        .mockResolvedValue(mockAdmin as any);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validateCredentials("admin", "password");
@@ -65,7 +72,9 @@ describe("AuthService", () => {
     });
 
     it("should return null if credentials are invalid", async () => {
-      jest.spyOn(adminUsersService, "findByUsername").mockResolvedValue(mockAdmin as any);
+      jest
+        .spyOn(adminUsersService, "findByUsername")
+        .mockResolvedValue(mockAdmin as any);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       const result = await service.validateCredentials("admin", "wrong");

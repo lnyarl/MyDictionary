@@ -5,6 +5,7 @@ import { FollowsRepository } from "../follows/follows.repository";
 import { FollowsService } from "../follows/follows.service";
 import { NotificationsRepository } from "../notifications/notifications.repository";
 import { NotificationsService } from "../notifications/notifications.service";
+import { TestCacheModule } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
@@ -19,6 +20,7 @@ describe("UsersService", () => {
   let service: UsersService;
   let testDb: TestDatabaseHelper;
   let testUser: { id: string; nickname: string; email: string };
+  let module: TestingModule;
 
   beforeAll(async () => {
     testDb = getTestDatabaseHelper();
@@ -38,8 +40,8 @@ describe("UsersService", () => {
       googleId: "google-123",
     });
 
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [TestDatabaseModule],
+    module = await Test.createTestingModule({
+      imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         UsersService,
         UsersRepository,

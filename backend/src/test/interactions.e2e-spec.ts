@@ -4,6 +4,10 @@ import cookieParser from "cookie-parser";
 import request from "supertest";
 import { uuidv7 } from "uuidv7";
 import { AppModule } from "./../app.module";
+import { CacheModule } from "../common/cache/cache.module";
+import { DatabaseModule } from "../common/database/database.module";
+import { TestCacheModule } from "./helper/test-cache.module";
+import { TestDatabaseModule } from "./helper/test-database.module";
 
 describe("Follows & Likes (e2e)", () => {
   let app: INestApplication;
@@ -14,7 +18,12 @@ describe("Follows & Likes (e2e)", () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .overrideModule(CacheModule)
+      .useModule(TestCacheModule)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());

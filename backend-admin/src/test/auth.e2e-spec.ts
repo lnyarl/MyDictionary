@@ -2,6 +2,8 @@ import type { INestApplication } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { AppModule } from "../app.module";
+import { DatabaseModule } from "../common/database/database.module";
+import { TestDatabaseModule } from "./helper/test-database.module";
 
 describe("AuthController (e2e)", () => {
   let app: INestApplication;
@@ -9,7 +11,10 @@ describe("AuthController (e2e)", () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -24,11 +29,8 @@ describe("AuthController (e2e)", () => {
       .post("/auth/login")
       .send({ username: "admin", password: "admin" });
 
-    if (res.status === 200) {
-      expect(res.body).toHaveProperty("token");
-      expect(res.body.admin.username).toBe("admin");
-    } else {
-      expect([200, 401]).toContain(res.status);
-    }
+    expect(res.body).toHaveProperty("token");
+    expect(res.body.admin.username).toBe("admin");
+    expect(res.status).toBe(200);
   });
 });

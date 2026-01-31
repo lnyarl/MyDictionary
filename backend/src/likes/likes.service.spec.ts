@@ -1,10 +1,10 @@
 import { getQueueToken } from "@nestjs/bullmq";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { NotificationsRepository } from "../notifications/notifications.repository";
 import { NotificationsService } from "../notifications/notifications.service";
+import { TestCacheModule } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
@@ -51,7 +51,7 @@ describe("LikesService", () => {
     });
 
     module = await Test.createTestingModule({
-      imports: [TestDatabaseModule],
+      imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         LikesService,
         LikesRepository,
@@ -63,12 +63,6 @@ describe("LikesService", () => {
         {
           provide: getQueueToken("likes"),
           useValue: mockLikesQueue,
-        },
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn().mockReturnValue("localhost"),
-          },
         },
       ],
     }).compile();

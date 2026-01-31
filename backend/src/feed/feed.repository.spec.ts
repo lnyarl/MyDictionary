@@ -22,14 +22,14 @@ describe("FeedRepository", () => {
 
   describe("findFeeds", () => {
     it("should generate correct query with user IDs filter", () => {
-      const listQuery = repository.findFeeds("userId", ["user-1", "user-2"], 10);
+      const listQuery = repository.findFeeds(["user-1", "user-2"], 10);
       expect(listQuery.toQuery()).toBe(
-        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "likes"."id" IS NOT NULL as "isLiked", "users"."profile_picture" as "profilePicture", "definitions"."tags" as "tags", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" left join "likes" on "definitions"."id" = "likes"."definition_id" and "likes"."user_id" = \'userId\' and "likes"."deleted_at" is null where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\', \'user-2\') and "words"."deleted_at" is null and "definitions"."is_public" = true order by "definitions"."created_at" desc limit 10',
+        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "definitions"."tags" as "tags", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\', \'user-2\') and "words"."deleted_at" is null and "definitions"."is_public" = true order by "definitions"."created_at" desc limit 10',
       );
     });
 
     it("should generate correct query with cursor", () => {
-      const listQuery = repository.findFeeds("userId", ["user-1"], 10, "2024-01-01");
+      const listQuery = repository.findFeeds(["user-1"], 10, "2024-01-01");
       expect(listQuery.toQuery()).toContain('"definitions"."created_at" < \'2024-01-01\'');
     });
   });
@@ -38,7 +38,7 @@ describe("FeedRepository", () => {
     it("all feeds with cursor", () => {
       const feed = repository.findAllFeeds("userId", 15, "2026-01-27T12:48:19");
       expect(feed.toQuery()).toBe(
-        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "likes"."id" IS NOT NULL as "isLiked", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" left join "likes" on "definitions"."id" = "likes"."definition_id" and "likes"."user_id" = \'userId\' and "likes"."deleted_at" is null where "definitions"."deleted_at" is null and "words"."deleted_at" is null and "definitions"."is_public" = true and "definitions"."created_at" < \'2026-01-27T12:48:19\' order by "definitions"."created_at" desc limit 15',
+        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."likes_count" as "likesCount", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "words"."term" as "term" from "vw_definitions_with_likes" as "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" where "definitions"."deleted_at" is null and "words"."deleted_at" is null and "definitions"."is_public" = true and "definitions"."created_at" < \'2026-01-27T12:48:19\' order by "definitions"."created_at" desc limit 15',
       );
     });
   });

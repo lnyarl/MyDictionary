@@ -6,9 +6,9 @@ import { JwtAuthGuard } from "./jwt-auth.guard";
 describe("JwtAuthGuard", () => {
   let guard: JwtAuthGuard;
   let reflector: Reflector;
-
+  let module: TestingModule;
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         JwtAuthGuard,
         {

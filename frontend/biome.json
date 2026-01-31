@@ -2,13 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "extends": "//",
   "files": {
-    "includes": [
-      "**",
-      "!!**/dist",
-      "!!**/node_modules",
-      "!!**/coverage",
-      "!!src/index.css"
-    ]
+    "includes": ["**", "!!**/dist", "!!**/node_modules", "!!**/coverage", "!!src/index.css"]
   },
   "formatter": {
     "enabled": true,
@@ -31,6 +25,9 @@
       "correctness": {
         "useHookAtTopLevel": "warn",
         "useExhaustiveDependencies": "warn"
+      },
+      "performance": {
+        "noAccumulatingSpread": "off"
       }
     }
   },

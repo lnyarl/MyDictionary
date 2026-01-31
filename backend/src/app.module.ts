@@ -3,12 +3,15 @@ import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
+import Redis from "ioredis";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { BadgesModule } from "./badges/badges.module";
 import { CacheModule } from "./common/cache/cache.module";
+import { CacheService } from "./common/cache/cache.service";
+import { REDIS_CLIENT, redisProvider } from "./common/cache/redis.provider";
 import { CommonModule } from "./common/common.module";
 import { DatabaseModule } from "./common/database/database.module";
 import { knexProvider } from "./common/database/knex.provider";
@@ -31,14 +34,12 @@ import { WordsModule } from "./words/words.module";
       envFilePath: ".env",
     }),
     BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        connection: {
-          host: config.get("REDIS_HOST", "localhost"),
-          port: config.get("REDIS_PORT", 6379),
-          password: config.get("REDIS_PASSWORD"),
-        },
+      inject: [REDIS_CLIENT, ConfigService],
+      useFactory: (redis: Redis) => ({
+        connection: redis,
+        forceDisconnectOnShutdown: true,
       }),
+      extraProviders: [redisProvider],
     }),
     I18nModule.forRoot({
       fallbackLanguage: "ko",

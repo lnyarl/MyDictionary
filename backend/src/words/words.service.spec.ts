@@ -4,6 +4,7 @@ import { PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { UpdateWordDto } from "@stashy/shared/dto/word/update-word.dto";
 import { DefinitionsService } from "../definitions/definitions.service";
+import { TestCacheModule } from "../test/helper/test-cache.module";
 import {
   cleanupTestDatabase,
   getTestDatabaseHelper,
@@ -34,7 +35,7 @@ describe("WordsService", () => {
     testUser = await testDb.createUser({ nickname: "testuser" });
 
     testingModule = await Test.createTestingModule({
-      imports: [TestDatabaseModule],
+      imports: [TestDatabaseModule, TestCacheModule],
       providers: [
         WordsService,
         WordsRepository,

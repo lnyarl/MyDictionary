@@ -23,4 +23,4 @@ export const testStorageProvider = {
   providers: [testStorageProvider],
   exports: [testStorageProvider],
 })
-export class TestDatabaseModule {}
+export class TestStorageModule {}

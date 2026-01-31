@@ -1,13 +1,15 @@
 import { ConflictException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { PaginationDto } from "@shared";
+import { DatabaseModule } from "../common/database/database.module";
+import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { UsersRepository } from "./users.repository";
 import { UsersService } from "./users.service";
 
 describe("UsersService", () => {
   let service: UsersService;
   let repository: UsersRepository;
-
+  let module: TestingModule;
   const mockUser = {
     id: "u-1",
     email: "test@example.com",
@@ -20,7 +22,7 @@ describe("UsersService", () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         UsersService,
         {
@@ -33,10 +35,16 @@ describe("UsersService", () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TestDatabaseModule)
+      .compile();
 
     service = module.get<UsersService>(UsersService);
     repository = module.get<UsersRepository>(UsersRepository);
+  });
+  afterEach(async () => {
+    await module?.close();
   });
 
   it("should be defined", () => {
@@ -61,9 +69,14 @@ describe("UsersService", () => {
     it("should create a user", async () => {
       jest.spyOn(repository, "findByEmail").mockResolvedValue(null as any);
       jest.spyOn(repository, "findByNickname").mockResolvedValue(null as any);
-      jest.spyOn(repository, "insert" as any).mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(repository, "insert" as any)
+        .mockResolvedValue(mockUser as any);
 
-      const result = await service.createUser({ email: "test@example.com", nickname: "testuser" });
+      const result = await service.createUser({
+        email: "test@example.com",
+        nickname: "testuser",
+      });
       expect(result).toEqual(mockUser);
     });
 

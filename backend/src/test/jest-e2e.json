@@ -7,7 +7,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "^@shared$": "<rootDir>/../../../shared/src",
-    "^@shared/(.*)$": "<rootDir>/../../../shared/src/$1"
+    "^@stashy/shared$": "<rootDir>/../../../shared/src",
+    "^@stashy/shared/(.*)$": "<rootDir>/../../../shared/src/$1"
   }
 }
