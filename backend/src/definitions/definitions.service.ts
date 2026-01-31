@@ -195,4 +195,8 @@ export class DefinitionsService {
 
     return this.definitionHistoriesRepository.findByDefinitionId(definitionId);
   }
+
+  async getDefinitionsByTerm(term: string, user?: any): Promise<Definition[]> {
+    return this.definitionRepository.findByTerm(term, user?.id);
+  }
 }

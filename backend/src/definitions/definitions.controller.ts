@@ -48,6 +48,12 @@ export class DefinitionsController {
     return this.definitionsService.create(user.id, word, createDefinitionDto, mediaUrls);
   }
 
+  @Get("/definitions/term/:term")
+  @UseGuards(OptionalAuthGuard)
+  getDefinitionsByTerm(@Param("term") term: string, @CurrentUser() user?: User) {
+    return this.definitionsService.getDefinitionsByTerm(term, user);
+  }
+
   @Get("/definitions/:id")
   findOne(@Param("id") id: string, @CurrentUser() user?: User) {
     return this.definitionsService.findOne(id, user?.id);

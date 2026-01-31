@@ -26,6 +26,19 @@ export function useDefinitions() {
     }
   }, []);
 
+  const fetchDefinitionsByTerm = useCallback(async (term: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await definitionsApi.getByTerm(term);
+      setDefinitions(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch definitions");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const createMutation = useMutation({
     mutationFn: (input: CreateDefinitionInput) => definitionsApi.create(input),
     onSuccess: (newDefinition) => {
@@ -59,6 +72,7 @@ export function useDefinitions() {
       loading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
     error,
     fetchDefinitions,
+    fetchDefinitionsByTerm,
     createDefinition: createMutation.mutateAsync,
     updateDefinition: (id: string, input: UpdateDefinitionInput) =>
       updateMutation.mutateAsync({ id, input }),

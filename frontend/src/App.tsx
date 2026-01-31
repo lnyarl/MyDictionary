@@ -17,6 +17,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import SettingsPage from "./pages/SettingsPage";
 import UserProfilePage from "./pages/UserProfilePage";
+import WordDetailPage from "./pages/WordDetailPage";
 import WordEditPage from "./pages/WordEditPage";
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
                   <Route path="/feed" element={<Navigate to="/feed/all" replace />} />
                   <Route path="/feed/:tab" element={<FeedPage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/word/:term" element={<WordDetailPage />} />
                   <Route path="/words/:wordId/edit" element={<WordEditPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />

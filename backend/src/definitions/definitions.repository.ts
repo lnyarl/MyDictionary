@@ -63,6 +63,27 @@ export class DefinitionsRepository extends BaseRepository {
       .first();
   }
 
+  findByTerm(term: string, userId?: string) {
+    const baseQuery = this.query(this.tableName)
+      .innerJoin(TABLES.WORDS, `${TABLES.WORDS}.id`, `${this.tableName}.word_id`)
+      .innerJoin(TABLES.USERS, `${TABLES.USERS}.id`, `${this.tableName}.user_id`)
+      .where(`${TABLES.WORDS}.term`, `${term}`);
+
+    if (userId) {
+      baseQuery.where((builder) => {
+        builder
+          .where({ [`${this.tableName}.is_public`]: true })
+          .orWhere({ [`${this.tableName}.user_id`]: userId });
+      });
+    } else {
+      baseQuery.where({ [`${this.tableName}.is_public`]: true });
+    }
+
+    return baseQuery
+      .select<Definition[]>(DefinitionSelect)
+      .orderBy(`${this.tableName}.created_at`, "DESC");
+  }
+
   findAllByWordId(wordId: string) {
     return this.knex.raw(
       `
