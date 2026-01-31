@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import type { EventPayload, PageViewPayload } from "../event.types";
+import type { EventMessage, EventPayload, PageViewPayload } from "../event.types";
 import { EventType } from "../event.types";
 import { EventsRepository } from "../events.repository";
-import type { PubSubMessage } from "../pubsub/pubsub.interface";
 import type { EventHandler } from "./event-handler.interface";
 
 @Injectable()
@@ -11,7 +10,7 @@ export class PageViewAggregateHandler implements EventHandler {
 
   constructor(private readonly eventsRepository: EventsRepository) {}
 
-  async handle(message: PubSubMessage<EventPayload>): Promise<void> {
+  async handle(message: EventMessage<EventPayload>): Promise<void> {
     const payload = message.payload as PageViewPayload;
     const now = new Date();
 

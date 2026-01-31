@@ -1,10 +1,9 @@
-import type { EventPayload, EventType } from "../event.types";
-import type { PubSubMessage } from "../pubsub/pubsub.interface";
+import type { EventMessage, EventPayload, EventType } from "../event.types";
 
 export interface EventHandler {
   readonly supportedEvents: EventType[];
 
-  handle(message: PubSubMessage<EventPayload>): Promise<void>;
+  handle(message: EventMessage<EventPayload>): Promise<void>;
 }
 
 export const EVENT_HANDLERS = "EVENT_HANDLERS";

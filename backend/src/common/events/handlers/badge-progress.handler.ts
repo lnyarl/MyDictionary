@@ -1,7 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { BadgesService } from "../../../badges/badges.service";
-import { EventPayload, EventType, FollowEventPayload, LikeEventPayload } from "../event.types";
-import { PubSubMessage } from "../pubsub/pubsub.interface";
+import {
+  EventMessage,
+  EventPayload,
+  EventType,
+  FollowEventPayload,
+  LikeEventPayload,
+} from "../event.types";
 import { EventHandler } from "./event-handler.interface";
 
 @Injectable()
@@ -17,7 +22,7 @@ export class BadgeProgressHandler implements EventHandler {
     EventType.DEFINITION_LIKE,
   ];
 
-  async handle(message: PubSubMessage<EventPayload>): Promise<void> {
+  async handle(message: EventMessage<EventPayload>): Promise<void> {
     try {
       await this.processBadgeProgress(message.type as EventType, message.payload);
     } catch (error) {

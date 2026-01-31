@@ -1,27 +1,24 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { generateId } from "@stashy/shared";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Injectable, Logger } from "@nestjs/common";
+import { Queue } from "bullmq";
 import type { EventPayload } from "./event.types";
-import { EventChannel, EventType } from "./event.types";
-import type { PubSubMessage, PubSubProvider } from "./pubsub/pubsub.interface";
-import { PUBSUB_PROVIDER } from "./pubsub/pubsub.interface";
+import { EventType } from "./event.types";
 
 @Injectable()
 export class EventEmitterService {
-  constructor(@Inject(PUBSUB_PROVIDER) private readonly pubsub: PubSubProvider) {}
+  private readonly logger = new Logger(EventEmitterService.name);
 
-  async emit<T extends EventPayload>(
-    type: EventType,
-    payload: T,
-    channel: EventChannel = EventChannel.USER_ACTIVITY,
-  ): Promise<void> {
-    const message: PubSubMessage<T> = {
-      id: generateId(),
-      type,
-      payload,
-      timestamp: new Date(),
-    };
+  constructor(@InjectQueue("events") private readonly eventsQueue: Queue) {}
 
-    await this.pubsub.publish(channel, message);
+  async emit<T extends EventPayload>(type: EventType, payload: T): Promise<void> {
+    try {
+      await this.eventsQueue.add(type, payload);
+    } catch (error) {
+      this.logger.error(
+        `Failed to emit event ${type}:`,
+        error instanceof Error ? error.stack : error,
+      );
+    }
   }
 
   async emitPageView(

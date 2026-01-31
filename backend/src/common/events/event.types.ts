@@ -13,9 +13,12 @@ export enum EventType {
   SEARCH = "search",
 }
 
-export enum EventChannel {
-  USER_ACTIVITY = "events:user_activity",
-  ANALYTICS = "events:analytics",
+export interface EventMessage<T = EventPayload> {
+  id: string;
+  type: EventType;
+  payload: T;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
 }
 
 export type BaseEventPayload = {
