@@ -15,7 +15,7 @@ interface ProfileCardProps {
 
 export function ProfileCard({ user, stats, onEdit }: ProfileCardProps) {
   const { t } = useTranslation();
-  const bioColor = stringToColor(user.bio || "");
+  const bioColor = stringToColor(user.email || "");
 
   return (
     <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm dark:bg-zinc-900/50">
