@@ -1,4 +1,4 @@
-import { PaginatedResponse } from "@/types/pagination.types";
+import type { PaginatedResponse } from "@/types/pagination.types";
 import type {
   CreateDefinitionInput,
   Definition,
