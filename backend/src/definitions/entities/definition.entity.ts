@@ -29,3 +29,16 @@ export const DefinitionSelect = {
   updatedAt: "definitions.updated_at",
   deletedAt: "definitions.deleted_at",
 } as const;
+
+export const OnlyDefinitionSelect = {
+  id: "definitions.id",
+  content: "content",
+  wordId: "word_id",
+  userId: "definitions.user_id",
+  isPublic: "definitions.is_public",
+  tags: "tags",
+  mediaUrls: "media_urls",
+  createdAt: "definitions.created_at",
+  updatedAt: "definitions.updated_at",
+  deletedAt: "definitions.deleted_at",
+} as const;

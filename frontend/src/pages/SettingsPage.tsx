@@ -89,11 +89,6 @@ export default function SettingsPage() {
 
   return (
     <Page maxWidth="2xl">
-      <Button variant="ghost" onClick={() => navigate("/profile")} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        {t("common.back_to_dashboard")}
-      </Button>
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
         <p className="text-muted-foreground mt-2">{t("settings.subtitle")}</p>

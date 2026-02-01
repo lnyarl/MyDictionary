@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 import type { Definition } from "../../types/definition.types";
 import { FeedCard } from "./FeedCard";
 import { FeedEditCard } from "./FeedEditCard";
@@ -11,9 +12,10 @@ interface FeedListProps {
     id: string,
     data: { content: string; tags: string[]; isPublic: boolean },
   ) => Promise<void>;
+  className?: string
 }
 
-export function FeedList({ definitions, onDelete, onEdit }: FeedListProps) {
+export function FeedList({ definitions, onDelete, onEdit, className }: FeedListProps) {
   const { user } = useAuth();
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -35,7 +37,7 @@ export function FeedList({ definitions, onDelete, onEdit }: FeedListProps) {
   };
 
   return (
-    <div className="grid gap-4">
+    <div className={cn("grid gap-0", className)}>
       {definitions.map((definition) => {
         const isOwner = user?.id === definition.userId;
         const isEditing = editingId === definition.id;

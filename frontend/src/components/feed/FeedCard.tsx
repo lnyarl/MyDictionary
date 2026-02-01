@@ -43,19 +43,16 @@ export function FeedCard({
 
   const isEdited = definition.updatedAt !== definition.createdAt;
 
-  // Check if term is a date (YYYY.MM.DD or YYYY. M. D.)
-  const isDateTerm = isDateFormat(definition.term);
-
   const handleTermClick = () => {
-    navigate(`/word/${definition.term}`);
+    navigate(`/word/${encodeURIComponent(definition.term)}`);
   };
 
   return (
     <Card
       className={cn(
-        "relative transition-all overflow-hidden",
+        "relative transition-all overflow-hidden shadow-none border-t-2 border-b-0 border-r-0 border-l-0 rounded-none",
         variant === "default"
-          ? "hover:shadow-md"
+          ? ""
           : "border-none shadow-none bg-transparent hover:bg-muted/30",
       )}
     >
@@ -98,12 +95,12 @@ export function FeedCard({
         </DropdownMenu>
       </div>
 
-      <div className="flex flex-col md:flex-row">
-        <div className="p-6 md:w-50 lg:w-62.5 shrink-0 flex flex-col gap-4 border-b md:border-b-0 md:border-r bg-muted/10">
-          <div className="flex-1">
+      <div className="flex flex-col md:flex-row ">
+        <div className="p-3 md:w-50 lg:w-62.5 shrink-0 flex flex-col gap-4 border-b-0  bg-[#9f9b8623] ">
+          <div className="flex-1 ">
             <Button
               variant="link"
-              className="p-0 h-auto  font-serif lg:text-3xl md:text-4xl font-bold text-foreground whitespace-normal text-left break-keep hover:no-underline hover:text-primary transition-colors leading-[100%]"
+              className="p-0 h-auto font-sans text-4xl font-bold text-foreground whitespace-normal text-left break-keep hover:no-underline hover:text-primary transition-colors leading-[100%]"
               onClick={handleTermClick}
             >
               {definition.term}
@@ -111,7 +108,7 @@ export function FeedCard({
           </div>
         </div>
 
-        <div className="flex-1 p-6 flex flex-col min-w-0">
+        <div className="flex-1 p-3 flex flex-col min-w-0">
           <DefinitionCardContent
             definition={definition}
             isEdited={isEdited}

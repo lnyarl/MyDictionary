@@ -1,5 +1,7 @@
+import { Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/hooks/use-toast";
 import { toDayString } from "@/lib/utils/date";
 import { wordsApi } from "../../lib/words";
 import type { CreateWordInput, Word } from "../../types/word.types";
@@ -17,7 +19,7 @@ interface WordFormProps {
 export function FeedForm({ onCreate }: WordFormProps) {
 	const { t } = useTranslation();
 	const today = toDayString();
-	const [term, setTerm] = useState(today);
+	const [term, setTerm] = useState("");
 	const [suggestions, setSuggestions] = useState<{
 		myWords: Word[];
 		othersWords: Word[];
@@ -62,13 +64,19 @@ export function FeedForm({ onCreate }: WordFormProps) {
 		}
 	};
 
+	const toast = useToast()
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!term.trim()) {
+			toast.toast({ description: "단어를 작성해주세요" });
 			document.getElementById("term")?.focus();
 			return;
 		}
-		if (!definition.content.trim()) return;
+		if (!definition.content.trim()) {
+			toast.toast({ description: "단어를 작성해주세요" });
+			return;
+		}
+		console.log(definition.content);
 
 		setIsSubmitting(true);
 		try {
@@ -84,7 +92,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 				term: term.trim(),
 				definition: formattedDefinition,
 			} as CreateWordInput);
-			setTerm(toDayString());
+			setTerm("");
 			setDefinition({ content: "", tags: "", isPublic: true });
 		} catch (error) {
 			console.error("Failed to submit word:", error);
@@ -93,11 +101,15 @@ export function FeedForm({ onCreate }: WordFormProps) {
 		}
 	};
 
+	const isToday = term === today;
+
 	return (
-		<form onSubmit={handleSubmit} className="space-y-4">
-			<h3 className="text-lg font-medium">{t("word.add_new")}</h3>
+		<form onSubmit={handleSubmit} className="space-y-2">
+			<div className="flex items-center justify-between">
+				<h3 className="text-lg font-medium">{t("word.add_new")}</h3>
+			</div>
 			<div className="rounded-lg border bg-card shadow-sm focus-within:ring-1 focus-within:ring-ring transition-all">
-				<div className="relative">
+				<div className="relative flex">
 					<Input
 						id="term"
 						value={term}
@@ -112,9 +124,23 @@ export function FeedForm({ onCreate }: WordFormProps) {
 						}}
 						maxLength={100}
 						autoComplete="off"
-						className="border-0 focus-visible:ring-0 shadow-none rounded-t-lg rounded-b-none text-lg font-medium px-4 py-3 h-auto"
+						className="border-0 justify-between items-center-safe focus-visible:ring-0 shadow-none rounded-t-lg rounded-b-none text-lg font-medium px-4 py-3 h-auto"
 						placeholder={t("word.term_placeholder")}
 					/>
+
+					<Button
+						type="button"
+						variant={isToday ? "default" : "ghost"}
+						size="sm"
+						onClick={() => setTerm(today)}
+						className={`transition-colors m-1.25 ${isToday
+							? "bg-primary hover:bg-primary/80 text-white"
+							: "hover:bg-primary/5"
+							}`}
+					>
+						<Calendar className="w-4 h-4 mr-2" />
+						{t("word.today")}
+					</Button>
 					{showSuggestions &&
 						(suggestions.myWords.length > 0 || suggestions.othersWords.length > 0) && (
 							<div className="absolute top-full left-0 w-full z-50 mt-1 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
@@ -176,7 +202,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 				/>
 			</div>
 
-			<div className="flex items-center justify-end pt-2 gap-6">
+			<div className="flex items-center justify-end gap-6">
 				<div className="flex items-center gap-2">
 					<Switch
 						checked={definition.isPublic}

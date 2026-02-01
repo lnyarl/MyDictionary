@@ -56,15 +56,6 @@ export default function SearchResultsPage() {
 
   return (
     <Page>
-      <Button
-        variant="ghost"
-        onClick={() => navigate(isAuthenticated ? "/profile" : "/")}
-        className="mb-4"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        {isAuthenticated ? t("common.back_to_dashboard") : t("common.back_to_home")}
-      </Button>
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">{t("search.title")}</h1>
         <form onSubmit={handleSearch} className="flex gap-2">

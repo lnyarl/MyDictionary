@@ -19,7 +19,7 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
   const bioColor = stringToColor(user.email || "");
 
   return (
-    <Card className="overflow-hidden border-none shadow-md bg-white/50 backdrop-blur-sm dark:bg-zinc-900/50">
+    <Card className="overflow-hidden border-none shadow-none ">
       <CardContent className="p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
         <div className="relative group">
           <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-white dark:border-zinc-800 shadow-lg">

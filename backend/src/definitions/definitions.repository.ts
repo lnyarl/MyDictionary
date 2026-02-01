@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { generateId, TABLES } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
-import { Definition, DefinitionSelect } from "./entities/definition.entity";
+import { Definition, DefinitionSelect, OnlyDefinitionSelect } from "./entities/definition.entity";
 
 @Injectable()
 export class DefinitionsRepository extends BaseRepository {
@@ -17,7 +17,7 @@ export class DefinitionsRepository extends BaseRepository {
     const listQuery = baseQuery
       .clone()
       .orderBy("created_at", "DESC")
-      .select<Definition[]>(DefinitionSelect)
+      .select<Definition[]>(OnlyDefinitionSelect)
       .limit(limit);
 
     return listQuery;
@@ -25,14 +25,14 @@ export class DefinitionsRepository extends BaseRepository {
 
   findById(definitionId: string) {
     return this.query(this.tableName)
-      .select<Definition>(DefinitionSelect)
+      .select<Definition>(OnlyDefinitionSelect)
       .where({ id: definitionId })
       .first();
   }
 
   findByWordIdAndUserId(wordId: string, userId: string) {
     return this.query(this.tableName)
-      .select<Definition[]>(DefinitionSelect)
+      .select<Definition[]>(OnlyDefinitionSelect)
       .where({ word_id: wordId, user_id: userId })
       .orderBy("created_at", "desc");
   }

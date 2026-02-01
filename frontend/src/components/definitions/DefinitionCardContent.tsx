@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/useAuth";
 import type { Definition } from "@/types/definition.types";
 
 interface DefinitionCardContentProps {
@@ -32,6 +33,7 @@ export function DefinitionCardContent({
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
+  const auth = useAuth();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: need to re-run when content changes
   useEffect(() => {
@@ -42,7 +44,11 @@ export function DefinitionCardContent({
 
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/profile/${definition.nickname}`);
+    if (auth.user?.nickname === definition.nickname) {
+      navigate(`/profile`);
+    } else {
+      navigate(`/profile/${definition.nickname}`);
+    }
   };
 
   const getHostname = (url: string) => {
@@ -157,10 +163,12 @@ export function DefinitionCardContent({
 
       <div className="flex items-center justify-between pt-2 mt-auto">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Avatar className="h-6 w-6 cursor-pointer border" onClick={handleUserClick}>
-            <AvatarImage src={definition.profilePicture} className="object-cover" />
-            <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
-          </Avatar>
+          <a href={auth.user?.id === definition.userId ? "/profile" : `/profile/${definition.nickname}`}>
+            <Avatar className="h-6 w-6 cursor-pointer border" >
+              <AvatarImage src={definition.profilePicture} className="object-cover" />
+              <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
+            </Avatar>
+          </a>
           <Button
             variant="link"
             className="p-0 h-auto text-sm text-muted-foreground font-medium hover:text-foreground"

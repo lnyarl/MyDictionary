@@ -45,11 +45,6 @@ export default function WordDetailPage() {
 
   return (
     <Page>
-      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        {t("common.back")}
-      </Button>
-
       <div className="mb-8">
         <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground break-words leading-tight">
           {term}

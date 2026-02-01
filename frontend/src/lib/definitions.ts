@@ -10,7 +10,8 @@ import { api } from "./api";
 export const definitionsApi = {
   getByWord: (wordId: string) => api.get<Definition[]>(`/words/${wordId}/definitions`),
 
-  getByTerm: (term: string) => api.get<Definition[]>(`/definitions/term/${term}`),
+  getByTerm: (term: string) =>
+    api.get<Definition[]>(`/definitions/term/${encodeURIComponent(term)}`),
 
   create: (data: CreateDefinitionInput) => {
     const formData = new FormData();
@@ -34,6 +35,7 @@ export const definitionsApi = {
 
   update: (id: string, data: UpdateDefinitionInput) => {
     const formData = new FormData();
+    console.log("tq", data);
     if (data.content !== undefined) {
       formData.append("content", data.content);
     }

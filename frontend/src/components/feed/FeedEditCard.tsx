@@ -48,6 +48,7 @@ export function FeedEditCard({
 
   const handleSave = async () => {
     if (!content.trim()) return;
+    console.log(definition.content);
 
     setIsSaving(true);
     try {
@@ -128,6 +129,9 @@ export function FeedEditCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4" onKeyDown={handleKeyDown}>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {content.length}/5000
+        </span>
         <RichTextEditor
           value={content}
           onChange={setContent}
@@ -143,9 +147,6 @@ export function FeedEditCard({
             className="flex-1"
             disabled={isSaving}
           />
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {content.length}/5000
-          </span>
         </div>
         <div className="flex items-center justify-between rounded-lg border p-3">
           <div className="space-y-0.5">
