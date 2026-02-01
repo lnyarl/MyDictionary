@@ -1,6 +1,6 @@
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Markdown } from '@tiptap/markdown';
+import { Markdown } from "@tiptap/markdown";
 import { type Content, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef } from "react";
@@ -21,15 +21,7 @@ type RichTextEditorProps = {
   className?: string;
   disabled?: boolean;
   autoFocus?: boolean;
-}
-
-const ALL_OPTIONS = [
-  { id: "a", text: "Hello World, this is the first option" },
-  { id: "b", text: "Second option, lol" },
-  { id: "c", text: "This is the third option" },
-  { id: "d", text: "The last and fourth option" },
-];
-
+};
 
 export function RichTextEditor({
   value,
@@ -47,7 +39,9 @@ export function RichTextEditor({
   }, []);
   const editor = useEditor({
     extensions: [
-      Markdown,
+      Markdown.configure({
+        html: true,
+      } as any),
       PasteMarkdown,
       StarterKit,
       Image,
@@ -61,25 +55,32 @@ export function RichTextEditor({
           }
           const words = await wordsApi.autocomplete(text.substring(2));
           if (words.myWords.length === 0) {
-            return { selector: (<></>), root: elRoot.current }
+            return { selector: <></>, root: elRoot.current };
           }
-          const options = words.myWords.map(i => ({ id: i.id, text: i.term }))
-          const selector = (<Selector
-            text={text}
-            options={options}
-            onSelection={({ id, text }: { id: string; text: string }) => {
-              const content: Content = [
-                {
-                  type: "wikiLink",
-                  attrs: { name: text, id: id },
-                },
-              ];
-              return editor.chain().focus().insertContentAt(range, content).insertContent(" ").run();
-            }}
-          />);
+          const options = words.myWords.map((i) => ({ id: i.id, text: i.term }));
+          const selector = (
+            <Selector
+              text={text}
+              options={options}
+              onSelection={({ id, text }: { id: string; text: string }) => {
+                const content: Content = [
+                  {
+                    type: "wikiLink",
+                    attrs: { name: text, id: id },
+                  },
+                ];
+                return editor
+                  .chain()
+                  .focus()
+                  .insertContentAt(range, content)
+                  .insertContent(" ")
+                  .run();
+              }}
+            />
+          );
           return { selector, root: elRoot.current };
         },
-        onWikiLinkClick: (id, name, event) => {
+        onWikiLinkClick: (_id, name, _event) => {
           navigate(`/word/${name}`);
         },
       }),
@@ -93,15 +94,18 @@ export function RichTextEditor({
         ),
       },
       clipboardTextSerializer: (slice) => {
-        const result = editor.storage.markdown.manager.serialize({ ...slice.toJSON(), type: 'doc' }) as string;
+        const result = editor.storage.markdown.manager.serialize({
+          ...slice.toJSON(),
+          type: "doc",
+        }) as string;
         return result;
       },
     },
     onUpdate: ({ editor }) => {
-      const markdown = (editor).getMarkdown();
+      const markdown = editor.getMarkdown();
       onChange(markdown);
     },
-    content: value,
+    content: transformWikiLinks(value),
     contentType: "markdown",
     editable: !disabled,
     autofocus: autoFocus,
@@ -114,10 +118,17 @@ export function RichTextEditor({
   }, [editor, autoFocus]);
 
   useEffect(() => {
-    if (editor && value !== (editor).getMarkdown()) {
-      editor.commands.setContent(value);
+    if (editor && value !== editor.getMarkdown()) {
+      editor.commands.setContent(transformWikiLinks(value));
     }
   }, [value, editor]);
 
-  return <EditorContent editor={editor} onKeyDown={onKeyDown} />
+  return <EditorContent editor={editor} onKeyDown={onKeyDown} />;
+}
+
+function transformWikiLinks(content: string) {
+  if (!content) return content;
+  return content.replace(/\[\[([^\]]+)\]\]/g, (_match, term) => {
+    return `<span data-type="wikiLink" data-name="${term}" data-id="${term}"></span>`;
+  });
 }
