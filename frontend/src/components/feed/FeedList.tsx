@@ -5,68 +5,61 @@ import { FeedCard } from "./FeedCard";
 import { FeedEditCard } from "./FeedEditCard";
 
 interface FeedListProps {
-	definitions: Definition[];
-	onDelete: (id: string) => void;
-	onViewHistory: (definitionId: string) => void;
-	onEdit?: (
-		id: string,
-		data: { content: string; tags: string[]; isPublic: boolean },
-	) => Promise<void>;
+  definitions: Definition[];
+  onDelete: (id: string) => void;
+  onEdit?: (
+    id: string,
+    data: { content: string; tags: string[]; isPublic: boolean },
+  ) => Promise<void>;
 }
 
-export function FeedList({
-	definitions,
-	onDelete,
-	onViewHistory,
-	onEdit,
-}: FeedListProps) {
-	const { user } = useAuth();
-	const [editingId, setEditingId] = useState<string | null>(null);
+export function FeedList({ definitions, onDelete, onEdit }: FeedListProps) {
+  const { user } = useAuth();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-	if (definitions.length === 0) {
-		return (
-			<div className="rounded-lg border border-dashed p-12 text-center">
-				<p className="text-muted-foreground">아직 정의가 없습니다. 첫 정의를 추가해보세요!</p>
-			</div>
-		);
-	}
+  if (definitions.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed p-12 text-center">
+        <p className="text-muted-foreground">아직 정의가 없습니다. 첫 정의를 추가해보세요!</p>
+      </div>
+    );
+  }
 
-	const handleSave = async (
-		id: string,
-		data: { content: string; tags: string[]; isPublic: boolean },
-	) => {
-		if (!onEdit) return;
-		await onEdit(id, data);
-		setEditingId(null);
-	};
+  const handleSave = async (
+    id: string,
+    data: { content: string; tags: string[]; isPublic: boolean },
+  ) => {
+    if (!onEdit) return;
+    await onEdit(id, data);
+    setEditingId(null);
+  };
 
-	return (
-		<div className="grid gap-4">
-			{definitions.map((definition) => {
-				const isOwner = user?.id === definition.userId;
-				const isEditing = editingId === definition.id;
+  return (
+    <div className="grid gap-4">
+      {definitions.map((definition) => {
+        const isOwner = user?.id === definition.userId;
+        const isEditing = editingId === definition.id;
 
-				if (isEditing) {
-					return (
-						<FeedEditCard
-							key={definition.id}
-							definition={definition}
-							onSave={(data) => handleSave(definition.id, data)}
-							onCancel={() => setEditingId(null)}
-						/>
-					);
-				}
+        if (isEditing) {
+          return (
+            <FeedEditCard
+              key={definition.id}
+              definition={definition}
+              onSave={(data) => handleSave(definition.id, data)}
+              onCancel={() => setEditingId(null)}
+            />
+          );
+        }
 
-				return (
-					<FeedCard
-						key={definition.id}
-						definition={definition}
-						onDelete={onDelete}
-						onViewHistory={onViewHistory}
-						onStartEdit={isOwner && onEdit ? () => setEditingId(definition.id) : undefined}
-					/>
-				);
-			})}
-		</div>
-	);
+        return (
+          <FeedCard
+            key={definition.id}
+            definition={definition}
+            onDelete={onDelete}
+            onStartEdit={isOwner && onEdit ? () => setEditingId(definition.id) : undefined}
+          />
+        );
+      })}
+    </div>
+  );
 }

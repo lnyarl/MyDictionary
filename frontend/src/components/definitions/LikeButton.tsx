@@ -5,53 +5,46 @@ import { Button } from "../ui/button";
 import { useLike } from "./hooks";
 
 interface LikeButtonProps {
-	definitionId: string;
-	initialLikesCount: number;
-	initialIsLiked?: boolean;
-	isOwnDefinition: boolean;
+  definitionId: string;
+  initialLikesCount: number;
+  initialIsLiked?: boolean;
 }
 
 export function LikeButton({
-	definitionId,
-	initialLikesCount,
-	initialIsLiked = false,
-	isOwnDefinition,
+  definitionId,
+  initialLikesCount,
+  initialIsLiked = false,
 }: LikeButtonProps) {
-	const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-	const [likesCount, setLikesCount] = useState(initialLikesCount);
-	const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [likesCount, setLikesCount] = useState(initialLikesCount);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
 
-	const { toggleLike } = useLike({ definitionId });
+  const { toggleLike } = useLike({ definitionId });
 
-	const handleToggle = async () => {
-		const newIsLiked = !isLiked;
-		const newLikesCount = newIsLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
-		setIsLiked(newIsLiked);
-		setLikesCount(newLikesCount);
-		await toggleLike();
-	};
+  const handleToggle = async () => {
+    const newIsLiked = !isLiked;
+    const newLikesCount = newIsLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
+    setIsLiked(newIsLiked);
+    setLikesCount(newLikesCount);
+    await toggleLike();
+  };
 
-	if (isOwnDefinition || !isAuthenticated) {
-		return (
-			<div className="flex items-center gap-2">
-				<Heart className="h-4 w-4 text-muted-foreground" />
-				<span className="text-sm text-muted-foreground">{likesCount}</span>
-			</div>
-		);
-	}
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center gap-2">
+        <Heart className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">{likesCount}</span>
+      </div>
+    );
+  }
 
-	return (
-		<Button
-			variant="ghost"
-			size="sm"
-			onClick={handleToggle}
-			className="gap-2"
-		>
-			<Heart
-				className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
-			/>
-			<span className="text-sm">{likesCount}</span>
-		</Button>
-	);
+  return (
+    <Button variant="ghost" size="sm" onClick={handleToggle} className="gap-2">
+      <Heart
+        className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+      />
+      <span className="text-sm">{likesCount}</span>
+    </Button>
+  );
 }

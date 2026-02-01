@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import { ProfileEditCard } from "@/components/dashboard/ProfileEditCard";
-import { DefinitionHistoryDialog } from "@/components/definitions/DefinitionHistoryDialog";
 import { FeedList } from "@/components/feed/FeedList";
 import { useAuth } from "@/hooks/useAuth";
 import { useDefinitions } from "@/hooks/useDefinitions";
@@ -18,8 +17,6 @@ export default function DashboardPage() {
   const { user, refetchUser } = useAuth();
   const { definitions, loadMore, hasMore, loading } = useMyFeed();
   const { deleteDefinition, updateDefinition } = useDefinitions();
-  const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const { sentinelRef } = useInfiniteScroll({
@@ -29,11 +26,6 @@ export default function DashboardPage() {
   });
 
   const [stats, setStats] = useState<FollowStats | null>(null);
-
-  const handleViewHistory = (definitionId: string) => {
-    setSelectedDefinitionId(definitionId);
-    setIsHistoryOpen(true);
-  };
 
   const fetchFollowStats = useCallback(async () => {
     try {
@@ -92,12 +84,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            <FeedList
-              definitions={definitions}
-              onDelete={handleDelete}
-              onViewHistory={handleViewHistory}
-              onEdit={handleEdit}
-            />
+            <FeedList definitions={definitions} onDelete={handleDelete} onEdit={handleEdit} />
             <div ref={sentinelRef} className="py-4 flex justify-center">
               {loading && hasMore ? (
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -110,14 +97,6 @@ export default function DashboardPage() {
           </>
         )}
       </div>
-
-      {selectedDefinitionId && (
-        <DefinitionHistoryDialog
-          open={isHistoryOpen}
-          onOpenChange={setIsHistoryOpen}
-          definitionId={selectedDefinitionId}
-        />
-      )}
     </Page>
   );
 }

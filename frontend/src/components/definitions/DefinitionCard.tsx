@@ -1,4 +1,4 @@
-import { Flag, History, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Flag, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LikeButton } from "@/components/definitions/LikeButton";
 import { ReportDialog } from "@/components/definitions/ReportDialog";
@@ -17,16 +17,10 @@ import { DefinitionCardContent } from "./DefinitionCardContent";
 interface DefinitionCardProps {
   definition: Definition;
   onDelete: (id: string) => void;
-  onViewHistory: (definitionId: string) => void;
   onStartEdit?: () => void;
 }
 
-export function DefinitionCard({
-  definition,
-  onDelete,
-  onViewHistory,
-  onStartEdit,
-}: DefinitionCardProps) {
+export function DefinitionCard({ definition, onDelete, onStartEdit }: DefinitionCardProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const isOwner = user?.id === definition.userId;
@@ -49,10 +43,6 @@ export function DefinitionCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onViewHistory(definition.id)}>
-              <History className="mr-2 h-4 w-4" />
-              {t("word.history")}
-            </DropdownMenuItem>
             {isOwner && onStartEdit && (
               <DropdownMenuItem onClick={onStartEdit}>
                 <Pencil className="mr-2 h-4 w-4" />
@@ -94,7 +84,6 @@ export function DefinitionCard({
               definitionId={definition.id}
               initialLikesCount={definition.likesCount}
               initialIsLiked={definition.isLiked}
-              isOwnDefinition={isOwner}
             />
           }
         />

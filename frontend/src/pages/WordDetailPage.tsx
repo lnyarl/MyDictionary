@@ -2,7 +2,6 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { DefinitionHistoryDialog } from "@/components/definitions/DefinitionHistoryDialog";
 import { DefinitionList } from "@/components/definitions/DefinitionList";
 import { Page } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
@@ -15,9 +14,6 @@ export default function WordDetailPage() {
   const { definitions, loading, fetchDefinitionsByTerm, updateDefinition, deleteDefinition } =
     useDefinitions();
 
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
-
   useEffect(() => {
     if (term) {
       fetchDefinitionsByTerm(term);
@@ -28,11 +24,6 @@ export default function WordDetailPage() {
     if (confirm(t("word.delete_definition_confirm"))) {
       await deleteDefinition(id);
     }
-  };
-
-  const handleViewHistory = (definitionId: string) => {
-    setSelectedDefinitionId(definitionId);
-    setIsHistoryOpen(true);
   };
 
   const handleEdit = async (
@@ -74,19 +65,10 @@ export default function WordDetailPage() {
           <DefinitionList
             definitions={sortedDefinitions}
             onDelete={handleDelete}
-            onViewHistory={handleViewHistory}
             onEdit={handleEdit}
           />
         )}
       </div>
-
-      {selectedDefinitionId && (
-        <DefinitionHistoryDialog
-          open={isHistoryOpen}
-          onOpenChange={setIsHistoryOpen}
-          definitionId={selectedDefinitionId}
-        />
-      )}
     </Page>
   );
 }

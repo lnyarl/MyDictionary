@@ -37,8 +37,6 @@ function FeedList({
     isLoading: loading,
   });
 
-  const handleViewHistory = () => { };
-
   if (loading && definitions.length === 0) {
     return (
       <div className="rounded-lg border bg-muted/50 p-12 text-center">
@@ -64,7 +62,6 @@ function FeedList({
             <FeedCard
               definition={definition}
               onDelete={onRefresh}
-              onViewHistory={handleViewHistory}
               showWord={true}
               variant="borderless"
             />

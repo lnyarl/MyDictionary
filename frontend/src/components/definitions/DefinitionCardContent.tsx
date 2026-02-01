@@ -178,10 +178,10 @@ export function DefinitionCardContent({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {likeButton}
           <div className="text-muted-foreground">
             {definition.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
           </div>
+          {likeButton}
         </div>
       </div>
     </div>

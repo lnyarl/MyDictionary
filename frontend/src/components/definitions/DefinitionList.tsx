@@ -7,19 +7,13 @@ import { DefinitionCard } from "./DefinitionCard";
 interface DefinitionListProps {
   definitions: Definition[];
   onDelete: (id: string) => void;
-  onViewHistory: (definitionId: string) => void;
   onEdit?: (
     id: string,
     data: { content: string; tags: string[]; isPublic: boolean },
   ) => Promise<void>;
 }
 
-export function DefinitionList({
-  definitions,
-  onDelete,
-  onViewHistory,
-  onEdit,
-}: DefinitionListProps) {
+export function DefinitionList({ definitions, onDelete, onEdit }: DefinitionListProps) {
   const { user } = useAuth();
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -62,7 +56,6 @@ export function DefinitionList({
             key={definition.id}
             definition={definition}
             onDelete={onDelete}
-            onViewHistory={onViewHistory}
             onStartEdit={isOwner && onEdit ? () => setEditingId(definition.id) : undefined}
           />
         );

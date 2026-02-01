@@ -1,4 +1,4 @@
-import { Flag, History, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Flag, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,6 @@ import {
 interface FeedCardProps {
   definition: Definition;
   onDelete: (id: string) => void;
-  onViewHistory: (definitionId: string) => void;
   onStartEdit?: () => void;
   showWord?: boolean;
   variant?: "default" | "borderless";
@@ -28,7 +27,6 @@ interface FeedCardProps {
 export function FeedCard({
   definition,
   onDelete,
-  onViewHistory,
   onStartEdit,
   showWord = false,
   variant = "default",
@@ -70,10 +68,6 @@ export function FeedCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onViewHistory(definition.id)}>
-              <History className="mr-2 h-4 w-4" />
-              {t("word.history")}
-            </DropdownMenuItem>
             {isOwner && onStartEdit && (
               <DropdownMenuItem onClick={onStartEdit}>
                 <Pencil className="mr-2 h-4 w-4" />
@@ -123,14 +117,6 @@ export function FeedCard({
                 </div>
               )}
             </div>
-            <div className="pt-2">
-              <LikeButton
-                definitionId={definition.id}
-                initialLikesCount={definition.likesCount}
-                initialIsLiked={definition.isLiked}
-                isOwnDefinition={isOwner}
-              />
-            </div>
           </div>
         )}
 
@@ -151,14 +137,11 @@ export function FeedCard({
             isEdited={isEdited}
             formattedDate={formattedDate}
             likeButton={
-              isDateTerm ? (
-                <LikeButton
-                  definitionId={definition.id}
-                  initialLikesCount={definition.likesCount}
-                  initialIsLiked={definition.isLiked}
-                  isOwnDefinition={isOwner}
-                />
-              ) : undefined
+              <LikeButton
+                definitionId={definition.id}
+                initialLikesCount={definition.likesCount}
+                initialIsLiked={definition.isLiked}
+              />
             }
           />
         </div>

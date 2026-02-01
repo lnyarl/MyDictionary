@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { DefinitionHistoryDialog } from "../components/definitions/DefinitionHistoryDialog";
 import { FeedList } from "../components/feed/FeedList";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
@@ -16,155 +15,141 @@ import { useSearch } from "../hooks/useSearch";
 import type { Definition } from "../types/definition.types";
 
 export default function SearchResultsPage() {
-	const { t } = useTranslation();
-	const [searchParams, setSearchParams] = useSearchParams();
-	const navigate = useNavigate();
-	const { results, loading, loadingMore, error, total, hasMore, search, loadMore } = useSearch();
-	const { isAuthenticated } = useAuth();
-	const { toast } = useToast();
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { results, loading, loadingMore, error, total, hasMore, search, loadMore } = useSearch();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
-	const [searchTerm, setSearchTerm] = useState(searchParams.get("term") || "");
-	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-	const [selectedDefinitionId, setSelectedDefinitionId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("term") || "");
 
-	const { sentinelRef } = useInfiniteScroll({
-		onLoadMore: loadMore,
-		hasMore,
-		isLoading: loadingMore,
-	});
+  const { sentinelRef } = useInfiniteScroll({
+    onLoadMore: loadMore,
+    hasMore,
+    isLoading: loadingMore,
+  });
 
-	useEffect(() => {
-		const term = searchParams.get("term");
-		if (term) {
-			search(term);
-		}
-	}, [searchParams, search]);
+  useEffect(() => {
+    const term = searchParams.get("term");
+    if (term) {
+      search(term);
+    }
+  }, [searchParams, search]);
 
-	useEffect(() => {
-		if (error) {
-			toast({
-				title: t("common.error"),
-				description: error,
-				variant: "destructive",
-			});
-		}
-	}, [error, toast, t]);
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: t("common.error"),
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast, t]);
 
-	const handleSearch = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (searchTerm.trim()) {
-			setSearchParams({ term: searchTerm.trim() });
-		}
-	};
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      setSearchParams({ term: searchTerm.trim() });
+    }
+  };
 
-	const handleViewHistory = (definitionId: string) => {
-		setSelectedDefinitionId(definitionId);
-		setIsHistoryOpen(true);
-	};
+  return (
+    <Page>
+      <Button
+        variant="ghost"
+        onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
+        className="mb-4"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        {isAuthenticated ? t("common.back_to_dashboard") : t("common.back_to_home")}
+      </Button>
 
-	return (
-		<Page>
-			<Button
-				variant="ghost"
-				onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
-				className="mb-4"
-			>
-				<ArrowLeft className="mr-2 h-4 w-4" />
-				{isAuthenticated ? t("common.back_to_dashboard") : t("common.back_to_home")}
-			</Button>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-4">{t("search.title")}</h1>
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            type="text"
+            placeholder={t("home.search_placeholder")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1"
+          />
+          <Button type="submit">
+            <Search className="mr-2 h-4 w-4" />
+            {t("common.search")}
+          </Button>
+        </form>
+      </div>
 
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-4">{t("search.title")}</h1>
-				<form onSubmit={handleSearch} className="flex gap-2">
-					<Input
-						type="text"
-						placeholder={t("home.search_placeholder")}
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						className="flex-1"
-					/>
-					<Button type="submit">
-						<Search className="mr-2 h-4 w-4" />
-						{t("common.search")}
-					</Button>
-				</form>
-			</div>
+      {loading && (
+        <div className="rounded-lg border bg-muted/50 p-12 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">{t("search.searching")}</p>
+        </div>
+      )}
 
-			{loading && (
-				<div className="rounded-lg border bg-muted/50 p-12 text-center">
-					<Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-					<p className="text-muted-foreground">{t("search.searching")}</p>
-				</div>
-			)}
+      {!loading && searchParams.get("term") && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">
+              {t("search.results_for", { term: searchParams.get("term") })}
+            </h2>
+            <p className="text-muted-foreground">{t("search.found_count", { total })}</p>
+          </div>
 
-			{!loading && searchParams.get("term") && (
-				<div className="space-y-6">
-					<div>
-						<h2 className="text-xl font-semibold mb-2">
-							{t("search.results_for", { term: searchParams.get("term") })}
-						</h2>
-						<p className="text-muted-foreground">{t("search.found_count", { total })}</p>
-					</div>
+          {results.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-12 text-center">
+              <p className="text-muted-foreground">{t("search.no_results")}</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-6">
+                {results.map((word) => (
+                  <Card key={word.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-2xl">{word.term}</CardTitle>
+                        <div className="flex items-center gap-4">
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(word.createdAt).toLocaleDateString("ko-KR")}
+                          </p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {word.definitions && word.definitions.length > 0 ? (
+                        <div className="space-y-2">
+                          <h3 className="font-semibold mb-2">{t("word.definition")}</h3>
+                          <Separator />
+                          <FeedList
+                            definitions={word.definitions as Definition[]}
+                            onDelete={() => {}}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">{t("word.no_definitions")}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-					{results.length === 0 ? (
-						<div className="rounded-lg border border-dashed p-12 text-center">
-							<p className="text-muted-foreground">{t("search.no_results")}</p>
-						</div>
-					) : (
-						<>
-							<div className="space-y-6">
-								{results.map((word) => (
-									<Card key={word.id}>
-										<CardHeader>
-											<div className="flex items-center justify-between">
-												<CardTitle className="text-2xl">{word.term}</CardTitle>
-												<div className="flex items-center gap-4">
-													<p className="text-sm text-muted-foreground">
-														{new Date(word.createdAt).toLocaleDateString("ko-KR")}
-													</p>
-												</div>
-											</div>
-										</CardHeader>
-										<CardContent>
-											{word.definitions && word.definitions.length > 0 ? (
-												<div className="space-y-2">
-													<h3 className="font-semibold mb-2">{t("word.definition")}</h3>
-													<Separator />
-													<FeedList
-														definitions={word.definitions as Definition[]}
-														onDelete={() => { }}
-														onViewHistory={handleViewHistory}
-													/>
-												</div>
-											) : (
-												<p className="text-muted-foreground">{t("word.no_definitions")}</p>
-											)}
-										</CardContent>
-									</Card>
-								))}
-							</div>
-
-							<div ref={sentinelRef} className="py-4 flex justify-center">
-								{(loadingMore && hasMore) ? (
-									<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-								) : (
-									results.length > 0 && (
-										<p className="text-sm text-muted-foreground italic">{t("common.end_of_list")}</p>
-									)
-								)}
-							</div>
-						</>
-					)}
-				</div>
-			)}
-
-			{selectedDefinitionId && (
-				<DefinitionHistoryDialog
-					open={isHistoryOpen}
-					onOpenChange={setIsHistoryOpen}
-					definitionId={selectedDefinitionId}
-				/>
-			)}
-		</Page>
-	);
+              <div ref={sentinelRef} className="py-4 flex justify-center">
+                {loadingMore && hasMore ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                ) : (
+                  results.length > 0 && (
+                    <p className="text-sm text-muted-foreground italic">
+                      {t("common.end_of_list")}
+                    </p>
+                  )
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </Page>
+  );
 }
