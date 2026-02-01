@@ -110,7 +110,6 @@ CREATE INDEX IF NOT EXISTS idx_likes_definition_count ON public.likes USING btre
 ALTER TABLE "public"."likes" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
 ALTER TABLE "public"."likes" ADD FOREIGN KEY ("definition_id") REFERENCES "public"."definitions"("id") ON DELETE CASCADE;
 
-
 -- follows
 DROP TABLE IF EXISTS "public"."follows";
 CREATE TABLE "public"."follows" (

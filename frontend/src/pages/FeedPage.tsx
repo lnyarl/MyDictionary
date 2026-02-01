@@ -62,7 +62,6 @@ function FeedList({
             <FeedCard
               definition={definition}
               onDelete={onRefresh}
-              showWord={true}
               variant="borderless"
             />
           </div>
