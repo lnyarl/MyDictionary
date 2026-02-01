@@ -18,7 +18,7 @@ export function Sidebar() {
     try {
       const response = await notificationsApi.getUnreadCount();
       setUnreadCount(response.count);
-    } catch {}
+    } catch { }
   }, []);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function Sidebar() {
   const navItems: NavItem[] = [
     { icon: <Home className="h-6 w-6" />, path: "/feed", label: "Home" },
     { icon: <Search className="h-6 w-6" />, path: "/search", label: "Search" },
-    { icon: <User className="h-6 w-6" />, path: "/dashboard", label: "Profile" },
+    { icon: <User className="h-6 w-6" />, path: "/profile", label: "Profile" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

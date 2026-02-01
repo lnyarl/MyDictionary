@@ -15,7 +15,7 @@ export default function ImpersonatePage() {
 				try {
 					await authApi.createSession(token);
 					await refetchUser();
-					navigate("/dashboard");
+					navigate("/profile");
 				} catch (error) {
 					console.error("Failed to impersonate", error);
 					navigate("/");

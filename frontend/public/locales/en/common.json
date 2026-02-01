@@ -34,6 +34,7 @@
   "profile.edit_profile": "Edit profile",
   "profile.nickname": "Nickname",
   "profile.bio": "Bio",
+  "profile.unfollow": "Unfollow",
   "dashboard.welcome": "Hello, {{nickname}}!",
   "dashboard.subtitle": "Create your own word stash.",
   "dashboard.my_words": "My Words",

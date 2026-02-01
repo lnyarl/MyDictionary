@@ -34,6 +34,7 @@
   "profile.edit_profile": "프로필 수정",
   "profile.nickname": "닉네임",
   "profile.bio": "자기소개",
+  "profile.unfollow": "언팔로우",
   "dashboard.welcome": "안녕하세요, {{nickname}}님!",
   "dashboard.subtitle": "나만의 단어 사전을 만들어보세요.",
   "dashboard.my_words": "내 단어",

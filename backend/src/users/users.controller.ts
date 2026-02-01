@@ -61,15 +61,15 @@ export class UsersController {
     return this.usersService.getUserProfile(userId);
   }
 
+  @Get("/users/profile/:nickname")
+  @Public()
+  async getUserProfileByNickname(@Param("nickname") nickname: string) {
+    return this.usersService.getUserProfileByNickname(nickname);
+  }
+
   @Get("/users/:userId/words")
   @Public()
   async getUserWords(@Param("userId") userId: string, @Query() paginationDto: PaginationDto) {
     return this.usersService.getUserPublicWords(userId, paginationDto);
-  }
-
-  @Get("/users/:userId/definitions")
-  @Public()
-  async getUserDefinitions(@Param("userId") userId: string, @Query() paginationDto: PaginationDto) {
-    return this.usersService.getUserPublicDefinitions(userId, paginationDto);
   }
 }

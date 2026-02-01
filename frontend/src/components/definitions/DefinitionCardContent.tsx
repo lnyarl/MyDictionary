@@ -42,7 +42,7 @@ export function DefinitionCardContent({
 
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/users/${definition.userId}`);
+    navigate(`/profile/${definition.nickname}`);
   };
 
   const getHostname = (url: string) => {

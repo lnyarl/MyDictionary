@@ -30,7 +30,7 @@ export default function WordEditPage() {
 
   useEffect(() => {
     if (!wordId) {
-      navigate("/dashboard");
+      navigate("/profile");
     }
   }, [wordId, navigate]);
 
@@ -90,7 +90,7 @@ export default function WordEditPage() {
 
   return (
     <Page>
-      <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4">
+      <Button variant="ghost" onClick={() => navigate("/profile")} className="mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
         {t("common.back_to_dashboard")}
       </Button>

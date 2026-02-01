@@ -10,10 +10,11 @@ import { stringToColor } from "@/utils/color-generator";
 interface ProfileCardProps {
   user: User;
   stats: FollowStats | null;
-  onEdit: () => void;
+  onEdit?: () => void;
+  actionButton?: React.ReactNode;
 }
 
-export function ProfileCard({ user, stats, onEdit }: ProfileCardProps) {
+export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardProps) {
   const { t } = useTranslation();
   const bioColor = stringToColor(user.email || "");
 
@@ -37,15 +38,19 @@ export function ProfileCard({ user, stats, onEdit }: ProfileCardProps) {
               </h2>
               <p className="text-sm text-muted-foreground font-medium mt-1">{user.email}</p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onEdit}
-              className="shrink-0 gap-2 rounded-full hover:bg-secondary transition-colors"
-            >
-              <Pencil className="w-4 h-4" />
-              {t("common.edit")}
-            </Button>
+            {actionButton ? (
+              actionButton
+            ) : onEdit ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onEdit}
+                className="shrink-0 gap-2 rounded-full hover:bg-secondary transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+                {t("common.edit")}
+              </Button>
+            ) : null}
           </div>
 
           {user.bio && (

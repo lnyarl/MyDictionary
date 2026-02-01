@@ -82,7 +82,19 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException("User not found");
     }
+    return this.getProfileData(user);
+  }
 
+  async getUserProfileByNickname(nickname: string) {
+    const user = await this.userRepository.findByNickname(nickname);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return this.getProfileData(user);
+  }
+
+  private async getProfileData(user: User) {
+    const userId = user.id;
     const wordsCountQuery = this.wordRepository.countPublicByUserId(userId);
     const definitionsCountQuery = this.definitionRepository.getCountByUserId(userId);
     const followResult = this.followsService.getFollowStats(userId);
@@ -98,6 +110,7 @@ export class UsersService {
         nickname: user.nickname,
         profilePicture: user.profilePicture,
         createdAt: user.createdAt,
+        bio: user.bio,
       },
       stats: {
         wordsCount: Number(wordsCount.count),
@@ -122,27 +135,6 @@ export class UsersService {
 
     return new PaginatedResponseDto<Word>(
       words,
-      paginationDto.page || 1,
-      paginationDto.limit || 20,
-      nextCursor,
-    );
-  }
-
-  async getUserPublicDefinitions(
-    userId: string,
-    paginationDto: PaginationDto,
-  ): Promise<PaginatedResponseDto<Definition>> {
-    const listQuery = this.definitionRepository.findByUserId(
-      userId,
-      paginationDto.limit || 20,
-      paginationDto.cursor,
-    );
-    const definitions = await listQuery;
-    const nextCursor =
-      definitions.length > 0 ? (definitions[definitions.length - 1].createdAt as any) : undefined;
-
-    return new PaginatedResponseDto<Definition>(
-      definitions,
       paginationDto.page || 1,
       paginationDto.limit || 20,
       nextCursor,

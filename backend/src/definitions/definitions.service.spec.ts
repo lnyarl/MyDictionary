@@ -178,4 +178,20 @@ describe("DefinitionsService", () => {
       ).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe("getUserPublicDefinitions", () => {
+    it("should return paginated definitions", async () => {
+      const word = await testDb.createWord({ term: "word", userId: testUser.id });
+      await testDb.createDefinition({ content: "def1", wordId: word.id, userId: testUser.id });
+      await testDb.createDefinition({ content: "def2", wordId: word.id, userId: testUser.id });
+
+      const result = await service.getUserPublicDefinitions(testUser.id, {
+        page: 1,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.data).toHaveLength(2);
+    });
+  });
 });

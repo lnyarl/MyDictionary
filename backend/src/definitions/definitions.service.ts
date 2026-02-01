@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
 import { Knex } from "knex";
@@ -198,5 +199,26 @@ export class DefinitionsService {
 
   async getDefinitionsByTerm(term: string, user?: any): Promise<Definition[]> {
     return this.definitionRepository.findByTerm(term, user?.id);
+  }
+
+  async getUserPublicDefinitions(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Definition>> {
+    const listQuery = this.definitionRepository.findByUserId(
+      userId,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
+    const definitions = await listQuery;
+    const nextCursor =
+      definitions.length > 0 ? (definitions[definitions.length - 1].createdAt as any) : undefined;
+
+    return new PaginatedResponseDto<Definition>(
+      definitions,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
+    );
   }
 }

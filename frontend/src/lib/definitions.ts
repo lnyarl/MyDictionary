@@ -1,3 +1,4 @@
+import { PaginatedResponse } from "@/types/pagination.types";
 import type {
   CreateDefinitionInput,
   Definition,
@@ -56,4 +57,10 @@ export const definitionsApi = {
 
   getHistory: (definitionId: string) =>
     api.get<DefinitionHistory[]>(`/definitions/${definitionId}/history`),
+
+  getByUserId: (userId: string, page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ userId, page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/definitions?${params.toString()}`);
+  },
 };

@@ -12,6 +12,12 @@ pg.types.setTypeParser(20, (val) => {
   return parseInt(val, 10);
 });
 
+// stacktrace를 더 자세히 찍기 위한 라이브러리
+if (process.env.NODE_ENV !== "production") {
+  console.log("lognjohn initalized");
+  require("longjohn");
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   setApp(app);

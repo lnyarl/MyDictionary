@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(true);
         const { user: userData } = await authApi.loginWithGoogle(response.credential);
         setUser(userData);
-        navigate("/dashboard");
+        navigate("/feed/all");
       } catch (error) {
         console.error("Google login failed:", error);
         setUser(null);

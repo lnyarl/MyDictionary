@@ -9,14 +9,18 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
+import { PaginationDto } from "@stashy/shared";
 import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
+import { GetByUserIdDto } from "@stashy/shared/dto/definition/select-definition.dto";
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { Public } from "../common/decorators/public.decorator";
 import { OptionalAuthGuard } from "../common/guards/optional-auth.guard";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
 import type { User } from "../users/entities/user.entity";
@@ -88,5 +92,12 @@ export class DefinitionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param("id") id: string, @CurrentUser() user: User) {
     await this.definitionsService.remove(id, user.id);
+  }
+
+  @Get("/definitions")
+  @Public()
+  async getUserDefinitions(@Query() query: GetByUserIdDto) {
+    const { userId, ...paginationDto } = query;
+    return this.definitionsService.getDefinitionsByTerm(userId, paginationDto);
   }
 }

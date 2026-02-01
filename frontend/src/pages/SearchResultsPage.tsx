@@ -58,7 +58,7 @@ export default function SearchResultsPage() {
     <Page>
       <Button
         variant="ghost"
-        onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
+        onClick={() => navigate(isAuthenticated ? "/profile" : "/")}
         className="mb-4"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -124,7 +124,7 @@ export default function SearchResultsPage() {
                           <Separator />
                           <FeedList
                             definitions={word.definitions as Definition[]}
-                            onDelete={() => {}}
+                            onDelete={() => { }}
                           />
                         </div>
                       ) : (
