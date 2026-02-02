@@ -1,11 +1,13 @@
 import { Calendar } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
+import { getItem, removeItem, setItem } from "@/lib/localStorage";
 import { toDayString } from "@/lib/utils/date";
 import { wordsApi } from "../../lib/words";
 import type { CreateWordInput, Word } from "../../types/word.types";
 import { Button } from "../ui/button";
+import { STORAGE_KEY } from "../ui/codemirror/save-extension";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { RichTextEditor } from "../ui/rich-text-editor";
@@ -25,11 +27,15 @@ export function FeedForm({ onCreate }: WordFormProps) {
 		othersWords: Word[];
 	}>({ myWords: [], othersWords: [] });
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	const tempDocument = useMemo(() => {
+		return getItem<string>(STORAGE_KEY)
+	}, [])
+
 	const [definition, setDefinition] = useState<{
 		content: string;
 		tags: string;
 		isPublic: boolean;
-	}>({ content: "", tags: "", isPublic: true });
+	}>({ content: tempDocument ?? "", tags: "", isPublic: true });
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
@@ -76,8 +82,8 @@ export function FeedForm({ onCreate }: WordFormProps) {
 			toast.toast({ description: "단어를 작성해주세요" });
 			return;
 		}
-		console.log(definition.content);
 
+		removeItem(STORAGE_KEY);
 		setIsSubmitting(true);
 		try {
 			const formattedDefinition = {

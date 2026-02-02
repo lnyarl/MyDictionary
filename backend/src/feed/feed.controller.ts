@@ -27,8 +27,8 @@ export class FeedController {
       feeds.data.map((i) => i.id),
     );
     for (var feed of feeds.data) {
-      feed.isLiked = likes[feed.id].isLiked;
-      feed.likesCount = likes[feed.id].likeCount;
+      feed.isLiked = likes[feed.id]?.isLiked;
+      feed.likesCount = likes[feed.id]?.likeCount;
     }
 
     return feeds;
@@ -42,8 +42,8 @@ export class FeedController {
       feeds.data.map((i) => i.id),
     );
     for (var feed of feeds.data) {
-      feed.isLiked = likes[feed.id].isLiked;
-      feed.likesCount = likes[feed.id].likeCount;
+      feed.isLiked = likes[feed.id]?.isLiked;
+      feed.likesCount = likes[feed.id]?.likeCount;
     }
 
     return feeds;
@@ -57,8 +57,8 @@ export class FeedController {
       feeds.data.map((i) => i.id),
     );
     for (var feed of feeds.data) {
-      feed.isLiked = likes[feed.id].isLiked;
-      feed.likesCount = likes[feed.id].likeCount;
+      feed.isLiked = likes[feed.id]?.isLiked;
+      feed.likesCount = likes[feed.id]?.likeCount;
     }
 
     return feeds;
