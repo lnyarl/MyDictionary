@@ -39,7 +39,7 @@
     "test:cov:backend": "cd backend && yarn test:cov",
     "test:cov:backend-admin": "cd backend-admin && yarn test:cov",
 
-    "docker:infra": "docker-compose --env-file ./backend/.env up -d postgres redis minio",
+    "docker:infra": "docker-compose --env-file ./backend/.env up -d postgres redis minio createbuckets",
     "docker": "docker-compose --env-file ./backend/.env up -d --build",
     "docker:down": "docker-compose down",
     "docker:down-v": "docker-compose down -v #volumne까지 삭제",
