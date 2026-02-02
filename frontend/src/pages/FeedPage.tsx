@@ -47,13 +47,13 @@ export default function FeedPage() {
         <TabsList className="h-auto p-0 bg-transparent gap-1 justify-start border-b-0 relative z-10 -mb-px">
           <TabsTrigger
             value="all"
-            className="px-6 py-2 shadow-[0_0_10px_1px_rgba(0,0,0,0.1)] rounded-b-none cursor-pointer border-t-2"
+            className="px-6 py-2  rounded-b-none cursor-pointer border border-gray-200 data-[state=active]:border-t-black data-[state=active]:border-t-2"
           >
             {t("feed.tabs.all")}
           </TabsTrigger>
           <TabsTrigger
             value="following"
-            className="px-6 py-2 shadow-[0_0_10px_1px_rgba(0,0,0,0.1)] rounded-t-lg rounded-b-none text-muted-foreground data-[state=active]:border-border data-[state=active]:border-b-background data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none transition-none cursor-pointer"
+            className="px-6 py-2  rounded-b-none cursor-pointer border border-gray-200 data-[state=active]:border-t-black data-[state=active]:border-t-2"
           >
             {t("feed.tabs.following")}
           </TabsTrigger>
