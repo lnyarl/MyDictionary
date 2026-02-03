@@ -7,13 +7,13 @@ import { FeedEditCard } from "./FeedEditCard";
 
 interface FeedListProps {
   definitions: Definition[];
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   onEdit?: (
     id: string,
     data: { content: string; tags: string[]; isPublic: boolean },
   ) => Promise<void>;
   className?: string
-  option: { showUser: boolean }
+  option?: { showUser: boolean }
 }
 
 export function FeedList({ definitions, onDelete, onEdit, className, option = { showUser: true } }: FeedListProps) {

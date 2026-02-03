@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { TABLES, TableName } from "@stashy/shared";
+import { generateId, TABLES, TableName } from "@stashy/shared";
 import { Knex } from "knex";
 import { BaseRepository } from "../common/database/base.repository";
 import { KNEX_CONNECTION } from "../common/database/knex.provider";
@@ -58,6 +58,7 @@ export class BadgesRepository extends BaseRepository {
   async createUserBadge(userId: string, badgeId: string): Promise<UserBadgeEntity> {
     const [userBadge] = await this.knex(TABLES.USER_BADGES)
       .insert({
+        id: generateId(),
         user_id: userId,
         badge_id: badgeId,
       })

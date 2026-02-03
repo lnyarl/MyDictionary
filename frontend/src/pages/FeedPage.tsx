@@ -24,14 +24,6 @@ export default function FeedPage() {
     await myFeed.createFeed(data);
   };
 
-  const { deleteDefinition } = useDefinitions();
-  const handleDelete = async (definitionId: string) => {
-    if (confirm(t("dashboard.delete_confirm"))) {
-      await deleteDefinition(definitionId);
-      await myFeed.fetchMyFeed(1);
-      await allFeed.fetchAllFeed(1);
-    }
-  };
 
   return (
     <Page >
@@ -63,14 +55,12 @@ export default function FeedPage() {
           <TabsContent value="all" className="m-0 p-6 ">
             <FeedList
               definitions={allFeed.definitions}
-              onDelete={handleDelete}
             />
           </TabsContent>
 
           <TabsContent value="following" className="m-0 p-6">
             <FeedList
               definitions={followingFeed.definitions}
-              onDelete={handleDelete}
             />
           </TabsContent>
         </div>

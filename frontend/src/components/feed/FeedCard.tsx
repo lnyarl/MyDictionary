@@ -19,7 +19,7 @@ import {
 
 interface FeedCardProps {
   definition: Definition;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   onStartEdit?: () => void;
   option: { showUser: boolean }
   variant?: "default" | "borderless";
@@ -48,6 +48,7 @@ export function FeedCard({
   const handleTermClick = () => {
     navigate(`/word/${encodeURIComponent(definition.term)}`);
   };
+  const needMoreMenu = onDelete || onStartEdit || !isOwner
 
   return (
     <Card
@@ -59,42 +60,44 @@ export function FeedCard({
       )}
     >
       <div className="absolute top-4 right-4 z-10">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {isOwner && onStartEdit && (
-              <DropdownMenuItem onClick={onStartEdit}>
-                <Pencil className="mr-2 h-4 w-4" />
-                {t("common.edit")}
-              </DropdownMenuItem>
-            )}
-            {!isOwner && user && (
-              <ReportDialog
-                reportedUserId={definition.userId}
-                definitionId={definition.id}
-                trigger={
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Flag className="mr-2 h-4 w-4" />
-                    {t("common.report")}
-                  </DropdownMenuItem>
-                }
-              />
-            )}
-            {isOwner && (
-              <DropdownMenuItem
-                onClick={() => onDelete(definition.id)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t("common.delete")}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {needMoreMenu && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {isOwner && onStartEdit && (
+                <DropdownMenuItem onClick={onStartEdit}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  {t("common.edit")}
+                </DropdownMenuItem>
+              )}
+              {!isOwner && user && (
+                <ReportDialog
+                  reportedUserId={definition.userId}
+                  definitionId={definition.id}
+                  trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Flag className="mr-2 h-4 w-4" />
+                      {t("common.report")}
+                    </DropdownMenuItem>
+                  }
+                />
+              )}
+              {isOwner && onDelete && (
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(definition.id)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t("common.delete")}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row ">
