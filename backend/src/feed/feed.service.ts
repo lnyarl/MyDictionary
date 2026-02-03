@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CacheService } from "../common/cache/cache.service";
+import { EventEmitterService } from "../common/events";
 import { DefinitionsService } from "../definitions/definitions.service";
 import { FollowsService } from "../follows/follows.service";
 import { UsersRepository } from "../users/users.repository";
@@ -20,6 +21,7 @@ export class FeedService {
     @Inject(forwardRef(() => DefinitionsService))
     private readonly definitionsService: DefinitionsService,
     private readonly cacheService: CacheService,
+    private readonly eventEmitter: EventEmitterService,
   ) {}
 
   async createFeed(userId: string, createWordDto: CreateWordDto): Promise<Feed> {
@@ -36,6 +38,7 @@ export class FeedService {
           })
           .transacting(knex);
         word = result[0];
+        await this.eventEmitter.emitWordCreate(userId, word.id, word.term);
       } else {
         word = existWord;
       }

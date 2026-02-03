@@ -8,6 +8,7 @@ import {
   OnModuleDestroy,
 } from "@nestjs/common";
 import { Queue } from "bullmq";
+import { EventEmitterService } from "../common/events/event-emitter.service";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -26,6 +27,7 @@ export class LikesService {
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
     @InjectQueue("likes") private readonly likesQueue: Queue,
+    private readonly eventEmitter: EventEmitterService,
   ) {}
 
   async toggle(userId: string, definitionId: string) {
@@ -54,12 +56,15 @@ export class LikesService {
     if (existingLike && !existingLike.deletedAt) {
       await this.likeRepository.delete(existingLike.id);
       result = false;
+      await this.eventEmitter.emitUnlike(userId, definitionId, definition.userId);
     } else if (existingLike?.deletedAt) {
       await this.likeRepository.restore(existingLike.id);
       result = true;
+      await this.eventEmitter.emitLike(userId, definitionId, definition.userId);
     } else {
       await this.likeRepository.create({ userId, definitionId });
       result = true;
+      await this.eventEmitter.emitLike(userId, definitionId, definition.userId);
     }
 
     if (definition.userId !== userId) {

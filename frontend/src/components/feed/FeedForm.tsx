@@ -194,7 +194,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 					value={definition.content}
 					onChange={(value) => setDefinition({ ...definition, content: value })}
 					onKeyDown={handleKeyDown}
-					className="border-0 focus-visible:ring-0 shadow-none rounded-none min-h-30 max-h-120 px-4 py-2"
+					className="border-0 focus-visible:ring-0 shadow-none rounded-none min-h-30 max-h-120 px-2 py-2"
 					autoFocus
 				/>
 				<div className="px-3">

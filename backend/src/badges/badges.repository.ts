@@ -72,8 +72,8 @@ export class BadgesRepository extends BaseRepository {
     increment: number = 1,
   ): Promise<UserBadgeProgressEntity> {
     const query = `
-      INSERT INTO ${TABLES.USER_BADGE_PROGRESS} (user_id, event_type, count, last_updated)
-      VALUES (?, ?, ?, NOW())
+      INSERT INTO ${TABLES.USER_BADGE_PROGRESS} (id, user_id, event_type, count, last_updated)
+      VALUES (?, ?, ?, ?, NOW())
       ON CONFLICT (user_id, event_type)
       DO UPDATE SET 
         count = ${TABLES.USER_BADGE_PROGRESS}.count + ?,
@@ -81,7 +81,13 @@ export class BadgesRepository extends BaseRepository {
       RETURNING *
     `;
 
-    const { rows } = await this.knex.raw(query, [userId, eventType, increment, increment]);
+    const { rows } = await this.knex.raw(query, [
+      generateId(),
+      userId,
+      eventType,
+      increment,
+      increment,
+    ]);
     return rows[0];
   }
 }

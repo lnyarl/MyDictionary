@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
+import { EventEmitterService } from "../common/events/event-emitter.service";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
 import { User } from "../users/entities/user.entity";
@@ -20,6 +21,7 @@ export class FollowsService {
     private readonly userRepository: UsersRepository,
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
+    private readonly eventEmitter: EventEmitterService,
   ) {}
 
   async follow(followerId: string, followingId: string): Promise<Follow> {
@@ -41,6 +43,7 @@ export class FollowsService {
       if (existingFollow.deletedAt) {
         // Restore soft-deleted follow
         await this.followRepository.restoreRelation(existingFollow.id);
+        await this.eventEmitter.emitFollow(followerId, followingId);
         return this.followRepository.findById(existingFollow.id);
       }
       throw new BadRequestException("Already following this user");
@@ -50,6 +53,8 @@ export class FollowsService {
       followerId,
       followingId,
     });
+
+    await this.eventEmitter.emitFollow(followerId, followingId);
 
     const follower = await this.userRepository.findById(followerId);
     if (follower) {
@@ -72,6 +77,7 @@ export class FollowsService {
     }
 
     await this.followRepository.delete(follow.id);
+    await this.eventEmitter.emitUnfollow(followerId, followingId);
   }
 
   async checkFollowing(followerId: string, followingId: string): Promise<boolean> {

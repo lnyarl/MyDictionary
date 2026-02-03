@@ -101,11 +101,11 @@ export function FeedCard({
       </div>
 
       <div className="flex flex-col md:flex-row ">
-        <div className="p-3 md:w-50 lg:w-62.5 shrink-0 flex flex-col gap-4 border-b-0 bg-[#9f9b8623] ">
+        <div className="p-2 md:w-50 lg:w-62.5 shrink-0 flex flex-col gap-4 border-b-0 bg-[#9f9b8623] ">
           <div className="flex-1 ">
             <Button
               variant="link"
-              className="p-0 h-auto font-sans text-4xl font-bold text-foreground whitespace-normal text-left break-keep hover:no-underline hover:text-primary transition-colors leading-[100%]"
+              className="p-0 h-auto font-sans text-4xl font-medium text-foreground whitespace-normal text-left break-keep hover:no-underline hover:text-primary transition-colors leading-[100%]"
               onClick={handleTermClick}
             >
               {definition.term}
@@ -113,7 +113,7 @@ export function FeedCard({
           </div>
         </div>
 
-        <div className="flex-1 p-3 flex flex-col min-w-0 bg-transparent">
+        <div className="flex-1 p-2 flex flex-col min-w-0 bg-transparent">
           <DefinitionCardContent
             definition={definition}
             isEdited={isEdited}

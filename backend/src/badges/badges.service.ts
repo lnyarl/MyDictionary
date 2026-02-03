@@ -22,8 +22,12 @@ export class BadgesService {
   }
 
   async updateProgressAndCheckBadges(userId: string, eventType: string): Promise<BadgeEntity[]> {
+    this.logger.debug(`Checking badges for user ${userId}, event: ${eventType}`);
     const progress = await this.badgesRepository.updateUserProgress(userId, eventType);
+    this.logger.debug(`Current progress for ${eventType}: ${progress.count}`);
+
     const potentialBadges = await this.badgesRepository.findBadgesByEventType(eventType);
+    this.logger.debug(`Found ${potentialBadges.length} potential badges for ${eventType}`);
 
     const earnedBadges: BadgeEntity[] = [];
 

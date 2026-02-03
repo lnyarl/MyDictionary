@@ -9,6 +9,7 @@ import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
 import { Knex } from "knex";
+import { EventEmitterService } from "../common/events/event-emitter.service";
 import { MetadataService } from "../common/services/metadata.service";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
 import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
@@ -29,6 +30,7 @@ export class DefinitionsService {
     private readonly metadataService: MetadataService,
     private readonly wordRepository: WordsRepository,
     @Inject(STORAGE_SERVICE) private readonly storageService: IStorageService,
+    private readonly eventEmitter: EventEmitterService,
   ) {}
 
   private async processContentImages(
@@ -96,6 +98,9 @@ export class DefinitionsService {
         mediaUrls: combinedMedia,
       })
       .maybeTransacting(transaction);
+
+    await this.eventEmitter.emitDefinitionCreate(userId, definition[0].id, word.id);
+
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
 
@@ -210,6 +215,8 @@ export class DefinitionsService {
       mediaUrls: combinedMedia,
     });
 
+    await this.eventEmitter.emitDefinitionUpdate(userId, id, definition.wordId);
+
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
 
@@ -228,6 +235,8 @@ export class DefinitionsService {
     }
 
     await this.definitionRepository.delete(id);
+
+    await this.eventEmitter.emitDefinitionDelete(userId, id, definition.wordId);
 
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();

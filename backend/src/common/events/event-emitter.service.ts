@@ -12,6 +12,7 @@ export class EventEmitterService {
 
   async emit<T extends EventPayload>(type: EventType, payload: T): Promise<void> {
     try {
+      this.logger.debug(`Emitting event ${type} with payload: ${JSON.stringify(payload)}`);
       await this.eventsQueue.add(type, payload);
     } catch (error) {
       this.logger.error(

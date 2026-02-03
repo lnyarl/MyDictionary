@@ -22,7 +22,7 @@ export class NotificationsController {
     return { count };
   }
 
-  @Patch("/notifications:id/read")
+  @Patch("/notifications/:id/read")
   async markAsRead(
     @CurrentUser("id") userId: string,
     @Param("id") notificationId: string,

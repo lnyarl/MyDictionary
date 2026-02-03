@@ -19,6 +19,7 @@ export class BadgeProgressHandler implements EventHandler {
 
   async handle(message: EventMessage<EventPayload>): Promise<void> {
     try {
+      this.logger.debug(`Received event ${message.type} for badge processing`);
       await this.processBadgeProgress(message.type as EventType, message.payload);
     } catch (error) {
       this.logger.error(`Failed to process badge progress for event ${message.type}:`, error);

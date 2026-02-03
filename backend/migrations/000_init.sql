@@ -196,6 +196,8 @@ CREATE TABLE "public"."events" (
     "payload" jsonb NOT NULL DEFAULT '{}'::jsonb,
     "metadata" jsonb DEFAULT '{}'::jsonb,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."events"."type" IS 'Event type (page_view, word_create, etc.)';
@@ -224,6 +226,7 @@ CREATE TABLE "public"."event_aggregates" (
     "period_end" timestamp NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."event_aggregates"."aggregate_key" IS 'Unique key for aggregation (e.g., page path, word ID)';
@@ -252,6 +255,7 @@ CREATE TABLE "public"."badges" (
     "is_active" bool NOT NULL DEFAULT true,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
     PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX badges_code_key ON public.badges USING btree (code);
@@ -266,6 +270,8 @@ CREATE TABLE "public"."user_badges" (
     "user_id" uuid NOT NULL,
     "badge_id" uuid NOT NULL,
     "earned_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."user_badges" ADD FOREIGN KEY ("badge_id") REFERENCES "public"."badges"("id") ON DELETE CASCADE;
@@ -284,6 +290,8 @@ CREATE TABLE "public"."user_badge_progress" (
     "count" int4 NOT NULL DEFAULT 0,
     "last_updated" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."user_badge_progress" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;

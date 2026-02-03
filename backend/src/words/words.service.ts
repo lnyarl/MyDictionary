@@ -1,13 +1,17 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
+import { EventEmitterService } from "../common/events/event-emitter.service";
 import { Word } from "./entities/word.entity";
 import { normalizeSearchTerm } from "./logic/word-search.logic";
 import { WordsRepository } from "./words.repository";
 
 @Injectable()
 export class WordsService {
-  constructor(private readonly wordRepository: WordsRepository) {}
+  constructor(
+    private readonly wordRepository: WordsRepository,
+    private readonly eventEmitter: EventEmitterService,
+  ) {}
 
   async create(userId: string, createWordDto: CreateWordDto): Promise<Word> {
     let word: Word;
@@ -18,6 +22,7 @@ export class WordsService {
         userId,
       });
       word = result[0];
+      await this.eventEmitter.emitWordCreate(userId, word.id, word.term);
     } else {
       word = existWord;
     }
