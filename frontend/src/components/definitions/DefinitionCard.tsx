@@ -11,10 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import type { Definition } from "@/types/definition.types";
+import type { Definition } from "@/lib/api/definitions";
 import { DefinitionCardContent } from "./DefinitionCardContent";
 
-interface DefinitionCardProps {
+type DefinitionCardProps = {
   definition: Definition;
   onDelete: (id: string) => void;
   onStartEdit?: () => void;

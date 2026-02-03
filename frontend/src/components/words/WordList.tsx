@@ -1,7 +1,7 @@
-import type { Word } from "../../types/word.types";
+import type { Word } from "@/lib/api/words";
 import { WordCard } from "./WordCard";
 
-interface WordListProps {
+type WordListProps = {
 	words: Word[];
 	onEdit: (word: Word) => void;
 	onDelete: (id: string) => void;

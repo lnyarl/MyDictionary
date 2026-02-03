@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { FollowStats } from "@/types/follow.types";
-import type { User } from "@/types/user.types";
-import { stringToColor } from "@/utils/color-generator";
+import type { FollowStats } from "@/lib/api/follows";
+import type { User } from "@/lib/api/users";
+import { stringToColor } from "@/lib/utils/color-generator";
 
-interface ProfileCardProps {
+type ProfileCardProps = {
   user: User;
   stats: FollowStats | null;
   onEdit?: () => void;

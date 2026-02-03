@@ -1,8 +1,7 @@
-import type { CreateWordInput } from "@/types/word.types";
-import type { Definition } from "../types/definition.types";
 import { api } from "./api";
+import type { Definition } from "./definitions";
 
-interface PaginatedResponse<T> {
+type PaginatedResponse<T> = {
   data: T[];
   meta: {
     page: number;
@@ -11,10 +10,21 @@ interface PaginatedResponse<T> {
     totalPages: number;
     nextCursor?: string;
   };
-}
+};
+
+export type CreateDefinitionInput = {
+  content: string;
+  tags?: string[];
+  isPublic?: boolean;
+};
+
+export type CreateFeedInput = {
+  term: string;
+  definition: CreateDefinitionInput;
+};
 
 export const feedApi = {
-  create: (data: CreateWordInput) => api.post<Definition>("/feed", data),
+  create: (data: CreateFeedInput) => api.post<Definition>("/feed", data),
   getFeed: (page = 1, limit = 20, cursor?: string) => {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (cursor) params.append("cursor", cursor);

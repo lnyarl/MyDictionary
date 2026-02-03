@@ -2,10 +2,10 @@ import { Extension } from "@tiptap/core";
 import { type OnWikiLinkClick, WikiLinkNode } from "./wikilink-node";
 import { type RenderSuggestionFunction, WikiLinkSuggestion } from "./wikilink-suggestion";
 
-export interface WikiLinkExtensionOptions {
+export type WikiLinkExtensionOptions = {
   onWikiLinkClick?: OnWikiLinkClick;
   renderSuggestionFunction: RenderSuggestionFunction;
-}
+};
 
 export const WikiLinkExtension = Extension.create<WikiLinkExtensionOptions>({
   name: "wikiLinkExtension",

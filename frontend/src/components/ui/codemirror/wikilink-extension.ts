@@ -8,7 +8,7 @@ import {
   type ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { wordsApi } from "@/lib/words";
+import { wordsApi } from "@/lib/api/words";
 
 // --- 1. Autocomplete (Completion) ---
 export const wikiLinkCompletion = async (

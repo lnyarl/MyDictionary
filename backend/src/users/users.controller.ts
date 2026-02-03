@@ -66,10 +66,4 @@ export class UsersController {
   async getUserProfileByNickname(@Param("nickname") nickname: string) {
     return this.usersService.getUserProfileByNickname(nickname);
   }
-
-  @Get("/users/:userId/words")
-  @Public()
-  async getUserWords(@Param("userId") userId: string, @Query() paginationDto: PaginationDto) {
-    return this.usersService.getUserPublicWords(userId, paginationDto);
-  }
 }

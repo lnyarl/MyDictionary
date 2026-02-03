@@ -13,13 +13,13 @@ export enum EventType {
   SEARCH = "search",
 }
 
-export interface EventMessage<T = EventPayload> {
+export type EventMessage<T = EventPayload> = {
   id: string;
   type: EventType;
   payload: T;
   timestamp: Date;
   metadata?: Record<string, unknown>;
-}
+};
 
 export type BaseEventPayload = {
   userId: string;

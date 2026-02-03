@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateWordInput } from "@/types/word.types";
-import { feedApi } from "../lib/feed";
+import { feedApi } from "../lib/api/feed";
 
 export function useMyFeed() {
   const queryClient = useQueryClient();

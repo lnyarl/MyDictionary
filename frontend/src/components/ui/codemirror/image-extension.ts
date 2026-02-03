@@ -7,7 +7,7 @@ import {
   type ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { api } from "@/lib/api";
+import { api } from "@/lib/api/api";
 
 async function uploadImage(file: File): Promise<string> {
   const formData = new FormData();

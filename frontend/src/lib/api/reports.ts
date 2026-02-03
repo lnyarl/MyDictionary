@@ -1,5 +1,5 @@
 import type { ReportReason } from "@shared/entities/report.entity";
-import { api } from "@/lib/api";
+import { api } from "@/lib/api/api";
 
 export interface CreateReportDto {
   reportedUserId: string;

@@ -1,10 +1,10 @@
-import type { User } from "../types/user.types";
 import { api } from "./api";
+import type { User } from "./users";
 
-export interface GoogleLoginResponse {
+export type GoogleLoginResponse = {
   user: User;
   token: string;
-}
+};
 
 export const authApi = {
   async getMe({ showErrorToast = true }): Promise<User> {

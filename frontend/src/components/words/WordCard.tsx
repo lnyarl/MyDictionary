@@ -1,11 +1,11 @@
 import { Edit2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import type { Word } from "../../types/word.types";
+import type { Word } from "@/lib/api/words";
 import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
-interface WordCardProps {
+type WordCardProps = {
 	word: Word;
 	onEdit: (word: Word) => void;
 	onDelete: (id: string) => void;

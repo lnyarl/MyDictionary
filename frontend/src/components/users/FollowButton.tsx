@@ -2,7 +2,7 @@ import { UserMinus, UserPlus } from "lucide-react";
 import { useFollow } from "../../hooks/useFollow";
 import { Button } from "../ui/button";
 
-interface FollowButtonProps {
+type FollowButtonProps = {
 	userId: string;
 	initialFollowing: boolean;
 	onFollowChange?: (isFollowing: boolean) => void;

@@ -1,9 +1,9 @@
 import { useAuth } from "@/hooks/useAuth";
-import type { UserProfile } from "../../types/follow.types";
+import type { UserProfile } from "@/lib/api/users";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { FollowButton } from "./FollowButton";
 
-interface UserProfileHeaderProps {
+type UserProfileHeaderProps = {
 	profile: UserProfile;
 	isFollowing: boolean;
 	onFollowChange: (isFollowing: boolean) => void;

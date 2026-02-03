@@ -1,17 +1,17 @@
 import { useEffect, useRef } from "react";
 
-interface UseInfiniteScrollOptions {
-	/** Callback to load more items */
-	onLoadMore: () => void;
-	/** Whether there are more items to load */
-	hasMore: boolean;
-	/** Whether currently loading */
-	isLoading: boolean;
-	/** Root margin for IntersectionObserver (default: "100px") */
-	rootMargin?: string;
-	/** Threshold for IntersectionObserver (default: 0.1) */
-	threshold?: number;
-}
+type UseInfiniteScrollOptions = {
+  /** Callback to load more items */
+  onLoadMore: () => void;
+  /** Whether there are more items to load */
+  hasMore: boolean;
+  /** Whether currently loading */
+  isLoading: boolean;
+  /** Root margin for IntersectionObserver (default: "100px") */
+  rootMargin?: string;
+  /** Threshold for IntersectionObserver (default: 0.1) */
+  threshold?: number;
+};
 
 /**
  * Hook for implementing infinite scroll using IntersectionObserver.
@@ -34,32 +34,31 @@ interface UseInfiniteScrollOptions {
  * ```
  */
 export function useInfiniteScroll({
-	onLoadMore,
-	hasMore,
-	isLoading,
-	rootMargin = "200px",
-	threshold = 0.01,
+  onLoadMore,
+  hasMore,
+  isLoading,
+  rootMargin = "200px",
+  threshold = 0.01,
 }: UseInfiniteScrollOptions) {
-	const sentinelRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		const sentinel = sentinelRef.current;
-		if (!sentinel || !hasMore || isLoading) return;
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore || isLoading) return;
 
-		const observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0].isIntersecting) {
-					onLoadMore();
-				}
-			},
-			{ rootMargin, threshold },
-		);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          onLoadMore();
+        }
+      },
+      { rootMargin, threshold },
+    );
 
-		observer.observe(sentinel);
+    observer.observe(sentinel);
 
-		return () => observer.disconnect();
-	}, [onLoadMore, hasMore, isLoading, rootMargin, threshold]);
+    return () => observer.disconnect();
+  }, [onLoadMore, hasMore, isLoading, rootMargin, threshold]);
 
-	return { sentinelRef };
+  return { sentinelRef };
 }
-

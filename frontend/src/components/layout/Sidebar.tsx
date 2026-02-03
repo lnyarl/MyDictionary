@@ -1,10 +1,10 @@
 import { Bell, Home, Search, Settings, User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { notificationsApi } from "@/lib/notifications";
+import { notificationsApi } from "@/lib/api/notifications";
 import { cn } from "@/lib/utils";
 
-interface NavItem {
+type NavItem = {
   icon: React.ReactNode;
   path: string;
   label: string;

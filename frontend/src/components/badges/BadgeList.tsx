@@ -15,11 +15,11 @@ import {
 	UserPlus,
 	Users,
 } from "lucide-react";
+import type { BadgeWithProgress } from "@/lib/api/badges";
 import { cn } from "../../lib/utils";
-import type { BadgeWithProgress } from "../../types/badge.types";
 import { Card, CardContent } from "../ui/card";
 
-interface BadgeListProps {
+type BadgeListProps = {
 	badges: BadgeWithProgress[];
 	loading: boolean;
 }

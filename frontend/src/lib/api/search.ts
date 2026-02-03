@@ -1,6 +1,22 @@
-import type { PaginatedResponse, PaginationParams } from "../types/pagination.types";
-import type { SearchResult } from "../types/search.types";
 import { api } from "./api";
+import type { Word } from "./words";
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    nextCursor?: string;
+  };
+};
+export type PaginationParams = {
+  page?: number;
+  limit?: number;
+  cursor?: string;
+};
+export type SearchResult = Word;
 
 export const searchApi = {
   search: (term: string, params?: PaginationParams) => {

@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { searchApi } from "../lib/search";
+import { searchApi } from "../lib/api/search";
 
 export function useSearch() {
   const [term, setTerm] = useState("");

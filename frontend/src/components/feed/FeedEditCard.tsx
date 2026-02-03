@@ -2,17 +2,11 @@ import { Check, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import type { Definition } from "../../types/definition.types";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import type { Definition } from "@/lib/api/definitions";
+import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardContent, CardFooter, CardHeader, Input, Label, Separator, Switch } from "../ui";
 import { RichTextEditor } from "../ui/rich-text-editor";
-import { Separator } from "../ui/separator";
-import { Switch } from "../ui/switch";
 
-interface FeedEditCardProps {
+type FeedEditCardProps = {
   definition: Definition;
   onSave: (data: { content: string; tags: string[]; isPublic: boolean }) => Promise<void>;
   onCancel: () => void;

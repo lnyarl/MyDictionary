@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { definitionsApi } from "../lib/definitions";
+import { definitionsApi } from "../lib/api/definitions";
 import type {
   CreateDefinitionInput,
   Definition,

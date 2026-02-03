@@ -1,18 +1,18 @@
 import { QueryClient } from "@tanstack/react-query";
 import i18n from "@/lib/i18n";
 
-import { toast } from "../hooks/use-toast";
+import { toast } from "../../hooks/use-toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
-export interface ApiError {
+type ApiError = {
   statusCode: number;
   errorCode: string;
   message: string;
   timestamp?: string;
   path?: string;
   details?: Record<string, unknown>;
-}
+};
 
 interface RequestOptions extends RequestInit {
   showErrorToast?: boolean;

@@ -2,9 +2,9 @@ import { Flag, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import type { Definition } from "@/lib/api/definitions";
 import { cn } from "@/lib/utils";
-import { i18nToIsoLocale, isDateFormat } from "@/lib/utils/date";
-import type { Definition } from "../../types/definition.types";
+import { i18nToIsoLocale, } from "@/lib/utils/date";
 import { DefinitionCardContent } from "../definitions/DefinitionCardContent";
 import { LikeButton } from "../definitions/LikeButton";
 import { ReportDialog } from "../definitions/ReportDialog";
@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-interface FeedCardProps {
+type FeedCardProps = {
   definition: Definition;
   onDelete?: (id: string) => void;
   onStartEdit?: () => void;

@@ -5,9 +5,9 @@ import { getErrorMessage, isApiError } from "@/lib/error-handler";
 
 import { toast } from "./use-toast";
 
-interface UseApiErrorOptions {
+type UseApiErrorOptions = {
   showToast?: boolean;
-}
+};
 
 export function useApiError(options: UseApiErrorOptions = {}) {
   const { showToast = true } = options;

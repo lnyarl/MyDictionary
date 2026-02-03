@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { likesApi } from "@/lib/likes";
+import { likesApi } from "@/lib/api/likes";
 
 export function useLike(props: { definitionId: string }) {
   const { mutate, isPending } = useMutation({

@@ -1,4 +1,4 @@
-export interface UserType {
+export type UserType = {
   id: string;
   googleId: string;
   email: string;
@@ -6,4 +6,4 @@ export interface UserType {
   profilePicture?: string;
   createdAt: string;
   updatedAt: string;
-}
+};

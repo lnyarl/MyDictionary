@@ -1,10 +1,17 @@
-import type { Definition } from "../types/definition.types";
-import type { UserProfile } from "../types/follow.types";
-import type { User } from "../types/user.types";
-import type { Word } from "../types/word.types";
 import { api } from "./api";
 
-interface PaginatedResponse<T> {
+export type User = {
+  id: string;
+  googleId: string;
+  email: string;
+  nickname: string;
+  profilePicture?: string;
+  bio?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type PaginatedResponse<T> = {
   data: T[];
   meta: {
     page: number;
@@ -13,7 +20,23 @@ interface PaginatedResponse<T> {
     totalPages: number;
     nextCursor?: string;
   };
-}
+};
+
+export type UserProfile = {
+  user: {
+    id: string;
+    nickname: string;
+    profilePicture?: string;
+    createdAt: string;
+    bio?: string;
+  };
+  stats: {
+    wordsCount: number;
+    definitionsCount: number;
+    followersCount: number;
+    followingCount: number;
+  };
+};
 
 export const usersApi = {
   updateNickname: (nickname: string) => api.patch<User>("/users/me/nickname", { nickname }),
@@ -31,10 +54,4 @@ export const usersApi = {
 
   getUserProfileByNickname: (nickname: string) =>
     api.get<UserProfile>(`/users/profile/${nickname}`),
-
-  getUserWords: (userId: string, page = 1, limit = 20, cursor?: string) => {
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-    if (cursor) params.append("cursor", cursor);
-    return api.get<PaginatedResponse<Word>>(`/users/${userId}/words?${params.toString()}`);
-  },
 };

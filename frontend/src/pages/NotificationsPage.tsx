@@ -6,7 +6,7 @@ import { Page } from "@/components/layout/Page";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import { notificationsApi } from "@/lib/notifications";
+import { notificationsApi } from "@/lib/api/notifications";
 import { cn } from "@/lib/utils";
 import type { Notification, NotificationsResponse } from "@/types/notification.types";
 

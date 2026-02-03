@@ -1,11 +1,68 @@
-import type { PaginatedResponse } from "@/types/pagination.types";
-import type {
-  CreateDefinitionInput,
-  Definition,
-  DefinitionHistory,
-  UpdateDefinitionInput,
-} from "../types/definition.types";
 import { api } from "./api";
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    nextCursor?: string;
+  };
+};
+
+export type Definition = {
+  id: string;
+  content: string;
+  wordId: string;
+  userId: string;
+  term: string;
+  isPublic: boolean;
+  profilePicture?: string;
+  nickname?: string;
+  likesCount: number;
+  isLiked: boolean;
+  tags?: string[];
+  mediaUrls?: Array<{
+    url: string;
+    type: "image" | "video" | "unknown";
+    title?: string;
+    description?: string;
+    image?: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateDefinitionInput = {
+  content: string;
+  wordId: string;
+  isPublic?: boolean;
+  tags?: string[];
+  files?: File[];
+};
+
+export type UpdateDefinitionInput = {
+  content?: string;
+  isPublic?: boolean;
+  tags?: string[];
+  files?: File[];
+};
+
+export type DefinitionHistory = {
+  id: string;
+  definitionId: string;
+  content: string;
+  tags: string[];
+  mediaUrls: Array<{
+    url: string;
+    type: string;
+    title?: string;
+    description?: string;
+    image?: string;
+  }>;
+  createdAt: string;
+};
 
 export const definitionsApi = {
   getByWord: (wordId: string) => api.get<Definition[]>(`/words/${wordId}/definitions`),
@@ -35,7 +92,6 @@ export const definitionsApi = {
 
   update: (id: string, data: UpdateDefinitionInput) => {
     const formData = new FormData();
-    console.log("tq", data);
     if (data.content !== undefined) {
       formData.append("content", data.content);
     }

@@ -13,7 +13,7 @@ import { Label } from "../components/ui/label";
 import { Separator } from "../components/ui/separator";
 import { Textarea } from "../components/ui/textarea";
 import { useToast } from "../hooks/use-toast";
-import { usersApi } from "../lib/users";
+import { usersApi } from "../lib/api/users";
 
 export default function SettingsPage() {
   const { t } = useTranslation();

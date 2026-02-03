@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import ogs from "open-graph-scraper";
 
-export interface UrlMetadata {
+export type UrlMetadata = {
   url: string;
   type: "image" | "video" | "website" | "article" | "unknown";
   title?: string;
   description?: string;
   image?: string;
   siteName?: string;
-}
+};
 
 @Injectable()
 export class MetadataService {

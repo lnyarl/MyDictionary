@@ -8,11 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { usersApi } from "@/lib/users";
-import type { User } from "@/types/user.types";
-import { stringToColor } from "@/utils/color-generator";
+import { type User, usersApi } from "@/lib/api/users";
+import { stringToColor } from "@/lib/utils/color-generator";
 
-interface ProfileEditCardProps {
+type ProfileEditCardProps = {
   user: User;
   onCancel: () => void;
   onSave: () => Promise<void>;

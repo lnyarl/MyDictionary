@@ -6,7 +6,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { AuthLayout } from "./components/layout/AuthLayout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthProvider";
-import { queryClient } from "./lib/api";
+import { queryClient } from "./lib/api/api";
 import FeedPage from "./pages/FeedPage";
 import FollowersPage from "./pages/FollowersPage";
 import FollowingPage from "./pages/FollowingPage";

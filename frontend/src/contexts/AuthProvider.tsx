@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authApi } from "../lib/auth";
+import { authApi } from "../lib/api/auth";
 import type { User } from "../types/user.types";
 import { AuthContext, type AuthContextType, type GoogleCredentialResponse } from "./AuthContext";
 

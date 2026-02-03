@@ -15,7 +15,7 @@ import { Label } from "../ui/label";
 import { RichTextEditor } from "../ui/rich-text-editor";
 import { Switch } from "../ui/switch";
 
-interface DefinitionFormProps {
+type DefinitionFormProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: {

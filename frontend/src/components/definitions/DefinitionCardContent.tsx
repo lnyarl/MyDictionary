@@ -1,4 +1,4 @@
-import { ExternalLink, Globe, Lock } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -14,14 +14,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
-import type { Definition } from "@/types/definition.types";
+import type { Definition } from "@/lib/api/definitions";
 
-interface DefinitionCardContentProps {
+type DefinitionCardContentProps = {
   definition: Definition;
   isEdited?: boolean;
   formattedDate: string;
   likeButton?: React.ReactNode;
-  option: { showUser: boolean }
+  option?: { showUser: boolean }
 }
 
 export function DefinitionCardContent({

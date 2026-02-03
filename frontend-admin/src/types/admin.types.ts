@@ -6,37 +6,37 @@ export const AdminRole = {
 
 export type AdminRoleType = (typeof AdminRole)[keyof typeof AdminRole];
 
-export interface AdminUser {
+export type AdminUser = {
 	id: string;
 	username: string;
 	role: AdminRoleType;
 	mustChangePassword: boolean;
 	lastLogin?: string;
 	createdAt?: string;
-}
+};
 
-export interface LoginResponse {
+export type LoginResponse = {
 	admin: AdminUser;
 	token: string;
-}
+};
 
-export interface User {
+export type User = {
 	id: string;
 	email: string;
 	nickname: string;
 	profilePicture?: string;
 	createdAt: string;
 	updatedAt: string;
-}
+};
 
-export interface PaginationMeta {
+export type PaginationMeta = {
 	page: number;
 	limit: number;
 	total: number;
 	totalPages: number;
-}
+};
 
-export interface PaginatedResponse<T> {
+export type PaginatedResponse<T> = {
 	data: T[];
 	meta: PaginationMeta;
-}
+};

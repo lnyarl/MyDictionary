@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { getItem, removeItem, setItem } from "@/lib/localStorage";
 import { toDayString } from "@/lib/utils/date";
-import { wordsApi } from "../../lib/words";
-import type { CreateWordInput, Word } from "../../types/word.types";
+import { type CreateFeedInput, type Word, wordsApi } from "../../lib/api/words";
 import { Button } from "../ui/button";
 import { STORAGE_KEY } from "../ui/codemirror/save-extension";
 import { Input } from "../ui/input";
@@ -14,8 +13,8 @@ import { RichTextEditor } from "../ui/rich-text-editor";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 
-interface WordFormProps {
-	onCreate: (data: CreateWordInput) => Promise<void>;
+type WordFormProps = {
+	onCreate: (data: CreateFeedInput) => Promise<void>;
 }
 
 export function FeedForm({ onCreate }: WordFormProps) {
@@ -97,7 +96,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 			await onCreate({
 				term: term.trim(),
 				definition: formattedDefinition,
-			} as CreateWordInput);
+			} as CreateFeedInput);
 			setTerm("");
 			setDefinition({ content: "", tags: "", isPublic: true });
 		} catch (error) {

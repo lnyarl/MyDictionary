@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 
-interface AppLayoutProps {
+type AppLayoutProps = {
   children: ReactNode;
 }
 

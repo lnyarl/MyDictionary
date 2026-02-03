@@ -15,9 +15,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { reportsApi } from "@/lib/reports";
+import { reportsApi } from "@/lib/api/reports";
 
-interface ReportDialogProps {
+type ReportDialogProps = {
 	reportedUserId: string;
 	definitionId?: string;
 	trigger?: React.ReactNode;

@@ -11,13 +11,6 @@ import type { Request, Response } from "express";
 
 import { BusinessException } from "../exceptions/business.exception";
 
-interface ExceptionResponseObject {
-  message?: string;
-  error?: string;
-  errorCode?: ErrorCode;
-  details?: Record<string, unknown>;
-}
-
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
@@ -44,7 +37,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
       } else if (typeof exceptionResponse === "object" && exceptionResponse !== null) {
-        const responseObj = exceptionResponse as ExceptionResponseObject;
+        const responseObj = exceptionResponse as {
+          message?: string;
+          error?: string;
+          errorCode?: ErrorCode;
+          details?: Record<string, unknown>;
+        };
         message = responseObj.message || exception.message;
         if (responseObj.errorCode) {
           errorCode = responseObj.errorCode;

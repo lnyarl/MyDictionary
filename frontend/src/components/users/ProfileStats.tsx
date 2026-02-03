@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import type { UserProfile } from "../../types/follow.types";
+import type { UserProfile } from "@/lib/api/users";
 
-interface ProfileStatsProps {
+type ProfileStatsProps = {
 	profile: UserProfile;
 	userId: string;
 }

@@ -92,11 +92,11 @@ export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 /**
  * API Error Response format returned by backend
  */
-export interface ApiErrorResponse {
+export type ApiErrorResponse = {
   statusCode: number;
   errorCode: ErrorCode;
   message: string;
   timestamp: string;
   path: string;
   details?: Record<string, unknown>;
-}
+};

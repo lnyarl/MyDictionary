@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { definitionsApi } from "../../lib/definitions";
-import type { DefinitionHistory } from "../../types/definition.types";
+import { type DefinitionHistory, definitionsApi } from "../../lib/api/definitions";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 
-interface DefinitionHistoryDialogProps {
+type DefinitionHistoryDialogProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	definitionId: string;

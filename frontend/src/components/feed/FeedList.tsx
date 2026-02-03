@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { Definition } from "@/lib/api/definitions";
 import { cn } from "@/lib/utils";
-import type { Definition } from "../../types/definition.types";
 import { FeedCard } from "./FeedCard";
 import { FeedEditCard } from "./FeedEditCard";
 
-interface FeedListProps {
+type FeedListProps = {
   definitions: Definition[];
   onDelete?: (id: string) => void;
   onEdit?: (

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { RichTextEditor } from "../ui/rich-text-editor";
 
-interface FeedCardContentProps {
+type FeedCardContentProps = {
   content: string;
   className?: string;
 }

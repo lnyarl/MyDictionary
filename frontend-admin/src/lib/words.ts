@@ -1,13 +1,13 @@
 import { api } from "./api";
 
-export interface Word {
+export type Word = {
 	id: string;
 	term: string;
 	userId: string;
 	isPublic: boolean;
 	createdAt: string;
 	updatedAt: string;
-}
+};
 
 export const wordsApi = {
 	getWordsByUserId: async (userId: string): Promise<Word[]> => {

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-interface PageProps {
+type PageProps = {
 	children: ReactNode;
 	maxWidth?: "2xl" | "4xl" | "6xl";
 }

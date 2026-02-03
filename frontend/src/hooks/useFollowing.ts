@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { followsApi } from "../lib/follows";
+import { followsApi } from "../lib/api/follows";
 
 export function useFollowing(userId?: string) {
   return useInfiniteQuery({

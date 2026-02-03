@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import i18n from "@/lib/i18n";
 
-interface Props {
+type Props = {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-interface State {
+type State = {
   hasError: boolean;
   error: Error | null;
 }
@@ -51,7 +51,7 @@ class ErrorBoundaryClass extends Component<Props & { t: (key: string) => string 
       const { t } = this.props;
 
       return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="flex min-h-100 flex-col items-center justify-center gap-4 p-8 text-center">
           <div className="text-6xl">😵</div>
           <h2 className="text-xl font-semibold">{t("errorBoundary.title")}</h2>
           <p className="text-muted-foreground max-w-md">{t("errorBoundary.description")}</p>

@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "../ui/button";
 import { useLike } from "./hooks";
 
-interface LikeButtonProps {
+type LikeButtonProps = {
   definitionId: string;
   initialLikesCount: number;
   initialIsLiked?: boolean;

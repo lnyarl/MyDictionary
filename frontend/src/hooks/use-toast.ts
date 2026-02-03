@@ -50,9 +50,9 @@ type Action =
       toastId?: ToasterToast["id"];
     };
 
-interface State {
+type State = {
   toasts: ToasterToast[];
-}
+};
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const autoDismissTimeouts = new Map<string, ReturnType<typeof setTimeout>>();

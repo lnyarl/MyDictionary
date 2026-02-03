@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { authApi } from "../lib/auth";
+import { authApi } from "../lib/api/auth";
 
 export default function ImpersonatePage() {
 	const [searchParams] = useSearchParams();

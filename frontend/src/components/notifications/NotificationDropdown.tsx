@@ -1,7 +1,7 @@
 import { Award, Bell, Heart, UserPlus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { notificationsApi } from "@/lib/notifications";
+import { notificationsApi } from "@/lib/api/notifications";
 import { cn } from "@/lib/utils";
 import type { Notification } from "@/types/notification.types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -47,7 +47,7 @@ export function NotificationDropdown() {
 		try {
 			const response = await notificationsApi.getUnreadCount();
 			setUnreadCount(response.count);
-		} catch {}
+		} catch { }
 	}, []);
 
 	const fetchNotifications = useCallback(async () => {
@@ -81,7 +81,7 @@ export function NotificationDropdown() {
 					prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)),
 				);
 				setUnreadCount((prev) => Math.max(0, prev - 1));
-			} catch {}
+			} catch { }
 		}
 
 		if (notification.targetUrl) {
@@ -95,7 +95,7 @@ export function NotificationDropdown() {
 			await notificationsApi.markAllAsRead();
 			setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 			setUnreadCount(0);
-		} catch {}
+		} catch { }
 	};
 
 	const handleViewAll = () => {
