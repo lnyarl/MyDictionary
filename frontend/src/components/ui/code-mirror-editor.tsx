@@ -1,20 +1,21 @@
 import {
   acceptCompletion,
   autocompletion,
-  closeBrackets,
-  closeBracketsKeymap,
   completionKeymap,
   completionStatus,
 } from "@codemirror/autocomplete";
-import { defaultKeymap, history, historyKeymap, indentLess, indentMore } from "@codemirror/commands";
-import { lintKeymap } from "@codemirror/lint";
-import { searchKeymap } from "@codemirror/search";
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentLess,
+  indentMore,
+} from "@codemirror/commands";
 import { Compartment, EditorState } from "@codemirror/state";
 import {
   drawSelection,
   dropCursor,
   EditorView,
-  highlightSpecialChars,
   keymap,
   placeholder as placeholderExt,
 } from "@codemirror/view";
@@ -27,6 +28,7 @@ import {
   wikiLinkPlugin,
 } from "./codemirror/wikilink-extension";
 import "./codemirror/styles.css";
+import { imageExtension } from "./codemirror/image-extension";
 import { saveExtension } from "./codemirror/save-extension";
 
 type CodeMirrorEditorProps = {
@@ -74,7 +76,7 @@ export function CodeMirrorEditor({
           // 한글자씩 undo 되도록 하기 위해서 false를 리턴한다
           joinToEvent: () => {
             return false;
-          }
+          },
         }),
         // closeBrackets(),
         wikiLinkPlugin,
@@ -89,19 +91,20 @@ export function CodeMirrorEditor({
           }
         }),
         saveExtension,
+        imageExtension,
         keymap.of([
           ...defaultKeymap,
           ...completionKeymap,
           ...historyKeymap,
           {
-            key: 'Tab',
+            key: "Tab",
             preventDefault: true,
             shift: indentLess,
-            run: e => {
+            run: (e) => {
               if (!completionStatus(e.state)) return indentMore(e);
               return acceptCompletion(e);
             },
-          }
+          },
         ]),
         EditorView.domEventHandlers({
           keydown: (e) => {

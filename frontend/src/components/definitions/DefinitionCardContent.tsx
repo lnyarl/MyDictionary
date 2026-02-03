@@ -60,9 +60,9 @@ export function DefinitionCardContent({
   };
 
   return (
-    <div className="flex-1 flex flex-col min-w-0">
+    <div className="flex-1 flex flex-col min-w-0 ">
       <div className="flex-1 mb-4">
-        <div ref={contentRef} className="max-h-[200px] overflow-hidden relative text-sm">
+        <div ref={contentRef} className="max-h-50 overflow-hidden relative text-sm ">
           <RichTextContent content={definition.content} />
           {isTruncated && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />

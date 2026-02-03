@@ -65,7 +65,7 @@ services:
       minio:
         condition: service_healthy
     entrypoint: >
-      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}; /usr/bin/mc mb myminio/${AWS_S3_BUCKET_NAME:-stashy-bucket}; /usr/bin/mc anonymous set public myminio/${AWS_S3_BUCKET_NAME:-stashy-bucket}; exit 0; "
+      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}; /usr/bin/mc mb myminio/${STORAGE_BUCKET:-stashy-bucket}; /usr/bin/mc anonymous set public myminio/${STORAGE_BUCKET:-stashy-bucket}; /usr/bin/mc mb myminio/${STORAGE_TEMP_BUCKET:-stashy-temp-bucket}; /usr/bin/mc anonymous set public myminio/${STORAGE_TEMP_BUCKET:-stashy-temp-bucket};  exit 0; "
     networks:
       - stashy-network-test
 

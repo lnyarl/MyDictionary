@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -32,6 +33,18 @@ export class DefinitionsController {
     private readonly definitionsService: DefinitionsService,
     @Inject(STORAGE_SERVICE) private readonly storageService: IStorageService,
   ) {}
+
+  @Post("/definitions/upload-temp")
+  @UseInterceptors(FilesInterceptor("files"))
+  async uploadTemp(@UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException("No files uploaded");
+    }
+    const uploadedUrls = await Promise.all(
+      files.map((file) => this.storageService.uploadTempFile(file, "temp-definitions")),
+    );
+    return { urls: uploadedUrls };
+  }
 
   @Post("/definitions")
   @UseInterceptors(FilesInterceptor("files"))

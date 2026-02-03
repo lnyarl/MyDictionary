@@ -10,6 +10,7 @@ import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-defini
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
 import { Knex } from "knex";
 import { MetadataService } from "../common/services/metadata.service";
+import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
 import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
 import type { DefinitionHistory } from "../definition-histories/entities/definition-history.entity";
 import { FeedService } from "../feed/feed.service";
@@ -27,7 +28,33 @@ export class DefinitionsService {
     private readonly feedService: FeedService,
     private readonly metadataService: MetadataService,
     private readonly wordRepository: WordsRepository,
+    @Inject(STORAGE_SERVICE) private readonly storageService: IStorageService,
   ) {}
+
+  private async processContentImages(
+    content: string,
+  ): Promise<{ content: string; newMediaUrls: string[] }> {
+    let updatedContent = content;
+    const newMediaUrls: string[] = [];
+
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const matches = content.match(urlRegex) || [];
+    const uniqueUrls = [...new Set(matches)];
+
+    for (const url of uniqueUrls) {
+      if (url.includes("temp-definitions")) {
+        try {
+          const permUrl = await this.storageService.moveFileToPermanent(url, "definitions");
+          updatedContent = updatedContent.replace(new RegExp(url, "g"), permUrl);
+          newMediaUrls.push(permUrl);
+        } catch (e) {
+          console.warn(`Failed to move temp file ${url}`, e);
+        }
+      }
+    }
+
+    return { content: updatedContent, newMediaUrls };
+  }
 
   async create(
     userId: string,
@@ -40,16 +67,29 @@ export class DefinitionsService {
       throw new ForbiddenException("You do not have access to this word");
     }
 
+    const { content: processedContent, newMediaUrls: movedMediaUrls } =
+      await this.processContentImages(createDefinitionDto.content);
+    const finalMediaUrls = [...mediaUrls, ...movedMediaUrls];
+
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urlsInContent = createDefinitionDto.content.match(urlRegex) || [];
-    const metadataPromises = urlsInContent.map((url) => this.metadataService.extractMetadata(url));
+    const urlsInContent = processedContent.match(urlRegex) || [];
+    // Filter out our own media URLs from metadata extraction to avoid duplicate preview cards for images we just uploaded
+    const urlsForMetadata = urlsInContent.filter((url) => !finalMediaUrls.includes(url));
+
+    const metadataPromises = urlsForMetadata.map((url) =>
+      this.metadataService.extractMetadata(url),
+    );
     const metadataList = await Promise.all(metadataPromises);
 
-    const combinedMedia = [...mediaUrls.map((url) => ({ url, type: "image" })), ...metadataList];
+    const combinedMedia = [
+      ...finalMediaUrls.map((url) => ({ url, type: "image" })),
+      ...metadataList,
+    ];
 
     const definition = await this.definitionRepository
       .create({
         ...createDefinitionDto,
+        content: processedContent,
         userId,
         isPublic: createDefinitionDto.isPublic,
         tags: createDefinitionDto.tags || [],
@@ -134,19 +174,37 @@ export class DefinitionsService {
       mediaUrls: definition.mediaUrls || [],
     });
 
-    let combinedMedia = definition.mediaUrls || [];
+    let processedContent = updateDefinitionDto.content;
+    let movedMediaUrls: string[] = [];
+
     if (updateDefinitionDto.content) {
+      const result = await this.processContentImages(updateDefinitionDto.content);
+      processedContent = result.content;
+      movedMediaUrls = result.newMediaUrls;
+    }
+
+    let combinedMedia = definition.mediaUrls || [];
+
+    const finalNewMediaUrls = [...mediaUrls, ...movedMediaUrls];
+
+    if (processedContent) {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const urlsInContent = updateDefinitionDto.content.match(urlRegex) || [];
-      const metadataPromises = urlsInContent.map((url) =>
+      const urlsInContent = processedContent.match(urlRegex) || [];
+      const urlsForMetadata = urlsInContent.filter((url) => !finalNewMediaUrls.includes(url));
+
+      const metadataPromises = urlsForMetadata.map((url) =>
         this.metadataService.extractMetadata(url),
       );
       const metadataList = await Promise.all(metadataPromises);
-      combinedMedia = [...mediaUrls.map((url) => ({ url, type: "image" })), ...metadataList];
+
+      combinedMedia = [
+        ...finalNewMediaUrls.map((url) => ({ url, type: "image" })),
+        ...metadataList,
+      ];
     }
 
     const updated = await this.definitionRepository.updateDefinition(id, {
-      content: updateDefinitionDto.content,
+      content: processedContent,
       tags: updateDefinitionDto.tags,
       isPublic: updateDefinitionDto.isPublic,
       mediaUrls: combinedMedia,

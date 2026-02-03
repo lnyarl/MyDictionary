@@ -4,9 +4,19 @@ import { IStorageService, STORAGE_SERVICE } from "../../common/services/storage/
 let testStorageInstance: IStorageService | null = null;
 export function createStorageService(): IStorageService {
   if (!testStorageInstance) {
+    const privateStorage = {};
     testStorageInstance = {
       uploadFile(file: Express.Multer.File, folder?: string): Promise<string> {
-        return Promise.resolve("test-file-path");
+        privateStorage[folder] = file;
+        return Promise.resolve(`test-file-path/${folder}/${file.filename}`);
+      },
+      uploadTempFile(file: Express.Multer.File, folder?: string): Promise<string> {
+        privateStorage[folder] = file;
+        return Promise.resolve(`test-file-path/${folder}/${file.filename}`);
+      },
+      moveFileToPermanent(tempUrl: string, folder?: string): Promise<string> {
+        privateStorage[folder] = privateStorage[tempUrl];
+        return Promise.resolve(`test-file-path/${folder}/${privateStorage[folder].filename}`);
       },
     };
   }

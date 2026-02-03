@@ -50,7 +50,7 @@ export function FeedCard({
   return (
     <Card
       className={cn(
-        "relative transition-all overflow-hidden shadow-none border-t-2 border-b-0 border-r-0 border-l-0 rounded-none",
+        "relative transition-all overflow-hidden shadow-none border-t-2 border-b-0 border-r-0 border-l-0 rounded-none bg-transparent",
         variant === "default"
           ? ""
           : "border-none shadow-none bg-transparent hover:bg-muted/30",
@@ -96,7 +96,7 @@ export function FeedCard({
       </div>
 
       <div className="flex flex-col md:flex-row ">
-        <div className="p-3 md:w-50 lg:w-62.5 shrink-0 flex flex-col gap-4 border-b-0  bg-[#9f9b8623] ">
+        <div className="p-3 md:w-50 lg:w-62.5 shrink-0 flex flex-col gap-4 border-b-0 bg-[#9f9b8623] ">
           <div className="flex-1 ">
             <Button
               variant="link"
@@ -108,7 +108,7 @@ export function FeedCard({
           </div>
         </div>
 
-        <div className="flex-1 p-3 flex flex-col min-w-0">
+        <div className="flex-1 p-3 flex flex-col min-w-0 bg-transparent">
           <DefinitionCardContent
             definition={definition}
             isEdited={isEdited}

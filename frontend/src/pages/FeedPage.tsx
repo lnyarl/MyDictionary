@@ -34,7 +34,7 @@ export default function FeedPage() {
   };
 
   return (
-    <Page>
+    <Page >
       <div className="mb-8">
         <FeedForm onCreate={handleSubmit} />
       </div>
@@ -59,7 +59,7 @@ export default function FeedPage() {
           </TabsTrigger>
         </TabsList>
 
-        <div className="shadow-[0_0_10px_1px_rgba(0,0,0,0.1)] relative">
+        <div className="shadow-[0_0_10px_1px_rgba(0,0,0,0.1)] relative bg-transparent">
           <TabsContent value="all" className="m-0 p-6 ">
             <FeedList
               definitions={allFeed.definitions}
