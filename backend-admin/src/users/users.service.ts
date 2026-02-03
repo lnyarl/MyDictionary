@@ -1,9 +1,9 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { generateRandomNickname, User } from "@shared";
+import { generateRandomNickname, User } from "@stashy/shared";
 import {
   PaginatedResponseDto,
   PaginationDto,
-} from "@shared/admin/dto/pagination.dto";
+} from "@stashy/shared/admin/dto/pagination.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 

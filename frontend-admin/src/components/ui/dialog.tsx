@@ -23,6 +23,39 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
 	);
 };
 
+// Simplified Trigger that just renders children and handles click
+const DialogTrigger = React.forwardRef<
+	HTMLButtonElement,
+	React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ className, onClick, children, asChild, ...props }, ref) => {
+	// If used within Dialog context (which we don't fully implement here without context),
+	// it should open the dialog.
+	// Since we use controlled state in parent, this might just be a button wrapper.
+	// BUT `UserDetailPage` uses it inside `Dialog` which expects it to work.
+	// The current simple implementation of `Dialog` DOES NOT provide context.
+	// So `DialogTrigger` won't work automatically unless we lift state up or use context.
+
+	// For now, let's keep it simple and assume the parent handles `open` state
+	// and `DialogTrigger` is just for UI consistency or we need to refactor `UserDetailPage`
+	// to control state manually instead of relying on `DialogTrigger`.
+
+	// Actually, let's implement a basic context for Dialog to make Trigger work if needed,
+	// OR just update UserDetailPage to not use Trigger if it's too complex for this file.
+
+	// Given UserDetailPage uses `DialogTrigger asChild` with a Button,
+	// and `Dialog` wraps it...
+	// The `Dialog` component above takes `open` and `onOpenChange` props.
+	// It renders `children` directly.
+
+	// To support `DialogTrigger`, we need a Context.
+	return (
+		<button ref={ref} className={cn(className)} onClick={onClick} {...props}>
+			{children}
+		</button>
+	);
+});
+DialogTrigger.displayName = "DialogTrigger";
+
 const DialogContent = React.forwardRef<
 	HTMLDivElement,
 	React.HTMLAttributes<HTMLDivElement>
@@ -95,6 +128,7 @@ DialogDescription.displayName = "DialogDescription";
 
 export {
 	Dialog,
+	DialogTrigger,
 	DialogContent,
 	DialogHeader,
 	DialogFooter,

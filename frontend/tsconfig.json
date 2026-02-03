@@ -1,11 +1,15 @@
 {
-	"files": [],
-	"references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
-	"compilerOptions": {
-		"paths": {
-			"@/*": ["./src/*"],
-			"@shared": ["../shared/src"],
-			"@shared/*": ["../shared/src/*"]
-		}
-	}
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "../shared" }
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@stashy/shared": ["../shared/dist", "../shared/src"], // shared는 이미 빌드된 라이브러리처럼 생각해야한다
+      "@stashy/shared/*": ["../shared/dist/*", "../shared/src/*"]
+    }
+  }
 }

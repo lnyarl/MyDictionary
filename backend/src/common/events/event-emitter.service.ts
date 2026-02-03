@@ -1,8 +1,8 @@
 import { InjectQueue } from "@nestjs/bullmq";
 import { Injectable, Logger } from "@nestjs/common";
+import { EventType } from "@stashy/shared";
 import { Queue } from "bullmq";
 import type { EventPayload } from "./event.types";
-import { EventType } from "./event.types";
 
 @Injectable()
 export class EventEmitterService {

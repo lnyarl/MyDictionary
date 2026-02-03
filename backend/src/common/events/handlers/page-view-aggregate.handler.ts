@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
+import { EventType } from "@stashy/shared";
 import type { EventMessage, EventPayload, PageViewPayload } from "../event.types";
-import { EventType } from "../event.types";
 import { EventsRepository } from "../events.repository";
 import type { EventHandler } from "./event-handler.interface";
 

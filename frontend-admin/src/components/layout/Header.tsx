@@ -22,7 +22,9 @@ export function Header() {
 						<Link
 							to="/users"
 							className={`px-3 py-2 rounded-md text-sm font-medium ${
-								isActive("/users") ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50"
+								isActive("/users")
+									? "bg-gray-100 text-gray-900"
+									: "text-gray-600 hover:bg-gray-50"
 							}`}
 						>
 							Users
@@ -36,6 +38,16 @@ export function Header() {
 							}`}
 						>
 							Reports
+						</Link>
+						<Link
+							to="/badges"
+							className={`px-3 py-2 rounded-md text-sm font-medium ${
+								isActive("/badges")
+									? "bg-gray-100 text-gray-900"
+									: "text-gray-600 hover:bg-gray-50"
+							}`}
+						>
+							Badges
 						</Link>
 						{admin?.role === AdminRole.SUPER_ADMIN && (
 							<Link

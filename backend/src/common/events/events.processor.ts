@@ -1,7 +1,8 @@
 import { OnWorkerEvent, Processor, WorkerHost } from "@nestjs/bullmq";
 import { Inject, Logger } from "@nestjs/common";
+import { EventType } from "@stashy/shared";
 import { Job } from "bullmq";
-import type { EventMessage, EventPayload, EventType } from "./event.types";
+import type { EventMessage, EventPayload } from "./event.types";
 import type { EventHandler } from "./handlers/event-handler.interface";
 import { EVENT_HANDLERS } from "./handlers/event-handler.interface";
 

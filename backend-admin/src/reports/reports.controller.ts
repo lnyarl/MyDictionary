@@ -7,7 +7,7 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { PaginationDto } from "@shared";
+import { PaginationDto } from "@stashy/shared";
 import { AdminRole } from "../admin-users/entities/admin-user.entity";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { ReportStatus } from "./entities/report.entity";

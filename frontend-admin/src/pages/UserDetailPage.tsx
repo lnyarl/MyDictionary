@@ -1,6 +1,22 @@
+import type { BadgeEntity, UserBadgeEntity } from "@stashy/shared";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "../components/ui/dialog";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -9,6 +25,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "../components/ui/table";
+import { badgesApi } from "../lib/badges";
 import { usersApi } from "../lib/users";
 import { type Word, wordsApi } from "../lib/words";
 import type { User } from "../types/admin.types";
@@ -18,19 +35,30 @@ export default function UserDetailPage() {
 	const navigate = useNavigate();
 	const [user, setUser] = useState<User | null>(null);
 	const [words, setWords] = useState<Word[]>([]);
+	const [userBadges, setUserBadges] = useState<
+		(UserBadgeEntity & { badge_name: string; badge_code: string })[]
+	>([]);
+	const [availableBadges, setAvailableBadges] = useState<BadgeEntity[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [selectedBadgeToGrant, setSelectedBadgeToGrant] = useState<string>("");
+	const [isGrantDialogOpen, setIsGrantDialogOpen] = useState(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
 			if (!id) return;
 			try {
 				setIsLoading(true);
-				const [userData, wordsData] = await Promise.all([
-					usersApi.getUser(id),
-					wordsApi.getWordsByUserId(id),
-				]);
+				const [userData, wordsData, badgesData, allBadgesResponse] =
+					await Promise.all([
+						usersApi.getUser(id),
+						wordsApi.getWordsByUserId(id),
+						badgesApi.getUserBadges(id),
+						badgesApi.findAll(1, 100), // Fetch first 100 badges for selection
+					]);
 				setUser(userData);
 				setWords(wordsData);
+				setUserBadges(badgesData);
+				setAvailableBadges(allBadgesResponse.data);
 			} catch (error) {
 				console.error("Failed to fetch user data", error);
 			} finally {
@@ -57,11 +85,42 @@ export default function UserDetailPage() {
 		if (!id) return;
 		try {
 			const { token } = await usersApi.impersonateUser(id);
-			const mainAppUrl = import.meta.env.VITE_MAIN_APP_URL || "http://localhost:5173";
+			const mainAppUrl =
+				import.meta.env.VITE_MAIN_APP_URL || "http://localhost:5173";
 			window.open(`${mainAppUrl}/auth/impersonate?token=${token}`, "_blank");
 		} catch (error) {
 			console.error("Failed to mock login", error);
 			alert("Failed to mock login");
+		}
+	};
+
+	const handleGrantBadge = async () => {
+		if (!id || !selectedBadgeToGrant) return;
+		try {
+			await badgesApi.grantBadge(id, selectedBadgeToGrant);
+			const badgesData = await badgesApi.getUserBadges(id);
+			setUserBadges(badgesData);
+			setIsGrantDialogOpen(false);
+			setSelectedBadgeToGrant("");
+		} catch (error) {
+			alert(
+				"Failed to grant badge: " +
+					(error instanceof Error ? error.message : "Unknown error"),
+			);
+		}
+	};
+
+	const handleRevokeBadge = async (badgeId: string) => {
+		if (!id || !confirm("Are you sure you want to revoke this badge?")) return;
+		try {
+			await badgesApi.revokeBadge(id, badgeId);
+			const badgesData = await badgesApi.getUserBadges(id);
+			setUserBadges(badgesData);
+		} catch (error) {
+			alert(
+				"Failed to revoke badge: " +
+					(error instanceof Error ? error.message : "Unknown error"),
+			);
 		}
 	};
 
@@ -115,6 +174,95 @@ export default function UserDetailPage() {
 
 			<div className="space-y-4">
 				<div className="flex justify-between items-center">
+					<h2 className="text-2xl font-bold">Badges</h2>
+					<Button onClick={() => setIsGrantDialogOpen(true)} variant="outline">
+						Grant Badge
+					</Button>
+					<Dialog open={isGrantDialogOpen} onOpenChange={setIsGrantDialogOpen}>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>Grant Badge to User</DialogTitle>
+							</DialogHeader>
+							<div className="py-4">
+								<Select
+									onValueChange={setSelectedBadgeToGrant}
+									value={selectedBadgeToGrant}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a badge" />
+									</SelectTrigger>
+									<SelectContent>
+										{availableBadges.map((badge) => (
+											<SelectItem key={badge.id} value={badge.id}>
+												{badge.name} ({badge.code})
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+							<DialogFooter>
+								<Button
+									onClick={handleGrantBadge}
+									disabled={!selectedBadgeToGrant}
+								>
+									Grant
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				</div>
+
+				<div className="bg-white rounded-lg shadow">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Badge Name</TableHead>
+								<TableHead>Code</TableHead>
+								<TableHead>Earned At</TableHead>
+								<TableHead>Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{userBadges.length === 0 ? (
+								<TableRow>
+									<TableCell
+										colSpan={4}
+										className="text-center py-8 text-gray-500"
+									>
+										No badges earned yet
+									</TableCell>
+								</TableRow>
+							) : (
+								userBadges.map((badge) => (
+									<TableRow key={badge.id}>
+										<TableCell className="font-medium">
+											{badge.badge_name}
+										</TableCell>
+										<TableCell className="font-mono text-sm">
+											{badge.badge_code}
+										</TableCell>
+										<TableCell>
+											{new Date(badge.earned_at).toLocaleDateString()}
+										</TableCell>
+										<TableCell>
+											<Button
+												variant="destructive"
+												size="sm"
+												onClick={() => handleRevokeBadge(badge.badge_id)}
+											>
+												Revoke
+											</Button>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
+			</div>
+
+			<div className="space-y-4">
+				<div className="flex justify-between items-center">
 					<h2 className="text-2xl font-bold">Words</h2>
 					<Button onClick={handleCreateDummyWord}>Create Dummy Word</Button>
 				</div>
@@ -130,7 +278,10 @@ export default function UserDetailPage() {
 						<TableBody>
 							{words.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={2} className="text-center py-8 text-gray-500">
+									<TableCell
+										colSpan={2}
+										className="text-center py-8 text-gray-500"
+									>
 										No words found
 									</TableCell>
 								</TableRow>
@@ -138,7 +289,9 @@ export default function UserDetailPage() {
 								words.map((word) => (
 									<TableRow key={word.id}>
 										<TableCell className="font-medium">{word.term}</TableCell>
-										<TableCell>{new Date(word.createdAt).toLocaleDateString()}</TableCell>
+										<TableCell>
+											{new Date(word.createdAt).toLocaleDateString()}
+										</TableCell>
 									</TableRow>
 								))
 							)}

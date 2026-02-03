@@ -19,12 +19,12 @@ export default defineConfig({
 			include: ["**/*.tsx", "**/*.ts"],
 			exclude: [/node_modules/],
 		}),
-		tailwindcss()
+		tailwindcss(),
 	],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-			"@shared": path.resolve(__dirname, "../shared/src"),
+			"@stashy/shared": path.resolve(__dirname, "../shared/src"),
 			react: path.resolve(__dirname, "../node_modules/react"),
 			"react-dom": path.resolve(__dirname, "../node_modules/react-dom"),
 		},

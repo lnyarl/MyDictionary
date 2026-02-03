@@ -1,1 +1,5 @@
-export { Report, ReportSelect, ReportStatus } from "@shared/entities/report.entity";
+export {
+  Report,
+  ReportSelect,
+  ReportStatus,
+} from "@stashy/shared/entities/report.entity";

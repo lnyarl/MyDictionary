@@ -1,5 +1,5 @@
-import { type Report, ReportStatus } from "@shared";
-import { ReportDetail } from "@shared/entities/report.entity";
+import { type Report, ReportStatus } from "@stashy/shared";
+import type { ReportDetail } from "@stashy/shared/entities/report.entity";
 import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import {

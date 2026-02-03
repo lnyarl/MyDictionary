@@ -1,12 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { EventType } from "@stashy/shared/entities/event.entity";
 import { BadgesService } from "../../../badges/badges.service";
-import {
-  EventMessage,
-  EventPayload,
-  EventType,
-  FollowEventPayload,
-  LikeEventPayload,
-} from "../event.types";
+import { EventMessage, EventPayload, FollowEventPayload, LikeEventPayload } from "../event.types";
 import { EventHandler } from "./event-handler.interface";
 
 @Injectable()

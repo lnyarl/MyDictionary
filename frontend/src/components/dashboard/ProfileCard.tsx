@@ -1,5 +1,7 @@
+import type { BadgeWithProgress } from "@stashy/shared";
 import { Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BadgeList } from "@/components/dashboard/BadgeList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,11 +12,20 @@ import { stringToColor } from "@/lib/utils/color-generator";
 type ProfileCardProps = {
   user: User;
   stats: FollowStats | null;
+  badges?: BadgeWithProgress[];
+  loadingBadges?: boolean;
   onEdit?: () => void;
   actionButton?: React.ReactNode;
-}
+};
 
-export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardProps) {
+export function ProfileCard({
+  user,
+  stats,
+  badges,
+  loadingBadges,
+  onEdit,
+  actionButton,
+}: ProfileCardProps) {
   const { t } = useTranslation();
   const bioColor = stringToColor(user.email || "");
 
@@ -33,7 +44,10 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
         <div className="flex-1 text-center sm:text-left space-y-4 w-full">
           <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 ">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground" style={{ backgroundColor: bioColor }}>
+              <h2
+                className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
+                style={{ backgroundColor: bioColor }}
+              >
                 {user.nickname}
               </h2>
               {/* <p className="text-sm text-muted-foreground font-medium mt-1">{user.email}</p> */}
@@ -54,9 +68,7 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
           </div>
 
           {user.bio && (
-            <div
-              className="relative p-4 text-sm leading-relaxed text-zinc-800 dark:text-zinc-900 font-medium shadow-sm bg-[#9f9b8623]"
-            >
+            <div className="relative p-4 text-sm leading-relaxed text-zinc-800 dark:text-zinc-900 font-medium shadow-sm bg-[#9f9b8623]">
               {user.bio}
             </div>
           )}
@@ -72,6 +84,8 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
               </span>
             </div>
           )}
+
+          {badges && <BadgeList badges={badges} isLoading={loadingBadges} />}
         </div>
       </CardContent>
     </Card>

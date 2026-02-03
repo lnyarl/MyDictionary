@@ -1,4 +1,4 @@
-import { ReportReason } from "@shared/entities/report.entity";
+import { ReportReason } from "@stashy/shared/entities/report.entity";
 import { Flag } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

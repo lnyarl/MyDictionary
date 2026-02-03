@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import {
   PaginatedResponseDto,
   PaginationDto,
-} from "@shared/admin/dto/pagination.dto";
+} from "@stashy/shared/admin/dto/pagination.dto";
 import { Report, ReportStatus } from "./entities/report.entity";
 import { ReportsRepository } from "./reports.repository";
 

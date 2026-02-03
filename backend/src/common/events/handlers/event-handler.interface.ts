@@ -1,4 +1,5 @@
-import type { EventMessage, EventPayload, EventType } from "../event.types";
+import { EventType } from "@stashy/shared";
+import type { EventMessage, EventPayload } from "../event.types";
 
 export interface EventHandler {
   readonly supportedEvents: EventType[];

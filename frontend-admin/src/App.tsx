@@ -3,6 +3,7 @@ import { PasswordChangeGuard } from "./components/auth/PasswordChangeGuard";
 import { AdminLayout } from "./components/layout/AdminLayout";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import AdminUsersPage from "./pages/AdminUsersPage";
+import BadgesPage from "./pages/BadgesPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -25,6 +26,7 @@ function App() {
 							<Route path="/users" element={<UsersListPage />} />
 							<Route path="/users/:id" element={<UserDetailPage />} />
 							<Route path="/reports" element={<ReportsPage />} />
+							<Route path="/badges" element={<BadgesPage />} />
 							<Route path="/admin-users" element={<AdminUsersPage />} />
 							<Route path="/" element={<Navigate to="/users" replace />} />
 						</Route>

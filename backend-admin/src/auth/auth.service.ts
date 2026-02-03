@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { User } from "@shared";
+import { User } from "@stashy/shared";
 import * as bcrypt from "bcrypt";
 import { AdminUsersService } from "../admin-users/admin-users.service";
 import type { AdminUser } from "../admin-users/entities/admin-user.entity";
@@ -24,7 +24,6 @@ export class AuthService {
   constructor(
     private readonly adminUsersService: AdminUsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {}
 
   async hashPassword(password: string): Promise<string> {
@@ -35,7 +34,10 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  async validateCredentials(username: string, password: string): Promise<AdminUser | null> {
+  async validateCredentials(
+    username: string,
+    password: string,
+  ): Promise<AdminUser | null> {
     const admin = await this.adminUsersService.findByUsername(username);
     if (!admin) {
       return null;

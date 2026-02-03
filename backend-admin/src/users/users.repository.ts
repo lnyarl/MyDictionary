@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES, User } from "@shared";
-import { UserInsert } from "@shared/entities/user.entity";
+import { generateId, TABLES, User } from "@stashy/shared";
+import { UserInsert } from "@stashy/shared/entities/user.entity";
 import { BaseRepository } from "../common/database/base.repository";
 
 @Injectable()

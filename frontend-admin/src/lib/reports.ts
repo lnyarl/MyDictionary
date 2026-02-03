@@ -2,7 +2,7 @@ import type {
 	Report,
 	ReportDetail,
 	ReportStatus,
-} from "@shared/entities/report.entity";
+} from "@stashy/shared/entities/report.entity";
 import type { PaginatedResponse } from "../types/admin.types";
 import { api } from "./api";
 

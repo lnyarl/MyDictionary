@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type { TableName } from "@shared";
+import type { TableName } from "@stashy/shared";
 import type { Knex } from "knex";
 import { KNEX_CONNECTION } from "./knex.provider";
 
@@ -39,7 +39,11 @@ export abstract class BaseRepository {
   /**
    * Update a record by ID
    */
-  protected async update<T>(tableName: TableName, id: string, data: any): Promise<T | null> {
+  protected async update<T>(
+    tableName: TableName,
+    id: string,
+    data: any,
+  ): Promise<T | null> {
     const [record] = await this.knex(tableName)
       .where({ id })
       .whereNull("deleted_at")
@@ -82,7 +86,9 @@ export abstract class BaseRepository {
   /**
    * Begin a transaction
    */
-  async transaction<R>(callback: (trx: Knex.Transaction) => Promise<R>): Promise<R> {
+  async transaction<R>(
+    callback: (trx: Knex.Transaction) => Promise<R>,
+  ): Promise<R> {
     return this.knex.transaction(callback);
   }
 }

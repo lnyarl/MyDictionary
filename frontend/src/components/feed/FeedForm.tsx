@@ -2,9 +2,10 @@ import { Calendar } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
-import { getItem, removeItem, setItem } from "@/lib/localStorage";
+import type { CreateFeedInput } from "@/lib/api/feed";
+import { getItem, removeItem } from "@/lib/localStorage";
 import { toDayString } from "@/lib/utils/date";
-import { type CreateFeedInput, type Word, wordsApi } from "../../lib/api/words";
+import { type Word, wordsApi } from "../../lib/api/words";
 import { Button } from "../ui/button";
 import { STORAGE_KEY } from "../ui/codemirror/save-extension";
 import { Input } from "../ui/input";
@@ -82,7 +83,6 @@ export function FeedForm({ onCreate }: WordFormProps) {
 			return;
 		}
 
-		removeItem(STORAGE_KEY);
 		setIsSubmitting(true);
 		try {
 			const formattedDefinition = {
@@ -99,6 +99,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 			} as CreateFeedInput);
 			setTerm("");
 			setDefinition({ content: "", tags: "", isPublic: true });
+			removeItem(STORAGE_KEY);
 		} catch (error) {
 			console.error("Failed to submit word:", error);
 		} finally {

@@ -20,8 +20,8 @@
 		"noUncheckedSideEffectImports": true,
 
 		"paths": {
-			"@shared": ["../shared/src"],
-			"@shared/*": ["../shared/src/*"]
+			"@stashy/shared": ["../shared/src"],
+			"@stashy/shared/*": ["../shared/src/*"]
 		}
 	},
 	"include": ["src"],
