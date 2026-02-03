@@ -15,7 +15,6 @@ export class FeedService {
   private readonly RECOMMENDATIONS_CACHE_TTL = 300;
 
   constructor(
-    private readonly userRepository: UsersRepository,
     private readonly feedRepository: FeedRepository,
     private readonly followsService: FollowsService,
     @Inject(forwardRef(() => DefinitionsService))

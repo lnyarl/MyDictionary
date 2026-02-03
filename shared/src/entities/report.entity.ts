@@ -27,6 +27,15 @@ export type Report = {
   resolvedAt: Date | null;
 };
 
+export type ReportDetail = {
+  reporterNickname: string;
+  reportedNickname: string;
+  reportedEmail: string;
+  wordTerm: string;
+  definitionContent: string;
+  definitionMediaUrls: { url: string; type: string }[];
+} & Report;
+
 export const ReportSelect = {
   id: "id",
   reporterId: "reporter_id",
