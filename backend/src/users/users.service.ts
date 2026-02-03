@@ -85,6 +85,15 @@ export class UsersService {
     return this.getProfileData(user);
   }
 
+  async getUserByNickname(nickname: string) {
+    const user = await this.userRepository.findByNickname(nickname);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    return user;
+  }
+
   async getUserProfileByNickname(nickname: string) {
     const user = await this.userRepository.findByNickname(nickname);
     if (!user) {

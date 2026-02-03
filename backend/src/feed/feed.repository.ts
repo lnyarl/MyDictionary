@@ -25,7 +25,7 @@ export class FeedRepository extends BaseRepository {
       ]);
   }
 
-  findMyFeeds(userId: string, limit: number, cursor?: string) {
+  findUserFeeds(userId: string, withPrivate: boolean, limit: number, cursor?: string) {
     const baseQuery = this.query({
       [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
     })
@@ -36,6 +36,9 @@ export class FeedRepository extends BaseRepository {
 
     if (cursor) {
       baseQuery.where("definitions.created_at", "<", cursor);
+    }
+    if (withPrivate === false) {
+      baseQuery.where("definitions.is_public", true);
     }
 
     return baseQuery

@@ -1,15 +1,17 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { ERROR_CODES, PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { LikesService } from "../likes/likes.service";
 import { User } from "../users/entities/user.entity";
+import { UsersService } from "../users/users.service";
 import { FeedService } from "./feed.service";
 
 @Controller()
 export class FeedController {
   constructor(
+    private readonly userService: UsersService,
     private readonly feedService: FeedService,
     private readonly likeService: LikesService,
   ) {}
@@ -37,6 +39,25 @@ export class FeedController {
   @Get("/feed/me")
   async getMyFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
     const feeds = await this.feedService.getMyFeed(user.id, paginationDto);
+    const likes = await this.likeService.getLikeInfoByDefinitions(
+      user.id,
+      feeds.data.map((i) => i.id),
+    );
+    for (var feed of feeds.data) {
+      feed.isLiked = likes[feed.id]?.isLiked;
+      feed.likesCount = likes[feed.id]?.likeCount;
+    }
+
+    return feeds;
+  }
+
+  @Get("/feed/user/:nickname")
+  async getUserFeed(@Param("nickname") nickname: string, @Query() paginationDto: PaginationDto) {
+    if (!nickname) {
+      throw new BadRequestException("nickname required");
+    }
+    const user = await this.userService.getUserByNickname(nickname);
+    const feeds = await this.feedService.getUserFeed(user.id, paginationDto);
     const likes = await this.likeService.getLikeInfoByDefinitions(
       user.id,
       feeds.data.map((i) => i.id),

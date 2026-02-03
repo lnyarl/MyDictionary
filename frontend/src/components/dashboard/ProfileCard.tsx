@@ -31,12 +31,12 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
         </div>
 
         <div className="flex-1 text-center sm:text-left space-y-4 w-full">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 ">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground" style={{ backgroundColor: bioColor }}>
                 {user.nickname}
               </h2>
-              <p className="text-sm text-muted-foreground font-medium mt-1">{user.email}</p>
+              {/* <p className="text-sm text-muted-foreground font-medium mt-1">{user.email}</p> */}
             </div>
             {actionButton ? (
               actionButton
@@ -55,13 +55,8 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
 
           {user.bio && (
             <div
-              className="relative p-4 rounded-2xl text-sm leading-relaxed text-zinc-800 dark:text-zinc-900 font-medium shadow-sm"
-              style={{ backgroundColor: bioColor }}
+              className="relative p-4 text-sm leading-relaxed text-zinc-800 dark:text-zinc-900 font-medium shadow-sm bg-[#9f9b8623]"
             >
-              <div
-                className="absolute -top-2 left-1/2 sm:left-8 -translate-x-1/2 sm:translate-x-0 w-4 h-4 rotate-45"
-                style={{ backgroundColor: bioColor }}
-              />
               {user.bio}
             </div>
           )}

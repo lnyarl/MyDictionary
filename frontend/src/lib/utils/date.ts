@@ -9,3 +9,8 @@ export const toDayString = (): string => {
 export const isDateFormat = (str: string) => {
   return /^\d{4}-\d{2}-\d{2}$/.test(str);
 };
+
+export const i18nToIsoLocale: { [key: string]: string } = {
+  ko: "ko-KR",
+  en: "en-US",
+};

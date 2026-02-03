@@ -21,6 +21,7 @@ interface DefinitionCardContentProps {
   isEdited?: boolean;
   formattedDate: string;
   likeButton?: React.ReactNode;
+  option: { showUser: boolean }
 }
 
 export function DefinitionCardContent({
@@ -28,6 +29,7 @@ export function DefinitionCardContent({
   isEdited,
   formattedDate,
   likeButton,
+  option = { showUser: true },
 }: DefinitionCardContentProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -163,21 +165,26 @@ export function DefinitionCardContent({
 
       <div className="flex items-center justify-between pt-2 mt-auto">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <a href={auth.user?.id === definition.userId ? "/profile" : `/profile/${definition.nickname}`}>
-            <Avatar className="h-6 w-6 cursor-pointer border" >
-              <AvatarImage src={definition.profilePicture} className="object-cover" />
-              <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
-            </Avatar>
-          </a>
-          <Button
-            variant="link"
-            className="p-0 h-auto text-sm text-muted-foreground font-medium hover:text-foreground"
-            onClick={handleUserClick}
-          >
-            {definition.nickname || t("common.user")}
-          </Button>
-          <span className="text-muted-foreground/50">•</span>
-          <span>{formattedDate}</span>
+          {option.showUser && (
+            <>
+              <a href={auth.user?.id === definition.userId ? "/profile" : `/profile/${definition.nickname}`}>
+                <Avatar className="h-6 w-6 cursor-pointer border" >
+                  <AvatarImage src={definition.profilePicture} className="object-cover" />
+                  <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
+                </Avatar>
+              </a>
+              <Button
+                variant="link"
+                className="p-0 h-auto text-sm text-muted-foreground font-medium hover:text-foreground"
+                onClick={handleUserClick}
+              >
+                {definition.nickname || t("common.user")}
+              </Button>
+              <span className="text-muted-foreground/50">•</span>
+            </>
+
+          )}
+          <span className="text-gray-400">{formattedDate}</span>
           {isEdited && (
             <>
               <span className="text-muted-foreground/50">•</span>

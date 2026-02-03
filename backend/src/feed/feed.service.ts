@@ -4,6 +4,7 @@ import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CacheService } from "../common/cache/cache.service";
 import { DefinitionsService } from "../definitions/definitions.service";
 import { FollowsService } from "../follows/follows.service";
+import { UsersRepository } from "../users/users.repository";
 import { Word } from "../words/entities/word.entity";
 import { Feed } from "./entities/feed.entity";
 import { FeedRepository } from "./feed.repository";
@@ -14,6 +15,7 @@ export class FeedService {
   private readonly RECOMMENDATIONS_CACHE_TTL = 300;
 
   constructor(
+    private readonly userRepository: UsersRepository,
     private readonly feedRepository: FeedRepository,
     private readonly followsService: FollowsService,
     @Inject(forwardRef(() => DefinitionsService))
@@ -71,8 +73,45 @@ export class FeedService {
       return cached;
     }
 
-    const listQuery = await this.feedRepository.findMyFeeds(
+    const listQuery = await this.feedRepository.findUserFeeds(
       userId,
+      true,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
+
+    const feeds = await listQuery;
+    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+
+    const dto = new PaginatedResponseDto<Feed>(
+      feeds,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
+    );
+    await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
+    return dto;
+  }
+
+  async getUserFeed(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Feed>> {
+    const cacheKey = this.cacheService.myFeedKey(
+      userId,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
+    const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const listQuery = await this.feedRepository.findUserFeeds(
+      userId,
+      false,
       paginationDto.limit || 20,
       paginationDto.cursor,
     );

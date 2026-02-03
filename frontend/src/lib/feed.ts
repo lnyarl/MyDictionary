@@ -21,6 +21,12 @@ export const feedApi = {
     return api.get<PaginatedResponse<Definition>>(`/feed?${params.toString()}`);
   },
 
+  getUserFeed: (nickname: string, page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/feed/user/${nickname}?${params.toString()}`);
+  },
+
   getMyFeed: (page = 1, limit = 20, cursor?: string) => {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (cursor) params.append("cursor", cursor);

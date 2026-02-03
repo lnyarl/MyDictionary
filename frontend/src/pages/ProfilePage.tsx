@@ -81,7 +81,7 @@ export default function ProfilePage() {
         return feedApi.getMyFeed(param.page, 20, param.cursor);
       }
       if (profileUser?.id) {
-        return definitionsApi.getByUserId(profileUser.id, param.page, 20, param.cursor);
+        return feedApi.getUserFeed(profileUser.nickname, param.page, 20, param.cursor);
       }
       return Promise.resolve({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } });
     },
@@ -201,6 +201,7 @@ export default function ProfilePage() {
               definitions={definitions}
               onDelete={handleDelete}
               onEdit={isMe ? handleEdit : undefined}
+              option={{ showUser: false }}
               className="m-5"
             />
             <div ref={sentinelRef} className="py-4 flex justify-center">

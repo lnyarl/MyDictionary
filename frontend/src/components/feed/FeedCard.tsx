@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import { isDateFormat } from "@/lib/utils/date";
+import { i18nToIsoLocale, isDateFormat } from "@/lib/utils/date";
 import type { Definition } from "../../types/definition.types";
 import { DefinitionCardContent } from "../definitions/DefinitionCardContent";
 import { LikeButton } from "../definitions/LikeButton";
@@ -21,6 +21,7 @@ interface FeedCardProps {
   definition: Definition;
   onDelete: (id: string) => void;
   onStartEdit?: () => void;
+  option: { showUser: boolean }
   variant?: "default" | "borderless";
 }
 
@@ -28,14 +29,15 @@ export function FeedCard({
   definition,
   onDelete,
   onStartEdit,
+  option = { showUser: true },
   variant = "default",
 }: FeedCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isOwner = user?.id === definition.userId;
 
-  const formattedDate = new Date(definition.createdAt).toLocaleDateString("ko-KR", {
+  const formattedDate = new Date(definition.createdAt).toLocaleDateString(i18nToIsoLocale[i18n.language], {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -120,6 +122,7 @@ export function FeedCard({
                 initialIsLiked={definition.isLiked}
               />
             }
+            option={option}
           />
         </div>
       </div>
