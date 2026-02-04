@@ -5,7 +5,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  OnModuleDestroy,
 } from "@nestjs/common";
 import { Queue } from "bullmq";
 import { EventEmitterService } from "../common/events/event-emitter.service";
@@ -41,10 +40,6 @@ export class LikesService {
     const definition = await this.definitionRepository.findById(definitionId);
     if (!definition) {
       throw new NotFoundException("Definition not found");
-    }
-
-    if (definition.userId === userId) {
-      throw new ForbiddenException("You cannot like your own definition");
     }
 
     const existingLike = await this.likeRepository.findByUserIdAndDefinitionIdWithDeleted(

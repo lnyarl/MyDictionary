@@ -5,10 +5,10 @@ import { useAllFeed } from "@/hooks/useAllFeed";
 import { useDefinitions } from "@/hooks/useDefinitions";
 import { useFeed } from "@/hooks/useFeed";
 import { useMyFeed } from "@/hooks/useMyFeed";
+import type { CreateFeedInput } from "@/lib/api/feed";
 import { FeedForm } from "../components/feed/FeedForm";
 import { Page } from "../components/layout/Page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import type { CreateWordInput } from "../types/word.types";
 
 export default function FeedPage() {
   const { t } = useTranslation();
@@ -20,13 +20,12 @@ export default function FeedPage() {
   const followingFeed = useFeed();
   const myFeed = useMyFeed();
 
-  const handleSubmit = async (data: CreateWordInput) => {
+  const handleSubmit = async (data: CreateFeedInput) => {
     await myFeed.createFeed(data);
   };
 
-
   return (
-    <Page >
+    <Page>
       <div className="mb-8">
         <FeedForm onCreate={handleSubmit} />
       </div>
@@ -36,32 +35,28 @@ export default function FeedPage() {
         onValueChange={(value) => navigate(`/feed/${value}`)}
         className="w-full"
       >
-        <TabsList className="h-auto p-0 bg-transparent gap-1 justify-start border-b-0 relative z-10 -mb-px">
+        <TabsList className="h-auto p-0 bg-transparent justify-start flex gap-8 mb-12 border-b border-gray-200 pb-4 w-full">
           <TabsTrigger
             value="all"
-            className="px-6 py-2  rounded-b-none cursor-pointer border border-gray-200 data-[state=active]:border-t-black data-[state=active]:border-t-2"
+            className="text-[10px] font-bold uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:font-black data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
           >
             {t("feed.tabs.all")}
           </TabsTrigger>
           <TabsTrigger
             value="following"
-            className="px-6 py-2  rounded-b-none cursor-pointer border border-gray-200 data-[state=active]:border-t-black data-[state=active]:border-t-2"
+            className="text-[10px] font-bold uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:font-black data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
           >
             {t("feed.tabs.following")}
           </TabsTrigger>
         </TabsList>
 
-        <div className="shadow-[0_0_10px_1px_rgba(0,0,0,0.1)] relative bg-transparent">
+        <div className="relative bg-transparent">
           <TabsContent value="all" className="m-0 p-6 ">
-            <FeedList
-              definitions={allFeed.definitions}
-            />
+            <FeedList definitions={allFeed.definitions} />
           </TabsContent>
 
           <TabsContent value="following" className="m-0 p-6">
-            <FeedList
-              definitions={followingFeed.definitions}
-            />
+            <FeedList definitions={followingFeed.definitions} />
           </TabsContent>
         </div>
       </Tabs>

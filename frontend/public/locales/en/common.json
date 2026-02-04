@@ -75,7 +75,7 @@
   "word.definition": "Definition",
   "word.add_definition": "Add Definition",
   "word.definition_desc": "Write a definition for the word.",
-  "word.definition_placeholder": "e.g. A state of being happy and content",
+  "word.definition_placeholder": "Tell me a story about words",
   "word.no_definitions": "There are no definitions for this word yet.",
   "word.delete_definition_confirm": "Are you sure you want to delete this definition?",
   "word.history": "View History",

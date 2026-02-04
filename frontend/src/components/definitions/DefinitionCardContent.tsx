@@ -15,14 +15,17 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import type { Definition } from "@/lib/api/definitions";
+import { cn } from "@/lib/utils";
 
 type DefinitionCardContentProps = {
   definition: Definition;
   isEdited?: boolean;
   formattedDate: string;
   likeButton?: React.ReactNode;
-  option?: { showUser: boolean }
-}
+  option?: { showUser: boolean };
+  className?: string;
+  contentClassName?: string;
+};
 
 export function DefinitionCardContent({
   definition,
@@ -30,6 +33,8 @@ export function DefinitionCardContent({
   formattedDate,
   likeButton,
   option = { showUser: true },
+  className,
+  contentClassName,
 }: DefinitionCardContentProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -62,9 +67,12 @@ export function DefinitionCardContent({
   };
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 ">
+    <div className={cn("flex-1 flex flex-col min-w-0", className)}>
       <div className="flex-1 mb-4">
-        <div ref={contentRef} className="max-h-50 overflow-hidden relative text-sm ">
+        <div
+          ref={contentRef}
+          className={cn("max-h-50 overflow-hidden relative text-sm", contentClassName)}
+        >
           <RichTextContent content={definition.content} />
           {isTruncated && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
@@ -167,8 +175,14 @@ export function DefinitionCardContent({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {option.showUser && (
             <>
-              <a href={auth.user?.id === definition.userId ? "/profile" : `/profile/${definition.nickname}`}>
-                <Avatar className="h-6 w-6 cursor-pointer border" >
+              <a
+                href={
+                  auth.user?.id === definition.userId
+                    ? "/profile"
+                    : `/profile/${definition.nickname}`
+                }
+              >
+                <Avatar className="h-6 w-6 cursor-pointer border">
                   <AvatarImage src={definition.profilePicture} className="object-cover" />
                   <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
@@ -182,7 +196,6 @@ export function DefinitionCardContent({
               </Button>
               <span className="text-muted-foreground/50">•</span>
             </>
-
           )}
           <span className="text-gray-400">{formattedDate}</span>
           {isEdited && (
@@ -192,9 +205,7 @@ export function DefinitionCardContent({
             </>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {likeButton}
-        </div>
+        <div className="flex items-center gap-2">{likeButton}</div>
       </div>
     </div>
   );

@@ -12,11 +12,17 @@ type FeedListProps = {
     id: string,
     data: { content: string; tags: string[]; isPublic: boolean },
   ) => Promise<void>;
-  className?: string
-  option?: { showUser: boolean }
-}
+  className?: string;
+  option?: { showUser: boolean };
+};
 
-export function FeedList({ definitions, onDelete, onEdit, className, option = { showUser: true } }: FeedListProps) {
+export function FeedList({
+  definitions,
+  onDelete,
+  onEdit,
+  className,
+  option = { showUser: true },
+}: FeedListProps) {
   const { user } = useAuth();
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -57,6 +63,7 @@ export function FeedList({ definitions, onDelete, onEdit, className, option = { 
         return (
           <FeedCard
             key={definition.id}
+            index={definitions.indexOf(definition) + 1}
             definition={definition}
             onDelete={onDelete}
             onStartEdit={isOwner && onEdit ? () => setEditingId(definition.id) : undefined}

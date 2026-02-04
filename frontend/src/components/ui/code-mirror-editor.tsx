@@ -136,7 +136,7 @@ export function CodeMirrorEditor({
     <div
       ref={editorRef}
       className={cn(
-        "min-h-80 flex w-full border border-input bg-transparent text-base disabled:cursor-not-allowed md:text-sm overflow-y-auto",
+        "min-h-80 flex w-full border border-input bg-transparent disabled:cursor-not-allowed text-sm overflow-y-auto",
         className,
       )}
     />
