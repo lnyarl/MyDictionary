@@ -18,24 +18,11 @@ export class NotificationsRepository extends BaseRepository {
     const listQuery = baseQuery
       .clone()
       .leftJoin(TABLES.USERS, `${this.tableName}.actor_id`, `${TABLES.USERS}.id`)
-      .select(
-        Object.keys(NotificationSelect).reduce(
-          (acc, key) => {
-            acc[key] = `${this.tableName}.${NotificationSelect[key]}`;
-            return acc;
-          },
-          {} as Record<string, string>,
-        ),
-      )
-      .select(
-        Object.keys(UserSelect).reduce(
-          (acc, key) => {
-            acc[`actor_${key}`] = `${TABLES.USERS}.${UserSelect[key]}`;
-            return acc;
-          },
-          {} as Record<string, string>,
-        ),
-      )
+      .select({
+        ...NotificationSelect,
+        nickname: "users.nickname",
+        profilePicture: "users.profile_picture",
+      })
       .orderBy(`${this.tableName}.created_at`, "desc")
       .limit(limit);
 

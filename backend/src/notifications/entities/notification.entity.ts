@@ -23,15 +23,15 @@ export class Notification {
 }
 
 export const NotificationSelect = {
-  id: "id",
-  userId: "user_id",
-  type: "type",
-  title: "title",
-  message: "message",
-  actorId: "actor_id",
-  targetUrl: "target_url",
-  isRead: "is_read",
-  createdAt: "created_at",
-  updatedAt: "updated_at",
-  deletedAt: "deleted_at",
+  id: "notifications.id",
+  userId: "notifications.user_id",
+  type: "notifications.type",
+  title: "notifications.title",
+  message: "notifications.message",
+  actorId: "notifications.actor_id",
+  targetUrl: "notifications.target_url",
+  isRead: "notifications.is_read",
+  createdAt: "notifications.created_at",
+  updatedAt: "notifications.updated_at",
+  deletedAt: "notifications.deleted_at",
 } as const;

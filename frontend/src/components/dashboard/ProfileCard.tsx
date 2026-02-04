@@ -1,7 +1,5 @@
-import type { BadgeWithProgress } from "@stashy/shared";
 import { Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { BadgeList } from "@/components/dashboard/BadgeList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,8 +10,6 @@ import { stringToColor } from "@/lib/utils/color-generator";
 type ProfileCardProps = {
   user: User;
   stats: FollowStats | null;
-  badges?: BadgeWithProgress[];
-  loadingBadges?: boolean;
   onEdit?: () => void;
   actionButton?: React.ReactNode;
 };
@@ -21,8 +17,6 @@ type ProfileCardProps = {
 export function ProfileCard({
   user,
   stats,
-  badges,
-  loadingBadges,
   onEdit,
   actionButton,
 }: ProfileCardProps) {
@@ -84,8 +78,6 @@ export function ProfileCard({
               </span>
             </div>
           )}
-
-          {badges && <BadgeList badges={badges} isLoading={loadingBadges} />}
         </div>
       </CardContent>
     </Card>

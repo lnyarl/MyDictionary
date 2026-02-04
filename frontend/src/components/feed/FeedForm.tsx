@@ -114,7 +114,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 			<div className="flex items-center justify-between">
 				<h3 className="text-lg font-medium">{t("word.add_new")}</h3>
 			</div>
-			<div className="rounded-lg border bg-card shadow-sm focus-within:ring-1 focus-within:ring-ring transition-all">
+			<div className="rounded-lg border border-gray-400 bg-card shadow-sm transition-all">
 				<div className="relative flex">
 					<Input
 						id="term"

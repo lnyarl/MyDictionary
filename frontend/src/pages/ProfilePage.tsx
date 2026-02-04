@@ -1,10 +1,8 @@
-import type { BadgeWithProgress } from "@stashy/shared";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { BadgeList } from "@/components/dashboard/BadgeList";
 import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import { ProfileEditCard } from "@/components/dashboard/ProfileEditCard";
 import { FeedList } from "@/components/feed/FeedList";
@@ -12,14 +10,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useDefinitions } from "@/hooks/useDefinitions";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import { badgesApi } from "@/lib/api/badges";
-import { definitionsApi } from "@/lib/api/definitions";
 import { feedApi } from "@/lib/api/feed";
-import { followsApi } from "@/lib/api/follows";
-import { usersApi } from "@/lib/api/users";
+import { type FollowStats, followsApi } from "@/lib/api/follows";
+import { type User, type UserProfile, usersApi } from "@/lib/api/users";
 import { Page } from "../components/layout/Page";
-import type { FollowStats, UserProfile } from "../types/follow.types";
-import type { User } from "../types/user.types";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
@@ -34,24 +28,17 @@ export default function ProfilePage() {
   const [stats, setStats] = useState<FollowStats | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
-  const [badges, setBadges] = useState<BadgeWithProgress[]>([]);
-  const [loadingBadges, setLoadingBadges] = useState(false);
-
   const isMe = !nickname || (currentUser && currentUser.nickname === nickname);
 
   const fetchProfileData = useCallback(async () => {
     setLoadingProfile(true);
-    setLoadingBadges(true);
     try {
       let data: UserProfile | undefined;
-      let userId = "";
 
       if (nickname) {
         data = await usersApi.getUserProfileByNickname(nickname);
-        if (data) userId = data.user.id;
       } else if (currentUser) {
         data = await usersApi.getUserProfile(currentUser.id);
-        userId = currentUser.id;
       }
 
       if (data) {
@@ -66,20 +53,11 @@ export default function ProfilePage() {
           const followResult = await followsApi.checkFollowing(data.user.id);
           setIsFollowing(followResult.isFollowing);
         }
-
-        // Fetch badges
-        if (userId) {
-          const badgesData = isMe
-            ? await badgesApi.getMyBadges()
-            : await badgesApi.getUserBadges(userId);
-          setBadges(badgesData);
-        }
       }
     } catch (error) {
       console.error("Failed to fetch profile", error);
     } finally {
       setLoadingProfile(false);
-      setLoadingBadges(false);
     }
   }, [nickname, currentUser, isMe]);
 
@@ -192,8 +170,6 @@ export default function ProfilePage() {
           <ProfileCard
             user={profileUser}
             stats={stats}
-            badges={badges}
-            loadingBadges={loadingBadges}
             onEdit={isMe ? () => setIsEditing(true) : undefined}
             actionButton={
               !isMe && currentUser ? (

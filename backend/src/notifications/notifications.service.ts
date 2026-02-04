@@ -42,8 +42,8 @@ export class NotificationsService {
       actor: row.actorId
         ? {
             id: row.actorId,
-            nickname: row.actor_nickname,
-            profilePicture: row.actor_profilePicture,
+            nickname: row.nickname,
+            profilePicture: row.profilePicture,
           }
         : undefined,
     }));
