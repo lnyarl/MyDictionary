@@ -5,14 +5,14 @@ import { CacheService } from "../common/cache/cache.service";
 import { EventEmitterService } from "../common/events";
 import { DefinitionsService } from "../definitions/definitions.service";
 import { FollowsService } from "../follows/follows.service";
-import { UsersRepository } from "../users/users.repository";
 import { Word } from "../words/entities/word.entity";
 import { Feed } from "./entities/feed.entity";
 import { FeedRepository } from "./feed.repository";
 
 @Injectable()
 export class FeedService {
-  private readonly FEED_CACHE_TTL = 10;
+  private readonly FEED_CACHE_TTL = 30;
+  private readonly ALL_FEED_CACHE_TTL = 2;
   private readonly RECOMMENDATIONS_CACHE_TTL = 300;
 
   constructor(
@@ -191,7 +191,7 @@ export class FeedService {
       nextCursor,
     );
 
-    await this.cacheService.set(cacheKey, dto, this.FEED_CACHE_TTL);
+    await this.cacheService.set(cacheKey, dto, this.ALL_FEED_CACHE_TTL);
 
     return dto;
   }
@@ -237,6 +237,10 @@ export class FeedService {
 
   async invalidateUserFeed(userId: string): Promise<void> {
     await this.cacheService.deletePattern(this.cacheService.feedPattern(userId));
+  }
+
+  async invalidateMyFeed(userId: string): Promise<void> {
+    await this.cacheService.deletePattern(this.cacheService.myFeedPattern(userId));
   }
 
   async invalidateFollowerFeeds(authorId: string): Promise<void> {

@@ -103,6 +103,7 @@ export class DefinitionsService {
 
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
+    await this.feedService.invalidateMyFeed(userId);
 
     return definition[0];
   }
@@ -219,6 +220,7 @@ export class DefinitionsService {
 
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
+    await this.feedService.invalidateMyFeed(userId);
 
     return updated[0];
   }
@@ -240,6 +242,7 @@ export class DefinitionsService {
 
     await this.feedService.invalidateFollowerFeeds(userId);
     await this.feedService.invalidateRecommendations();
+    await this.feedService.invalidateMyFeed(userId);
   }
 
   async getDefinitionHistory(

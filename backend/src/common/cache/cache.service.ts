@@ -80,6 +80,10 @@ export class CacheService implements OnModuleDestroy {
     return `feed:${userId}:*`;
   }
 
+  myFeedPattern(userId: string): string {
+    return `my_feed:${userId}:*`;
+  }
+
   recommendationsKey(page: number, cursor?: string): string {
     return `recommendations:${page}:${cursor || "none"}`;
   }

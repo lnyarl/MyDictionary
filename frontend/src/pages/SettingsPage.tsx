@@ -191,7 +191,7 @@ export default function SettingsPage() {
                   {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={isSubmitting || !isValid || !hasChanged}>
-                  {isSubmitting ? t("common.saving") : t("common.save_changes")}
+                  {isSubmitting ? t("common.saving") : t("common.save")}
                 </Button>
               </div>
             </form>
