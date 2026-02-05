@@ -1,8 +1,8 @@
-import { ArrowLeft, Loader2, Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useSearchParams } from "react-router-dom";
+import { Definition } from "@/lib/api/definitions";
 import { FeedList } from "../components/feed/FeedList";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
@@ -12,14 +12,11 @@ import { Separator } from "../components/ui/separator";
 import { useToast } from "../hooks/use-toast";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import { useSearch } from "../hooks/useSearch";
-import type { Definition } from "../types/definition.types";
 
 export default function SearchResultsPage() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { results, loading, loadingMore, error, total, hasMore, search, loadMore } = useSearch();
-  const { isAuthenticated } = useAuth();
   const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get("term") || "");
@@ -86,7 +83,6 @@ export default function SearchResultsPage() {
             <h2 className="text-xl font-semibold mb-2">
               {t("search.results_for", { term: searchParams.get("term") })}
             </h2>
-            <p className="text-muted-foreground">{t("search.found_count", { total })}</p>
           </div>
 
           {results.length === 0 ? (
@@ -102,7 +98,7 @@ export default function SearchResultsPage() {
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-2xl">{word.term}</CardTitle>
                         <div className="flex items-center gap-4">
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-gray-300">
                             {new Date(word.createdAt).toLocaleDateString("ko-KR")}
                           </p>
                         </div>
@@ -111,7 +107,6 @@ export default function SearchResultsPage() {
                     <CardContent>
                       {word.definitions && word.definitions.length > 0 ? (
                         <div className="space-y-2">
-                          <h3 className="font-semibold mb-2">{t("word.definition")}</h3>
                           <Separator />
                           <FeedList
                             definitions={word.definitions as Definition[]}

@@ -80,24 +80,31 @@ export function FeedCard({
   }, [definition.content]);
 
   const needMoreMenu = onDelete || onStartEdit || !isOwner;
+  const classForTerm = {
+    article: definition.term ? "grid-cols-[140px_1fr]" : "",
+    definition: definition.term ? "pl-16" : ""
+  }
 
   return (
-    <article className="grid grid-cols-1 md:grid-cols-[140px_1fr] group border-b border-gray-100 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative">
-      <div className="flex flex-col">
-        {index !== undefined && (
-          <span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
-            No. {definition.termNumber.toString().padStart(2, "0")}
-          </span>
-        )}
-        <h2
-          onClick={handleTermClick}
-          className="editorial-number font-serif text-3xl font-medium text-foreground italic transition-all cursor-pointer "
-        >
-          {definition.term}
-        </h2>
-      </div>
+    <article className={`grid group border-b border-gray-100 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative ${classForTerm.article}`}>
 
-      <div className="pl-0 md:pl-16 w-full min-w-0">
+      {definition.term &&
+        <div className="flex flex-col">
+          {definition.termNumber &&
+            <span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
+              No. {definition.termNumber.toString().padStart(2, "0")}
+            </span>
+          }
+          <h2
+            onClick={handleTermClick}
+            className="editorial-number font-serif text-3xl font-medium text-foreground italic transition-all cursor-pointer "
+          >
+            {definition.term}
+          </h2>
+        </div>
+      }
+
+      <div className={`w-full min-w-0 ${classForTerm.definition}`}>
         <div className="relative mb-10">
           <div
             ref={contentRef}

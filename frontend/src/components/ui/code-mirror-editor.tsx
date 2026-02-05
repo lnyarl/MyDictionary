@@ -98,10 +98,10 @@ export function CodeMirrorEditor({
           ...historyKeymap,
           {
             key: "Tab",
-            preventDefault: true,
+            preventDefault: false,
             shift: indentLess,
             run: (e) => {
-              if (!completionStatus(e.state)) return indentMore(e);
+              if (!completionStatus(e.state)) false;
               return acceptCompletion(e);
             },
           },
@@ -114,6 +114,7 @@ export function CodeMirrorEditor({
           },
         }),
       ],
+
     });
 
     const view = new EditorView({
