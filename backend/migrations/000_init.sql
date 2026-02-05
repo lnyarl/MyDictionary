@@ -42,6 +42,21 @@ CREATE INDEX idx_users_deleted_at ON "public"."users" USING btree (deleted_at);
 CREATE INDEX idx_users_email ON "public"."users" USING btree (email) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_users_google_id ON "public"."users" USING btree (google_id) WHERE (deleted_at IS NULL);
 
+-- term
+CREATE TABLE "public"."terms" (
+    "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "text" varchar(255) NOT NULL,
+    "number" SERIAL NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
+    PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX idx_terms_text_unique ON "public"."terms" USING btree (text);
+CREATE INDEX idx_terms_number ON "public"."terms" USING btree (number);
+CREATE INDEX idx_terms_created_at ON "public"."terms" USING btree (created_at DESC);
+CREATE INDEX idx_terms_text_trgm ON "public"."terms" USING gin (text gin_trgm_ops);
+
 -- words
 DROP TABLE IF EXISTS "public"."words";
 CREATE TABLE "public"."words" (
@@ -68,6 +83,7 @@ CREATE TABLE "public"."definitions" (
     "content" text NOT NULL CHECK (length(content) <= 5000),
     "word_id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
+    "term_id" uuid NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp,
@@ -79,7 +95,9 @@ CREATE TABLE "public"."definitions" (
 COMMENT ON COLUMN "public"."definitions"."content" IS 'The definition text content (max 5000 characters)';
 ALTER TABLE "public"."definitions" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
 ALTER TABLE "public"."definitions" ADD FOREIGN KEY ("word_id") REFERENCES "public"."words"("id") ON DELETE CASCADE;
+ALTER TABLE "public"."definitions" ADD CONSTRAINT fk_definitions_term_id FOREIGN KEY ("term_id") REFERENCES "public"."terms"("id") ON DELETE CASCADE;
 COMMENT ON TABLE "public"."definitions" IS 'Stores user-contributed definitions for words. Each user can have multiple versions (history)';
+CREATE INDEX idx_definitions_term_id ON "public"."definitions" USING btree (term_id) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_definitions_word_id ON public.definitions USING btree (word_id) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_definitions_user_id ON public.definitions USING btree (user_id) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_definitions_created_at ON public.definitions USING btree (created_at DESC) WHERE (deleted_at IS NULL);
@@ -106,7 +124,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_likes_user_definition ON public.likes USING
 CREATE INDEX IF NOT EXISTS idx_likes_user_id ON public.likes USING btree (user_id) WHERE (deleted_at IS NULL);
 CREATE INDEX IF NOT EXISTS idx_likes_definition_id ON public.likes USING btree (definition_id) WHERE (deleted_at IS NULL);
 CREATE INDEX IF NOT EXISTS idx_likes_deleted_at ON public.likes USING btree (deleted_at);
-CREATE INDEX IF NOT EXISTS idx_likes_definition_count ON public.likes USING btree (definition_id) WHERE (deleted_at IS NULL);
+CREATE INDEX IF NOT EXISTS idx_likes_count ON public.likes USING btree (definition_id) WHERE (deleted_at IS NULL);
 ALTER TABLE "public"."likes" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
 ALTER TABLE "public"."likes" ADD FOREIGN KEY ("definition_id") REFERENCES "public"."definitions"("id") ON DELETE CASCADE;
 
@@ -379,4 +397,3 @@ LEFT JOIN likes l ON d.id = l.definition_id AND l.deleted_at IS NULL
 WHERE d.deleted_at IS NULL
 GROUP BY d.id, d.content, d.word_id, d.user_id, d.is_public, d.created_at, d.updated_at, u.nickname, u.profile_picture
 ORDER BY d.word_id, d.user_id, d.created_at DESC;
-

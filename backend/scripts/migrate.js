@@ -91,4 +91,6 @@ async function migrate() {
   }
 }
 
-migrate();
+migrate().catch((reason) => {
+  console.error(reason);
+});
