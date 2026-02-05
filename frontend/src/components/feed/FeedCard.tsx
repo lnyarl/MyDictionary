@@ -86,7 +86,7 @@ export function FeedCard({
 
   return (
     <article
-      className={`grid group border-b border-gray-100 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative ${classForTerm.article}`}
+      className={`grid group border-b border-gray-200 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative ${classForTerm.article}`}
     >
       {definition.term && (
         <div className="flex flex-col">
@@ -231,7 +231,9 @@ export function FeedCard({
               </a>
             )}
             <span className="text-[9px] text-zinc-400 uppercase tracking-widest">
-              {formattedDate}
+              <a href={`/definitions/${definition.id}`}>
+                {formattedDate}
+              </a>
             </span>
           </div>
 
@@ -241,9 +243,6 @@ export function FeedCard({
               initialLikesCount={definition.likesCount}
               initialIsLiked={definition.isLiked}
             />
-            <button className="hover:text-foreground transition-colors" type="button">
-              <Share className="h-5 w-5" />
-            </button>
             {needMoreMenu && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

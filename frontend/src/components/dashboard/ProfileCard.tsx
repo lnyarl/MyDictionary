@@ -82,7 +82,7 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
                 onClick={() => openDialog("followers")}
                 className="hover:underline hover:text-foreground transition-colors cursor-pointer"
               >
-                {t("dashboard.followers")}:{" "}
+                {t("dashboard.followers")}{" "}
                 <span className="font-semibold text-foreground">{stats.followersCount}</span>
               </button>
               <span>•</span>
@@ -91,7 +91,7 @@ export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardPr
                 onClick={() => openDialog("following")}
                 className="hover:underline hover:text-foreground transition-colors cursor-pointer"
               >
-                {t("dashboard.following")}:{" "}
+                {t("dashboard.following")}{" "}
                 <span className="font-semibold text-foreground">{stats.followingCount}</span>
               </button>
             </div>

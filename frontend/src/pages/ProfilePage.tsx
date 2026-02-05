@@ -187,7 +187,7 @@ export default function ProfilePage() {
         ) : null}
       </div>
 
-      <div className="shadow-[0_0_10px_1px_rgba(0,0,0,0.1)] pt-1">
+      <div>
         {feedLoading && definitions.length === 0 ? (
           <div className="rounded-lg border bg-muted/50 p-12 text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />

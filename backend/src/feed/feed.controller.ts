@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
-import { ERROR_CODES, PaginationDto } from "@stashy/shared";
+import { PaginationDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
