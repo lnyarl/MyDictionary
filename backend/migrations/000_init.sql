@@ -8,9 +8,55 @@
 -- -------------------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+-- -------------------------------------------------------------
+-- Stashy Database Reset Script
+-- Deletes tables in reverse order of dependencies to avoid Foreign Key conflicts.
+-- -------------------------------------------------------------
+
+-- 1. Drop Views (Dependent on tables)
+DROP VIEW IF EXISTS "public"."vw_latest_definitions" CASCADE;
+DROP VIEW IF EXISTS "public"."vw_words_with_stats" CASCADE;
+DROP VIEW IF EXISTS "public"."vw_definitions_with_likes" CASCADE;
+
+-- 2. Drop Child Tables (Deepest dependencies first)
+-- Depends on: definitions
+DROP TABLE IF EXISTS "public"."definition_histories" CASCADE;
+
+-- Depends on: definitions, users
+DROP TABLE IF EXISTS "public"."reports" CASCADE;
+DROP TABLE IF EXISTS "public"."likes" CASCADE;
+
+-- Depends on: users, badges
+DROP TABLE IF EXISTS "public"."user_badges" CASCADE;
+DROP TABLE IF EXISTS "public"."user_badge_progress" CASCADE;
+
+-- Depends on: users
+DROP TABLE IF EXISTS "public"."event_aggregates" CASCADE;
+DROP TABLE IF EXISTS "public"."events" CASCADE;
+DROP TABLE IF EXISTS "public"."notifications" CASCADE;
+DROP TABLE IF EXISTS "public"."follows" CASCADE;
+
+-- 3. Drop Middle Tables
+-- Depends on: words, users, terms
+DROP TABLE IF EXISTS "public"."definitions" CASCADE;
+
+-- Depends on: users
+DROP TABLE IF EXISTS "public"."words" CASCADE;
+
+-- 4. Drop Independent/Parent Tables
+DROP TABLE IF EXISTS "public"."badges" CASCADE;
+DROP TABLE IF EXISTS "public"."terms" CASCADE;
+DROP TABLE IF EXISTS "public"."admin_users" CASCADE;
+DROP TABLE IF EXISTS "public"."migration_history" CASCADE;
+
+-- Most referenced table (should be last)
+DROP TABLE IF EXISTS "public"."users" CASCADE;
+
+-- 5. Drop Custom Types
+DROP TYPE IF EXISTS "public"."admin_role" CASCADE;
+
 
 -- migration_history
-DROP TABLE IF EXISTS "public"."migration_history";
 CREATE TABLE "public"."migration_history" (
     "sequence_id" int4 NOT NULL,
     "filename" text NOT NULL,
@@ -19,7 +65,6 @@ CREATE TABLE "public"."migration_history" (
 );
 
 -- users
-DROP TABLE IF EXISTS "public"."users";
 CREATE TABLE "public"."users" (
     "id" uuid NOT NULL,
     "google_id" varchar(255),
@@ -58,7 +103,6 @@ CREATE INDEX idx_terms_created_at ON "public"."terms" USING btree (created_at DE
 CREATE INDEX idx_terms_text_trgm ON "public"."terms" USING gin (text gin_trgm_ops);
 
 -- words
-DROP TABLE IF EXISTS "public"."words";
 CREATE TABLE "public"."words" (
     "id" uuid NOT NULL,
     "term" varchar(100) NOT NULL,
@@ -77,7 +121,6 @@ CREATE INDEX idx_words_deleted_at ON public.words USING btree (deleted_at);
 CREATE INDEX idx_words_term_trgm ON public.words USING gin (term gin_trgm_ops) WHERE (deleted_at IS NULL);
 
 -- definitions
-DROP TABLE IF EXISTS "public"."definitions";
 CREATE TABLE "public"."definitions" (
     "id" uuid NOT NULL,
     "content" text NOT NULL CHECK (length(content) <= 5000),
@@ -107,7 +150,6 @@ CREATE INDEX idx_definitions_created_desc ON public.definitions USING btree (cre
 CREATE INDEX idx_definitions_is_public ON public.definitions USING btree (is_public) WHERE (deleted_at IS NULL);
 
 -- likes
-DROP TABLE IF EXISTS "public"."likes";
 CREATE TABLE "public"."likes" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
@@ -129,7 +171,6 @@ ALTER TABLE "public"."likes" ADD FOREIGN KEY ("user_id") REFERENCES "public"."us
 ALTER TABLE "public"."likes" ADD FOREIGN KEY ("definition_id") REFERENCES "public"."definitions"("id") ON DELETE CASCADE;
 
 -- follows
-DROP TABLE IF EXISTS "public"."follows";
 CREATE TABLE "public"."follows" (
     "id" uuid NOT NULL,
     "follower_id" uuid NOT NULL,
@@ -150,11 +191,9 @@ CREATE INDEX idx_follows_following_id ON public.follows USING btree (following_i
 CREATE INDEX idx_follows_deleted_at ON public.follows USING btree (deleted_at);
 
 -- admin_role
-DROP TYPE IF EXISTS "public"."admin_role";
 CREATE TYPE "public"."admin_role" AS ENUM ('super_admin', 'developer', 'operator');
 
 -- admin_users
-DROP TABLE IF EXISTS "public"."admin_users";
 CREATE TABLE "public"."admin_users" (
     "id" uuid NOT NULL DEFAULT gen_random_uuid(),
     "username" varchar(255) NOT NULL,
@@ -175,7 +214,6 @@ INSERT INTO admin_users (username, password, role, must_change_password)
 
 
 -- notifications
-DROP TABLE IF EXISTS "public"."notifications";
 CREATE TABLE "public"."notifications" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
@@ -206,7 +244,6 @@ CREATE INDEX idx_notifications_created_at ON public.notifications USING btree (c
 CREATE INDEX idx_notifications_deleted_at ON public.notifications USING btree (deleted_at);
 
 -- events
-DROP TABLE IF EXISTS "public"."events";
 CREATE TABLE "public"."events" (
     "id" uuid NOT NULL,
     "type" varchar(50) NOT NULL,
@@ -230,7 +267,6 @@ CREATE INDEX idx_events_type_created_at ON public.events USING btree (type, crea
 CREATE INDEX idx_events_payload ON public.events USING gin (payload);
 
 -- event_aggregates
-DROP TABLE IF EXISTS "public"."event_aggregates";
 CREATE TABLE "public"."event_aggregates" (
     "id" uuid NOT NULL,
     "type" varchar(50) NOT NULL,
@@ -260,7 +296,6 @@ CREATE INDEX idx_event_aggregates_period ON public.event_aggregates USING btree 
 CREATE INDEX idx_event_aggregates_aggregate_key ON public.event_aggregates USING btree (aggregate_key);
 
 -- badges
-DROP TABLE IF EXISTS "public"."badges";
 CREATE TABLE "public"."badges" (
     "id" uuid NOT NULL,
     "code" varchar(50) NOT NULL,
@@ -282,7 +317,6 @@ CREATE INDEX idx_badges_event_type ON public.badges USING btree (event_type);
 CREATE INDEX idx_badges_is_active ON public.badges USING btree (is_active);
 
 -- user_badges
-DROP TABLE IF EXISTS "public"."user_badges";
 CREATE TABLE "public"."user_badges" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
@@ -300,7 +334,6 @@ CREATE INDEX idx_user_badges_badge_id ON public.user_badges USING btree (badge_i
 CREATE INDEX idx_user_badges_earned_at ON public.user_badges USING btree (earned_at DESC);
 
 -- user_badge_progress
-DROP TABLE IF EXISTS "public"."user_badge_progress";
 CREATE TABLE "public"."user_badge_progress" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
@@ -318,7 +351,6 @@ CREATE INDEX idx_user_badge_progress_user_id ON public.user_badge_progress USING
 CREATE INDEX idx_user_badge_progress_event_type ON public.user_badge_progress USING btree (event_type);
 
 -- reports
-DROP TABLE IF EXISTS "public"."reports";
 CREATE TABLE "public"."reports" (
     "id" uuid NOT NULL,
     "reporter_id" uuid NOT NULL,
@@ -340,7 +372,6 @@ CREATE INDEX idx_reports_status ON public.reports USING btree (status);
 CREATE INDEX idx_reports_created_at ON public.reports USING btree (created_at DESC);
 
 -- definition_histories
-DROP TABLE IF EXISTS "public"."definition_histories";
 CREATE TABLE "public"."definition_histories" (
     "id" uuid NOT NULL,
     "definition_id" uuid NOT NULL,
