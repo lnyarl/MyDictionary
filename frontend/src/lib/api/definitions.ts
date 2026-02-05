@@ -23,6 +23,7 @@ export type Definition = {
   likesCount: number;
   isLiked: boolean;
   tags?: string[];
+  termNumber: number;
   mediaUrls?: Array<{
     url: string;
     type: "image" | "video" | "unknown";

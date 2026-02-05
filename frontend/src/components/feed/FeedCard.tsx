@@ -86,7 +86,7 @@ export function FeedCard({
       <div className="flex flex-col">
         {index !== undefined && (
           <span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
-            No. {index.toString().padStart(2, "0")}
+            No. {definition.termNumber.toString().padStart(2, "0")}
           </span>
         )}
         <h2

@@ -5,6 +5,14 @@ import type { Word } from "../words/entities/word.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
+  createTerm(term: string) {
+    return this.knex(TABLES.TERMS).insert({ text: term }).returning(["number"]);
+  }
+
+  findTerm(term: string) {
+    return this.knex(TABLES.TERMS).where("text", term).first();
+  }
+
   createWord(word: Omit<Word, "id" | "createdAt" | "updatedAt" | "deletedAt">) {
     const now = new Date();
     return this.knex(TABLES.WORDS)
@@ -31,6 +39,7 @@ export class FeedRepository extends BaseRepository {
     })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
       .where("definitions.user_id", userId)
       .whereNull("words.deleted_at");
 
@@ -55,6 +64,7 @@ export class FeedRepository extends BaseRepository {
         isPublic: "definitions.is_public",
         profilePicture: "users.profile_picture",
         term: "words.term",
+        termNumber: "terms.number",
         tags: "definitions.tags",
       })
       .limit(limit)
@@ -67,6 +77,7 @@ export class FeedRepository extends BaseRepository {
     })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
       .where("definitions.is_public", true);
@@ -88,6 +99,7 @@ export class FeedRepository extends BaseRepository {
         profilePicture: "users.profile_picture",
         tags: "definitions.tags",
         term: "words.term",
+        termNumber: "terms.number",
       })
       .limit(limit)
       .orderBy("definitions.created_at", "desc");
@@ -99,6 +111,7 @@ export class FeedRepository extends BaseRepository {
     })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .andWhere("definitions.is_public", true);
 
@@ -116,6 +129,7 @@ export class FeedRepository extends BaseRepository {
       nickname: "users.nickname",
       profilePicture: "users.profile_picture",
       term: "words.term",
+      termNumber: "terms.number",
     });
   }
 
@@ -125,6 +139,7 @@ export class FeedRepository extends BaseRepository {
     })
       .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
       .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
+      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
       .where("definitions.is_public", true);
@@ -151,20 +166,23 @@ export class FeedRepository extends BaseRepository {
         nickname: "users.nickname",
         profilePicture: "users.profile_picture",
         term: "words.term",
+        termNumber: "terms.number",
       });
   }
 
   findWordByTerm(userId: string, term: string) {
     return this.query(TABLES.WORDS)
+      .leftJoin(TABLES.TERMS, `${TABLES.WORDS}.term`, `${TABLES.TERMS}.text`)
       .select({
-        id: "id",
-        term: "term",
-        userId: "user_id",
-        createdAt: "created_at",
-        updatedAt: "updated_at",
-        deletedAt: "deleted_at",
+        id: `${TABLES.WORDS}.id`,
+        term: `${TABLES.WORDS}.term`,
+        userId: `${TABLES.WORDS}.user_id`,
+        createdAt: `${TABLES.WORDS}.created_at`,
+        updatedAt: `${TABLES.WORDS}.updated_at`,
+        deletedAt: `${TABLES.WORDS}.deleted_at`,
+        termNumber: `${TABLES.TERMS}.number`,
       })
-      .where({ user_id: userId, term })
+      .where({ [`${TABLES.WORDS}.user_id`]: userId, [`${TABLES.WORDS}.term`]: term })
       .first();
   }
 }

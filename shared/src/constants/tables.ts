@@ -14,6 +14,7 @@ export const TABLES = {
   USER_BADGES: "user_badges",
   USER_BADGE_PROGRESS: "user_badge_progress",
   REPORTS: "reports",
+  TERMS: "terms",
 } as const;
 
 export type TableName = (typeof TABLES)[keyof typeof TABLES];

@@ -26,6 +26,28 @@ export class FeedService {
 
   async createFeed(userId: string, createWordDto: CreateWordDto): Promise<Feed> {
     return await this.feedRepository.transaction(async (knex) => {
+      // Ensure term exists and get number
+      let termNumber: number;
+      const termRecord = await this.feedRepository.findTerm(createWordDto.term).transacting(knex);
+
+      if (termRecord) {
+        termNumber = termRecord.number;
+      } else {
+        try {
+          const newTerms = await this.feedRepository
+            .createTerm(createWordDto.term)
+            .transacting(knex);
+          termNumber = newTerms[0].number;
+        } catch (error) {
+          // If concurrent creation happened, fetch the term again
+          const existing = await this.feedRepository.findTerm(createWordDto.term).transacting(knex);
+          if (!existing) {
+            throw error;
+          }
+          termNumber = existing.number;
+        }
+      }
+
       let word: Word;
       const existWord = await this.feedRepository
         .findWordByTerm(userId, createWordDto.term)
@@ -55,6 +77,7 @@ export class FeedService {
       return {
         ...word,
         ...definition,
+        termNumber,
       } as Feed;
     });
   }
