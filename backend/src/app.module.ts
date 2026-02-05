@@ -49,7 +49,7 @@ import { WordsModule } from "./words/words.module";
           process.cwd(),
           process.env.NODE_ENV === "production" ? "backend/dist/i18n/" : "src/i18n/",
         ),
-        watch: true,
+        watch: false,
       },
       resolvers: [
         { use: QueryResolver, options: ["lang"] },
