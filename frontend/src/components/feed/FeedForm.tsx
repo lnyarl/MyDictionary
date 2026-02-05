@@ -121,6 +121,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 					<div className="relative flex">
 						<Input
 							id="term"
+							tabIndex={0}
 							value={term}
 							onChange={(e) => setTerm(e.target.value)}
 							onKeyDown={handleKeyDown}
@@ -140,6 +141,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 						<Button
 							type="button"
 							variant={isToday ? "default" : "ghost"}
+							tabIndex={-1}
 							size="sm"
 							onClick={() => setTerm(today)}
 							className={`transition-colors m-1.25 ${isToday
