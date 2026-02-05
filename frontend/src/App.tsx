@@ -8,8 +8,6 @@ import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { queryClient } from "./lib/api/api";
 import FeedPage from "./pages/FeedPage";
-import FollowersPage from "./pages/FollowersPage";
-import FollowingPage from "./pages/FollowingPage";
 import HomePage from "./pages/HomePage";
 import ImpersonatePage from "./pages/ImpersonatePage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -40,8 +38,6 @@ function App() {
                   <Route path="/words/:wordId/edit" element={<WordEditPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
-                  <Route path="/users/:userId/followers" element={<FollowersPage />} />
-                  <Route path="/users/:userId/following" element={<FollowingPage />} />
                 </Route>
               </Routes>
             </AppLayout>

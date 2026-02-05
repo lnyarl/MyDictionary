@@ -1,4 +1,5 @@
 import { Pencil } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { FollowStats } from "@/lib/api/follows";
 import type { User } from "@/lib/api/users";
 import { stringToColor } from "@/lib/utils/color-generator";
+import { FollowListDialog } from "./FollowListDialog";
 
 type ProfileCardProps = {
   user: User;
@@ -14,14 +16,20 @@ type ProfileCardProps = {
   actionButton?: React.ReactNode;
 };
 
-export function ProfileCard({
-  user,
-  stats,
-  onEdit,
-  actionButton,
-}: ProfileCardProps) {
+export function ProfileCard({ user, stats, onEdit, actionButton }: ProfileCardProps) {
   const { t } = useTranslation();
   const bioColor = stringToColor(user.email || "");
+  const [dialogState, setDialogState] = useState<{
+    isOpen: boolean;
+    type: "followers" | "following";
+  }>({
+    isOpen: false,
+    type: "followers",
+  });
+
+  const openDialog = (type: "followers" | "following") => {
+    setDialogState({ isOpen: true, type });
+  };
 
   return (
     <Card className="overflow-hidden border-none shadow-none ">
@@ -69,17 +77,34 @@ export function ProfileCard({
 
           {stats && (
             <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
-              <span>
-                {t("dashboard.followers")}: {stats.followersCount}
-              </span>
+              <button
+                type="button"
+                onClick={() => openDialog("followers")}
+                className="hover:underline hover:text-foreground transition-colors cursor-pointer"
+              >
+                {t("dashboard.followers")}:{" "}
+                <span className="font-semibold text-foreground">{stats.followersCount}</span>
+              </button>
               <span>•</span>
-              <span>
-                {t("dashboard.following")}: {stats.followingCount}
-              </span>
+              <button
+                type="button"
+                onClick={() => openDialog("following")}
+                className="hover:underline hover:text-foreground transition-colors cursor-pointer"
+              >
+                {t("dashboard.following")}:{" "}
+                <span className="font-semibold text-foreground">{stats.followingCount}</span>
+              </button>
             </div>
           )}
         </div>
       </CardContent>
+
+      <FollowListDialog
+        isOpen={dialogState.isOpen}
+        onClose={() => setDialogState((prev) => ({ ...prev, isOpen: false }))}
+        userId={user.id}
+        type={dialogState.type}
+      />
     </Card>
   );
 }
