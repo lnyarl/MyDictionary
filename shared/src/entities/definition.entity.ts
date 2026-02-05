@@ -6,7 +6,6 @@ export type Definition = {
   userId: string;
   isPublic: boolean;
   tags: string[];
-  mediaUrls: any[];
   likesCount: number;
   isLiked: boolean;
   createdAt: Date;
@@ -14,6 +13,15 @@ export type Definition = {
   deletedAt?: Date;
   nickname?: string;
   profilePicture?: string;
+  term: string;
+  termNumber?: number;
+  mediaUrls?: Array<{
+    url: string;
+    type: string;
+    title?: string;
+    description?: string;
+    image?: string;
+  }>;
 };
 
 export const DefinitionSelect = {

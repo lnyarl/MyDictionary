@@ -2,7 +2,6 @@ import { Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { Definition } from "@/lib/api/definitions";
 import { FeedList } from "../components/feed/FeedList";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
@@ -16,7 +15,7 @@ import { useSearch } from "../hooks/useSearch";
 export default function SearchResultsPage() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { results, loading, loadingMore, error, total, hasMore, search, loadMore } = useSearch();
+  const { results, loading, loadingMore, error, hasMore, search, loadMore } = useSearch();
   const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get("term") || "");
@@ -109,7 +108,7 @@ export default function SearchResultsPage() {
                         <div className="space-y-2">
                           <Separator />
                           <FeedList
-                            definitions={word.definitions as Definition[]}
+                            definitions={word.definitions}
                             onDelete={() => { }}
                           />
                         </div>

@@ -1,6 +1,6 @@
+import { Definition } from "@stashy/shared";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import type { Definition } from "@/lib/api/definitions";
 import { cn } from "@/lib/utils";
 import { FeedCard } from "./FeedCard";
 import { FeedEditCard } from "./FeedEditCard";

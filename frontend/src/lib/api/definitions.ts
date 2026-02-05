@@ -1,3 +1,4 @@
+import { Definition } from "@stashy/shared";
 import { api } from "./api";
 
 export type PaginatedResponse<T> = {
@@ -10,31 +11,6 @@ export type PaginatedResponse<T> = {
     nextCursor?: string;
   };
 };
-
-export type Definition = {
-  id: string;
-  content: string;
-  wordId: string;
-  userId: string;
-  term: string;
-  isPublic: boolean;
-  profilePicture?: string;
-  nickname?: string;
-  likesCount: number;
-  isLiked: boolean;
-  tags?: string[];
-  termNumber: number;
-  mediaUrls?: Array<{
-    url: string;
-    type: "image" | "video" | "unknown";
-    title?: string;
-    description?: string;
-    image?: string;
-  }>;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export type CreateDefinitionInput = {
   content: string;
   wordId: string;
@@ -113,6 +89,8 @@ export const definitionsApi = {
   },
 
   delete: (id: string) => api.delete(`/definitions/${id}`),
+
+  getById: (id: string) => api.get<Definition>(`/definitions/${id}`),
 
   getHistory: (definitionId: string) =>
     api.get<DefinitionHistory[]>(`/definitions/${definitionId}/history`),

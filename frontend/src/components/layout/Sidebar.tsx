@@ -28,7 +28,8 @@ export function Sidebar() {
   ];
 
   const isActive = (path: string) => location.pathname.startsWith(path);
-  const defaultClassName = "flex h-12 w-12 items-center justify-center rounded-xl transition-all relative hover:bg-primary/10 text-primary"
+  const defaultClassName =
+    "flex h-12 w-12 items-center justify-center rounded-xl transition-all relative hover:bg-primary/10 text-primary";
 
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-[72px] flex-col items-center border-r bg-background py-4">

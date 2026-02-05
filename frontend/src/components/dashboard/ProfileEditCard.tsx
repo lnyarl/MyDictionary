@@ -15,7 +15,7 @@ type ProfileEditCardProps = {
   user: User;
   onCancel: () => void;
   onSave: () => Promise<void>;
-}
+};
 
 export function ProfileEditCard({ user, onCancel, onSave }: ProfileEditCardProps) {
   const { t } = useTranslation();

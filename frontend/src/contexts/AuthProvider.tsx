@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchUser({ showErrorToast: false })
+    fetchUser({ showErrorToast: false });
   }, [fetchUser]);
 
   const handleGoogleLogin = useCallback(

@@ -18,7 +18,7 @@ type DefinitionCardProps = {
   definition: Definition;
   onDelete: (id: string) => void;
   onStartEdit?: () => void;
-}
+};
 
 export function DefinitionCard({ definition, onDelete, onStartEdit }: DefinitionCardProps) {
   const { t } = useTranslation();

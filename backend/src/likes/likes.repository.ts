@@ -31,7 +31,7 @@ export class LikesRepository extends BaseRepository {
   findLikeInfoByDefinitionIds(
     definitionIds: string[],
     userId?: string,
-  ): Promise<{ definitionId: string; isLiked: any; likeCount: number }[]> {
+  ): Promise<{ definitionId: string; isLiked: any; likesCount: number }[]> {
     return this.query({
       [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
     })
@@ -43,10 +43,10 @@ export class LikesRepository extends BaseRepository {
         on.andOnNull("likes.deleted_at");
       })
       .whereIn("definitions.id", definitionIds)
-      .select<{ definitionId: string; isLiked: any; likeCount: any }[]>({
+      .select<{ definitionId: string; isLiked: boolean; likesCount: number }[]>({
         definitionId: "definitions.id",
-        likeCount: "definitions.likes_count",
-        isLiked: this.knex.raw("?? IS NOT NULL", ["likes.id"]),
+        likesCount: "definitions.likes_count",
+        isLiked: this.knex.raw("?? IS NOT NULL", ["likes.id"]) as any,
       });
   }
 

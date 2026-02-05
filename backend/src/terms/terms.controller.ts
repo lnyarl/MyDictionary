@@ -36,7 +36,7 @@ export class TermsController {
             const likeInfo = likes[def.id];
             if (likeInfo) {
               def.isLiked = likeInfo.isLiked;
-              def.likesCount = likeInfo.likeCount;
+              def.likesCount = likeInfo.likesCount;
             }
           }
         }

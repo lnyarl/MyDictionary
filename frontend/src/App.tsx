@@ -7,6 +7,7 @@ import { AuthLayout } from "./components/layout/AuthLayout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { queryClient } from "./lib/api/api";
+import DefinitionDetailPage from "./pages/DefinitionDetailPage";
 import FeedPage from "./pages/FeedPage";
 import HomePage from "./pages/HomePage";
 import ImpersonatePage from "./pages/ImpersonatePage";
@@ -35,6 +36,7 @@ function App() {
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/profile/:nickname" element={<ProfilePage />} />
                   <Route path="/word/:term" element={<WordDetailPage />} />
+                  <Route path="/definitions/:definitionId" element={<DefinitionDetailPage />} />
                   <Route path="/words/:wordId/edit" element={<WordEditPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />

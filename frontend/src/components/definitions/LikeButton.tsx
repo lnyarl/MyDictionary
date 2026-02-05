@@ -8,7 +8,7 @@ type LikeButtonProps = {
   definitionId: string;
   initialLikesCount: number;
   initialIsLiked?: boolean;
-}
+};
 
 export function LikeButton({
   definitionId,
@@ -17,6 +17,7 @@ export function LikeButton({
 }: LikeButtonProps) {
   const { isAuthenticated } = useAuth();
 
+  console.log(definitionId, initialIsLiked, initialLikesCount)
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
 

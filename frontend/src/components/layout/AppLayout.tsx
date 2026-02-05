@@ -5,7 +5,7 @@ import { Sidebar } from "./Sidebar";
 
 type AppLayoutProps = {
   children: ReactNode;
-}
+};
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { isAuthenticated, isLoading } = useAuth();

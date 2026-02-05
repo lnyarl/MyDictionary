@@ -3,7 +3,20 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { Definition } from "@/lib/api/definitions";
-import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardContent, CardFooter, CardHeader, Input, Label, Separator, Switch } from "../ui";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  Input,
+  Label,
+  Separator,
+  Switch,
+} from "../ui";
 import { RichTextEditor } from "../ui/rich-text-editor";
 
 type FeedEditCardProps = {
@@ -11,7 +24,7 @@ type FeedEditCardProps = {
   onSave: (data: { content: string; tags: string[]; isPublic: boolean }) => Promise<void>;
   onCancel: () => void;
   showWord?: boolean;
-}
+};
 
 export function FeedEditCard({
   definition,

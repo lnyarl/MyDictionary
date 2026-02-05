@@ -14,13 +14,12 @@ import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/utils/date";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 
-
 function NotificationIcon({ type }: { type: Notification["type"] }) {
   if (type === "follow") {
     return <UserPlus className="h-5 w-5 text-blue-500" />;
   }
 
-  return <Heart className="h-5 w-5 text-red-500" />
+  return <Heart className="h-5 w-5 text-red-500" />;
 }
 
 export default function NotificationsPage() {
@@ -94,7 +93,7 @@ export default function NotificationsPage() {
         setNotifications((prev) =>
           prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)),
         );
-      } catch { }
+      } catch {}
     }
 
     if (notification.targetUrl) {
@@ -106,7 +105,7 @@ export default function NotificationsPage() {
     try {
       markAllAsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    } catch { }
+    } catch {}
   };
 
   return (

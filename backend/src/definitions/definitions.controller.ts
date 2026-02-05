@@ -24,6 +24,7 @@ import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { OptionalAuthGuard } from "../common/guards/optional-auth.guard";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
+import { LikesService } from "../likes/likes.service";
 import type { User } from "../users/entities/user.entity";
 import { DefinitionsService } from "./definitions.service";
 
@@ -31,6 +32,7 @@ import { DefinitionsService } from "./definitions.service";
 export class DefinitionsController {
   constructor(
     private readonly definitionsService: DefinitionsService,
+    private readonly likesService: LikesService,
     @Inject(STORAGE_SERVICE) private readonly storageService: IStorageService,
   ) {}
 
@@ -72,8 +74,13 @@ export class DefinitionsController {
   }
 
   @Get("/definitions/:id")
-  findOne(@Param("id") id: string, @CurrentUser() user?: User) {
-    return this.definitionsService.findOne(id, user?.id);
+  async findOne(@Param("id") id: string, @CurrentUser() user?: User) {
+    const definition = await this.definitionsService.findOne(id, user?.id);
+    const likes = await this.likesService.getLikeInfoByDefinitions([definition.id], user.id);
+    definition.isLiked = likes[definition.id]?.isLiked;
+    definition.likesCount = likes[definition.id]?.likesCount;
+
+    return definition;
   }
 
   @Get("/definitions/:id/history")

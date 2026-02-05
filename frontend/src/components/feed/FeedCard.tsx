@@ -1,9 +1,9 @@
-import { ExternalLink, Flag, Heart, MoreVertical, Pencil, Share, Trash2 } from "lucide-react";
+import { Definition } from "@stashy/shared";
+import { ExternalLink, Flag, MoreVertical, Pencil, Share, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import type { Definition } from "@/lib/api/definitions";
 import { stringToColor } from "@/lib/utils/color-generator";
 import { i18nToIsoLocale } from "@/lib/utils/date";
 import { LikeButton } from "../definitions/LikeButton";
@@ -33,7 +33,6 @@ export function FeedCard({
   onDelete,
   onStartEdit,
   option = { showUser: true },
-  index,
 }: FeedCardProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -82,19 +81,20 @@ export function FeedCard({
   const needMoreMenu = onDelete || onStartEdit || !isOwner;
   const classForTerm = {
     article: definition.term ? "grid-cols-[140px_1fr]" : "",
-    definition: definition.term ? "pl-16" : ""
-  }
+    definition: definition.term ? "pl-16" : "",
+  };
 
   return (
-    <article className={`grid group border-b border-gray-100 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative ${classForTerm.article}`}>
-
-      {definition.term &&
+    <article
+      className={`grid group border-b border-gray-100 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative ${classForTerm.article}`}
+    >
+      {definition.term && (
         <div className="flex flex-col">
-          {definition.termNumber &&
+          {definition.termNumber && (
             <span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
               No. {definition.termNumber.toString().padStart(2, "0")}
             </span>
-          }
+          )}
           <h2
             onClick={handleTermClick}
             className="editorial-number font-serif text-3xl font-medium text-foreground italic transition-all cursor-pointer "
@@ -102,7 +102,7 @@ export function FeedCard({
             {definition.term}
           </h2>
         </div>
-      }
+      )}
 
       <div className={`w-full min-w-0 ${classForTerm.definition}`}>
         <div className="relative mb-10">
@@ -219,7 +219,9 @@ export function FeedCard({
                 }}
                 className="cursor-pointer flex items-center gap-3"
               >
-                <Avatar className={`h-6 w-6 transition-all border border-gray-300 bg-[${stringToColor(definition.id)}]`}>
+                <Avatar
+                  className={`h-6 w-6 transition-all border border-gray-300 bg-[${stringToColor(definition.id)}]`}
+                >
                   <AvatarImage src={definition.profilePicture} className="object-cover" />
                   <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
@@ -245,7 +247,10 @@ export function FeedCard({
             {needMoreMenu && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hover:text-foreground transition-colors h-8 w-8" >
+                  <Button
+                    variant="ghost"
+                    className="hover:text-foreground transition-colors h-8 w-8"
+                  >
                     <MoreVertical className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>

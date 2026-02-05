@@ -57,27 +57,32 @@ export class DefinitionsRepository extends BaseRepository {
   findByIdWithPublic(definitionId: string) {
     return this.query(this.tableName)
       .leftJoin(TABLES.WORDS, `${TABLES.WORDS}.id`, `${this.tableName}.word_id`)
-      .leftJoin(TABLES.LIKES, `${TABLES.LIKES}.definition_id`, `${this.tableName}.id`)
+      .leftJoin(TABLES.USERS, `${TABLES.USERS}.id`, `${this.tableName}.user_id`)
       .select<
         Definition & {
           wordUserId: string;
-          likesCount: number;
+          nickname: string;
+          profilePicture: string;
+          term: string;
         }
-      >(
-        `${this.tableName}.id`,
-        `${this.tableName}.word_id as wordId`,
-        `${this.tableName}.term_id as termId`,
-        `${this.tableName}.user_id as userId`,
-        `${this.tableName}.content`,
-        `${this.tableName}.tags`,
-        `${this.tableName}.media_urls as mediaUrls`,
-        this.knex.raw(`COUNT(${TABLES.LIKES}.id) as "likesCount"`),
-        `${this.tableName}.created_at as createdAt`,
-        `${this.tableName}.updated_at as updatedAt`,
-        `${TABLES.WORDS}.user_id as wordUserId`,
-      )
+      >({
+        id: `${this.tableName}.id`,
+        wordId: `${this.tableName}.word_id`,
+        term: "words.term",
+        termId: `${this.tableName}.term_id`,
+        userId: `${this.tableName}.user_id`,
+        content: `${this.tableName}.content`,
+        tags: `${this.tableName}.tags`,
+        isPublic: `${this.tableName}.is_public`,
+        mediaUrls: `${this.tableName}.media_urls`,
+        createdAt: `${this.tableName}.created_at`,
+        updatedAt: `${this.tableName}.updated_at`,
+        wordUserId: `${TABLES.WORDS}.user_id`,
+        nickname: "users.nickname",
+        profilePicture: `users.profile_picture`,
+      })
       .where({ [`${this.tableName}.id`]: definitionId })
-      .groupBy(`${this.tableName}.id`, `${TABLES.WORDS}.id`)
+      .groupBy(`${this.tableName}.id`, `${TABLES.WORDS}.id`, "users.id")
       .first();
   }
 

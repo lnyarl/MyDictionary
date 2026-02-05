@@ -30,7 +30,7 @@ export class FeedController {
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
-      feed.likesCount = likes[feed.id]?.likeCount;
+      feed.likesCount = likes[feed.id]?.likesCount;
     }
 
     return feeds;
@@ -45,7 +45,7 @@ export class FeedController {
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
-      feed.likesCount = likes[feed.id]?.likeCount;
+      feed.likesCount = likes[feed.id]?.likesCount;
     }
 
     return feeds;
@@ -64,7 +64,7 @@ export class FeedController {
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
-      feed.likesCount = likes[feed.id]?.likeCount;
+      feed.likesCount = likes[feed.id]?.likesCount;
     }
 
     return feeds;
@@ -79,7 +79,7 @@ export class FeedController {
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
-      feed.likesCount = likes[feed.id]?.likeCount;
+      feed.likesCount = likes[feed.id]?.likesCount;
     }
 
     return feeds;
@@ -115,7 +115,7 @@ export class FeedController {
 
       for (const feed of feeds.data) {
         feed.isLiked = likes[feed.id]?.isLiked;
-        feed.likesCount = likes[feed.id]?.likeCount;
+        feed.likesCount = likes[feed.id]?.likesCount;
       }
     }
 

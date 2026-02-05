@@ -1,7 +1,7 @@
+import { Definition } from "@stashy/shared";
 import { useState } from "react";
 import { FeedEditCard } from "@/components/feed/FeedEditCard";
 import { useAuth } from "@/hooks/useAuth";
-import type { Definition } from "@/lib/api/definitions";
 import { DefinitionCard } from "./DefinitionCard";
 
 type DefinitionListProps = {
@@ -11,7 +11,7 @@ type DefinitionListProps = {
     id: string,
     data: { content: string; tags: string[]; isPublic: boolean },
   ) => Promise<void>;
-}
+};
 
 export function DefinitionList({ definitions, onDelete, onEdit }: DefinitionListProps) {
   const { user } = useAuth();

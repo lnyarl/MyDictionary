@@ -5,9 +5,9 @@ import "./lib/i18n";
 import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<Suspense fallback="Loading...">
-			<App />
-		</Suspense>
-	</StrictMode>,
+  <StrictMode>
+    <Suspense fallback="Loading...">
+      <App />
+    </Suspense>
+  </StrictMode>,
 );

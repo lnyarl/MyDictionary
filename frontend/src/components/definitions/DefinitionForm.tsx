@@ -24,7 +24,7 @@ type DefinitionFormProps = {
     isPublic: boolean;
     files: File[];
   }) => Promise<void>;
-}
+};
 
 export function DefinitionForm({ open, onOpenChange, onSubmit }: DefinitionFormProps) {
   const { t } = useTranslation();

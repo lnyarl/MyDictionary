@@ -39,7 +39,7 @@ type CodeMirrorEditorProps = {
   className?: string;
   disabled?: boolean;
   autoFocus?: boolean;
-  ref?: RefObject<EditorView | null>
+  ref?: RefObject<EditorView | null>;
 };
 
 export function CodeMirrorEditor({
@@ -115,7 +115,6 @@ export function CodeMirrorEditor({
           },
         }),
       ],
-
     });
 
     const view = new EditorView({

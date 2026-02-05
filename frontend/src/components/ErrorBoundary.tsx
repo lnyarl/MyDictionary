@@ -8,12 +8,12 @@ import i18n from "@/lib/i18n";
 type Props = {
   children: ReactNode;
   fallback?: ReactNode;
-}
+};
 
 type State = {
   hasError: boolean;
   error: Error | null;
-}
+};
 
 class ErrorBoundaryClass extends Component<Props & { t: (key: string) => string }, State> {
   constructor(props: Props & { t: (key: string) => string }) {
