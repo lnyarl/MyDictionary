@@ -2,6 +2,7 @@ export type Definition = {
   id: string;
   content: string;
   wordId: string;
+  termId: string;
   userId: string;
   isPublic: boolean;
   tags: string[];
@@ -19,6 +20,7 @@ export const DefinitionSelect = {
   id: "definitions.id",
   content: "content",
   wordId: "word_id",
+  termId: "term_id",
   userId: "definitions.user_id",
   isPublic: "definitions.is_public",
   tags: "tags",
@@ -34,6 +36,7 @@ export const OnlyDefinitionSelect = {
   id: "definitions.id",
   content: "content",
   wordId: "word_id",
+  termId: "term_id",
   userId: "definitions.user_id",
   isPublic: "definitions.is_public",
   tags: "tags",

@@ -23,6 +23,23 @@ export class DefinitionsRepository extends BaseRepository {
     return listQuery;
   }
 
+  async ensureTerm(term: string): Promise<string> {
+    const existing = await this.query(TABLES.TERMS).where({ text: term }).first();
+    if (existing) {
+      return existing.id;
+    }
+
+    const [newTerm] = await this.knex(TABLES.TERMS)
+      .insert({
+        id: generateId(),
+        text: term,
+        created_at: new Date(),
+      })
+      .returning("id");
+
+    return newTerm.id;
+  }
+
   findById(definitionId: string) {
     return this.query(this.tableName)
       .select<Definition>(OnlyDefinitionSelect)
@@ -49,6 +66,7 @@ export class DefinitionsRepository extends BaseRepository {
       >(
         `${this.tableName}.id`,
         `${this.tableName}.word_id as wordId`,
+        `${this.tableName}.term_id as termId`,
         `${this.tableName}.user_id as userId`,
         `${this.tableName}.content`,
         `${this.tableName}.tags`,
@@ -90,6 +108,7 @@ export class DefinitionsRepository extends BaseRepository {
       SELECT 
         d.id, 
         d.word_id as wordId, 
+        d.term_id as termId,
         d.user_id as userId, 
         d.content, 
         d.tags,
@@ -130,6 +149,7 @@ export class DefinitionsRepository extends BaseRepository {
     const insertData: any = {
       id: definition.id || generateId(),
       word_id: definition.wordId,
+      term_id: definition.termId,
       user_id: definition.userId,
       is_public: definition.isPublic,
       content: definition.content,
@@ -149,6 +169,7 @@ export class DefinitionsRepository extends BaseRepository {
       .returning([
         "id",
         "word_id as wordId",
+        "term_id as termId",
         "user_id as userId",
         "content",
         "tags",
@@ -192,6 +213,7 @@ export class DefinitionsRepository extends BaseRepository {
       .returning([
         "id",
         "word_id as wordId",
+        "term_id as termId",
         "user_id as userId",
         "content",
         "tags",

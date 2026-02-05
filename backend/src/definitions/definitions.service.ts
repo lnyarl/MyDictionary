@@ -88,11 +88,14 @@ export class DefinitionsService {
       ...metadataList,
     ];
 
+    const termId = await this.definitionRepository.ensureTerm(word.term);
+
     const definition = await this.definitionRepository
       .create({
         ...createDefinitionDto,
         content: processedContent,
         userId,
+        termId,
         isPublic: createDefinitionDto.isPublic,
         tags: createDefinitionDto.tags || [],
         mediaUrls: combinedMedia,
