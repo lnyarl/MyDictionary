@@ -8,7 +8,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "../components/ui/dialog";
 import {
 	Select,
@@ -105,7 +104,7 @@ export default function UserDetailPage() {
 		} catch (error) {
 			alert(
 				"Failed to grant badge: " +
-					(error instanceof Error ? error.message : "Unknown error"),
+				(error instanceof Error ? error.message : "Unknown error"),
 			);
 		}
 	};
@@ -119,7 +118,7 @@ export default function UserDetailPage() {
 		} catch (error) {
 			alert(
 				"Failed to revoke badge: " +
-					(error instanceof Error ? error.message : "Unknown error"),
+				(error instanceof Error ? error.message : "Unknown error"),
 			);
 		}
 	};
