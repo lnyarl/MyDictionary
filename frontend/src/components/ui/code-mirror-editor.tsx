@@ -19,7 +19,7 @@ import {
   keymap,
   placeholder as placeholderExt,
 } from "@codemirror/view";
-import { useEffect, useMemo, useRef } from "react";
+import { RefObject, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -39,6 +39,7 @@ type CodeMirrorEditorProps = {
   className?: string;
   disabled?: boolean;
   autoFocus?: boolean;
+  ref?: RefObject<EditorView | null>
 };
 
 export function CodeMirrorEditor({
@@ -49,6 +50,7 @@ export function CodeMirrorEditor({
   className,
   disabled,
   autoFocus,
+  ref,
 }: CodeMirrorEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView>(null);
@@ -60,7 +62,6 @@ export function CodeMirrorEditor({
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!editorRef.current) return;
-
     const startState = EditorState.create({
       doc: value,
       extensions: [
@@ -123,6 +124,9 @@ export function CodeMirrorEditor({
     });
 
     viewRef.current = view;
+    if (ref) {
+      ref.current = view;
+    }
 
     if (autoFocus) {
       view.focus();

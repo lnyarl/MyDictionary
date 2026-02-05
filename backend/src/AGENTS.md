@@ -15,3 +15,6 @@
 * If Entity creation lacks independent business logic, perform the operation within the **business-relevant service** rather than the Entity-named service.
 * Use the **local repository** directly for `select` queries.
 * **Prohibit** direct imports of repositories or services from external modules.
+
+## controller
+* Define absolute paths in method-level decorators instead of using base paths in controller decorators for better grep-ability. 

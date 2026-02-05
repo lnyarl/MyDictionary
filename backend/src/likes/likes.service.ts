@@ -91,8 +91,8 @@ export class LikesService {
     return this.likeRepository.findByDefinitionId(definitionId);
   }
 
-  async getLikeInfoByDefinitions(userId: string, definitionIds: string[]) {
-    const result = await this.likeRepository.findLikeInfoByDefinitionIds(userId, definitionIds);
+  async getLikeInfoByDefinitions(definitionIds: string[], userId?: string) {
+    const result = await this.likeRepository.findLikeInfoByDefinitionIds(definitionIds, userId);
     const likes: { [definitionId: string]: { isLiked: boolean; likeCount: number } } =
       result.reduce((prev, current) => {
         return {

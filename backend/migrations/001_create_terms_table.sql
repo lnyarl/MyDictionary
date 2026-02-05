@@ -4,6 +4,8 @@ CREATE TABLE "public"."terms" (
     "text" varchar(255) NOT NULL,
     "number" SERIAL NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
     PRIMARY KEY ("id")
 );
 

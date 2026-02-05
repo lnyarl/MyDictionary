@@ -24,6 +24,7 @@ import { FollowsModule } from "./follows/follows.module";
 import { LikesModule } from "./likes/likes.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { ReportsModule } from "./reports/reports.module";
+import { TermsModule } from "./terms/terms.module";
 import { UsersModule } from "./users/users.module";
 import { WordsModule } from "./words/words.module";
 
@@ -70,6 +71,7 @@ import { WordsModule } from "./words/words.module";
     NotificationsModule,
     BadgesModule,
     ReportsModule,
+    TermsModule,
   ],
   controllers: [AppController],
   providers: [

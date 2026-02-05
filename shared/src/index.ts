@@ -14,12 +14,19 @@ export type { TableName } from "./constants/tables";
 export { TABLES } from "./constants/tables";
 // DTOs
 export { PaginatedResponseDto, PaginationDto } from "./dto/pagination.dto";
+export { SearchTermDto } from "./dto/term/search-term.dto";
+export { TermResponseDto } from "./dto/term/term-response.dto";
 export type {
   BadgeEntity,
   BadgeWithProgress,
   UserBadgeEntity,
   UserBadgeProgressEntity,
 } from "./entities/badge.entity";
+export type { Definition } from "./entities/definition.entity";
+export {
+  DefinitionSelect,
+  OnlyDefinitionSelect,
+} from "./entities/definition.entity";
 export { EventType } from "./entities/event.entity";
 export type {
   Report,
@@ -31,6 +38,8 @@ export {
   ReportSelect,
   ReportStatus,
 } from "./entities/report.entity";
+export type { Term } from "./entities/term.entity";
+export { TermSelect } from "./entities/term.entity";
 export type { User } from "./entities/user.entity";
 // Types
 export * from "./types";

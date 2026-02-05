@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { searchApi } from "../lib/api/search";
+import { termsApi } from "../lib/api/terms";
 
 export function useSearch() {
   const [term, setTerm] = useState("");
@@ -8,7 +8,7 @@ export function useSearch() {
   const query = useInfiniteQuery({
     queryKey: ["search", term],
     queryFn: ({ pageParam }) =>
-      searchApi.search(term, { page: pageParam.page, limit: 20, cursor: pageParam.cursor }),
+      termsApi.search(term, { page: pageParam.page, limit: 20, cursor: pageParam.cursor }),
 
     initialPageParam: { page: 1, cursor: undefined as string | undefined },
     getNextPageParam: (lastPage) => {

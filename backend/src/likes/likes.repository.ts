@@ -29,15 +29,17 @@ export class LikesRepository extends BaseRepository {
   }
 
   findLikeInfoByDefinitionIds(
-    userId: string,
     definitionIds: string[],
+    userId?: string,
   ): Promise<{ definitionId: string; isLiked: any; likeCount: number }[]> {
     return this.query({
       [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
     })
       .leftJoin(TABLES.LIKES, (on) => {
         on.on("definitions.id", "=", "likes.definition_id");
-        on.andOnVal("likes.user_id", "=", userId);
+        if (userId) {
+          on.andOnVal("likes.user_id", "=", userId);
+        }
         on.andOnNull("likes.deleted_at");
       })
       .whereIn("definitions.id", definitionIds)

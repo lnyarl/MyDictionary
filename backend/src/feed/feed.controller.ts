@@ -25,8 +25,8 @@ export class FeedController {
   async getFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
     const feeds = await this.feedService.getFeed(user.id, paginationDto);
     const likes = await this.likeService.getLikeInfoByDefinitions(
-      user.id,
       feeds.data.map((i) => i.id),
+      user.id,
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
@@ -40,8 +40,8 @@ export class FeedController {
   async getMyFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
     const feeds = await this.feedService.getMyFeed(user.id, paginationDto);
     const likes = await this.likeService.getLikeInfoByDefinitions(
-      user.id,
       feeds.data.map((i) => i.id),
+      user.id,
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
@@ -59,8 +59,8 @@ export class FeedController {
     const user = await this.userService.getUserByNickname(nickname);
     const feeds = await this.feedService.getUserFeed(user.id, paginationDto);
     const likes = await this.likeService.getLikeInfoByDefinitions(
-      user.id,
       feeds.data.map((i) => i.id),
+      user.id,
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
@@ -74,8 +74,8 @@ export class FeedController {
   async getAllFeed(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
     const feeds = await this.feedService.getAllFeeds(user.id, paginationDto);
     const likes = await this.likeService.getLikeInfoByDefinitions(
-      user.id,
       feeds.data.map((i) => i.id),
+      user.id,
     );
     for (var feed of feeds.data) {
       feed.isLiked = likes[feed.id]?.isLiked;
@@ -92,5 +92,33 @@ export class FeedController {
     @Query() paginationDto: PaginationDto,
   ) {
     return this.feedService.getRecommendations(paginationDto, user?.id);
+  }
+
+  @Get("/feed/search/:term")
+  @Public()
+  async getFeedByTerm(
+    @CurrentUser() user: User | null,
+    @Param("term") term: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    if (!term) {
+      throw new BadRequestException("Term is required");
+    }
+
+    const feeds = await this.feedService.getFeedByTerm(term, paginationDto);
+
+    if (feeds.data.length > 0) {
+      const likes = await this.likeService.getLikeInfoByDefinitions(
+        feeds.data.map((i) => i.id),
+        user?.id,
+      );
+
+      for (const feed of feeds.data) {
+        feed.isLiked = likes[feed.id]?.isLiked;
+        feed.likesCount = likes[feed.id]?.likeCount;
+      }
+    }
+
+    return feeds;
   }
 }

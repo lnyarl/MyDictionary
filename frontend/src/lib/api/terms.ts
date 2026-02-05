@@ -1,24 +1,13 @@
+import type { PaginatedResponseDto, TermResponseDto } from "@stashy/shared";
 import { api } from "./api";
-import type { Word } from "./words";
 
-export type PaginatedResponse<T> = {
-  data: T[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    nextCursor?: string;
-  };
-};
 export type PaginationParams = {
   page?: number;
   limit?: number;
   cursor?: string;
 };
-export type SearchResult = Word;
 
-export const searchApi = {
+export const termsApi = {
   search: (term: string, params?: PaginationParams) => {
     const queryParams = new URLSearchParams({ term });
 
@@ -33,6 +22,8 @@ export const searchApi = {
       queryParams.append("cursor", params.cursor);
     }
 
-    return api.get<PaginatedResponse<SearchResult>>(`/words/search?${queryParams.toString()}`);
+    return api.get<PaginatedResponseDto<TermResponseDto>>(
+      `/terms/search?${queryParams.toString()}`,
+    );
   },
 };

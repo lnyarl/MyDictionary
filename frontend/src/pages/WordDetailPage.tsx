@@ -1,28 +1,35 @@
-import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
-import { DefinitionList } from "@/components/definitions/DefinitionList";
+import { useParams } from "react-router-dom";
+import { FeedList } from "@/components/feed/FeedList";
 import { Page } from "@/components/layout/Page";
-import { Button } from "@/components/ui/button";
 import { useDefinitions } from "@/hooks/useDefinitions";
+import { useFeedByTerm } from "@/hooks/useFeedByTerm";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 export default function WordDetailPage() {
   const { t } = useTranslation();
   const { term } = useParams<{ term: string }>();
-  const navigate = useNavigate();
-  const { definitions, loading, fetchDefinitionsByTerm, updateDefinition, deleteDefinition } =
-    useDefinitions();
+  const { updateDefinition, deleteDefinition } = useDefinitions();
+  const { feeds, loading, loadingMore, hasMore, loadMore, refetch } = useFeedByTerm(term || "");
+
+  const { sentinelRef } = useInfiniteScroll({
+    onLoadMore: loadMore,
+    hasMore: !!hasMore,
+    isLoading: loadingMore,
+  });
 
   useEffect(() => {
     if (term) {
-      fetchDefinitionsByTerm(term);
+      refetch();
     }
-  }, [term, fetchDefinitionsByTerm]);
+  }, [term, refetch]);
 
   const handleDelete = async (id: string) => {
     if (confirm(t("word.delete_definition_confirm"))) {
       await deleteDefinition(id);
+      refetch();
     }
   };
 
@@ -35,13 +42,10 @@ export default function WordDetailPage() {
       tags: data.tags,
       isPublic: data.isPublic,
     });
+    refetch();
   };
 
   if (!term) return null;
-
-  const sortedDefinitions = [...definitions].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
 
   return (
     <Page>
@@ -52,16 +56,21 @@ export default function WordDetailPage() {
       </div>
 
       <div className="space-y-4">
-        {loading && definitions.length === 0 ? (
+        {loading && feeds.length === 0 ? (
           <div className="rounded-lg border bg-muted/50 p-12 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
             <p className="text-muted-foreground">{t("common.loading")}</p>
           </div>
         ) : (
-          <DefinitionList
-            definitions={sortedDefinitions}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
-          />
+          <>
+            <FeedList definitions={feeds} onDelete={handleDelete} onEdit={handleEdit} />
+            <div ref={sentinelRef} className="h-4 w-full" />
+            {loadingMore && (
+              <div className="flex justify-center p-4">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            )}
+          </>
         )}
       </div>
     </Page>

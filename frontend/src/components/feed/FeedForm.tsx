@@ -1,5 +1,6 @@
-import { Calendar, Globe, Lock, LockOpen } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { EditorView } from "@codemirror/view";
+import { Calendar, Globe, Lock } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import type { CreateFeedInput } from "@/lib/api/feed";
@@ -30,6 +31,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 	const tempDocument = useMemo(() => {
 		return getItem<string>(STORAGE_KEY)
 	}, [])
+	const viewRef = useRef<EditorView>(null)
 
 	const [definition, setDefinition] = useState<{
 		content: string;
@@ -38,6 +40,17 @@ export function FeedForm({ onCreate }: WordFormProps) {
 	}>({ content: tempDocument ?? "", tags: "", isPublic: true });
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	const clearEditor = () => {
+		if (viewRef.current) {
+			viewRef.current.dispatch({
+				changes: {
+					from: 0,
+					to: viewRef.current.state.doc.length,
+					insert: ''
+				}
+			});
+		}
+	}
 	useEffect(() => {
 		const fetchSuggestions = async () => {
 			if (term === today) return;
@@ -101,6 +114,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 			} as CreateFeedInput);
 			setTerm("");
 			setDefinition({ content: "", tags: "", isPublic: true });
+			clearEditor();
 			removeItem(STORAGE_KEY);
 		} catch (error) {
 			console.error("Failed to submit word:", error);
@@ -125,12 +139,8 @@ export function FeedForm({ onCreate }: WordFormProps) {
 							value={term}
 							onChange={(e) => setTerm(e.target.value)}
 							onKeyDown={handleKeyDown}
-							onFocus={() => {
-								if (suggestions.myWords.length > 0 || suggestions.othersWords.length > 0)
-									setShowSuggestions(true);
-							}}
 							onBlur={() => {
-								setTimeout(() => setShowSuggestions(false), 200);
+								setShowSuggestions(false);
 							}}
 							maxLength={100}
 							autoComplete="off"
@@ -198,6 +208,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
 						onKeyDown={handleKeyDown}
 						placeholder={t("word.definition_placeholder")}
 						className="border-0 text-sm focus-visible:ring-0 shadow-none rounded-none min-h-30 max-h-120 px-2 py-2"
+						ref={viewRef}
 						autoFocus
 					/>
 					<div className="px-3">

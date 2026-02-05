@@ -274,4 +274,35 @@ export class FeedService {
   async invalidateRecommendations(): Promise<void> {
     await this.cacheService.deletePattern(this.cacheService.recommendationsPattern());
   }
+
+  async getFeedByTerm(
+    term: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Feed>> {
+    const cacheKey = `feed:term:${term}:${paginationDto.page || 1}:${paginationDto.limit || 20}:${paginationDto.cursor || ""}`;
+    const cached = await this.cacheService.get<PaginatedResponseDto<Feed>>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const feeds = await this.feedRepository.findFeedByTerm(
+      term,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
+
+    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+
+    const dto = new PaginatedResponseDto<Feed>(
+      feeds,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
+    );
+
+    await this.cacheService.set(cacheKey, dto, this.ALL_FEED_CACHE_TTL);
+
+    return dto;
+  }
 }
