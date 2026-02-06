@@ -17,7 +17,6 @@ export function LikeButton({
 }: LikeButtonProps) {
   const { isAuthenticated } = useAuth();
 
-  console.log(definitionId, initialIsLiked, initialLikesCount)
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
 

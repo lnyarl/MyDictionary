@@ -23,21 +23,8 @@ export class DefinitionsRepository extends BaseRepository {
     return listQuery;
   }
 
-  async ensureTerm(term: string): Promise<string> {
-    const existing = await this.query(TABLES.TERMS).where({ text: term }).first();
-    if (existing) {
-      return existing.id;
-    }
-
-    const [newTerm] = await this.knex(TABLES.TERMS)
-      .insert({
-        id: generateId(),
-        text: term,
-        created_at: new Date(),
-      })
-      .returning("id");
-
-    return newTerm.id;
+  getTermIdByTerm(term: string) {
+    return this.query(TABLES.TERMS).where({ text: term }).select<{ id: string }[]>("id");
   }
 
   findById(definitionId: string) {

@@ -1,4 +1,4 @@
-FROM postgres:16-alpine
+FROM postgres:18.1-alpine3.23
 
 # Install Node.js and npm
 RUN apk add --no-cache nodejs npm

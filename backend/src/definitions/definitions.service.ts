@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
@@ -88,14 +89,19 @@ export class DefinitionsService {
       ...metadataList,
     ];
 
-    const termId = await this.definitionRepository.ensureTerm(word.term);
+    const term = await this.definitionRepository
+      .getTermIdByTerm(word.term)
+      .maybeTransacting(transaction);
+    if (term.length <= 0) {
+      throw new InternalServerErrorException("term is not exist");
+    }
 
     const definition = await this.definitionRepository
       .create({
         ...createDefinitionDto,
         content: processedContent,
         userId,
-        termId,
+        termId: term[0].id,
         isPublic: createDefinitionDto.isPublic,
         tags: createDefinitionDto.tags || [],
         mediaUrls: combinedMedia,

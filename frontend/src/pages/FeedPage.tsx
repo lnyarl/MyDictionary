@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { FeedList } from "@/components/feed/FeedList";
 import { useAllFeed } from "@/hooks/useAllFeed";
-import { useDefinitions } from "@/hooks/useDefinitions";
 import { useFeed } from "@/hooks/useFeed";
 import { useMyFeed } from "@/hooks/useMyFeed";
 import type { CreateFeedInput } from "@/lib/api/feed";
@@ -21,7 +20,8 @@ export default function FeedPage() {
   const myFeed = useMyFeed();
 
   const handleSubmit = async (data: CreateFeedInput) => {
-    await myFeed.createFeed(data);
+    allFeed.definitions.push(await myFeed.createFeed(data));
+    myFeed.definitions.push(await myFeed.createFeed(data));
   };
 
   return (
