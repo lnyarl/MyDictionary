@@ -1,0 +1,39 @@
+import { Helmet } from "react-helmet-async";
+
+interface SEOProps {
+  title?: string;
+  description?: string;
+  image?: string;
+  url?: string;
+  type?: string;
+}
+
+export function SEO({ title, description, image, url, type = "website" }: SEOProps) {
+  const siteTitle = "Stashy";
+  const defaultDescription = "나만의 단어장, Stashy에서 새로운 단어를 발견하고 기록하세요.";
+  const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+  const fullDescription = description || defaultDescription;
+  const siteUrl = import.meta.env.VITE_APP_URL || "https://stashy.app";
+  const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
+  const fullImage = image ? `${siteUrl}${image}` : `${siteUrl}/og-image.png`;
+
+  return (
+    <Helmet>
+      <title>{fullTitle}</title>
+      <meta name="description" content={fullDescription} />
+      <link rel="canonical" href={fullUrl} />
+
+      <meta property="og:type" content={type} />
+      <meta property="og:title" content={fullTitle} />
+      <meta property="og:description" content={fullDescription} />
+      <meta property="og:image" content={fullImage} />
+      <meta property="og:url" content={fullUrl} />
+      <meta property="og:site_name" content={siteTitle} />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:description" content={fullDescription} />
+      <meta name="twitter:image" content={fullImage} />
+    </Helmet>
+  );
+}
