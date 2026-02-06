@@ -7,8 +7,9 @@ import { AuthLayout } from "./components/layout/AuthLayout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { queryClient } from "./lib/api/api";
+import AllFeedPage from "./pages/AllFeedPage";
 import DefinitionDetailPage from "./pages/DefinitionDetailPage";
-import FeedPage from "./pages/FeedPage";
+import FollowingFeedPage from "./pages/FollowingFeedPage";
 import HomePage from "./pages/HomePage";
 import ImpersonatePage from "./pages/ImpersonatePage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -32,7 +33,8 @@ function App() {
 
                 <Route element={<AuthLayout />}>
                   <Route path="/feed" element={<Navigate to="/feed/all" replace />} />
-                  <Route path="/feed/:tab" element={<FeedPage />} />
+                  <Route path="/feed/all" element={<AllFeedPage />} />
+                  <Route path="/feed/following" element={<FollowingFeedPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/profile/:nickname" element={<ProfilePage />} />
                   <Route path="/word/:term" element={<WordDetailPage />} />
