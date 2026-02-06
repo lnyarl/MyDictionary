@@ -61,7 +61,12 @@ export function FeedForm({ onCreate }: WordFormProps) {
       try {
         const response = await wordsApi.autocomplete(term);
         setSuggestions(response);
-        setShowSuggestions(true);
+        if (response.myWords.length === 1 && response.othersWords.length === 0 && response.myWords[0].term === term) {
+          setShowSuggestions(false);
+          return;
+        } else {
+          setShowSuggestions(true);
+        }
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
       }
@@ -131,7 +136,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
         <h3 className="text-lg font-medium">{t("word.add_new")}</h3>
       </div>
       <div className="border border-gray-200 p-1 bg-gray-50">
-        <div className="border border-gray-200 bg-card transition-all">
+        <div className="border border-gray-200 bg-card transition-all p-4">
           <div className="relative flex">
             <Input
               id="term"
@@ -154,9 +159,8 @@ export function FeedForm({ onCreate }: WordFormProps) {
               tabIndex={-1}
               size="sm"
               onClick={() => setTerm(today)}
-              className={`transition-colors m-1.25 ${
-                isToday ? "bg-primary hover:bg-primary/80 text-white" : "hover:bg-primary/5"
-              }`}
+              className={`transition-colors m-1.25 ${isToday ? "bg-primary hover:bg-primary/80 text-white" : "hover:bg-primary/5"
+                }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               {t("word.today")}
@@ -213,16 +217,14 @@ export function FeedForm({ onCreate }: WordFormProps) {
           <div className="px-3">
             <Separator className="w-full" />
           </div>
-          <Input
-            value={definition.tags}
-            onChange={(e) => setDefinition({ ...definition, tags: e.target.value })}
-            placeholder={t("word.tags_placeholder")}
-            className="border-0 text-sm focus-visible:ring-0 shadow-none rounded-b-lg rounded-t-none px-4 py-3 h-auto"
-          />
-        </div>
-      </div>
-      <div className="flex items-center justify-end gap-6">
-        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-6 pt-4">
+            <Input
+              value={definition.tags}
+              onChange={(e) => setDefinition({ ...definition, tags: e.target.value })}
+              placeholder={t("word.tags_placeholder")}
+              className="border-0 text-sm focus-visible:ring-0 shadow-none rounded-b-lg rounded-t-none px-4 py-3 h-auto"
+            />
+            {/* <div className="flex items-center gap-2">
           <Switch
             checked={definition.isPublic}
             onCheckedChange={(checked: boolean) =>
@@ -237,10 +239,12 @@ export function FeedForm({ onCreate }: WordFormProps) {
               <Lock className="w-4 h-4" aria-label={t("word.private")} />
             )}
           </Label>
+        </div> */}
+            <Button type="submit" disabled={isSubmitting} className="m-2 bg-gray-800 font-normal">
+              {isSubmitting ? t("common.saving") : t("common.add")}
+            </Button>
+          </div>
         </div>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t("common.saving") : t("common.add")}
-        </Button>
       </div>
     </form>
   );
