@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import logo from "../../assets/logo2.png";
+import logo from "../../assets/logo3.png";
 import { cn } from "../../lib/utils";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
 import { UserMenu } from "../auth/UserMenu";

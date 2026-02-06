@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "../assets/logo3.png";
 import { GoogleLoginButton } from "../components/auth/GoogleLoginButton";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -40,7 +41,7 @@ export default function HomePage() {
         <div className="max-w-2xl mx-auto text-center">
           <div className="flex justify-center mb-8">
             <div className="rounded-full bg-primary/10 p-6">
-              <Book className="h-16 w-16 text-primary" />
+              <img src={logo} alt="Stashy Logo" className="w-75 object-contain" />
             </div>
           </div>
 
@@ -49,7 +50,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {t("home.subtitle")}
+            {t("home.subtitle").split("\n").map((i) => (<span key={i.length}>{i}<br /></span>))}
           </p>
 
           <div className="flex flex-col items-center gap-4 mb-16">
@@ -68,32 +69,6 @@ export default function HomePage() {
             </form>
             <div className="text-muted-foreground text-sm">{t("home.or")}</div>
             <GoogleLoginButton />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <div className="p-6 rounded-lg border bg-card">
-              <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Search className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">{t("home.feature1_title")}</h3>
-              <p className="text-sm text-muted-foreground">{t("home.feature1_desc")}</p>
-            </div>
-
-            <div className="p-6 rounded-lg border bg-card">
-              <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Book className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">{t("home.feature2_title")}</h3>
-              <p className="text-sm text-muted-foreground">{t("home.feature2_desc")}</p>
-            </div>
-
-            <div className="p-6 rounded-lg border bg-card">
-              <div className="rounded-full bg-primary/10 w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">{t("home.feature3_title")}</h3>
-              <p className="text-sm text-muted-foreground">{t("home.feature3_desc")}</p>
-            </div>
           </div>
         </div>
       </div>

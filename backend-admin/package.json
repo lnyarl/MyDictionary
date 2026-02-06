@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "biome format --write .",
     "start": "nest start",
-    "dev": "nest start --watch",
+    "dev": "nest start --watch --preserveWatchOutput",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/backend-admin/src/main",
     "lint": "biome lint --write .",
