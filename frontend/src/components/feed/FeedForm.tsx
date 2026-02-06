@@ -146,7 +146,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
               }}
               maxLength={100}
               autoComplete="off"
-              className="border-0 justify-between items-center-safe focus-visible:ring-0 shadow-none text-4xl font-medium px-4 py-3 h-auto"
+              className="border-0 justify-between items-center-safe focus-visible:ring-0 shadow-none text-4xl font-medium p-3 h-auto"
               placeholder={t("word.term_placeholder")}
             />
 
@@ -219,7 +219,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
               value={definition.tags}
               onChange={(e) => setDefinition({ ...definition, tags: e.target.value })}
               placeholder={t("word.tags_placeholder")}
-              className="border-0 text-sm focus-visible:ring-0 shadow-none rounded-b-lg rounded-t-none px-4 py-3 h-auto"
+              className="border-0 text-xs focus-visible:ring-0 shadow-none rounded-b-lg rounded-t-none px-4 py-3 h-auto"
             />
             {/* <div className="flex items-center gap-2">
           <Switch

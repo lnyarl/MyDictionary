@@ -33,7 +33,7 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-[72px] flex-col items-center border-r bg-background py-4">
-      <nav className="flex flex-1 flex-col items-center gap-2">
+      <nav className="flex flex-1 flex-col items-center gap-4">
         {navItems.map((item) => (
           <Link
             key={item.path}

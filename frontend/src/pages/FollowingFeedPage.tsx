@@ -29,14 +29,14 @@ export default function FollowingFeedPage() {
           <TabsTrigger
             value="all"
             onClick={() => navigate("/feed/all")}
-            className="text-[10px] font-bold uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:font-black data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
+            className="text-sm uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
           >
             {t("feed.tabs.all")}
           </TabsTrigger>
           <TabsTrigger
             value="following"
             onClick={() => navigate("/feed/following")}
-            className="text-[10px] font-bold uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:font-black data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
+            className="text-sm uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
           >
             {t("feed.tabs.following")}
           </TabsTrigger>
