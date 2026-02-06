@@ -240,7 +240,7 @@ export function FeedForm({ onCreate }: WordFormProps) {
             )}
           </Label>
         </div> */}
-            <Button type="submit" disabled={isSubmitting} className="m-2 bg-gray-800 font-normal">
+            <Button type="submit" disabled={isSubmitting} className="m-2 font-normal">
               {isSubmitting ? t("common.saving") : t("common.add")}
             </Button>
           </div>

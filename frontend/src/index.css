@@ -6,12 +6,12 @@
   :root {
     --background: 0 0% 100%;
     /* --foreground: 222.2 84% 4.9%; */
-    --foreground: #263a28;
+    --foreground: 126 21% 19%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: rgb(125 140 113);
+    --primary: 93.33 11% 50%;
     --primary-foreground: 210 40% 98%;
     --border: 102.2 0% 0%;
     --radius: 0.25rem;
