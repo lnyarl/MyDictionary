@@ -132,9 +132,6 @@ export function FeedForm({ onCreate }: WordFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">{t("word.add_new")}</h3>
-      </div>
       <div className="border border-gray-200 p-1 bg-gray-50">
         <div className="border border-gray-200 bg-card transition-all p-4">
           <div className="relative flex">
