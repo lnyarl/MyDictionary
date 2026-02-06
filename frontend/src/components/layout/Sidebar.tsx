@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotificationStore } from "@/stores/useNotificationStore";
+import logo from "../../assets/logo3.png";
 
 type NavItem = {
   icon: React.ReactNode;
@@ -34,6 +35,10 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-[72px] flex-col items-center border-r bg-background py-4">
       <nav className="flex flex-1 flex-col items-center gap-4">
+        <img
+          src={logo}
+          alt="Stashy Logo"
+          className="h-6 w-6 object-contain filter-[opacity(80%)] hover:filter-[drop-shadow(1px 0px 4px hsl(var(--primary)))] mt-2 mb-6" />
         {navItems.map((item) => (
           <Link
             key={item.path}
