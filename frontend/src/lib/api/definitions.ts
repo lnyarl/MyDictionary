@@ -1,4 +1,4 @@
-import { Definition } from "@stashy/shared";
+import type { Definition } from "@stashy/shared";
 import { api } from "./api";
 
 export type PaginatedResponse<T> = {

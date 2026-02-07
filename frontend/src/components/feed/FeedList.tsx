@@ -1,4 +1,4 @@
-import { Definition } from "@stashy/shared";
+import type { Definition } from "@stashy/shared";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";

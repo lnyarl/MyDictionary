@@ -14,6 +14,7 @@ import { Separator } from "../components/ui/separator";
 import { Textarea } from "../components/ui/textarea";
 import { useToast } from "../hooks/use-toast";
 import { usersApi } from "../lib/api/users";
+import { processProfileImage } from "../lib/utils/image";
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -28,14 +29,25 @@ export default function SettingsPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(user?.profilePicture || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (previewUrl && previewUrl.startsWith("blob:")) {
+    if (!file) return;
+
+    try {
+      const processedFile = await processProfileImage(file, 256);
+
+      if (previewUrl?.startsWith("blob:")) {
         URL.revokeObjectURL(previewUrl);
       }
-      setProfileImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      setProfileImage(processedFile);
+      setPreviewUrl(URL.createObjectURL(processedFile));
+    } catch (error) {
+      console.error("Failed to process image:", error);
+      toast({
+        title: t("common.error"),
+        description: t("settings.image_processing_failed"),
+        variant: "destructive",
+      });
     }
   };
 

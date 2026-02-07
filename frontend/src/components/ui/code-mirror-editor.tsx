@@ -19,7 +19,7 @@ import {
   keymap,
   placeholder as placeholderExt,
 } from "@codemirror/view";
-import { RefObject, useEffect, useMemo, useRef } from "react";
+import { type RefObject, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
