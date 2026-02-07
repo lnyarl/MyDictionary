@@ -15,7 +15,8 @@ export class S3StorageService implements IStorageService {
   private s3Client: S3Client;
   private bucketName: string;
   private tempBucketName: string;
-  private endpoint: string | undefined;
+  private internalEndpoint: string | undefined;
+  private publicEndpoint: string | undefined;
 
   constructor(private configService: ConfigService) {
     const region = this.configService.get<string>("STORAGE_REGION", "us-east-1");
@@ -26,7 +27,8 @@ export class S3StorageService implements IStorageService {
       "STORAGE_TEMP_BUCKET",
       "stashy-temp-bucket",
     );
-    this.endpoint = this.configService.get<string>("STORAGE_ENDPOINT");
+    this.internalEndpoint = this.configService.get<string>("STORAGE_ENDPOINT");
+    this.publicEndpoint = this.configService.get<string>("PUBLIC_STORAGE_ENDPOINT");
 
     if (!accessKeyId || !secretAccessKey) {
       this.logger.warn("Storage credentials not found. Uploads will fail.");
@@ -34,7 +36,7 @@ export class S3StorageService implements IStorageService {
 
     this.s3Client = new S3Client({
       region,
-      endpoint: this.endpoint,
+      endpoint: this.internalEndpoint,
       forcePathStyle: true,
       credentials: {
         accessKeyId: accessKeyId || "",
@@ -69,8 +71,8 @@ export class S3StorageService implements IStorageService {
     try {
       await this.s3Client.send(command);
 
-      if (this.endpoint) {
-        return `${this.endpoint}/${bucket}/${fileName}`;
+      if (this.publicEndpoint) {
+        return `${this.publicEndpoint}/${bucket}/${fileName}`;
       }
 
       const region = this.configService.get<string>("STORAGE_REGION", "us-east-1");
@@ -83,7 +85,7 @@ export class S3StorageService implements IStorageService {
 
   async moveFileToPermanent(tempUrl: string, folder = "uploads"): Promise<string> {
     let key: string;
-    if (this.endpoint) {
+    if (this.internalEndpoint) {
       const parts = tempUrl.split(`${this.tempBucketName}/`);
       if (parts.length < 2) throw new Error("Invalid temp URL format");
       key = parts[1];
@@ -111,8 +113,8 @@ export class S3StorageService implements IStorageService {
       });
       await this.s3Client.send(deleteCommand);
 
-      if (this.endpoint) {
-        return `${this.endpoint}/${this.bucketName}/${newKey}`;
+      if (this.publicEndpoint) {
+        return `${this.publicEndpoint}/${this.bucketName}/${newKey}`;
       }
       const region = this.configService.get<string>("STORAGE_REGION", "us-east-1");
       return `https://${this.bucketName}.s3.${region}.amazonaws.com/${newKey}`;
