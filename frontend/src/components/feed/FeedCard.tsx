@@ -1,4 +1,4 @@
-import { Definition } from "@stashy/shared";
+import type { Definition } from "@stashy/shared";
 import { ExternalLink, Flag, MoreVertical, Pencil, Share, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -199,9 +199,14 @@ export function FeedCard({
         )}
 
         {definition.tags && definition.tags.length > 0 && (
-          <div className="mb-10 flex flex-wrap gap-2">
+          <div className="mb-1 flex text-gray-400 flex-wrap gap-2">
             {definition.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="text-xs cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => navigate(`/tag/${encodeURIComponent(tag)}`)}
+              >
                 #{tag}
               </Badge>
             ))}
@@ -231,9 +236,7 @@ export function FeedCard({
               </a>
             )}
             <span className="text-[9px] text-zinc-400 uppercase tracking-widest">
-              <a href={`/definitions/${definition.id}`}>
-                {formattedDate}
-              </a>
+              <a href={`/definitions/${definition.id}`}>{formattedDate}</a>
             </span>
           </div>
 

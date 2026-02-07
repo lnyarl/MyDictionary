@@ -1,4 +1,4 @@
-import { Definition } from "../../definitions/entities/definition.entity";
+import { Definition } from "@stashy/shared";
 import { User } from "../../users/entities/user.entity";
 import { Word } from "../../words/entities/word.entity";
 

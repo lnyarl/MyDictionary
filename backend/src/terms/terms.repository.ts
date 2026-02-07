@@ -10,7 +10,11 @@ export class TermsRepository extends BaseRepository {
     const baseQuery = this.query(this.tableName)
       .leftJoin(`${TABLES.DEFINITIONS} as d`, `d.term_id`, `${this.tableName}.id`)
       .leftJoin(`${TABLES.USERS} as u`, `u.id`, `d.user_id`)
-      .where(`${this.tableName}.text`, "ilike", `%${term}%`)
+      .where((builder) => {
+        builder
+          .where(`${this.tableName}.text`, "ilike", `%${term}%`)
+          .orWhereRaw(`? = ANY(d.tags)`, [term]);
+      })
       .groupBy(`${this.tableName}.id`);
 
     if (cursor) {
@@ -35,6 +39,7 @@ export class TermsRepository extends BaseRepository {
                 'createdAt', d.created_at,
                 'updatedAt', d.updated_at,
                 'nickname', u.nickname,
+                'tags', d.tags,
                 'profilePicture', u.profile_picture
               ) ORDER BY d.created_at DESC
             ) FILTER (WHERE d.id IS NOT NULL),

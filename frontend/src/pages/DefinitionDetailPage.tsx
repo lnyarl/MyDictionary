@@ -127,29 +127,22 @@ export default function DefinitionDetailPage() {
 
         <div className="flex items-center justify-between  pb-6 mb-8">
           <div className="flex items-center gap-4">
-            <div
-              className="flex items-center gap-3 cursor-pointer group"
-            >
-              <Button className="text-muted shadow-none bg-muted hover:bg-muted"
-                onClick={(e) => handleUserClick(e, definition.nickname)}>
+            <div className="flex items-center gap-3 cursor-pointer group">
+              <Button
+                className="text-muted shadow-none bg-muted hover:bg-muted"
+                onClick={(e) => handleUserClick(e, definition.nickname)}
+              >
                 <Avatar
                   className={`h-10 w-10 border border-gray-200 bg-[${stringToColor(definition.id)}]`}
                 >
-                  <AvatarImage
-                    src={definition.profilePicture}
-                    className="object-cover"
-                  />
-                  <AvatarFallback>
-                    {definition.nickname?.[0].toUpperCase() || "U"}
-                  </AvatarFallback>
+                  <AvatarImage src={definition.profilePicture} className="object-cover" />
+                  <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium group-hover:underline decoration-primary underline-offset-4">
                     @{definition.nickname || t("common.user")}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    {formattedDate}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{formattedDate}</span>
                 </div>
               </Button>
             </div>
@@ -171,11 +164,7 @@ export default function DefinitionDetailPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {isOwner && (
-                    <DropdownMenuItem
-                      onClick={() =>
-                        navigate(`/words/${definition.wordId}/edit`)
-                      }
-                    >
+                    <DropdownMenuItem onClick={() => navigate(`/words/${definition.wordId}/edit`)}>
                       <Pencil className="mr-2 h-4 w-4" />
                       {t("common.edit")}
                     </DropdownMenuItem>
@@ -185,9 +174,7 @@ export default function DefinitionDetailPage() {
                       reportedUserId={definition.userId}
                       definitionId={definition.id}
                       trigger={
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                        >
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                           <Flag className="mr-2 h-4 w-4" />
                           {t("common.report")}
                         </DropdownMenuItem>
@@ -209,16 +196,12 @@ export default function DefinitionDetailPage() {
           </div>
         </div>
 
-
         {definition.mediaUrls && definition.mediaUrls.length > 0 && (
           <div className="mb-12 grid gap-4 grid-cols-1 md:grid-cols-2">
             {definition.mediaUrls.map((media) => {
               if (media.type === "image") {
                 return (
-                  <div
-                    key={media.url}
-                    className="rounded-xl overflow-hidden border shadow-sm"
-                  >
+                  <div key={media.url} className="rounded-xl overflow-hidden border shadow-sm">
                     <img
                       src={media.url}
                       alt="media"
@@ -271,9 +254,7 @@ export default function DefinitionDetailPage() {
                     )}
                     <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
                       <ExternalLink className="h-3 w-3" />
-                      <span className="truncate">
-                        {getHostname(media.url)}
-                      </span>
+                      <span className="truncate">{getHostname(media.url)}</span>
                     </div>
                   </div>
                 </a>
@@ -283,12 +264,13 @@ export default function DefinitionDetailPage() {
         )}
 
         {definition.tags && definition.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-6 border-t">
+          <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-400">
             {definition.tags.map((tag) => (
               <Badge
                 key={tag}
                 variant="secondary"
-                className="text-sm px-3 py-1"
+                className="text-sm px-3 py-1 cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => navigate(`/tag/${encodeURIComponent(tag)}`)}
               >
                 #{tag}
               </Badge>
@@ -296,6 +278,6 @@ export default function DefinitionDetailPage() {
           </div>
         )}
       </div>
-    </Page >
+    </Page>
   );
 }

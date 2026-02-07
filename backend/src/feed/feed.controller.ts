@@ -121,4 +121,32 @@ export class FeedController {
 
     return feeds;
   }
+
+  @Get("/feed/tag/:tag")
+  @Public()
+  async getFeedsByTag(
+    @CurrentUser() user: User | null,
+    @Param("tag") tag: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    if (!tag) {
+      throw new BadRequestException("Tag is required");
+    }
+
+    const feeds = await this.feedService.getFeedsByTag(tag, paginationDto);
+
+    if (feeds.data.length > 0) {
+      const likes = await this.likeService.getLikeInfoByDefinitions(
+        feeds.data.map((i) => i.id),
+        user?.id,
+      );
+
+      for (const feed of feeds.data) {
+        feed.isLiked = likes[feed.id]?.isLiked;
+        feed.likesCount = likes[feed.id]?.likesCount;
+      }
+    }
+
+    return feeds;
+  }
 }

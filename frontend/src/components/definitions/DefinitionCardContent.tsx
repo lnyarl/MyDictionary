@@ -163,7 +163,12 @@ export function DefinitionCardContent({
         {definition.tags && definition.tags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {definition.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="text-xs cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => navigate(`/tag/${encodeURIComponent(tag)}`)}
+              >
                 #{tag}
               </Badge>
             ))}

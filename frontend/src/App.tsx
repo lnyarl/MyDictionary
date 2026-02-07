@@ -16,6 +16,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import SettingsPage from "./pages/SettingsPage";
+import TagSearchPage from "./pages/TagSearchPage";
 import WordDetailPage from "./pages/WordDetailPage";
 import WordEditPage from "./pages/WordEditPage";
 
@@ -42,6 +43,7 @@ function App() {
                   <Route path="/words/:wordId/edit" element={<WordEditPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
+                  <Route path="/tag/:tag" element={<TagSearchPage />} />
                 </Route>
               </Routes>
             </AppLayout>

@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
+import { Definition, PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
 import { Knex } from "knex";
@@ -19,7 +19,6 @@ import { FeedService } from "../feed/feed.service";
 import { Word } from "../words/entities/word.entity";
 import { WordsRepository } from "../words/words.repository";
 import { DefinitionsRepository } from "./definitions.repository";
-import { Definition } from "./entities/definition.entity";
 
 @Injectable()
 export class DefinitionsService {

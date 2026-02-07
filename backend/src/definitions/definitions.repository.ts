@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES } from "@stashy/shared";
+import { Definition, generateId, TABLES } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
-import { Definition, DefinitionSelect, OnlyDefinitionSelect } from "./entities/definition.entity";
+import { DefinitionSelect, OnlyDefinitionSelect } from "./entities/definition.entity";
 
 @Injectable()
 export class DefinitionsRepository extends BaseRepository {
