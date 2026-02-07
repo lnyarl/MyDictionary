@@ -179,7 +179,7 @@ export default function ProfilePage() {
                   disabled={followLoading}
                   className="rounded-full"
                 >
-                  {isFollowing ? t("profile.unfollow") : t("user.follow")}
+                  {isFollowing ? t("profile.unfollow") : t("profile.follow")}
                 </Button>
               ) : null
             }

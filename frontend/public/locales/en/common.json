@@ -48,6 +48,7 @@
   "profile.nickname": "Nickname",
   "profile.bio": "Bio",
   "profile.unfollow": "Unfollow",
+  "profile.follow": "Follow",
   "dashboard.welcome": "Hello, {{nickname}}!",
   "dashboard.subtitle": "Create your own word stash.",
   "dashboard.my_words": "My Words",

@@ -97,7 +97,7 @@ export function FeedCard({
           )}
           <h2
             onClick={handleTermClick}
-            className="editorial-number font-serif text-3xl font-medium text-foreground italic transition-all cursor-pointer "
+            className="editorial-number font-serif text-3xl font-medium text-foreground transition-all cursor-pointer "
           >
             {definition.term}
           </h2>
