@@ -24,6 +24,7 @@ import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { OptionalAuthGuard } from "../common/guards/optional-auth.guard";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
+import { processMultipleImages, validateImageCount } from "../common/utils/image-validation.util";
 import { LikesService } from "../likes/likes.service";
 import type { User } from "../users/entities/user.entity";
 import { DefinitionsService } from "./definitions.service";
@@ -42,8 +43,11 @@ export class DefinitionsController {
     if (!files || files.length === 0) {
       throw new BadRequestException("No files uploaded");
     }
+
+    const processedFiles = await processMultipleImages(files);
+
     const uploadedUrls = await Promise.all(
-      files.map((file) => this.storageService.uploadTempFile(file, "temp-definitions")),
+      processedFiles.map((file) => this.storageService.uploadTempFile(file, "temp-definitions")),
     );
     return { urls: uploadedUrls };
   }
@@ -55,10 +59,13 @@ export class DefinitionsController {
     @Body() createDefinitionDto: CreateDefinitionDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
+    validateImageCount(createDefinitionDto.content);
+
     const mediaUrls: string[] = [];
     if (files && files.length > 0) {
+      const processedFiles = await processMultipleImages(files);
       const uploadedUrls = await Promise.all(
-        files.map((file) => this.storageService.uploadFile(file, "definitions")),
+        processedFiles.map((file) => this.storageService.uploadFile(file, "definitions")),
       );
       mediaUrls.push(...uploadedUrls);
     }
@@ -97,10 +104,15 @@ export class DefinitionsController {
     @Body() updateDefinitionDto: UpdateDefinitionDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
+    if (updateDefinitionDto.content) {
+      validateImageCount(updateDefinitionDto.content);
+    }
+
     const mediaUrls: string[] = [];
     if (files && files.length > 0) {
+      const processedFiles = await processMultipleImages(files);
       const uploadedUrls = await Promise.all(
-        files.map((file) => this.storageService.uploadFile(file, "definitions")),
+        processedFiles.map((file) => this.storageService.uploadFile(file, "definitions")),
       );
       mediaUrls.push(...uploadedUrls);
     }

@@ -1,10 +1,11 @@
 import type { EditorView } from "@codemirror/view";
-import { Calendar, Globe, Lock } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import type { CreateFeedInput } from "@/lib/api/feed";
 import { getItem, removeItem } from "@/lib/localStorage";
+import { countImagesInContent, getImageCountError } from "@/lib/utils/content-image";
 import { toDayString } from "@/lib/utils/date";
 import { type Word, wordsApi } from "../../lib/api/words";
 import { Button } from "../ui/button";
@@ -139,6 +140,14 @@ export function FeedForm({ onCreate }: WordFormProps) {
     if (tags.length > MAX_TAGS_COUNT) {
       toast.toast({
         description: `태그가 너무 많습니다. 최대 ${MAX_TAGS_COUNT}개까지 등록 가능합니다.`,
+      });
+      return;
+    }
+
+    const imageCount = countImagesInContent(definition.content);
+    if (imageCount > 4) {
+      toast.toast({
+        description: getImageCountError(imageCount, 4),
       });
       return;
     }

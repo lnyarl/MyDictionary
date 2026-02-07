@@ -8,6 +8,13 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { api } from "@/lib/api/api";
+import {
+  countImagesInContent,
+  ImageValidationError,
+  processContentImage,
+} from "@/lib/utils/content-image";
+
+const MAX_IMAGES = 4;
 
 async function uploadImage(file: File): Promise<string> {
   const formData = new FormData();
@@ -228,6 +235,23 @@ const htmlImagePlugin = ViewPlugin.fromClass(
   },
 );
 
+function showErrorNotification(_view: EditorView, message: string) {
+  const notification = document.createElement("div");
+  notification.className =
+    "fixed top-4 right-4 bg-destructive text-destructive-foreground px-4 py-2 rounded-md shadow-lg z-50 animate-in fade-in slide-in-from-top-2";
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+
+function canAddImages(view: EditorView, newImageCount: number): boolean {
+  const content = view.state.doc.toString();
+  const currentCount = countImagesInContent(content);
+  return currentCount + newImageCount <= MAX_IMAGES;
+}
+
 const imageEventHandler = EditorView.domEventHandlers({
   paste(event, view) {
     const files = event.clipboardData?.files;
@@ -235,6 +259,17 @@ const imageEventHandler = EditorView.domEventHandlers({
       const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
       if (imageFiles.length > 0) {
         event.preventDefault();
+
+        if (!canAddImages(view, imageFiles.length)) {
+          const content = view.state.doc.toString();
+          const currentCount = countImagesInContent(content);
+          showErrorNotification(
+            view,
+            `이미지는 최대 ${MAX_IMAGES}개까지 업로드 가능합니다. (현재: ${currentCount}개)`,
+          );
+          return;
+        }
+
         handleFiles(imageFiles, view);
       }
     }
@@ -245,6 +280,17 @@ const imageEventHandler = EditorView.domEventHandlers({
       const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
       if (imageFiles.length > 0) {
         event.preventDefault();
+
+        if (!canAddImages(view, imageFiles.length)) {
+          const content = view.state.doc.toString();
+          const currentCount = countImagesInContent(content);
+          showErrorNotification(
+            view,
+            `이미지는 최대 ${MAX_IMAGES}개까지 업로드 가능합니다. (현재: ${currentCount}개)`,
+          );
+          return;
+        }
+
         const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
         if (pos !== null) {
           handleFiles(imageFiles, view, pos);
@@ -273,7 +319,8 @@ async function handleFiles(files: File[], view: EditorView, pos?: number) {
     if (!id) return;
 
     try {
-      const url = await uploadImage(file);
+      const processedFile = await processContentImage(file);
+      const url = await uploadImage(processedFile);
       const docString = view.state.doc.toString();
       const placeholder = `![Uploading...](${id})`;
       const idx = docString.indexOf(placeholder);
@@ -287,7 +334,11 @@ async function handleFiles(files: File[], view: EditorView, pos?: number) {
           },
         });
       }
-    } catch (e) {
+    } catch (error) {
+      if (error instanceof ImageValidationError) {
+        showErrorNotification(view, error.message);
+      }
+
       const docString = view.state.doc.toString();
       const placeholder = `![Uploading...](${id})`;
       const idx = docString.indexOf(placeholder);
