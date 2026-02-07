@@ -212,7 +212,7 @@ export class FeedRepository extends BaseRepository {
       updatedAt: "definitions.updated_at",
       nickname: "users.nickname",
       profilePicture: "users.profile_picture",
-      term: "words.term",
+      // term: "words.term",
       termNumber: "terms.number",
       tags: "definitions.tags",
     });
