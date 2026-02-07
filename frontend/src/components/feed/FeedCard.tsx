@@ -106,16 +106,18 @@ export function FeedCard({
       )}
 
       <div className={`w-full min-w-0 ${classForTerm.definition}`}>
-        <div className="relative mb-10">
-          <div
-            ref={contentRef}
-            className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-[300px] overflow-hidden"
-          >
-            <RichTextContent content={definition.content} />
+        <div className="mb-10">
+          <div className="relative">
+            <div
+              ref={contentRef}
+              className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-[300px] overflow-hidden"
+            >
+              <RichTextContent content={definition.content} />
+            </div>
+            {isTruncated && (
+              <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+            )}
           </div>
-          {isTruncated && (
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-          )}
           {isTruncated && (
             <Dialog>
               <DialogTrigger asChild>
