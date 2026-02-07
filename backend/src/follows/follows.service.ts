@@ -63,7 +63,7 @@ export class FollowsService {
         type: NotificationType.FOLLOW,
         title: `${follower.nickname}님이 회원님을 팔로우하기 시작했습니다`,
         actorId: followerId,
-        targetUrl: `/users/${followerId}`,
+        targetUrl: `/profile/${follower.nickname}`,
       });
     }
 
