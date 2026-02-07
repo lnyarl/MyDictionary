@@ -97,7 +97,8 @@ export function FeedCard({
           )}
           <h2
             onClick={handleTermClick}
-            className="editorial-number font-serif text-3xl font-medium text-foreground transition-all cursor-pointer "
+            className={"editorial-number font-bold text-3xl text-foreground transition-all cursor-pointer"}
+            style={{ fontFamily: "\"Gowun Batang\", serif" }}
           >
             {definition.term}
           </h2>
