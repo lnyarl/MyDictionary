@@ -1,4 +1,4 @@
-import { EditorView } from "@codemirror/view";
+import type { EditorView } from "@codemirror/view";
 import { Calendar, Globe, Lock } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,10 +10,13 @@ import { type Word, wordsApi } from "../../lib/api/words";
 import { Button } from "../ui/button";
 import { STORAGE_KEY } from "../ui/codemirror/save-extension";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { RichTextEditor } from "../ui/rich-text-editor";
 import { Separator } from "../ui/separator";
-import { Switch } from "../ui/switch";
+
+const MAX_TERM_LENGTH = 100;
+const MAX_CONTENT_LENGTH = 5000;
+const MAX_TAG_LENGTH = 50;
+const MAX_TAGS_COUNT = 100;
 
 type WordFormProps = {
   onCreate: (data: CreateFeedInput) => Promise<void>;
@@ -61,7 +64,11 @@ export function FeedForm({ onCreate }: WordFormProps) {
       try {
         const response = await wordsApi.autocomplete(term);
         setSuggestions(response);
-        if (response.myWords.length === 1 && response.othersWords.length === 0 && response.myWords[0].term === term) {
+        if (
+          response.myWords.length === 1 &&
+          response.othersWords.length === 0 &&
+          response.myWords[0].term === term
+        ) {
           setShowSuggestions(false);
           return;
         } else {
@@ -90,6 +97,9 @@ export function FeedForm({ onCreate }: WordFormProps) {
     }
   };
 
+  const contentLength = definition.content.length;
+  const isOverLimit = contentLength > MAX_CONTENT_LENGTH;
+
   const toast = useToast();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +110,36 @@ export function FeedForm({ onCreate }: WordFormProps) {
     }
     if (!definition.content.trim()) {
       toast.toast({ description: "단어를 작성해주세요" });
+      return;
+    }
+    if (isOverLimit) {
+      toast.toast({
+        description: `내용이 너무 깁니다. 최대 ${MAX_CONTENT_LENGTH}자까지 작성 가능합니다.`,
+      });
+      return;
+    }
+    if (term.length > MAX_TERM_LENGTH) {
+      toast.toast({
+        description: `단어가 너무 깁니다. 최대 ${MAX_TERM_LENGTH}자까지 작성 가능합니다.`,
+      });
+      document.getElementById("term")?.focus();
+      return;
+    }
+    const tags = definition.tags
+      .split(/\s+/)
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+    const longTag = tags.find((tag) => tag.length > MAX_TAG_LENGTH);
+    if (longTag) {
+      toast.toast({
+        description: `태그 "${longTag.slice(0, 20)}..."이(가) 너무 깁니다. 각 태그는 최대 ${MAX_TAG_LENGTH}자까지 가능합니다.`,
+      });
+      return;
+    }
+    if (tags.length > MAX_TAGS_COUNT) {
+      toast.toast({
+        description: `태그가 너무 많습니다. 최대 ${MAX_TAGS_COUNT}개까지 등록 가능합니다.`,
+      });
       return;
     }
 
@@ -144,7 +184,6 @@ export function FeedForm({ onCreate }: WordFormProps) {
               onBlur={() => {
                 setShowSuggestions(false);
               }}
-              maxLength={100}
               autoComplete="off"
               className="border-0 justify-between items-center-safe focus-visible:ring-0 shadow-none text-4xl font-medium p-3 h-auto"
               placeholder={t("word.term_placeholder")}
@@ -156,8 +195,9 @@ export function FeedForm({ onCreate }: WordFormProps) {
               tabIndex={-1}
               size="sm"
               onClick={() => setTerm(today)}
-              className={`transition-colors m-1.25 ${isToday ? "bg-primary hover:bg-primary/80 text-white" : "hover:bg-primary/5"
-                }`}
+              className={`transition-colors m-1.25 ${
+                isToday ? "bg-primary hover:bg-primary/80 text-white" : "hover:bg-primary/5"
+              }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               {t("word.today")}
@@ -211,6 +251,16 @@ export function FeedForm({ onCreate }: WordFormProps) {
             ref={viewRef}
             autoFocus
           />
+          <div className="flex justify-end items-center px-3 py-1">
+            <span
+              className={`text-xs transition-colors ${
+                isOverLimit ? "text-red-500 font-medium" : "text-gray-400"
+              }`}
+            >
+              {contentLength}
+              <span className="text-gray-300">/{MAX_CONTENT_LENGTH}</span>
+            </span>
+          </div>
           <div className="px-3">
             <Separator className="w-full" />
           </div>
@@ -237,7 +287,11 @@ export function FeedForm({ onCreate }: WordFormProps) {
             )}
           </Label>
         </div> */}
-            <Button type="submit" disabled={isSubmitting} className="m-2 font-normal">
+            <Button
+              type="submit"
+              disabled={isSubmitting || isOverLimit}
+              className="m-2 font-normal"
+            >
               {isSubmitting ? t("common.saving") : t("common.add")}
             </Button>
           </div>
