@@ -5,13 +5,19 @@ import type { RefreshToken } from "../entities/refresh-token.entity";
 
 @Injectable()
 export class RefreshTokenRepository extends BaseRepository {
-  async create(userId: string, token: string, expiresAt: Date): Promise<RefreshToken> {
+  async create(
+    userId: string,
+    token: string,
+    expiresAt: Date,
+    fromAdmin = false,
+  ): Promise<RefreshToken> {
     const [record] = await this.knex(TABLES.REFRESH_TOKENS)
       .insert({
         id: generateId(),
         user_id: userId,
         token,
         expires_at: expiresAt,
+        from_admin: fromAdmin,
       })
       .returning("*");
 

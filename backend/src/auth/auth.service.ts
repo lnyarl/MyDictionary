@@ -7,6 +7,7 @@ import { UserJwtPayload } from "@stashy/shared/dto/auth/type";
 import { OAuth2Client } from "google-auth-library";
 import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
+import { RefreshToken } from "./entities/refresh-token.entity";
 import { RefreshTokenRepository } from "./repositories/refresh-token.repository";
 
 export type GoogleUserData = {
@@ -90,9 +91,9 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async generateTokenPair(user: User): Promise<TokenPair> {
+  async generateTokenPair(user: User, fromAdmin = false): Promise<TokenPair> {
     const accessToken = this.generateJwtToken(user);
-    const refreshToken = await this.createRefreshToken(user.id);
+    const refreshToken = await this.createRefreshToken(user.id, fromAdmin);
 
     return {
       accessToken,
@@ -100,13 +101,19 @@ export class AuthService {
     };
   }
 
-  private async createRefreshToken(userId: string): Promise<string> {
+  private async createRefreshToken(userId: string, fromAdmin = false): Promise<string> {
     const token = crypto.randomBytes(32).toString("hex");
-    const refreshExpiresIn = this.configService.get<string>("JWT_REFRESH_EXPIRES_IN") || "30d";
-    const expiresInMs = this.parseExpiresIn(refreshExpiresIn);
-    const expiresAt = new Date(Date.now() + expiresInMs);
 
-    await this.refreshTokenRepository.create(userId, token, expiresAt);
+    let expiresAt: Date;
+    if (fromAdmin) {
+      expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    } else {
+      const refreshExpiresIn = this.configService.get<string>("JWT_REFRESH_EXPIRES_IN") || "30d";
+      const expiresInMs = this.parseExpiresIn(refreshExpiresIn);
+      expiresAt = new Date(Date.now() + expiresInMs);
+    }
+
+    await this.refreshTokenRepository.create(userId, token, expiresAt, fromAdmin);
 
     return token;
   }
@@ -152,12 +159,20 @@ export class AuthService {
     return { accessToken, refreshToken: newRefreshToken, user };
   }
 
-  private async rotateRefreshToken(storedToken: {
-    id: string;
-    userId: string;
-    expiresAt: Date;
-  }): Promise<string> {
+  private async rotateRefreshToken(storedToken: RefreshToken): Promise<string> {
     await this.refreshTokenRepository.deleteById(storedToken.id);
+
+    const newToken = crypto.randomBytes(32).toString("hex");
+
+    if (storedToken.fromAdmin) {
+      await this.refreshTokenRepository.create(
+        storedToken.userId,
+        newToken,
+        storedToken.expiresAt,
+        true,
+      );
+      return newToken;
+    }
 
     const extensionThresholdDays =
       this.configService.get<number>("REFRESH_TOKEN_EXTENSION_THRESHOLD_DAYS") || 3;
@@ -176,8 +191,7 @@ export class AuthService {
       newExpiresAt = storedToken.expiresAt;
     }
 
-    const newToken = crypto.randomBytes(32).toString("hex");
-    await this.refreshTokenRepository.create(storedToken.userId, newToken, newExpiresAt);
+    await this.refreshTokenRepository.create(storedToken.userId, newToken, newExpiresAt, false);
 
     return newToken;
   }

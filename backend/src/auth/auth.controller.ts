@@ -125,10 +125,10 @@ export class AuthController {
       throw new UnauthorizedException("User not found");
     }
 
-    const { accessToken, refreshToken } = await this.authService.generateTokenPair(user);
+    const { accessToken, refreshToken } = await this.authService.generateTokenPair(user, true);
 
     const accessTokenMaxAge = 60 * 60 * 1000;
-    const refreshTokenMaxAge = 30 * 24 * 60 * 60 * 1000;
+    const refreshTokenMaxAge = 60 * 60 * 1000;
     const domain = URL.parse(this.configService.get<string>("FRONTEND_URL")).hostname;
     res.cookie("access_token", accessToken, {
       ...this.getCookieOptions(accessTokenMaxAge),
