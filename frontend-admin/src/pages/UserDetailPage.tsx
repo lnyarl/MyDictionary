@@ -24,6 +24,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "../components/ui/table";
+import { mainBackendApi } from "../lib/api";
 import { badgesApi } from "../lib/badges";
 import { usersApi } from "../lib/users";
 import { type Word, wordsApi } from "../lib/words";
@@ -84,9 +85,10 @@ export default function UserDetailPage() {
 		if (!id) return;
 		try {
 			const { token } = await usersApi.impersonateUser(id);
+			await mainBackendApi.post("/auth/session", { token });
 			const mainAppUrl =
 				import.meta.env.VITE_MAIN_APP_URL || "http://localhost:5173";
-			window.open(`${mainAppUrl}/auth/impersonate?token=${token}`, "_blank");
+			window.open(mainAppUrl, "_blank");
 		} catch (error) {
 			console.error("Failed to mock login", error);
 			alert("Failed to mock login");
@@ -104,7 +106,7 @@ export default function UserDetailPage() {
 		} catch (error) {
 			alert(
 				"Failed to grant badge: " +
-				(error instanceof Error ? error.message : "Unknown error"),
+					(error instanceof Error ? error.message : "Unknown error"),
 			);
 		}
 	};
@@ -118,7 +120,7 @@ export default function UserDetailPage() {
 		} catch (error) {
 			alert(
 				"Failed to revoke badge: " +
-				(error instanceof Error ? error.message : "Unknown error"),
+					(error instanceof Error ? error.message : "Unknown error"),
 			);
 		}
 	};

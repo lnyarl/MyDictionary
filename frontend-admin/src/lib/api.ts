@@ -1,4 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const MAIN_BACKEND_URL =
+	import.meta.env.VITE_MAIN_BACKEND_URL || "http://localhost:3000";
 
 class ApiClient {
 	private baseURL: string;
@@ -7,7 +9,10 @@ class ApiClient {
 		this.baseURL = baseURL;
 	}
 
-	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+	private async request<T>(
+		endpoint: string,
+		options: RequestInit = {},
+	): Promise<T> {
 		const url = `${this.baseURL}${endpoint}`;
 		const config: RequestInit = {
 			...options,
@@ -24,7 +29,9 @@ class ApiClient {
 			const error = await response.json().catch(() => ({
 				message: "An error occurred",
 			}));
-			throw new Error(error.message || `HTTP error! status: ${response.status}`);
+			throw new Error(
+				error.message || `HTTP error! status: ${response.status}`,
+			);
 		}
 
 		if (response.headers.get("Content-Length") === "0") {
@@ -58,3 +65,4 @@ class ApiClient {
 }
 
 export const api = new ApiClient(API_URL);
+export const mainBackendApi = new ApiClient(MAIN_BACKEND_URL);

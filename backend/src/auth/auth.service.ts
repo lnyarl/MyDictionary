@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { generateRandomNickname } from "@stashy/shared";
+import { UserJwtPayload } from "@stashy/shared/dto/auth/type";
 import { OAuth2Client } from "google-auth-library";
 import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
@@ -14,12 +15,6 @@ export type GoogleUserData = {
   name: string;
   picture?: string;
 };
-
-export type JwtPayload = {
-  sub: string;
-  email: string;
-};
-
 export type TokenPair = {
   accessToken: string;
   refreshToken: string;
@@ -87,7 +82,7 @@ export class AuthService {
   }
 
   generateJwtToken(user: User): string {
-    const payload: JwtPayload = {
+    const payload: UserJwtPayload = {
       sub: user.id,
       email: user.email,
     };
@@ -193,5 +188,17 @@ export class AuthService {
 
   async revokeAllUserRefreshTokens(userId: string): Promise<void> {
     await this.refreshTokenRepository.deleteByUserId(userId);
+  }
+
+  verifyJwtToken(token: string): UserJwtPayload | null {
+    try {
+      return this.jwtService.verify<UserJwtPayload>(token);
+    } catch {
+      return null;
+    }
+  }
+
+  async findUserById(userId: string): Promise<User | null> {
+    return this.usersService.findById(userId);
   }
 }

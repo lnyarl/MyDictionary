@@ -11,7 +11,6 @@ import AllFeedPage from "./pages/AllFeedPage";
 import DefinitionDetailPage from "./pages/DefinitionDetailPage";
 import FollowingFeedPage from "./pages/FollowingFeedPage";
 import HomePage from "./pages/HomePage";
-import ImpersonatePage from "./pages/ImpersonatePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchResultsPage from "./pages/SearchResultsPage";
@@ -30,7 +29,6 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/search" element={<SearchResultsPage />} />
-                <Route path="/auth/impersonate" element={<ImpersonatePage />} />
 
                 <Route element={<AuthLayout />}>
                   <Route path="/feed" element={<Navigate to="/feed/all" replace />} />

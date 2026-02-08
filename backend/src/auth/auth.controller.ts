@@ -115,14 +115,28 @@ export class AuthController {
   @Public()
   @Post("/auth/session")
   async createSession(@Body() body: { token: string }, @Res() res: Response) {
-    const isDevelopment = this.configService.get("NODE_ENV") !== "production";
+    const payload = this.authService.verifyJwtToken(body.token);
+    if (!payload) {
+      throw new UnauthorizedException("Invalid token");
+    }
 
-    res.cookie("access_token", body.token, {
-      httpOnly: true,
-      secure: !isDevelopment,
-      sameSite: isDevelopment ? "lax" : "none",
-      maxAge: 60 * 60 * 1000,
-      path: "/",
+    const user = await this.authService.findUserById(payload.sub);
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
+
+    const { accessToken, refreshToken } = await this.authService.generateTokenPair(user);
+
+    const accessTokenMaxAge = 60 * 60 * 1000;
+    const refreshTokenMaxAge = 30 * 24 * 60 * 60 * 1000;
+    const domain = URL.parse(this.configService.get<string>("FRONTEND_URL")).hostname;
+    res.cookie("access_token", accessToken, {
+      ...this.getCookieOptions(accessTokenMaxAge),
+      domain,
+    });
+    res.cookie("refresh_token", refreshToken, {
+      ...this.getCookieOptions(refreshTokenMaxAge),
+      domain,
     });
 
     return res.status(HttpStatus.OK).json({ success: true });
