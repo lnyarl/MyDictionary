@@ -35,6 +35,7 @@ DROP TABLE IF EXISTS "public"."event_aggregates" CASCADE;
 DROP TABLE IF EXISTS "public"."events" CASCADE;
 DROP TABLE IF EXISTS "public"."notifications" CASCADE;
 DROP TABLE IF EXISTS "public"."follows" CASCADE;
+DROP TABLE IF EXISTS "public"."refresh_tokens" CASCADE;
 
 -- 3. Drop Middle Tables
 -- Depends on: words, users, terms
@@ -428,3 +429,26 @@ LEFT JOIN likes l ON d.id = l.definition_id AND l.deleted_at IS NULL
 WHERE d.deleted_at IS NULL
 GROUP BY d.id, d.content, d.word_id, d.user_id, d.is_public, d.created_at, d.updated_at, u.nickname, u.profile_picture
 ORDER BY d.word_id, d.user_id, d.created_at DESC;
+
+-- refresh_tokens table
+CREATE TABLE "public"."refresh_tokens" (
+    "id" uuid NOT NULL,
+    "user_id" uuid NOT NULL,
+    "token" varchar(500) NOT NULL,
+    "expires_at" timestamp NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp,
+    PRIMARY KEY ("id")
+);
+
+COMMENT ON TABLE "public"."refresh_tokens" IS 'Stores refresh tokens for JWT token rotation';
+COMMENT ON COLUMN "public"."refresh_tokens"."token" IS 'Hashed refresh token value';
+COMMENT ON COLUMN "public"."refresh_tokens"."expires_at" IS 'Token expiration timestamp';
+
+ALTER TABLE "public"."refresh_tokens" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
+
+CREATE UNIQUE INDEX uk_refresh_tokens_token ON public.refresh_tokens USING btree (token) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_refresh_tokens_user_id ON public.refresh_tokens USING btree (user_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_refresh_tokens_expires_at ON public.refresh_tokens USING btree (expires_at);
+CREATE INDEX idx_refresh_tokens_deleted_at ON public.refresh_tokens USING btree (deleted_at);

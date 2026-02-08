@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
@@ -5,6 +6,7 @@ import { generateRandomNickname } from "@stashy/shared";
 import { OAuth2Client } from "google-auth-library";
 import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
+import { RefreshTokenRepository } from "./repositories/refresh-token.repository";
 
 export type GoogleUserData = {
   googleId: string;
@@ -18,6 +20,11 @@ export type JwtPayload = {
   email: string;
 };
 
+export type TokenPair = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 @Injectable()
 export class AuthService {
   private googleClient: OAuth2Client;
@@ -26,6 +33,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {
     const clientId = this.configService.get<string>("GOOGLE_CLIENT_ID");
     this.googleClient = new OAuth2Client(clientId);
@@ -35,9 +43,11 @@ export class AuthService {
     const googleUser = await this.usersService.findByGoogleId(data.googleId);
 
     if (googleUser) {
-      await this.usersService.updateProfile(googleUser.id, {
-        profilePicture: data.picture,
-      });
+      if (!googleUser.profilePicture) {
+        await this.usersService.updateProfile(googleUser.id, {
+          profilePicture: data.picture,
+        });
+      }
       return await this.usersService.findById(googleUser.id);
     }
 
@@ -83,5 +93,105 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload);
+  }
+
+  async generateTokenPair(user: User): Promise<TokenPair> {
+    const accessToken = this.generateJwtToken(user);
+    const refreshToken = await this.createRefreshToken(user.id);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private async createRefreshToken(userId: string): Promise<string> {
+    const token = crypto.randomBytes(32).toString("hex");
+    const refreshExpiresIn = this.configService.get<string>("JWT_REFRESH_EXPIRES_IN") || "30d";
+    const expiresInMs = this.parseExpiresIn(refreshExpiresIn);
+    const expiresAt = new Date(Date.now() + expiresInMs);
+
+    await this.refreshTokenRepository.create(userId, token, expiresAt);
+
+    return token;
+  }
+
+  private parseExpiresIn(expiresIn: string): number {
+    const match = expiresIn.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      return 7 * 24 * 60 * 60 * 1000;
+    }
+
+    const value = Number.parseInt(match[1], 10);
+    const unit = match[2];
+
+    const multipliers: Record<string, number> = {
+      s: 1000,
+      m: 60 * 1000,
+      h: 60 * 60 * 1000,
+      d: 24 * 60 * 60 * 1000,
+    };
+
+    return value * (multipliers[unit] || multipliers.d);
+  }
+
+  async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+    const storedToken = await this.refreshTokenRepository.findByToken(refreshToken);
+
+    if (!storedToken) {
+      throw new UnauthorizedException("Invalid refresh token");
+    }
+
+    const user = await this.usersService.findById(storedToken.userId);
+
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
+
+    const accessToken = this.generateJwtToken(user);
+
+    const newRefreshToken = await this.rotateRefreshToken(storedToken);
+
+    return { accessToken, refreshToken: newRefreshToken, user };
+  }
+
+  private async rotateRefreshToken(storedToken: {
+    id: string;
+    userId: string;
+    expiresAt: Date;
+  }): Promise<string> {
+    await this.refreshTokenRepository.deleteById(storedToken.id);
+
+    const extensionThresholdDays =
+      this.configService.get<number>("REFRESH_TOKEN_EXTENSION_THRESHOLD_DAYS") || 3;
+    const extensionThresholdMs = extensionThresholdDays * 24 * 60 * 60 * 1000;
+
+    const now = new Date();
+    const timeUntilExpiry = storedToken.expiresAt.getTime() - now.getTime();
+
+    const refreshExpiresIn = this.configService.get<string>("JWT_REFRESH_EXPIRES_IN") || "30d";
+    const defaultExpiresInMs = this.parseExpiresIn(refreshExpiresIn);
+
+    let newExpiresAt: Date;
+    if (timeUntilExpiry <= extensionThresholdMs) {
+      newExpiresAt = new Date(now.getTime() + defaultExpiresInMs);
+    } else {
+      newExpiresAt = storedToken.expiresAt;
+    }
+
+    const newToken = crypto.randomBytes(32).toString("hex");
+    await this.refreshTokenRepository.create(storedToken.userId, newToken, newExpiresAt);
+
+    return newToken;
+  }
+
+  async revokeRefreshToken(refreshToken: string): Promise<void> {
+    await this.refreshTokenRepository.deleteByToken(refreshToken);
+  }
+
+  async revokeAllUserRefreshTokens(userId: string): Promise<void> {
+    await this.refreshTokenRepository.deleteByUserId(userId);
   }
 }

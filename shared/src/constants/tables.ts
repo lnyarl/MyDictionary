@@ -15,6 +15,7 @@ export const TABLES = {
   USER_BADGE_PROGRESS: "user_badge_progress",
   REPORTS: "reports",
   TERMS: "terms",
+  REFRESH_TOKENS: "refresh_tokens",
 } as const;
 
 export type TableName = (typeof TABLES)[keyof typeof TABLES];

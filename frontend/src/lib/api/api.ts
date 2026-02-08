@@ -45,9 +45,36 @@ export const queryClient = new QueryClient({
 
 export class ApiClient {
   private baseUrl: string;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
+  }
+
+  private async refreshToken(): Promise<boolean> {
+    if (this.refreshPromise) {
+      return this.refreshPromise!;
+    }
+
+    this.refreshPromise = this.doRefreshToken();
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  private async doRefreshToken(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      return response.ok;
+    } catch {
+      return false;
+    }
   }
 
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -70,7 +97,18 @@ export class ApiClient {
     };
 
     try {
-      const response = await fetch(url, config);
+      let response = await fetch(url, config);
+
+      if (response.status === 401 && endpoint !== "/auth/refresh" && endpoint !== "/auth/google") {
+        const refreshSuccess = await this.refreshToken();
+
+        if (refreshSuccess) {
+          response = await fetch(url, config);
+        } else {
+          window.location.href = "/";
+          throw new Error("Session expired");
+        }
+      }
 
       if (!response.ok) {
         const error: ApiError = await response.json().catch(() => ({

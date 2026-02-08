@@ -1,12 +1,16 @@
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { User } from "@/lib/api/users";
 import { authApi } from "../lib/api/auth";
-import type { User } from "../types/user.types";
 import { AuthContext, type AuthContextType, type GoogleCredentialResponse } from "./AuthContext";
+
+function hasAccessToken(): boolean {
+  return document.cookie.includes("access_token=");
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(hasAccessToken());
   const navigate = useNavigate();
 
   const fetchUser = useCallback(async ({ showErrorToast } = { showErrorToast: true }) => {
@@ -21,7 +25,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchUser({ showErrorToast: false });
+    if (hasAccessToken()) {
+      fetchUser({ showErrorToast: false });
+    }
   }, [fetchUser]);
 
   const handleGoogleLogin = useCallback(
