@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 
 type AppLayoutProps = {
@@ -13,7 +12,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        {/* <Header /> */}
         <main className="flex-1">{children}</main>
       </div>
     );
