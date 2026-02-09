@@ -36,6 +36,7 @@ DROP TABLE IF EXISTS "public"."events" CASCADE;
 DROP TABLE IF EXISTS "public"."notifications" CASCADE;
 DROP TABLE IF EXISTS "public"."follows" CASCADE;
 DROP TABLE IF EXISTS "public"."refresh_tokens" CASCADE;
+DROP TABLE IF EXISTS "public"."user_login_streaks" CASCADE;
 
 -- 3. Drop Middle Tables
 -- Depends on: words, users, terms
@@ -452,3 +453,24 @@ CREATE UNIQUE INDEX uk_refresh_tokens_token ON public.refresh_tokens USING btree
 CREATE INDEX idx_refresh_tokens_user_id ON public.refresh_tokens USING btree (user_id) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_refresh_tokens_expires_at ON public.refresh_tokens USING btree (expires_at);
 CREATE INDEX idx_refresh_tokens_deleted_at ON public.refresh_tokens USING btree (deleted_at);
+
+
+-- user_login_streaks
+CREATE TABLE "public"."user_login_streaks" (
+  "id" uuid NOT NULL,
+  "user_id" UUID NOT NULL,
+  "current_streak" INTEGER NOT NULL DEFAULT 0,
+  "longest_streak" INTEGER NOT NULL DEFAULT 0,
+  "last_login_at" TIMESTAMP NOT NULL,
+  "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("user_id"),
+  FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_login_streaks_user_id" ON "public"."user_login_streaks" USING btree ("user_id");
+
+COMMENT ON TABLE "public"."user_login_streaks" IS 'Tracks user login streaks for attendance badges';
+COMMENT ON COLUMN "public"."user_login_streaks"."current_streak" IS 'Current consecutive login days';
+COMMENT ON COLUMN "public"."user_login_streaks"."longest_streak" IS 'Maximum consecutive login days achieved';
+COMMENT ON COLUMN "public"."user_login_streaks"."last_login_at" IS 'Date of last login (YYYY-MM-DD)';

@@ -15,6 +15,8 @@ export class BadgeProgressHandler implements EventHandler {
     EventType.DEFINITION_CREATE,
     EventType.USER_FOLLOW,
     EventType.DEFINITION_LIKE,
+    EventType.USER_DAILY_LOGIN,
+    EventType.USER_LOGIN_STREAK,
   ];
 
   async handle(message: EventMessage<EventPayload>): Promise<void> {
@@ -49,6 +51,16 @@ export class BadgeProgressHandler implements EventHandler {
       case EventType.DEFINITION_LIKE:
         targetUserId = (payload as LikeEventPayload).definitionOwnerId;
         badgeEventType = "like_received";
+        break;
+
+      case EventType.USER_DAILY_LOGIN:
+        targetUserId = payload.userId;
+        badgeEventType = "user_daily_login";
+        break;
+
+      case EventType.USER_LOGIN_STREAK:
+        targetUserId = payload.userId;
+        badgeEventType = "user_login_streak";
         break;
 
       default:

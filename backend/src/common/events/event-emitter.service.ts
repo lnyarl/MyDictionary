@@ -77,4 +77,12 @@ export class EventEmitterService {
   async emitSearch(userId: string, query: string, resultsCount: number): Promise<void> {
     await this.emit(EventType.SEARCH, { userId, query, resultsCount });
   }
+
+  async emitUserDailyLogin(userId: string): Promise<void> {
+    await this.emit(EventType.USER_DAILY_LOGIN, { userId });
+  }
+
+  async emitUserLoginStreak(userId: string, streak: number): Promise<void> {
+    await this.emit(EventType.USER_LOGIN_STREAK, { userId, streak });
+  }
 }

@@ -13,6 +13,7 @@ export const TABLES = {
   BADGES: "badges",
   USER_BADGES: "user_badges",
   USER_BADGE_PROGRESS: "user_badge_progress",
+  USER_LOGIN_STREAKS: "user_login_streaks",
   REPORTS: "reports",
   TERMS: "terms",
   REFRESH_TOKENS: "refresh_tokens",

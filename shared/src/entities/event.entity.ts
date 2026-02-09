@@ -11,4 +11,6 @@ export enum EventType {
   DEFINITION_LIKE = "definition_like",
   DEFINITION_UNLIKE = "definition_unlike",
   SEARCH = "search",
+  USER_DAILY_LOGIN = "user_daily_login",
+  USER_LOGIN_STREAK = "user_login_streak",
 }

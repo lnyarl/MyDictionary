@@ -11,11 +11,12 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AuthGuard } from "@nestjs/passport";
-import { ErrorCode } from "@stashy/shared";
 import { GoogleLoginDto } from "@stashy/shared/dto/auth/google-login.dto";
 import type { CookieOptions, Request, Response } from "express";
 import { Public } from "../common/decorators/public.decorator";
+import { EventEmitterService } from "../common/events";
 import { forbidden } from "../common/exceptions/business.exception";
+import { LoginStreaksService } from "../login-streaks";
 import type { User } from "../users/entities/user.entity";
 import { AuthService } from "./auth.service";
 
@@ -24,6 +25,8 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly eventEmitter: EventEmitterService,
+    private readonly loginStreaksService: LoginStreaksService,
   ) {}
 
   private getCookieOptions(maxAge: number): CookieOptions {
@@ -56,6 +59,12 @@ export class AuthController {
     res.cookie("access_token", accessToken, this.getCookieOptions(accessTokenMaxAge));
     res.cookie("refresh_token", refreshToken, this.getCookieOptions(refreshTokenMaxAge));
 
+    const { areadyChecked, streak } = await this.loginStreaksService.recordLogin(user.id);
+    if (!areadyChecked) {
+      await this.eventEmitter.emitUserDailyLogin(user.id);
+      await this.eventEmitter.emitUserLoginStreak(user.id, streak);
+    }
+
     const { deletedAt, ...userWithoutDeletedAt } = user;
     return res.status(HttpStatus.OK).json({
       user: userWithoutDeletedAt,
@@ -78,10 +87,16 @@ export class AuthController {
       user,
     } = await this.authService.refreshAccessToken(refreshToken);
 
-    const accessTokenMaxAge = 60 * 60 * 1000;
-    const refreshTokenMaxAge = 30 * 24 * 60 * 60 * 1000;
+    const accessTokenMaxAge = 15 * 60 * 1000; // 15분
+    const refreshTokenMaxAge = 30 * 24 * 60 * 60 * 1000; // 30일
     res.cookie("access_token", accessToken, this.getCookieOptions(accessTokenMaxAge));
     res.cookie("refresh_token", newRefreshToken, this.getCookieOptions(refreshTokenMaxAge));
+
+    const { areadyChecked, streak } = await this.loginStreaksService.recordLogin(user.id);
+    if (!areadyChecked) {
+      await this.eventEmitter.emitUserDailyLogin(user.id);
+      await this.eventEmitter.emitUserLoginStreak(user.id, streak);
+    }
 
     const { deletedAt, ...userWithoutDeletedAt } = user;
     return res.status(HttpStatus.OK).json({

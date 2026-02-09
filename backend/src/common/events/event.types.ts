@@ -44,10 +44,18 @@ export type SearchEventPayload = BaseEventPayload & {
   resultsCount: number;
 };
 
+export type DailyLoginPayload = BaseEventPayload;
+
+export type LoginStreakPayload = BaseEventPayload & {
+  streak: number;
+};
+
 export type EventPayload =
   | PageViewPayload
   | WordEventPayload
   | DefinitionEventPayload
   | FollowEventPayload
   | LikeEventPayload
-  | SearchEventPayload;
+  | SearchEventPayload
+  | DailyLoginPayload
+  | LoginStreakPayload;
