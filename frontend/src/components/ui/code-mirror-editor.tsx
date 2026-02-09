@@ -4,13 +4,7 @@ import {
   completionKeymap,
   completionStatus,
 } from "@codemirror/autocomplete";
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  indentLess,
-  indentMore,
-} from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { Compartment, EditorState } from "@codemirror/state";
 import {
   drawSelection,
@@ -29,7 +23,6 @@ import {
 } from "./codemirror/wikilink-extension";
 import "./codemirror/styles.css";
 import { imageExtension } from "./codemirror/image-extension";
-import { saveExtension } from "./codemirror/save-extension";
 
 type CodeMirrorEditorProps = {
   value: string;
@@ -91,7 +84,6 @@ export function CodeMirrorEditor({
             onChange(update.state.doc.toString());
           }
         }),
-        saveExtension,
         imageExtension,
         keymap.of([
           ...defaultKeymap,

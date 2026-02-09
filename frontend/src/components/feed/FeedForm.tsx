@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useTimeoutFn } from "react-use";
 import { useToast } from "@/hooks/use-toast";
 import type { CreateFeedInput } from "@/lib/api/feed";
-import { getItem, removeItem } from "@/lib/localStorage";
+import { getItem, removeItem, setItem } from "@/lib/localStorage";
 import { countImagesInContent, getImageCountError } from "@/lib/utils/content-image";
 import { toDayString } from "@/lib/utils/date";
 import { type Word, wordsApi } from "../../lib/api/words";
@@ -29,22 +29,22 @@ type WordFormProps = {
 export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   const { t } = useTranslation();
   const today = toDayString();
-  const [term, setTerm] = useState(fixedTerm ?? "");
   const [suggestions, setSuggestions] = useState<{
     myWords: Word[];
     othersWords: Word[];
   }>({ myWords: [], othersWords: [] });
   const [showSuggestions, setShowSuggestions] = useState(false);
   const tempDocument = useMemo(() => {
-    return getItem<string>(STORAGE_KEY);
+    return getItem<{ term: string; content: string; tags: string }>(STORAGE_KEY);
   }, []);
   const viewRef = useRef<EditorView>(null);
 
+  const [term, setTerm] = useState(fixedTerm ?? tempDocument?.term ?? "");
   const [definition, setDefinition] = useState<{
     content: string;
     tags: string;
     isPublic: boolean;
-  }>({ content: tempDocument ?? "", tags: "", isPublic: true });
+  }>({ content: tempDocument?.content ?? "", tags: tempDocument?.tags ?? "", isPublic: true });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const clearEditor = () => {
@@ -89,8 +89,13 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
     reset();
   }, [term, fixedTerm, reset]);
 
+  const [_, _cancelSave, saveToLocalstorage] = useTimeoutFn(() => {
+    setItem(STORAGE_KEY, { term: term, content: definition.content, tags: definition.tags });
+  }, 1000);
+
   const handleSelectSuggestion = (word: Word) => {
     setTerm(word.term);
+    saveToLocalstorage();
     setShowSuggestions(false);
     setSuggestions({ myWords: [], othersWords: [] });
   };
@@ -187,87 +192,99 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       <div className="border border-gray-200 p-1 bg-gray-50">
-        <div className="border border-gray-200 bg-card transition-all p-4" >
+        <div className="border border-gray-200 bg-card transition-all p-4">
           <div className="relative flex">
-            {!fixedTerm &&
-              (
-                <>
-                  <Input
-                    id="term"
-                    tabIndex={0}
-                    value={term}
-                    onChange={(e) => setTerm(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onBlur={() => {
-                      cancelSuggestion();
-                      setShowSuggestions(false);
-                    }}
-                    autoComplete="off"
-                    className="border-0 justify-between items-center-safe focus-visible:ring-0 shadow-none text-4xl font-medium p-3 h-auto"
-                    placeholder={t("word.term_placeholder")}
-                  />
+            {!fixedTerm && (
+              <>
+                <Input
+                  id="term"
+                  tabIndex={0}
+                  value={term}
+                  onChange={(e) => {
+                    setTerm(e.target.value);
+                    saveToLocalstorage();
+                  }}
+                  onKeyDown={handleKeyDown}
+                  onBlur={() => {
+                    cancelSuggestion();
+                    setShowSuggestions(false);
+                  }}
+                  autoComplete="off"
+                  className="border-0 justify-between items-center-safe focus-visible:ring-0 shadow-none text-4xl font-medium p-3 h-auto"
+                  placeholder={t("word.term_placeholder")}
+                />
 
-                  <Button
-                    type="button"
-                    variant={isToday ? "default" : "ghost"}
-                    tabIndex={-1}
-                    size="sm"
-                    onClick={() => setTerm(today)}
-                    className={`transition-colors m-1.25 ${isToday ? "bg-primary hover:bg-primary/80 text-white" : "hover:bg-primary/5"
-                      }`}
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {t("word.today")}
-                  </Button>
-                  {showSuggestions &&
-                    (suggestions.myWords.length > 0 || suggestions.othersWords.length > 0) && (
-                      <div className="absolute top-full left-0 w-full z-50 mt-1 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
-                        <ul className="max-h-75 overflow-auto py-1">
-                          {suggestions.myWords.length > 0 && (
-                            <>
-                              {suggestions.myWords.map((word) => (
-                                <li
-                                  key={word.id}
-                                  className="relative flex cursor-pointer select-none items-center rounded-sm px-4 py-1.5 text-sm outline-none bg-blue-50/50 hover:bg-blue-100 hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                                  onClick={() => handleSelectSuggestion(word)}
-                                >
-                                  {word.term}
-                                </li>
-                              ))}
-                              {suggestions.othersWords.map((word) => (
-                                <li
-                                  key={word.id}
-                                  className="relative flex cursor-pointer select-none items-center rounded-sm px-4 py-1.5 text-sm outline-none bg-blue-50/50 hover:bg-blue-100 hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                                  onClick={() => handleSelectSuggestion(word)}
-                                >
-                                  {word.term}
-                                </li>
-                              ))}
-                            </>
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                </>
-              )}
+                <Button
+                  type="button"
+                  variant={isToday ? "default" : "ghost"}
+                  tabIndex={-1}
+                  size="sm"
+                  onClick={() => {
+                    setTerm(today);
+                    saveToLocalstorage();
+                  }}
+                  className={`transition-colors m-1.25 ${
+                    isToday ? "bg-primary hover:bg-primary/80 text-white" : "hover:bg-primary/5"
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  {t("word.today")}
+                </Button>
+                {showSuggestions &&
+                  (suggestions.myWords.length > 0 || suggestions.othersWords.length > 0) && (
+                    <div className="absolute top-full left-0 w-full z-50 mt-1 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
+                      <ul className="max-h-75 overflow-auto py-1">
+                        {suggestions.myWords.length > 0 && (
+                          <>
+                            {suggestions.myWords.map((word) => (
+                              <li
+                                key={word.id}
+                                className="relative flex cursor-pointer select-none items-center rounded-sm px-4 py-1.5 text-sm outline-none bg-blue-50/50 hover:bg-blue-100 hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                                onClick={() => handleSelectSuggestion(word)}
+                              >
+                                {word.term}
+                              </li>
+                            ))}
+                            {suggestions.othersWords.map((word) => (
+                              <li
+                                key={word.id}
+                                className="relative flex cursor-pointer select-none items-center rounded-sm px-4 py-1.5 text-sm outline-none bg-blue-50/50 hover:bg-blue-100 hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                                onClick={() => handleSelectSuggestion(word)}
+                              >
+                                {word.term}
+                              </li>
+                            ))}
+                          </>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+              </>
+            )}
           </div>
           <RichTextEditor
             value={definition.content}
             onChange={(value) => {
               setDefinition((def) => {
-                return { ...def, content: value }
+                return { ...def, content: value };
               });
+              saveToLocalstorage();
             }}
             onKeyDown={handleKeyDown}
-            placeholder={fixedTerm ? t("word.definition_placeholder_with_fixed", { fixedTerm }) : t("word.definition_placeholder")}
+            placeholder={
+              fixedTerm
+                ? t("word.definition_placeholder_with_fixed", { fixedTerm })
+                : t("word.definition_placeholder")
+            }
             className="border-0 text-sm focus-visible:ring-0 shadow-none rounded-none min-h-30 max-h-120 px-2 py-2"
             ref={viewRef}
             autoFocus
           />
           <div className="flex justify-end items-center px-3 py-1">
             <span
-              className={`text-xs transition-colors ${isOverLimit ? "text-red-500 font-medium" : "text-gray-400"
-                }`}
+              className={`text-xs transition-colors ${
+                isOverLimit ? "text-red-500 font-medium" : "text-gray-400"
+              }`}
             >
               {contentLength}
               <span className="text-gray-300">/{MAX_CONTENT_LENGTH}</span>
@@ -280,9 +297,9 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
             <Input
               value={definition.tags}
               onChange={(e) => {
-                setDefinition({ ...definition, tags: e.target.value })
-              }
-              }
+                setDefinition({ ...definition, tags: e.target.value });
+                saveToLocalstorage();
+              }}
               placeholder={t("word.tags_placeholder")}
               className="border-0 text-xs focus-visible:ring-0 shadow-none rounded-b-lg rounded-t-none px-4 py-3 h-auto"
             />
