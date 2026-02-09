@@ -71,7 +71,7 @@ export class LikesService {
           type: NotificationType.LIKE,
           title: `${liker.nickname}님이 "${word.term}"에 대한 정의를 좋아합니다`,
           actorId: userId,
-          targetUrl: `/search?term=${encodeURIComponent(word.term)}`,
+          targetUrl: `/definitions/${definition.id}`,
         });
       }
     }
