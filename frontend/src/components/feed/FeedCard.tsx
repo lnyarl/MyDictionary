@@ -1,6 +1,6 @@
 import type { Definition } from "@stashy/shared";
 import { ExternalLink, Flag, MoreVertical, Pencil, Share, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -73,9 +73,15 @@ export function FeedCard({
   const [isTruncated, setIsTruncated] = useState(false);
 
   useEffect(() => {
-    if (contentRef.current) {
-      setIsTruncated(contentRef.current.scrollHeight > contentRef.current.clientHeight);
-    }
+    const element = contentRef.current;
+    if (!element) return;
+
+    const observer = new ResizeObserver(() => {
+      setIsTruncated(element.scrollHeight > element.clientHeight);
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
   }, [definition.content]);
 
   const needMoreMenu = onDelete || onStartEdit || !isOwner;
@@ -110,12 +116,12 @@ export function FeedCard({
           <div className="relative">
             <div
               ref={contentRef}
-              className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-[300px] overflow-hidden"
+              className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75 overflow-hidden"
             >
               <RichTextContent content={definition.content} />
             </div>
             {isTruncated && (
-              <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-background to-transparent pointer-events-none" />
             )}
           </div>
           {isTruncated && (
