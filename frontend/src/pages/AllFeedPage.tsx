@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SEO } from "@/components/common/SEO";
 import { FeedForm } from "@/components/feed/FeedForm";
 import { FeedList } from "@/components/feed/FeedList";
 import { Page } from "@/components/layout/Page";
@@ -20,6 +21,7 @@ export default function AllFeedPage() {
 
   return (
     <Page>
+      <SEO />
       <div className="mb-8">
         <FeedForm onCreate={handleSubmit} />
       </div>
