@@ -97,7 +97,7 @@ export function FeedEditCard({
         )}
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Avatar className="h-6 w-6 cursor-pointer border" onClick={handleUserClick}>
+            <Avatar className="h-6 w-6 cursor-pointer border border-gray-800" onClick={handleUserClick}>
               <AvatarImage src={definition.profilePicture} className="object-cover" />
               <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
             </Avatar>
@@ -155,7 +155,7 @@ export function FeedEditCard({
             disabled={isSaving}
           />
         </div>
-        <div className="flex items-center justify-between rounded-lg border p-3">
+        {/* <div className="flex items-center justify-between rounded-lg border p-3">
           <div className="space-y-0.5">
             <Label htmlFor="isPublic" className="text-sm">
               {t("word.public_setting")}
@@ -167,13 +167,9 @@ export function FeedEditCard({
             onCheckedChange={setIsPublic}
             disabled={isSaving}
           />
-        </div>
+        </div> */}
         <p className="text-xs text-muted-foreground">{t("common.press_cmd_enter_to_save")}</p>
       </CardContent>
-      <Separator />
-      <CardFooter className="pt-4">
-        <span className="text-sm text-muted-foreground">{t("common.editing")}</span>
-      </CardFooter>
     </Card>
   );
 }
