@@ -100,7 +100,6 @@ export function CodeMirrorEditor({
           {
             key: "Tab",
             preventDefault: false,
-            shift: indentLess,
             run: (e) => {
               if (!completionStatus(e.state)) false;
               return acceptCompletion(e);
