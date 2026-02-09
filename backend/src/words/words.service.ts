@@ -55,20 +55,29 @@ export class WordsService {
     if (!userId) {
       const othersWords = await this.wordRepository.findOthersWordsForAutocomplete(
         normalizedTerm,
-        undefined,
         10,
       );
-      return { myWords: [], othersWords };
+      const mappedOthersWords = othersWords.map((i) => ({
+        id: i.id,
+        term: i.text,
+      }));
+      return { myWords: [], othersWords: mappedOthersWords };
     }
 
     const myWords = await this.wordRepository.findMyWordsForAutocomplete(normalizedTerm, userId, 3);
     const othersWords = await this.wordRepository.findOthersWordsForAutocomplete(
       normalizedTerm,
-      userId,
-      7,
+      10,
     );
+    const myTerms = myWords.map((i) => i.term);
+    const filteredOthersWords = othersWords
+      .filter((i) => !myTerms.includes(i.text))
+      .map((i) => ({
+        id: i.id,
+        term: i.text,
+      }));
 
-    return { myWords, othersWords };
+    return { myWords, othersWords: filteredOthersWords };
   }
 
   async search(

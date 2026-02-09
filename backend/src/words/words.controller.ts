@@ -1,21 +1,13 @@
 import {
-  Body,
   Controller,
-  Delete,
   ForbiddenException,
   Get,
-  HttpCode,
-  HttpStatus,
   NotFoundException,
   Param,
-  Patch,
-  Post,
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
 import { SearchWordDto } from "@stashy/shared/dto/word/search-word.dto";
-import { UpdateWordDto } from "@stashy/shared/dto/word/update-word.dto";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { OptionalAuthGuard } from "../common/guards/optional-auth.guard";

@@ -1,8 +1,8 @@
+import { Definition } from "@stashy/shared";
 import { Check, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import type { Definition } from "@/lib/api/definitions";
 import {
   Avatar,
   AvatarFallback,
@@ -36,8 +36,7 @@ export function FeedEditCard({
   const navigate = useNavigate();
 
   const [content, setContent] = useState(definition.content);
-  const [tagsString, setTagsString] = useState(definition.tags?.join(" ") || "");
-  const [isPublic, setIsPublic] = useState(definition.isPublic);
+  const [tagsString, setTagsString] = useState<string>(definition.tags?.join(" ") || "");
   const [isSaving, setIsSaving] = useState(false);
 
   const formattedDate = new Date(definition.createdAt).toLocaleDateString("ko-KR", {
@@ -64,7 +63,7 @@ export function FeedEditCard({
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0);
 
-      await onSave({ content: content.trim(), tags, isPublic });
+      await onSave({ content: content.trim(), tags, isPublic: true });
     } catch (error) {
       console.error("Failed to save:", error);
     } finally {
@@ -168,7 +167,6 @@ export function FeedEditCard({
             disabled={isSaving}
           />
         </div> */}
-        <p className="text-xs text-muted-foreground">{t("common.press_cmd_enter_to_save")}</p>
       </CardContent>
     </Card>
   );

@@ -99,16 +99,15 @@ export class WordsRepository extends BaseRepository {
       .limit(limit);
   }
 
-  findOthersWordsForAutocomplete(term: string, userId: string | undefined, limit: number) {
-    const query = this.query(this.tableName)
-      .select<Word[]>(WordSelect)
-      .where("term", "ilike", `%${term}%`)
+  findOthersWordsForAutocomplete(term: string, limit: number) {
+    const query = this.query("terms")
+      .select<{ id: string; text: string }[]>({
+        id: "id",
+        text: "text",
+      })
+      .where("text", "ilike", `%${term}%`)
       .orderBy("created_at", "desc")
       .limit(limit);
-
-    if (userId) {
-      query.whereNot({ user_id: userId });
-    }
 
     return query;
   }

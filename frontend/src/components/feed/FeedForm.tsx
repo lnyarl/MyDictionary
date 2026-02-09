@@ -2,6 +2,7 @@ import type { EditorView } from "@codemirror/view";
 import { Calendar } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useTimeoutFn } from "react-use";
 import { useToast } from "@/hooks/use-toast";
 import type { CreateFeedInput } from "@/lib/api/feed";
 import { getItem, removeItem } from "@/lib/localStorage";
@@ -57,36 +58,36 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
       });
     }
   };
+
+  const fetchSuggestions = async () => {
+    if (!term.trim() || term.length < 2) {
+      setSuggestions({ myWords: [], othersWords: [] });
+      return;
+    }
+    try {
+      const response = await wordsApi.autocomplete(term);
+      setSuggestions(response);
+      if (
+        response.myWords.length === 1 &&
+        response.othersWords.length === 0 &&
+        response.myWords[0].term === term
+      ) {
+        setShowSuggestions(false);
+        return;
+      } else {
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error);
+    }
+  };
+
+  const [_isReady, cancelSuggestion, reset] = useTimeoutFn(fetchSuggestions, 300);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (fixedTerm) return;
-
-    const fetchSuggestions = async () => {
-      if (term === today) return;
-      if (!term.trim() || term.length < 2) {
-        setSuggestions({ myWords: [], othersWords: [] });
-        return;
-      }
-      try {
-        const response = await wordsApi.autocomplete(term);
-        setSuggestions(response);
-        if (
-          response.myWords.length === 1 &&
-          response.othersWords.length === 0 &&
-          response.myWords[0].term === term
-        ) {
-          setShowSuggestions(false);
-          return;
-        } else {
-          setShowSuggestions(true);
-        }
-      } catch (error) {
-        console.error("Failed to fetch suggestions:", error);
-      }
-    };
-
-    const timeoutId = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(timeoutId);
-  }, [term, today, fixedTerm]);
+    reset();
+  }, [term, fixedTerm, reset]);
 
   const handleSelectSuggestion = (word: Word) => {
     setTerm(word.term);
@@ -186,7 +187,7 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       <div className="border border-gray-200 p-1 bg-gray-50">
-        <div className="border border-gray-200 bg-card transition-all p-4">
+        <div className="border border-gray-200 bg-card transition-all p-4" >
           <div className="relative flex">
             {!fixedTerm &&
               (
@@ -198,6 +199,7 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
                     onChange={(e) => setTerm(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onBlur={() => {
+                      cancelSuggestion();
                       setShowSuggestions(false);
                     }}
                     autoComplete="off"
@@ -223,9 +225,6 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
                         <ul className="max-h-75 overflow-auto py-1">
                           {suggestions.myWords.length > 0 && (
                             <>
-                              <li className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                                {t("word.my_words")}
-                              </li>
                               {suggestions.myWords.map((word) => (
                                 <li
                                   key={word.id}
@@ -235,13 +234,6 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
                                   {word.term}
                                 </li>
                               ))}
-                            </>
-                          )}
-                          {suggestions.othersWords.length > 0 && (
-                            <>
-                              <li className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 border-t">
-                                {t("word.others_words")}
-                              </li>
                               {suggestions.othersWords.map((word) => (
                                 <li
                                   key={word.id}
@@ -261,7 +253,11 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
           </div>
           <RichTextEditor
             value={definition.content}
-            onChange={(value) => setDefinition({ ...definition, content: value })}
+            onChange={(value) => {
+              setDefinition((def) => {
+                return { ...def, content: value }
+              });
+            }}
             onKeyDown={handleKeyDown}
             placeholder={fixedTerm ? t("word.definition_placeholder_with_fixed", { fixedTerm }) : t("word.definition_placeholder")}
             className="border-0 text-sm focus-visible:ring-0 shadow-none rounded-none min-h-30 max-h-120 px-2 py-2"
@@ -283,7 +279,10 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
           <div className="flex items-center justify-end gap-6 pt-4">
             <Input
               value={definition.tags}
-              onChange={(e) => setDefinition({ ...definition, tags: e.target.value })}
+              onChange={(e) => {
+                setDefinition({ ...definition, tags: e.target.value })
+              }
+              }
               placeholder={t("word.tags_placeholder")}
               className="border-0 text-xs focus-visible:ring-0 shadow-none rounded-b-lg rounded-t-none px-4 py-3 h-auto"
             />
