@@ -114,6 +114,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @Post("/auth/logout")
   async logout(@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.cookies?.refresh_token;
@@ -122,8 +123,9 @@ export class AuthController {
       await this.authService.revokeRefreshToken(refreshToken);
     }
 
-    res.clearCookie("access_token", { path: "/" });
-    res.clearCookie("refresh_token", { path: "/" });
+    const cookieOptions = this.getCookieOptions(0);
+    res.clearCookie("access_token", cookieOptions);
+    res.clearCookie("refresh_token", cookieOptions);
     return res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
   }
 
