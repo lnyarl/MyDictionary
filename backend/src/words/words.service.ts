@@ -68,6 +68,14 @@ export class WordsService {
       7,
     );
 
+    let index = 0;
+    for (const word of myWords) {
+      word.index = index++;
+    }
+    for (const word of othersWords) {
+      word.index = index++;
+    }
+
     return { myWords, othersWords };
   }
 

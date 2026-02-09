@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Flag, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-
+import { SEO } from "@/components/common/SEO";
 import { LikeButton } from "@/components/definitions/LikeButton";
 import { ReportDialog } from "@/components/definitions/ReportDialog";
 import { FeedCardContent } from "@/components/feed/FeedCardContent";
@@ -100,8 +100,17 @@ export default function DefinitionDetailPage() {
     },
   );
 
+  const ogImageUrl = definition.mediaUrls?.find((media) => media.type === "image")?.url;
+
   return (
     <Page>
+      <SEO
+        title={definition.term}
+        description={definition.content.slice(0, 150)}
+        url={`/definitions/${definition.id}`}
+        image={ogImageUrl}
+        type="article"
+      />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="mb-8">
           <Button

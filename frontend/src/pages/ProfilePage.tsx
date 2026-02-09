@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { SEO } from "@/components/common/SEO";
 import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import { ProfileEditCard } from "@/components/dashboard/ProfileEditCard";
 import { FeedList } from "@/components/feed/FeedList";
@@ -159,6 +160,13 @@ export default function ProfilePage() {
 
   return (
     <Page>
+      {profileUser && (
+        <SEO
+          title={profileUser.nickname}
+          description={profileUser.bio || `${profileUser.nickname}님의 프로필`}
+          url={isMe ? "/profile" : `/profile/${profileUser.nickname}`}
+        />
+      )}
       <div className="mb-8">
         {isEditing && currentUser ? (
           <ProfileEditCard

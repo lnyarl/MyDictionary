@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { SEO } from "@/components/common/SEO";
 import { FeedList } from "@/components/feed/FeedList";
 import { Page } from "@/components/layout/Page";
 import { useDefinitions } from "@/hooks/useDefinitions";
@@ -49,6 +50,11 @@ export default function WordDetailPage() {
 
   return (
     <Page>
+      <SEO
+        title={term}
+        description={`${term}의 정의와 다양한 해석을 확인핳세요.`}
+        url={`/word/${encodeURIComponent(term)}`}
+      />
       <div className="mb-8">
         <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground break-words leading-tight">
           {term}

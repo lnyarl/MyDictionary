@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { User } from "@/lib/api/users";
+import type { User } from "@/lib/api/users";
 
 export type GoogleCredentialResponse = {
   credential: string;
