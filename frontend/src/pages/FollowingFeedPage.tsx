@@ -45,7 +45,7 @@ export default function FollowingFeedPage() {
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-6">
-          <FeedList definitions={followingFeed.definitions} />
+          <FeedList definitions={followingFeed.definitions} loading={followingFeed.loading} />
         </div>
       </Tabs>
     </Page>

@@ -52,11 +52,11 @@ export default function FeedPage() {
 
         <div className="relative bg-transparent">
           <TabsContent value="all" className="m-0 p-6 ">
-            <FeedList definitions={allFeed.definitions} />
+            <FeedList definitions={allFeed.definitions} loading={allFeed.loading} />
           </TabsContent>
 
           <TabsContent value="following" className="m-0 p-6">
-            <FeedList definitions={followingFeed.definitions} />
+            <FeedList definitions={followingFeed.definitions} loading={followingFeed.loading} />
           </TabsContent>
         </div>
       </Tabs>

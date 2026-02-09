@@ -45,7 +45,7 @@ export default function AllFeedPage() {
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-6">
-          <FeedList definitions={allFeed.definitions} />
+          <FeedList definitions={allFeed.definitions} loading={allFeed.loading} />
         </div>
       </Tabs>
     </Page>

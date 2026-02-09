@@ -116,13 +116,12 @@ export default function WordEditPage() {
 
         <Separator />
 
-        {loading && definitions.length === 0 ? (
-          <div className="rounded-lg border bg-muted/50 p-12 text-center">
-            <p className="text-muted-foreground">{t("common.loading")}</p>
-          </div>
-        ) : (
-          <FeedList definitions={definitions} onDelete={handleDelete} onEdit={handleEdit} />
-        )}
+        <FeedList
+          definitions={definitions}
+          loading={loading}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+        />
       </div>
 
       <DefinitionForm open={isFormOpen} onOpenChange={setIsFormOpen} onSubmit={handleSubmit} />

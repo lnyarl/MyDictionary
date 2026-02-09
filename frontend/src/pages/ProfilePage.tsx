@@ -196,31 +196,23 @@ export default function ProfilePage() {
       </div>
 
       <div>
-        {feedLoading && definitions.length === 0 ? (
-          <div className="rounded-lg border bg-muted/50 p-12 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">{t("common.loading")}</p>
-          </div>
-        ) : (
-          <>
-            <FeedList
-              definitions={definitions}
-              onDelete={handleDelete}
-              onEdit={isMe ? handleEdit : undefined}
-              option={{ showUser: false }}
-              className="m-5"
-            />
-            <div ref={sentinelRef} className="py-4 flex justify-center">
-              {feedLoading && hasNextPage ? (
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              ) : (
-                definitions.length > 0 && (
-                  <p className="text-sm text-muted-foreground italic">{t("common.end_of_list")}</p>
-                )
-              )}
-            </div>
-          </>
-        )}
+        <FeedList
+          definitions={definitions}
+          loading={feedLoading}
+          onDelete={handleDelete}
+          onEdit={isMe ? handleEdit : undefined}
+          option={{ showUser: false }}
+          className="m-5"
+        />
+        <div ref={sentinelRef} className="py-4 flex justify-center">
+          {feedLoading && hasNextPage ? (
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          ) : (
+            definitions.length > 0 && (
+              <p className="text-sm text-muted-foreground italic">{t("common.end_of_list")}</p>
+            )
+          )}
+        </div>
       </div>
     </Page>
   );

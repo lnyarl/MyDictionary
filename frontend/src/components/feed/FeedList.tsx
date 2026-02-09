@@ -1,5 +1,6 @@
 import type { Definition } from "@stashy/shared";
-import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { FeedCard } from "./FeedCard";
@@ -14,6 +15,7 @@ type FeedListProps = {
   ) => Promise<void>;
   className?: string;
   option?: { showUser: boolean };
+  loading?: boolean;
 };
 
 export function FeedList({
@@ -22,14 +24,41 @@ export function FeedList({
   onEdit,
   className,
   option = { showUser: true },
+  loading = false,
 }: FeedListProps) {
   const { user } = useAuth();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      setShowLoading(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setShowLoading(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [loading]);
+
+  if (loading) {
+    if (!showLoading) {
+      return null;
+    }
+    return (
+      <div className="rounded-lg border bg-muted/50 p-12 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">로딩중...</p>
+      </div>
+    );
+  }
 
   if (definitions.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-12 text-center">
-        <p className="text-muted-foreground">아직 정의가 없습니다. 첫 정의를 추가해보세요!</p>
+        <p className="text-muted-foreground">아직 정의가 없습니다. 첫 정의를 추가핳세요!</p>
       </div>
     );
   }
