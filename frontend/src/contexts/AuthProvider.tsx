@@ -6,11 +6,12 @@ import { AuthContext, type AuthContextType, type GoogleCredentialResponse } from
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // 처음부터 로딩중이어야 auth중인 것을 다른 컴포넌트에 처음부터 알릴 수 있다
   const navigate = useNavigate();
 
   const fetchUser = useCallback(async ({ showErrorToast } = { showErrorToast: true }) => {
     try {
+      setIsLoading(true);
       const userData = await authApi.getMe({ showErrorToast });
       setUser(userData);
     } catch (_error) {
