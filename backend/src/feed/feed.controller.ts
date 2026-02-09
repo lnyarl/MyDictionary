@@ -86,7 +86,6 @@ export class FeedController {
   }
 
   @Get("/feed/recommendations")
-  @Public()
   async getRecommendations(
     @CurrentUser() user: User | null,
     @Query() paginationDto: PaginationDto,
@@ -95,7 +94,6 @@ export class FeedController {
   }
 
   @Get("/feed/search/:term")
-  @Public()
   async getFeedByTerm(
     @CurrentUser() user: User | null,
     @Param("term") term: string,
