@@ -3,16 +3,20 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { SEO } from "@/components/common/SEO";
+import { FeedForm } from "@/components/feed/FeedForm";
 import { FeedList } from "@/components/feed/FeedList";
 import { Page } from "@/components/layout/Page";
 import { useDefinitions } from "@/hooks/useDefinitions";
 import { useFeedByTerm } from "@/hooks/useFeedByTerm";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useMyFeed } from "@/hooks/useMyFeed";
+import type { CreateFeedInput } from "@/lib/api/feed";
 
 export default function WordDetailPage() {
   const { t } = useTranslation();
   const { term } = useParams<{ term: string }>();
   const { updateDefinition, deleteDefinition } = useDefinitions();
+  const { createFeed } = useMyFeed();
   const { feeds, loading, loadingMore, hasMore, loadMore, refetch } = useFeedByTerm(term || "");
 
   const { sentinelRef } = useInfiniteScroll({
@@ -46,6 +50,11 @@ export default function WordDetailPage() {
     refetch();
   };
 
+  const handleCreateFeed = async (data: CreateFeedInput) => {
+    await createFeed(data);
+    refetch();
+  };
+
   if (!term) return null;
 
   return (
@@ -59,6 +68,10 @@ export default function WordDetailPage() {
         <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground break-words leading-tight">
           {term}
         </h1>
+      </div>
+
+      <div className="mb-8">
+        <FeedForm onCreate={handleCreateFeed} fixedTerm={term} />
       </div>
 
       <div className="space-y-4">
