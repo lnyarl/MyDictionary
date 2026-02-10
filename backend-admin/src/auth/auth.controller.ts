@@ -27,7 +27,10 @@ export class AuthController {
   @Public()
   @Post("auth/login")
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    const admin = await this.authService.validateCredentials(loginDto.username, loginDto.password);
+    const admin = await this.authService.validateCredentials(
+      loginDto.username,
+      loginDto.password,
+    );
 
     if (!admin) {
       throw new UnauthorizedException("Invalid credentials");
@@ -43,6 +46,7 @@ export class AuthController {
     const isDevelopment = this.configService.get("NODE_ENV") !== "production";
     res.cookie("admin_access_token", token, {
       httpOnly: true,
+      domain: this.configService.get("ADMIN_FRONTEND_URL"),
       secure: !isDevelopment,
       sameSite: isDevelopment ? "lax" : "none",
       maxAge: 8 * 60 * 60 * 1000, // 8 hours
@@ -76,7 +80,10 @@ export class AuthController {
     }
 
     // Update password and clear mustChangePassword flag
-    await this.authService.changePassword(admin.id, changePasswordDto.newPassword);
+    await this.authService.changePassword(
+      admin.id,
+      changePasswordDto.newPassword,
+    );
 
     return { message: "Password changed successfully" };
   }
@@ -96,6 +103,8 @@ export class AuthController {
   @SkipPasswordCheck()
   async logout(@Res() res: Response) {
     res.clearCookie("admin_access_token");
-    return res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: "Logged out successfully" });
   }
 }
