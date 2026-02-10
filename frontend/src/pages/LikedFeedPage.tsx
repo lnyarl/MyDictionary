@@ -52,7 +52,11 @@ export default function LikedFeedPage() {
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-0">
-          <FeedList definitions={likedFeed.definitions} loading={likedFeed.loading} />
+          <FeedList
+            definitions={likedFeed.definitions}
+            loading={likedFeed.loading}
+            emptyMessage={t("feed.emptyLike")}
+          />
         </div>
       </Tabs>
     </Page>

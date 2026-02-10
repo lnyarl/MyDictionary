@@ -52,7 +52,11 @@ export default function FollowingFeedPage() {
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-0">
-          <FeedList definitions={followingFeed.definitions} loading={followingFeed.loading} />
+          <FeedList
+            definitions={followingFeed.definitions}
+            loading={followingFeed.loading}
+            emptyMessage={t("feed.emptyFollowing")}
+          />
         </div>
       </Tabs>
     </Page>

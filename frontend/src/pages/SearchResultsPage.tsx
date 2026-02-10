@@ -107,10 +107,7 @@ export default function SearchResultsPage() {
                       {word.definitions && word.definitions.length > 0 ? (
                         <div className="space-y-2">
                           <Separator />
-                          <FeedList
-                            definitions={word.definitions}
-                            onDelete={() => { }}
-                          />
+                          <FeedList definitions={word.definitions} onDelete={() => {}} />
                         </div>
                       ) : (
                         <p className="text-muted-foreground">{t("word.no_definitions")}</p>

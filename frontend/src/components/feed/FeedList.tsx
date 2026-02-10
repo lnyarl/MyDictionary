@@ -62,7 +62,7 @@ export function FeedList({
   if (definitions.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-12 text-center">
-        <p className="text-muted-foreground">{emptyMessage}</p>
+        <p className="text-muted-foreground">{emptyMessage || t("feed.empty")}</p>
       </div>
     );
   }

@@ -52,7 +52,11 @@ export default function AllFeedPage() {
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-0">
-          <FeedList definitions={allFeed.definitions} loading={allFeed.loading} />
+          <FeedList
+            definitions={allFeed.definitions}
+            loading={allFeed.loading}
+            emptyMessage={t("feed.empty")}
+          />
         </div>
       </Tabs>
     </Page>
