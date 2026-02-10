@@ -1,4 +1,4 @@
-import { Definition } from "@stashy/shared";
+import type { Definition } from "@stashy/shared";
 import { Check, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
