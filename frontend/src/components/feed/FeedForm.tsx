@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { CreateFeedInput } from "@/lib/api/feed";
 import { getItem, removeItem, setItem } from "@/lib/localStorage";
 import { countImagesInContent, getImageCountError } from "@/lib/utils/content-image";
-import { toDayString } from "@/lib/utils/date";
+import { addDay, toDayString } from "@/lib/utils/date";
 import { type Word, wordsApi } from "../../lib/api/words";
 import { Button } from "../ui/button";
 import { STORAGE_KEY } from "../ui/codemirror/save-extension";
@@ -26,6 +26,14 @@ type WordFormProps = {
   fixedTerm?: string;
 };
 
+const getStorageKey = (path: string) => {
+  if (path.startsWith("/word/")) {
+    return `${STORAGE_KEY}_${path}`;
+  } else {
+    return STORAGE_KEY;
+  }
+};
+
 export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   const { t } = useTranslation();
   const today = toDayString();
@@ -34,9 +42,11 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
     othersWords: Word[];
   }>({ myWords: [], othersWords: [] });
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const path = useMemo(() => new URL(document.URL).pathname, []);
   const tempDocument = useMemo(() => {
-    return getItem<{ term: string; content: string; tags: string }>(STORAGE_KEY);
-  }, []);
+    const key = getStorageKey(path);
+    return getItem<{ term: string; content: string; tags: string }>(key);
+  }, [path]);
   const viewRef = useRef<EditorView>(null);
 
   const [term, setTerm] = useState(fixedTerm ?? tempDocument?.term ?? "");
@@ -94,8 +104,11 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   }, [cancelSuggestion]);
 
   const [_, _cancelSave, saveToLocalstorage] = useTimeoutFn(() => {
-    setItem(STORAGE_KEY, { term: term, content: definition.content, tags: definition.tags });
-  }, 1000);
+    const expiredAt = addDay(new Date(), 3);
+    const key = getStorageKey(path);
+    console.log("saving key", key);
+    setItem(key, { term: term, content: definition.content, tags: definition.tags }, expiredAt);
+  }, 100);
 
   const handleSelectSuggestion = (word: Word) => {
     setTerm(word.term);
@@ -183,7 +196,8 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
       setTerm("");
       setDefinition({ content: "", tags: "", isPublic: true });
       clearEditor();
-      removeItem(STORAGE_KEY);
+      const key = getStorageKey(path);
+      removeItem(key);
     } catch (error) {
       console.error("Failed to submit word:", error);
     } finally {

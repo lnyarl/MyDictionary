@@ -26,3 +26,13 @@ export const formatRelativeTime = (dateString: string): string => {
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
   return date.toLocaleDateString("ko-KR");
 };
+
+export const addDay = (targetDate: Date, day: number) => {
+  const toMilisecond = day * 24 * 60 * 60 * 1000;
+  return new Date(targetDate.getTime() + toMilisecond);
+};
+
+export const addHour = (targetDate: Date, hour: number) => {
+  const toMilisecond = hour * 60 * 60 * 1000;
+  return new Date(targetDate.getTime() + toMilisecond);
+};

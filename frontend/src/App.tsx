@@ -7,6 +7,7 @@ import { AuthLayout } from "./components/layout/AuthLayout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { queryClient } from "./lib/api/api";
+import { removeExpiredItem } from "./lib/localStorage";
 import AllFeedPage from "./pages/AllFeedPage";
 import DefinitionDetailPage from "./pages/DefinitionDetailPage";
 import FollowingFeedPage from "./pages/FollowingFeedPage";
@@ -20,6 +21,7 @@ import TagSearchPage from "./pages/TagSearchPage";
 import WordDetailPage from "./pages/WordDetailPage";
 import WordEditPage from "./pages/WordEditPage";
 
+removeExpiredItem();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
