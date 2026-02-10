@@ -105,7 +105,10 @@ export class ApiClient {
         if (refreshSuccess) {
           response = await fetch(url, config);
         } else {
-          window.location.href = "/";
+          // 이걸 하지 않으면 무한으로 "/"를 로딩한다
+          if (new URL(window.location.href).pathname !== "/") {
+            window.location.href = "/";
+          }
           throw new Error("Session expired");
         }
       }

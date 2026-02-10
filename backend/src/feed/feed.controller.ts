@@ -93,7 +93,7 @@ export class FeedController {
     return this.feedService.getRecommendations(paginationDto, user?.id);
   }
 
-  @Get("/feed/search/:term")
+  @Get("/feed/term/:term")
   async getFeedByTerm(
     @CurrentUser() user: User | null,
     @Param("term") term: string,
