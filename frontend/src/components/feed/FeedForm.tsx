@@ -83,6 +83,9 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   };
 
   const [_isReady, cancelSuggestion, reset] = useTimeoutFn(fetchSuggestions, 300);
+  useEffect(() => {
+    cancelSuggestion();
+  }, [cancelSuggestion]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (fixedTerm) return;

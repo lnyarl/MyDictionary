@@ -16,7 +16,6 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
-import { PaginationDto } from "@stashy/shared";
 import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
 import { GetByUserIdDto } from "@stashy/shared/dto/definition/select-definition.dto";
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";

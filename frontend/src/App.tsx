@@ -11,6 +11,7 @@ import AllFeedPage from "./pages/AllFeedPage";
 import DefinitionDetailPage from "./pages/DefinitionDetailPage";
 import FollowingFeedPage from "./pages/FollowingFeedPage";
 import HomePage from "./pages/HomePage";
+import LikedFeedPage from "./pages/LikedFeedPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchResultsPage from "./pages/SearchResultsPage";
@@ -34,6 +35,7 @@ function App() {
                   <Route path="/feed" element={<Navigate to="/feed/all" replace />} />
                   <Route path="/feed/all" element={<AllFeedPage />} />
                   <Route path="/feed/following" element={<FollowingFeedPage />} />
+                  <Route path="/feed/liked" element={<LikedFeedPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/profile/:nickname" element={<ProfilePage />} />
                   <Route path="/word/:term" element={<WordDetailPage />} />

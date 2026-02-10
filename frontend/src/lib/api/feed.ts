@@ -68,4 +68,10 @@ export const feedApi = {
       `/feed/tag/${encodeURIComponent(tag)}?${params.toString()}`,
     );
   },
+
+  getLikedFeed: (page = 1, limit = 20, cursor?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (cursor) params.append("cursor", cursor);
+    return api.get<PaginatedResponse<Definition>>(`/feed/liked?${params.toString()}`);
+  },
 };

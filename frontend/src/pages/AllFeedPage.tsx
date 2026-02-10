@@ -42,6 +42,13 @@ export default function AllFeedPage() {
           >
             {t("feed.tabs.following")}
           </TabsTrigger>
+          <TabsTrigger
+            value="liked"
+            onClick={() => navigate("/feed/liked")}
+            className="text-sm uppercase tracking-widest text-slate-300 hover:text-gray-800 transition-colors pb-4 -mb-[18px] data-[state=active]:text-gray-800 data-[state=active]:border-b-2 data-[state=active]:border-gray-800 data-[state=active]:shadow-none bg-transparent rounded-none"
+          >
+            {t("feed.tabs.liked")}
+          </TabsTrigger>
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-0">

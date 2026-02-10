@@ -95,6 +95,7 @@
   "feed.emptyFollowing": "Your feed is empty. Try following other users!",
   "feed.tabs.all": "All",
   "feed.tabs.following": "Following",
+  "feed.tabs.liked": "Liked",
   "search.title": "Search Word",
   "search.searching": "Searching...",
   "search.results_for": "Search results for \"{{term}}\"",

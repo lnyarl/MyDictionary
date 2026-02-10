@@ -147,4 +147,23 @@ export class FeedController {
 
     return feeds;
   }
+
+  @Get("/feed/liked")
+  async getLikedFeeds(@CurrentUser() user: User, @Query() paginationDto: PaginationDto) {
+    const feeds = await this.feedService.getLikedFeeds(user.id, paginationDto);
+
+    if (feeds.data.length > 0) {
+      const likes = await this.likeService.getLikeInfoByDefinitions(
+        feeds.data.map((i) => i.id),
+        user?.id,
+      );
+
+      for (const feed of feeds.data) {
+        feed.isLiked = true;
+        feed.likesCount = likes[feed.id]?.likesCount;
+      }
+    }
+
+    return feeds;
+  }
 }

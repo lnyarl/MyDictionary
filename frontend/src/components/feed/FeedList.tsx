@@ -1,6 +1,7 @@
 import type { Definition } from "@stashy/shared";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { FeedCard } from "./FeedCard";
@@ -16,6 +17,7 @@ type FeedListProps = {
   className?: string;
   option?: { showUser: boolean };
   loading?: boolean;
+  emptyMessage?: string;
 };
 
 export function FeedList({
@@ -25,7 +27,9 @@ export function FeedList({
   className,
   option = { showUser: true },
   loading = false,
+  emptyMessage,
 }: FeedListProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showLoading, setShowLoading] = useState(false);
@@ -50,7 +54,7 @@ export function FeedList({
     return (
       <div className="rounded-lg border bg-muted/50 p-12 text-center">
         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-        <p className="text-muted-foreground">로딩중...</p>
+        <p className="text-muted-foreground">{t("common.loading")}</p>
       </div>
     );
   }
@@ -58,7 +62,7 @@ export function FeedList({
   if (definitions.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-12 text-center">
-        <p className="text-muted-foreground">아직 정의가 없습니다. 첫 정의를 추가핳세요!</p>
+        <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }

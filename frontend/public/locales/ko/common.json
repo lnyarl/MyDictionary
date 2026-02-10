@@ -96,6 +96,7 @@
   "feed.emptyFollowing": "아직 피드가 비어있습니다. 다른 사용자를 팔로우해보세요!",
   "feed.tabs.all": "전체",
   "feed.tabs.following": "팔로잉",
+  "feed.tabs.liked": "좋아요",
   "search.title": "단어 검색",
   "search.searching": "검색 중...",
   "search.results_for": "\"{{term}}\" 검색 결과",

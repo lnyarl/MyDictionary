@@ -24,8 +24,18 @@ export class RefreshTokenRepository extends BaseRepository {
     return record;
   }
 
-  async findByToken(token: string): Promise<RefreshToken | null> {
+  async findByToken(token: string) {
     const record = await this.query(TABLES.REFRESH_TOKENS)
+      .select<RefreshToken>({
+        id: "id",
+        userId: "user_id",
+        token: "token",
+        expiresAt: "expires_at",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+        fromAdmin: "from_admin",
+      })
       .where({ token })
       .where("expires_at", ">", new Date())
       .first();

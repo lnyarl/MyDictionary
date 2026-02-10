@@ -341,4 +341,24 @@ export class FeedService {
 
     return dto;
   }
+
+  async getLikedFeeds(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Feed>> {
+    const feeds = await this.feedRepository.findLikedFeeds(
+      userId,
+      paginationDto.limit || 20,
+      paginationDto.cursor,
+    );
+
+    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+
+    return new PaginatedResponseDto<Feed>(
+      feeds,
+      paginationDto.page || 1,
+      paginationDto.limit || 20,
+      nextCursor,
+    );
+  }
 }

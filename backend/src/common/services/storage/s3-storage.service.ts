@@ -8,6 +8,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { v4 as uuidv4 } from "uuid";
 import { IStorageService } from "./storage.interface";
+import "multer";
 
 @Injectable()
 export class S3StorageService implements IStorageService {

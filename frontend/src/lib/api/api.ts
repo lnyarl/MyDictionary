@@ -99,12 +99,7 @@ export class ApiClient {
     try {
       let response = await fetch(url, config);
 
-      if (
-        response.status === 401 &&
-        endpoint !== "/auth/me" &&
-        endpoint !== "/auth/refresh" &&
-        endpoint !== "/auth/google"
-      ) {
+      if (response.status === 401 && endpoint !== "/auth/refresh" && endpoint !== "/auth/google") {
         const refreshSuccess = await this.refreshToken();
 
         if (refreshSuccess) {

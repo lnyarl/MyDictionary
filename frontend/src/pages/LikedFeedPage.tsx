@@ -5,14 +5,14 @@ import { FeedForm } from "@/components/feed/FeedForm";
 import { FeedList } from "@/components/feed/FeedList";
 import { Page } from "@/components/layout/Page";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useFeed } from "@/hooks/useFeed";
+import { useLikedFeed } from "@/hooks/useLikedFeed";
 import { useMyFeed } from "@/hooks/useMyFeed";
 import type { CreateFeedInput } from "@/lib/api/feed";
 
-export default function FollowingFeedPage() {
+export default function LikedFeedPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const followingFeed = useFeed();
+  const likedFeed = useLikedFeed();
   const myFeed = useMyFeed();
 
   const handleSubmit = async (data: CreateFeedInput) => {
@@ -26,7 +26,7 @@ export default function FollowingFeedPage() {
         <FeedForm onCreate={handleSubmit} />
       </div>
 
-      <Tabs value="following" className="w-full">
+      <Tabs value="liked" className="w-full">
         <TabsList className="h-auto p-0 bg-transparent justify-start flex gap-8 border-b border-gray-200 pb-4 w-full">
           <TabsTrigger
             value="all"
@@ -52,7 +52,7 @@ export default function FollowingFeedPage() {
         </TabsList>
 
         <div className="relative bg-transparent m-0 p-0">
-          <FeedList definitions={followingFeed.definitions} loading={followingFeed.loading} />
+          <FeedList definitions={likedFeed.definitions} loading={likedFeed.loading} />
         </div>
       </Tabs>
     </Page>

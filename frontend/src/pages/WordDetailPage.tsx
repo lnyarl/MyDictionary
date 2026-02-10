@@ -61,7 +61,7 @@ export default function WordDetailPage() {
     <Page>
       <SEO
         title={term}
-        description={`${term}의 정의와 다양한 해석을 확인핳세요.`}
+        description={`${term}의 정의와 다양한 해석을 확인하세요.`}
         url={`/word/${encodeURIComponent(term)}`}
       />
       <div className="mb-8">
