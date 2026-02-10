@@ -99,7 +99,7 @@
   "feed.tabs.following": "팔로잉",
   "feed.tabs.liked": "좋아요",
   "tag.search_results_for": "#{{tag}}로 검색한 결과 입니다.",
-  "search.title": "단어 검색",
+  "search.title": "검색",
   "search.searching": "검색 중...",
   "search.results_for": "\"{{term}}\" 검색 결과",
   "search.found_count": "{{total}}개의 단어를 찾았습니다",

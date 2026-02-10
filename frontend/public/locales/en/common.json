@@ -98,7 +98,7 @@
   "feed.tabs.following": "Following",
   "feed.tabs.liked": "Liked",
   "tag.search_results_for": "These are the results of a search with #{{tag}}.",
-  "search.title": "Search Word",
+  "search.title": "Search",
   "search.searching": "Searching...",
   "search.results_for": "Search results for \"{{term}}\"",
   "search.found_count": "Found {{total}} words",

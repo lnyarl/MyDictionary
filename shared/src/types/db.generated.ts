@@ -27,6 +27,7 @@ export type BadgesTable = {
   is_active: boolean;
   created_at: any;
   updated_at: any;
+  deleted_at?: any | null;
 };
 
 export type DefinitionHistoriesTable = {
@@ -43,6 +44,7 @@ export type DefinitionsTable = {
   content: string;
   word_id: string;
   user_id: string;
+  term_id: string;
   created_at: any;
   updated_at: any;
   deleted_at?: any | null;
@@ -64,6 +66,7 @@ export type EventAggregatesTable = {
   period_end: any;
   created_at: any;
   updated_at: any;
+  deleted_at?: any | null;
 };
 
 export type EventsTable = {
@@ -73,6 +76,8 @@ export type EventsTable = {
   payload: any;
   metadata?: any | null;
   created_at: any;
+  updated_at: any;
+  deleted_at?: any | null;
 };
 
 export type FollowsTable = {
@@ -113,6 +118,17 @@ export type NotificationsTable = {
   deleted_at?: any | null;
 };
 
+export type RefreshTokensTable = {
+  id: string;
+  user_id: string;
+  token: string;
+  expires_at: any;
+  created_at: any;
+  updated_at: any;
+  deleted_at?: any | null;
+  from_admin: boolean;
+};
+
 export type ReportsTable = {
   id: string;
   reporter_id: string;
@@ -126,6 +142,15 @@ export type ReportsTable = {
   resolved_at?: any | null;
 };
 
+export type TermsTable = {
+  id: string;
+  text: string;
+  number: number;
+  created_at: any;
+  updated_at: any;
+  deleted_at?: any | null;
+};
+
 export type UserBadgeProgressTable = {
   id: string;
   user_id: string;
@@ -133,6 +158,8 @@ export type UserBadgeProgressTable = {
   count: number;
   last_updated: any;
   created_at: any;
+  updated_at: any;
+  deleted_at?: any | null;
 };
 
 export type UserBadgesTable = {
@@ -140,6 +167,18 @@ export type UserBadgesTable = {
   user_id: string;
   badge_id: string;
   earned_at: any;
+  updated_at: any;
+  deleted_at?: any | null;
+};
+
+export type UserLoginStreaksTable = {
+  id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_login_at: any;
+  created_at?: any | null;
+  updated_at?: any | null;
 };
 
 export type UsersTable = {
@@ -160,6 +199,7 @@ export type VwDefinitionsWithLikesTable = {
   content?: string | null;
   word_id?: string | null;
   user_id?: string | null;
+  term_id?: string | null;
   created_at?: any | null;
   updated_at?: any | null;
   deleted_at?: any | null;
@@ -174,6 +214,7 @@ export type VwLatestDefinitionsTable = {
   content?: string | null;
   word_id?: string | null;
   user_id?: string | null;
+  term_id?: string | null;
   created_at?: any | null;
   updated_at?: any | null;
   deleted_at?: any | null;
@@ -217,9 +258,12 @@ export type DBTableNames =
   | "likes"
   | "migration_history"
   | "notifications"
+  | "refresh_tokens"
   | "reports"
+  | "terms"
   | "user_badge_progress"
   | "user_badges"
+  | "user_login_streaks"
   | "users"
   | "vw_definitions_with_likes"
   | "vw_latest_definitions"

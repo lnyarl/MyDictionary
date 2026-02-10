@@ -7,47 +7,79 @@ export class TermsRepository extends BaseRepository {
   private tableName: TableName = TABLES.TERMS;
 
   async search(term: string, limit: number, cursor?: string) {
-    const baseQuery = this.query(this.tableName)
+    // Build the search query with weighted scoring
+    // Term match: 5 points, Content match: 4 points, Tags match: 1 point
+    const searchPattern = `%${term}%`;
+
+    // Use a subquery to handle the GROUP BY issue with CASE WHEN on joined columns
+    const subquery = this.query(this.tableName)
       .leftJoin(`${TABLES.DEFINITIONS} as d`, `d.term_id`, `${this.tableName}.id`)
       .leftJoin(`${TABLES.USERS} as u`, `u.id`, `d.user_id`)
       .where((builder) => {
         builder
-          .where(`${this.tableName}.text`, "ilike", `%${term}%`)
+          .where(`${this.tableName}.text`, "ilike", searchPattern)
+          .orWhere("d.content", "ilike", searchPattern)
           .orWhereRaw(`? = ANY(d.tags)`, [term]);
       })
-      .groupBy(`${this.tableName}.id`);
-
-    if (cursor) {
-      baseQuery.where(`${this.tableName}.created_at`, "<", cursor);
-    }
-
-    return baseQuery
       .select([
         `${this.tableName}.id`,
         `${this.tableName}.text`,
         `${this.tableName}.number`,
         `${this.tableName}.created_at as createdAt`,
+        // Calculate search score in subquery to avoid GROUP BY issues
+        this.knex.raw(
+          `
+          (
+            CASE WHEN ${this.tableName}.text ILIKE ? THEN 5 ELSE 0 END +
+            CASE WHEN d.content ILIKE ? THEN 4 ELSE 0 END +
+            CASE WHEN ? = ANY(d.tags) THEN 1 ELSE 0 END
+          ) as search_score
+        `,
+          [searchPattern, searchPattern, term],
+        ),
+        // Build definition objects in subquery
+        this.knex.raw(`
+          json_build_object(
+            'id', d.id,
+            'content', d.content,
+            'termId', d.term_id,
+            'userId', d.user_id,
+            'likesCount', 0,
+            'createdAt', d.created_at,
+            'updatedAt', d.updated_at,
+            'nickname', u.nickname,
+            'tags', d.tags,
+            'profilePicture', u.profile_picture
+          ) as definition_obj
+        `),
+      ]);
+
+    if (cursor) {
+      subquery.where(`${this.tableName}.created_at`, "<", cursor);
+    }
+
+    // Main query that aggregates the results
+    return this.knex
+      .with("search_data", subquery)
+      .from("search_data")
+      .select([
+        "id",
+        "text",
+        "number",
+        "createdAt",
+        "search_score",
         this.knex.raw(`
           COALESCE(
-            json_agg(
-              json_build_object(
-                'id', d.id,
-                'content', d.content,
-                'termId', d.term_id,
-                'userId', d.user_id,
-                'likesCount', 0,
-                'createdAt', d.created_at,
-                'updatedAt', d.updated_at,
-                'nickname', u.nickname,
-                'tags', d.tags,
-                'profilePicture', u.profile_picture
-              ) ORDER BY d.created_at DESC
-            ) FILTER (WHERE d.id IS NOT NULL),
+            json_agg(definition_obj) FILTER (WHERE definition_obj->>'id' IS NOT NULL),
             '[]'
           ) as definitions
         `),
       ])
-      .orderBy(`${this.tableName}.created_at`, "desc")
+      .groupBy(["id", "text", "number", "createdAt", "search_score"])
+      .orderBy([
+        { column: "search_score", order: "desc" },
+        { column: "createdAt", order: "desc" },
+      ])
       .limit(limit);
   }
 
