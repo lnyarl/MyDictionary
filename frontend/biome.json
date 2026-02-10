@@ -29,6 +29,9 @@
       },
       "performance": {
         "noAccumulatingSpread": "off"
+      },
+      "complexity": {
+        "noImportantStyles": "off"
       }
     }
   },

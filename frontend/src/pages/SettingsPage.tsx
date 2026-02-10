@@ -1,7 +1,6 @@
-import { ArrowLeft, LogOut, Upload } from "lucide-react";
+import { LogOut, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LanguageSwitcherSettings } from "../components/layout/LanguageSwitcherSettings";
 import { Page } from "../components/layout/Page";
@@ -18,7 +17,6 @@ import { processProfileImage } from "../lib/utils/image";
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { user, refetchUser, logout } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -34,6 +34,7 @@ export const WikiLinkSuggestion = Extension.create<{
     return [
       new Plugin<{
         active: boolean;
+        // biome-ignore lint/complexity/noBannedTypes: <explanation>
         range: {} | { from: number; to: number };
         text: string | null;
       }>({

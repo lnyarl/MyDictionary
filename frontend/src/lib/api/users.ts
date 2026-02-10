@@ -11,17 +11,6 @@ export type User = {
   updatedAt: string;
 };
 
-type PaginatedResponse<T> = {
-  data: T[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    nextCursor?: string;
-  };
-};
-
 export type UserProfile = {
   user: {
     id: string;

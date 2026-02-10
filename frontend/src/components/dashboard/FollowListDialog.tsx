@@ -57,6 +57,7 @@ export function FollowListDialog({ isOpen, onClose, userId, type }: FollowListDi
           ) : (
             <div className="space-y-4 pt-4">
               {users.map((user) => (
+                // biome-ignore lint/a11y/noStaticElementInteractions: <explanation>
                 <div
                   key={user.id}
                   className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer transition-colors"

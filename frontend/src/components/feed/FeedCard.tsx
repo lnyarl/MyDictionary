@@ -1,6 +1,6 @@
 import type { Definition } from "@stashy/shared";
-import { ExternalLink, Flag, MoreVertical, Pencil, Share, Trash2 } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ExternalLink, Flag, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -85,17 +85,12 @@ export function FeedCard({
   }, [definition.content]);
 
   const needMoreMenu = onDelete || onStartEdit || !isOwner;
-  const classForTerm = {
-    article: definition.term ? "grid-cols-[140px_1fr]" : "",
-    definition: definition.term ? "pl-16" : "",
-  };
-
   return (
     <article
-      className={`grid group border-b border-gray-200 items-start transition-colors hover:bg-accent/5 -mx-4 px-4 pt-2 pb-4 relative ${classForTerm.article}`}
+      className={`group border-t border-gray-200 flex items-start transition-colors px-4 pt-2 pb-4 relative hover:bg-[#f0f3ec]`}
     >
       {definition.term && (
-        <div className="flex flex-col">
+        <div className="flex flex-col pr-6 h-full w-60">
           {definition.termNumber && (
             <span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
               No. {definition.termNumber.toString().padStart(2, "0")}
@@ -103,26 +98,30 @@ export function FeedCard({
           )}
           <h2
             onClick={handleTermClick}
-            className={"editorial-number font-bold text-3xl text-foreground transition-all cursor-pointer"}
-            style={{ fontFamily: "\"Gowun Batang\", serif" }}
+            className={
+              "editorial-number font-bold text-3xl text-foreground transition-all cursor-pointer"
+            }
+            style={{ fontFamily: '"Gowun Batang", serif' }}
           >
             {definition.term}
           </h2>
         </div>
       )}
 
-      <div className={`w-full min-w-0 ${classForTerm.definition}`}>
-        <div className="mb-10">
+      <div className={`w-full min-w-0 pb-3 pt-6`}>
+        <div>
           <div className="relative">
             <div
               ref={contentRef}
-              className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75 overflow-hidden"
+              className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75 overflow-hidden "
+              style={
+                isTruncated
+                  ? { maskImage: "linear-gradient(to bottom, #000 60%, transparent 100%)" }
+                  : {}
+              }
             >
               <RichTextContent content={definition.content} />
             </div>
-            {isTruncated && (
-              <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-background to-transparent pointer-events-none" />
-            )}
           </div>
           {isTruncated && (
             <Dialog>

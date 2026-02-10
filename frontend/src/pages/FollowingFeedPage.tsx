@@ -27,7 +27,7 @@ export default function FollowingFeedPage() {
       </div>
 
       <Tabs value="following" className="w-full">
-        <TabsList className="h-auto p-0 bg-transparent justify-start flex gap-8 mb-12 border-b border-gray-200 pb-4 w-full">
+        <TabsList className="h-auto p-0 bg-transparent justify-start flex gap-8 border-b border-gray-200 pb-4 w-full">
           <TabsTrigger
             value="all"
             onClick={() => navigate("/feed/all")}
@@ -44,7 +44,7 @@ export default function FollowingFeedPage() {
           </TabsTrigger>
         </TabsList>
 
-        <div className="relative bg-transparent m-0 p-6">
+        <div className="relative bg-transparent m-0 p-0">
           <FeedList definitions={followingFeed.definitions} loading={followingFeed.loading} />
         </div>
       </Tabs>
