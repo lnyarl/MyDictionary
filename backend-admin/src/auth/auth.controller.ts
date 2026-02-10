@@ -44,9 +44,12 @@ export class AuthController {
 
     // Set httpOnly cookie
     const isDevelopment = this.configService.get("NODE_ENV") !== "production";
+    const domain = URL.parse(
+      this.configService.get<string>("ADMIN_FRONTEND_URL"),
+    ).hostname;
     res.cookie("admin_access_token", token, {
       httpOnly: true,
-      domain: this.configService.get("ADMIN_FRONTEND_URL"),
+      domain: domain,
       secure: !isDevelopment,
       sameSite: isDevelopment ? "lax" : "none",
       maxAge: 8 * 60 * 60 * 1000, // 8 hours
