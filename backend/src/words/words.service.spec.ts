@@ -1,173 +1,235 @@
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
-import { Test, type TestingModule } from "@nestjs/testing";
-import { PaginationDto } from "@stashy/shared";
+import { NotFoundException } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import { PaginatedResponseDto } from "@stashy/shared";
 import { CreateWordDto } from "@stashy/shared/dto/word/create-word.dto";
-import { UpdateWordDto } from "@stashy/shared/dto/word/update-word.dto";
-import { DefinitionsService } from "../definitions/definitions.service";
-import { TestCacheModule } from "../test/helper/test-cache.module";
-import {
-  cleanupTestDatabase,
-  getTestDatabaseHelper,
-  TestDatabaseHelper,
-} from "../test/helper/test-database.helper";
-import { TestDatabaseModule } from "../test/helper/test-database.module";
+import { EventEmitterService } from "../common/events/event-emitter.service";
+import { Word } from "./entities/word.entity";
 import { WordsRepository } from "./words.repository";
 import { WordsService } from "./words.service";
 
 describe("WordsService", () => {
   let service: WordsService;
-  let testDb: TestDatabaseHelper;
-  let testUser: { id: string; nickname: string };
-  let testingModule: TestingModule;
+  let wordRepository: jest.Mocked<WordsRepository>;
+  let eventEmitter: jest.Mocked<EventEmitterService>;
 
-  beforeAll(async () => {
-    testDb = getTestDatabaseHelper();
-    await testDb.setupSchema();
-  });
-
-  afterAll(async () => {
-    await cleanupTestDatabase();
-  });
+  const mockWord: Word = {
+    id: "word-1",
+    term: "testword",
+    userId: "user-1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+  };
 
   beforeEach(async () => {
-    await testDb.cleanAll();
+    const mockWordRepo = {
+      findByTerm: jest.fn(),
+      create: jest.fn(),
+      findById: jest.fn(),
+      findByUserId: jest.fn(),
+      findMyWordsForAutocomplete: jest.fn(),
+      findOthersWordsForAutocomplete: jest.fn(),
+      searchWithDefinitions: jest.fn(),
+    };
 
-    testUser = await testDb.createUser({ nickname: "testuser" });
+    const mockEventEmitter = {
+      emitWordCreate: jest.fn().mockResolvedValue(undefined),
+    };
 
-    testingModule = await Test.createTestingModule({
-      imports: [TestDatabaseModule, TestCacheModule],
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
         WordsService,
-        WordsRepository,
         {
-          provide: DefinitionsService,
-          useValue: {
-            create: jest.fn(),
-          },
+          provide: WordsRepository,
+          useValue: mockWordRepo,
+        },
+        {
+          provide: EventEmitterService,
+          useValue: mockEventEmitter,
         },
       ],
     }).compile();
 
-    service = testingModule.get<WordsService>(WordsService);
+    service = module.get<WordsService>(WordsService);
+    wordRepository = module.get(WordsRepository);
+    eventEmitter = module.get(EventEmitterService);
   });
 
-  it("should be defined", () => {
-    expect(service).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("create", () => {
-    it("should create a word with definitions", async () => {
+    it("should create a new word", async () => {
       const dto: CreateWordDto = {
-        term: "test-with-def",
+        term: "newword",
         definition: {
-          content: "def1",
+          content: "definition",
           tags: ["tag1"],
           isPublic: true,
         },
       };
+      wordRepository.findByTerm.mockResolvedValue(null);
+      wordRepository.create.mockResolvedValue([mockWord] as any);
+      wordRepository.findById.mockResolvedValue(mockWord);
 
-      // Mock definitionsService.create
-      const definitionsService = testingModule.get(DefinitionsService);
-      (definitionsService.create as jest.Mock).mockResolvedValue({} as any);
+      const result = await service.create("user-1", dto);
 
-      const result = await service.create(testUser.id, dto);
+      expect(result.term).toBe("testword");
+      expect(wordRepository.create).toHaveBeenCalledWith({
+        term: "newword",
+        userId: "user-1",
+      });
+      expect(eventEmitter.emitWordCreate).toHaveBeenCalledWith("user-1", "word-1", "testword");
+    });
 
-      expect(result.term).toBe("test-with-def");
+    it("should return existing word if term already exists for user", async () => {
+      const dto: CreateWordDto = {
+        term: "existingword",
+        definition: {
+          content: "definition",
+          tags: ["tag1"],
+          isPublic: true,
+        },
+      };
+      wordRepository.findByTerm.mockResolvedValue(mockWord);
+      wordRepository.findById.mockResolvedValue(mockWord);
+
+      const result = await service.create("user-1", dto);
+
+      expect(wordRepository.create).not.toHaveBeenCalled();
+      expect(result.term).toBe("testword");
     });
   });
 
   describe("findAllByUser", () => {
     it("should return words for a user", async () => {
-      await testDb.createWord({ term: "word1", userId: testUser.id });
-      await testDb.createWord({ term: "word2", userId: testUser.id });
+      const mockWords = [mockWord, { ...mockWord, id: "word-2", term: "word2" }];
+      wordRepository.findByUserId.mockResolvedValue(mockWords);
 
-      const result = await service.findAllByUser(testUser.id);
+      const result = await service.findAllByUser("user-1");
 
       expect(result).toHaveLength(2);
+      expect(wordRepository.findByUserId).toHaveBeenCalledWith("user-1");
     });
 
     it("should return empty array if user has no words", async () => {
-      const result = await service.findAllByUser(testUser.id);
+      wordRepository.findByUserId.mockResolvedValue([]);
+
+      const result = await service.findAllByUser("user-1");
+
       expect(result).toHaveLength(0);
     });
   });
 
   describe("findOne", () => {
-    it("should return a word if found and public definition exists", async () => {
-      const word = await testDb.createWord({
-        term: "public-word",
-        userId: testUser.id,
-      });
-      await testDb.createDefinition({
-        content: "def",
-        wordId: word.id,
-        userId: testUser.id,
-      });
+    it("should return a word if found", async () => {
+      wordRepository.findById.mockResolvedValue(mockWord);
 
-      const result = await service.findOne(word.id);
+      const result = await service.findOne("word-1");
 
-      expect(result.term).toBe("public-word");
+      expect(result.term).toBe("testword");
     });
 
     it("should throw NotFoundException if word not found", async () => {
-      await expect(service.findOne("00000000-0000-0000-0000-000000000000")).rejects.toThrow(
-        NotFoundException,
-      );
+      wordRepository.findById.mockResolvedValue(null);
+
+      await expect(service.findOne("non-existent")).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("autocomplete", () => {
+    it("should return empty results for empty term", async () => {
+      const result = await service.autocomplete("");
+
+      expect(result.myWords).toEqual([]);
+      expect(result.othersWords).toEqual([]);
     });
 
-    it("should allow owner to see private word", async () => {
-      const word = await testDb.createWord({
-        term: "my-private-word",
-        userId: testUser.id,
-      });
+    it("should return others words when no userId", async () => {
+      wordRepository.findOthersWordsForAutocomplete.mockResolvedValue([
+        { id: "word-1", text: "search" },
+      ] as any);
 
-      const result = await service.findOne(word.id);
+      const result = await service.autocomplete("sea");
 
-      expect(result.term).toBe("my-private-word");
+      expect(result.myWords).toEqual([]);
+      expect(result.othersWords).toHaveLength(1);
+    });
+
+    it("should return both my words and others words when userId provided", async () => {
+      wordRepository.findMyWordsForAutocomplete.mockResolvedValue([mockWord] as any);
+      wordRepository.findOthersWordsForAutocomplete.mockResolvedValue([
+        { id: "word-2", text: "searchable" },
+      ] as any);
+
+      const result = await service.autocomplete("sea", "user-1");
+
+      expect(result.myWords).toHaveLength(1);
+      expect(result.othersWords).toHaveLength(1);
+    });
+
+    it("should filter out duplicate terms from others words", async () => {
+      wordRepository.findMyWordsForAutocomplete.mockResolvedValue([
+        { ...mockWord, term: "search" },
+      ] as any);
+      wordRepository.findOthersWordsForAutocomplete.mockResolvedValue([
+        { id: "word-2", text: "search" },
+        { id: "word-3", text: "searchable" },
+      ] as any);
+
+      const result = await service.autocomplete("sea", "user-1");
+
+      expect(result.myWords).toHaveLength(1);
+      expect(result.othersWords).toHaveLength(1);
+      expect(result.othersWords[0].term).toBe("searchable");
     });
   });
 
   describe("search", () => {
     it("should return empty results for empty term", async () => {
-      const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };
+      const paginationDto = { page: 1, limit: 10, offset: 0 };
 
       const result = await service.search("", paginationDto);
 
       expect(result.data).toEqual([]);
     });
 
-    it("should search for public words", async () => {
-      const word1 = await testDb.createWord({ term: "searchable", userId: testUser.id });
-      await testDb.createDefinition({
-        content: "def1",
-        wordId: word1.id,
-        userId: testUser.id,
-        isPublic: true,
-      });
+    it("should search for words with normalized term", async () => {
+      const mockWords = [mockWord, { ...mockWord, id: "word-2" }];
+      wordRepository.searchWithDefinitions.mockResolvedValue(mockWords);
 
-      const word2 = await testDb.createWord({ term: "another-search", userId: testUser.id });
-      await testDb.createDefinition({
-        content: "def2",
-        wordId: word2.id,
-        userId: testUser.id,
-        isPublic: true,
-      });
+      const paginationDto = { page: 1, limit: 10, offset: 0 };
+      const result = await service.search("test", paginationDto);
 
-      const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };
-
-      const result = await service.search("search", paginationDto);
-
-      expect(result.data.length).toBeGreaterThanOrEqual(1);
+      expect(result.data).toHaveLength(2);
+      expect(result).toBeInstanceOf(PaginatedResponseDto);
     });
 
-    it("should include user's private words in search results when userId provided", async () => {
-      await testDb.createWord({ term: "my-secret", userId: testUser.id });
-      const paginationDto: PaginationDto = { page: 1, limit: 10, offset: 0 };
+    it("should search with userId for including private words", async () => {
+      const mockWords = [mockWord];
+      wordRepository.searchWithDefinitions.mockResolvedValue(mockWords);
 
-      const result = await service.search("secret", paginationDto, testUser.id);
+      const paginationDto = { page: 1, limit: 10, offset: 0 };
+      await service.search("test", paginationDto, "user-1");
+
+      expect(wordRepository.searchWithDefinitions).toHaveBeenCalledWith(
+        "test",
+        "user-1",
+        10,
+        undefined,
+      );
+    });
+
+    it("should handle pagination with cursor", async () => {
+      const mockWords = [mockWord];
+      wordRepository.searchWithDefinitions.mockResolvedValue(mockWords);
+
+      const paginationDto = { page: 1, limit: 10, offset: 0, cursor: "cursor-123" };
+      const result = await service.search("test", paginationDto);
 
       expect(result.data).toHaveLength(1);
-      expect(result.data[0].term).toBe("my-secret");
+      expect(result.meta.nextCursor).toBeDefined();
     });
   });
 });
