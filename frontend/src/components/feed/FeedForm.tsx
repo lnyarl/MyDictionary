@@ -1,6 +1,6 @@
 import type { EditorView } from "@codemirror/view";
 import { Calendar } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTimeoutFn } from "react-use";
 import { useToast } from "@/hooks/use-toast";
@@ -59,7 +59,7 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
     }
   };
 
-  const fetchSuggestions = async () => {
+  const fetchSuggestions = useCallback(async () => {
     if (!term.trim() || term.length < 2) {
       setSuggestions({ myWords: [], othersWords: [] });
       return;
@@ -80,17 +80,18 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
     } catch (error) {
       console.error("Failed to fetch suggestions:", error);
     }
-  };
+  }, [term]);
 
   const [_isReady, cancelSuggestion, reset] = useTimeoutFn(fetchSuggestions, 300);
-  useEffect(() => {
-    cancelSuggestion();
-  }, [cancelSuggestion]);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: term이 바뀔때마다 suggestion이 reset되어야함
   useEffect(() => {
     if (fixedTerm) return;
     reset();
   }, [term, fixedTerm, reset]);
+  // reset useEffect보다 나중에 실행되어야 한다.
+  useEffect(() => {
+    cancelSuggestion();
+  }, [cancelSuggestion]);
 
   const [_, _cancelSave, saveToLocalstorage] = useTimeoutFn(() => {
     setItem(STORAGE_KEY, { term: term, content: definition.content, tags: definition.tags });
