@@ -112,15 +112,15 @@ export default function NotificationsPage() {
     <Page>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
+          <h1 className="text-3xl font-bold flex items-center gap-3  mt-2 sm:mx-2">
             <Bell className="h-8 w-8" />
-            알림
+            {t("common.notification")}
           </h1>
-          <p className="text-muted-foreground mt-2">최근 알림을 확인하세요</p>
+          <p className="text-muted-foreground mt-2 mx-1">{t("notification.description")}</p>
         </div>
         {globalUnreadCount > 0 && (
           <Button variant="outline" onClick={handleMarkAllAsRead}>
-            모두 읽음으로 표시
+            {t("notification.mark_all_as_read")}
           </Button>
         )}
       </div>
@@ -128,12 +128,12 @@ export default function NotificationsPage() {
       {isLoading && notifications.length === 0 ? (
         <div className="rounded-lg border bg-muted/50 p-12 text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">로딩 중...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       ) : notifications.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <Bell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">알림이 없습니다</p>
+          <p className="text-muted-foreground">{t("notification.no_notification")}</p>
         </div>
       ) : (
         <>

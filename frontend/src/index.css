@@ -1,6 +1,10 @@
 @import "tailwindcss";
+@import "./styles/responsive.css";
+@import "./styles/mobile.css";
+@import "./styles/desktop.css";
 @plugin "@tailwindcss/typography";
 @config "../tailwind.config.js";
+
 
 @layer base {
   :root {

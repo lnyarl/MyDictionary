@@ -122,7 +122,7 @@ export default function DefinitionDetailPage() {
                 No. {definition.termNumber.toString().padStart(2, "0")}
               </span>
             )}
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground italic hover:text-primary/80 transition-colors">
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground italic hover:text-primary/80 transition-colors mt-2 sm:mx-2">
               {definition.term}
             </h1>
           </Button>

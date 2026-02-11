@@ -209,7 +209,7 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="border border-gray-200 p-1 bg-gray-50">
+      <div className="md:border md:border-gray-200 md:p-1 md:bg-gray-50">
         <div className="border border-gray-200 bg-card transition-all p-4">
           <div className="relative flex">
             {!fixedTerm && (

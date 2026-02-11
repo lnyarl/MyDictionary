@@ -20,6 +20,7 @@
   "common.editing": "Editing...",
   "common.end_of_list": "You've reached the end of the list.",
   "common.report": "Report",
+  "common.notification": "Notification",
   "report.title": "Report Content",
   "report.description": "Help us keep this space safe and healthy. Please report any content that goes against our community rules.",
   "report.reason": "Reason",
@@ -139,5 +140,8 @@
   "errorBoundary.description": "An unexpected error occurred. Please try again or go back to home.",
   "errorBoundary.retry": "Try again",
   "errorBoundary.goHome": "Go home",
-  "errorBoundary.toastMessage": "An error occurred while rendering the page."
+  "errorBoundary.toastMessage": "An error occurred while rendering the page.",
+  "notification.description": "Check your recent notifications",
+  "notification.mark_all_as_read": "Mark all as read",
+  "notification.no_notification": "There are no notifications"
 }

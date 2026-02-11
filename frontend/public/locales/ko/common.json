@@ -16,6 +16,7 @@
   "common.more": "더 보기",
   "common.user": "사용자",
   "common.search": "검색",
+  "common.notification": "알림",
   "common.close": "닫기",
   "common.press_cmd_enter_to_save": "⌘ + Enter로 저장",
   "common.editing": "편집 중...",
@@ -140,5 +141,8 @@
   "errorBoundary.description": "예상치 못한 오류가 발생했습니다. 다시 시도하거나 홈으로 이동해주세요.",
   "errorBoundary.retry": "다시 시도",
   "errorBoundary.goHome": "홈으로",
-  "errorBoundary.toastMessage": "화면을 표시하는 중 오류가 발생했습니다."
+  "errorBoundary.toastMessage": "화면을 표시하는 중 오류가 발생했습니다.",
+  "notification.description": "최근 알림을 확인하세요",
+  "notification.mark_all_as_read": "모두 읽음으로 표시",
+  "notification.no_notification": "알림이 없습니다"
 }

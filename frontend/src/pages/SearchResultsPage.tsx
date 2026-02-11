@@ -51,16 +51,16 @@ export default function SearchResultsPage() {
   return (
     <Page>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">{t("search.title")}</h1>
+        <h1 className="text-3xl font-bold mb-4 mt-2 sm:mx-2">{t("search.title")}</h1>
         <form onSubmit={handleSearch} className="flex gap-2">
           <Input
             type="text"
             placeholder={t("home.search_placeholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1"
+            className="flex-1 md:h-9 h-11"
           />
-          <Button type="submit">
+          <Button type="submit" className="md:h-9 h-11">
             <Search className="mr-2 h-4 w-4" />
             {t("common.search")}
           </Button>
@@ -77,7 +77,7 @@ export default function SearchResultsPage() {
       {!loading && searchParams.get("term") && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-xl font-semibold mb-2">
+            <h2 className="text-xl font-semibold mb-2 mx-1">
               {t("search.results_for", { term: searchParams.get("term") })}
             </h2>
           </div>

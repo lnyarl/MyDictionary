@@ -1,0 +1,4 @@
+- Created `MobileLayout` component for mobile navigation.
+- Used `lucide-react` for icons and `useNotificationStore` for unread counts.
+- Implemented a slide-in drawer with `z-50` overlay.
+- Used `biome-ignore` to suppress `useExhaustiveDependencies` for route change effect.

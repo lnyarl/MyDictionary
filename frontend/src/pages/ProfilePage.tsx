@@ -202,7 +202,6 @@ export default function ProfilePage() {
           onDelete={handleDelete}
           onEdit={isMe ? handleEdit : undefined}
           option={{ showUser: false }}
-          className="m-5"
         />
         <div ref={sentinelRef} className="py-4 flex justify-center">
           {feedLoading && hasNextPage ? (

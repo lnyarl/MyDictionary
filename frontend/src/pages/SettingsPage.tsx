@@ -96,16 +96,18 @@ export default function SettingsPage() {
   const isValid = nickname.trim().length >= 2 && nickname.trim().length <= 20;
   const hasChanged =
     nickname !== user?.nickname || bio !== (user?.bio || "") || profileImage !== null;
+  const cardClass =
+    "md:border md:rounded-md rounded-none border-0 border-t-1 border-gray-300 shadow-none";
 
   return (
     <Page maxWidth="2xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
-        <p className="text-muted-foreground mt-2">{t("settings.subtitle")}</p>
+        <h1 className="text-3xl font-bold mt-2 md:mx-0 mx-2">{t("settings.title")}</h1>
+        <p className="text-muted-foreground mt-2 mx-1">{t("settings.subtitle")}</p>
       </div>
 
       <div className="space-y-6">
-        <Card>
+        <Card className={cardClass}>
           <CardHeader>
             <CardTitle>{t("settings.profile_info")}</CardTitle>
             <CardDescription>{t("settings.profile_info_desc")}</CardDescription>
@@ -208,7 +210,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={cardClass}>
           <CardHeader>
             <CardTitle>{t("settings.account_info")}</CardTitle>
             <CardDescription>{t("settings.google_account")}</CardDescription>
@@ -221,7 +223,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={cardClass}>
           <CardHeader>
             <CardTitle>{t("settings.language")}</CardTitle>
             <CardDescription>{t("settings.language_desc")}</CardDescription>
@@ -231,7 +233,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={cardClass}>
           <CardHeader>
             <CardTitle>{t("settings.logout")}</CardTitle>
             <CardDescription>{t("settings.logout_desc")}</CardDescription>

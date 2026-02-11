@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Sidebar } from "./Sidebar";
+import { DesktopLayout } from "./DesktopLayout";
+import { MobileLayout } from "./MobileLayout";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -19,10 +20,14 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   if (isAuthenticated) {
     return (
-      <div className="min-h-screen flex">
-        <Sidebar />
-        <main className="flex-1 ml-[72px]">{children}</main>
-      </div>
+      <>
+        <div className="md:hidden">
+          <MobileLayout>{children}</MobileLayout>
+        </div>
+        <div className="hidden md:block">
+          <DesktopLayout>{children}</DesktopLayout>
+        </div>
+      </>
     );
   }
 

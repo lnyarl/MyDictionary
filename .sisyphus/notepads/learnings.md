@@ -1,0 +1,3 @@
+- Modified `MobileLayout.tsx` to change drawer position from left to right.
+- Updated animation to `slide-in-from-right`.
+- Swapped header items (Close button and Logo) to align with right-side drawer UX.

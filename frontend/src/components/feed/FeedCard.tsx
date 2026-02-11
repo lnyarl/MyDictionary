@@ -72,6 +72,7 @@ export function FeedCard({
   const contentRef = useRef<HTMLDivElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const element = contentRef.current;
     if (!element) return;
@@ -87,10 +88,10 @@ export function FeedCard({
   const needMoreMenu = onDelete || onStartEdit || !isOwner;
   return (
     <article
-      className={`group border-t border-gray-200 flex items-start transition-colors px-4 pt-2 pb-4 relative hover:bg-[#f0f3ec]`}
+      className={`group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]`}
     >
       {definition.term && (
-        <div className="flex flex-col pr-6 h-full w-60">
+        <div className="flex flex-col pr-6 h-full md:w-60 w-full">
           {definition.termNumber && (
             <span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
               No. {definition.termNumber.toString().padStart(2, "0")}
@@ -99,7 +100,7 @@ export function FeedCard({
           <h2
             onClick={handleTermClick}
             className={
-              "editorial-number font-bold text-3xl text-foreground transition-all cursor-pointer"
+              "editorial-number font-bold md:text-3xl text-2xl text-foreground transition-all cursor-pointer"
             }
             style={{ fontFamily: '"Gowun Batang", serif' }}
           >

@@ -4,6 +4,10 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
     extend: {
+      screens: {
+        mobile: { max: "767px" },
+        desktop: { min: "768px" },
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 1px)",
