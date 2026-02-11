@@ -1,5 +1,11 @@
 import { Controller, Get, Query, UseGuards } from "@nestjs/common";
-import { PaginatedResponseDto, SearchTermDto, TermResponseDto, User } from "@stashy/shared";
+import {
+  Definition,
+  PaginatedResponseDto,
+  SearchTermDto,
+  TermResponseDto,
+  User,
+} from "@stashy/shared";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -22,23 +28,17 @@ export class TermsController {
   ): Promise<PaginatedResponseDto<TermResponseDto>> {
     const result = await this.termsService.search(searchTermDto);
 
-    const allDefinitions = result.data.flatMap((term) => term.definitions || []);
-
-    if (allDefinitions.length > 0) {
+    if (result.data.length > 0) {
       const likes = await this.likeService.getLikeInfoByDefinitions(
-        allDefinitions.map((d: any) => d.id),
+        result.data.map((d: Definition) => d.id),
         user?.id,
       );
 
-      for (const term of result.data) {
-        if (term.definitions) {
-          for (const def of term.definitions) {
-            const likeInfo = likes[def.id];
-            if (likeInfo) {
-              def.isLiked = likeInfo.isLiked;
-              def.likesCount = likeInfo.likesCount;
-            }
-          }
+      for (const def of result.data) {
+        const likeInfo = likes[def.id];
+        if (likeInfo) {
+          def.isLiked = likeInfo.isLiked;
+          def.likesCount = likeInfo.likesCount;
         }
       }
     }

@@ -5,9 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { FeedList } from "../components/feed/FeedList";
 import { Page } from "../components/layout/Page";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { Separator } from "../components/ui/separator";
 import { useToast } from "../hooks/use-toast";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import { useSearch } from "../hooks/useSearch";
@@ -90,33 +88,7 @@ export default function SearchResultsPage() {
             </div>
           ) : (
             <>
-              <div className="space-y-6">
-                {results.map((word) => (
-                  <Card key={word.id}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-2xl">{word.term}</CardTitle>
-                        <div className="flex items-center gap-4">
-                          <p className="text-sm text-gray-300">
-                            {new Date(word.createdAt).toLocaleDateString("ko-KR")}
-                          </p>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      {word.definitions && word.definitions.length > 0 ? (
-                        <div className="space-y-2">
-                          <Separator />
-                          <FeedList definitions={word.definitions} onDelete={() => {}} />
-                        </div>
-                      ) : (
-                        <p className="text-muted-foreground">{t("word.no_definitions")}</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
+              <FeedList definitions={results} loading={loading} />
               <div ref={sentinelRef} className="py-4 flex justify-center">
                 {loadingMore && hasMore ? (
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
