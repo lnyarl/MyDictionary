@@ -4,10 +4,9 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { generateRandomNickname } from "@stashy/shared";
 import { UserJwtPayload } from "@stashy/shared/dto/auth/type";
+import { RefreshTokens, Users } from "@stashy/shared/types/db_entity.generated";
 import { OAuth2Client } from "google-auth-library";
-import type { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
-import { RefreshToken } from "./entities/refresh-token.entity";
 import { RefreshTokenRepository } from "./repositories/refresh-token.repository";
 
 export type GoogleUserData = {
@@ -35,7 +34,7 @@ export class AuthService {
     this.googleClient = new OAuth2Client(clientId);
   }
 
-  async validateGoogleUser(data: GoogleUserData): Promise<User> {
+  async validateGoogleUser(data: GoogleUserData): Promise<Users> {
     const googleUser = await this.usersService.findByGoogleId(data.googleId);
 
     if (googleUser) {
@@ -82,7 +81,7 @@ export class AuthService {
     }
   }
 
-  generateJwtToken(user: User): string {
+  generateJwtToken(user: Users): string {
     const payload: UserJwtPayload = {
       sub: user.id,
       email: user.email,
@@ -91,7 +90,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async generateTokenPair(user: User, fromAdmin = false): Promise<TokenPair> {
+  async generateTokenPair(user: Users, fromAdmin = false): Promise<TokenPair> {
     const accessToken = this.generateJwtToken(user);
     const refreshToken = await this.createRefreshToken(user.id, fromAdmin);
 
@@ -139,7 +138,7 @@ export class AuthService {
 
   async refreshAccessToken(
     refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+  ): Promise<{ accessToken: string; refreshToken: string; user: Users }> {
     const storedToken = await this.refreshTokenRepository.findByToken(refreshToken);
 
     if (!storedToken) {
@@ -159,7 +158,7 @@ export class AuthService {
     return { accessToken, refreshToken: newRefreshToken, user };
   }
 
-  private async rotateRefreshToken(storedToken: RefreshToken): Promise<string> {
+  private async rotateRefreshToken(storedToken: RefreshTokens): Promise<string> {
     await this.refreshTokenRepository.deleteById(storedToken.id);
 
     const newToken = crypto.randomBytes(32).toString("hex");
@@ -212,7 +211,7 @@ export class AuthService {
     }
   }
 
-  async findUserById(userId: string): Promise<User | null> {
+  async findUserById(userId: string): Promise<Users | null> {
     return this.usersService.findById(userId);
   }
 }

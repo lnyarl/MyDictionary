@@ -1,93 +1,99 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { generateId, TABLES, TableName } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
+import { Badges } from "@stashy/shared/types/db_entity.generated";
 import { Knex } from "knex";
 import { BaseRepository } from "../common/database/base.repository";
 import { KNEX_CONNECTION } from "../common/database/knex.provider";
-import {
-  BadgeEntity,
-  BadgeWithProgress,
-  UserBadgeEntity,
-  UserBadgeProgressEntity,
-} from "./entities/badge.entity";
 
 @Injectable()
 export class BadgesRepository extends BaseRepository {
-  private tableName: TableName = TABLES.BADGES;
-
   constructor(@Inject(KNEX_CONNECTION) connection: Knex) {
     super(connection);
   }
 
-  async findAllBadgesWithStatus(userId: string): Promise<BadgeWithProgress[]> {
-    const badges = await this.knex(this.tableName)
-      .select(
-        `${this.tableName}.*`,
-        `${TABLES.USER_BADGES}.earned_at`,
-        this.knex.raw(`COALESCE(${TABLES.USER_BADGE_PROGRESS}.count, 0) as current_count`),
-        this.knex.raw(
-          `CASE WHEN ${TABLES.USER_BADGES}.id IS NOT NULL THEN true ELSE false END as is_earned`,
+  findAllBadgesWithStatus(userId: string) {
+    return this.query("badges")
+      .select<
+        {
+          id: string;
+          code: string;
+          name: string;
+          description: string | null;
+          icon: string | null;
+          category: string;
+          event_type: string;
+          earnedAt: Date;
+          currentCount: number;
+          isEarned: boolean;
+        }[]
+      >(
+        "badges.id",
+        "badges.code",
+        "badges.name",
+        "badges.description",
+        "badges.icon",
+        "badges.category",
+        "badges.event_type as eventType",
+        "user_badges.earned_at as earnedAt",
+        this.knex.raw<number>(`COALESCE(user_badge_progress.count, 0) as currentCount`),
+        this.knex.raw<boolean>(
+          `CASE WHEN user_badges.id IS NOT NULL THEN true ELSE false END as isEarned`,
         ),
       )
-      .leftJoin(TABLES.USER_BADGES, (join) => {
-        join
-          .on(`${this.tableName}.id`, `=`, `${TABLES.USER_BADGES}.badge_id`)
-          .andOn(`${TABLES.USER_BADGES}.user_id`, `=`, this.knex.raw("?", [userId]));
+      .leftJoin("user_badges", (join) => {
+        join.on(`badges.id`, `=`, `user_badges.badge_id`).andOn(`user_badge.user_id`, `=`, userId);
       })
-      .leftJoin(TABLES.USER_BADGE_PROGRESS, (join) => {
+      .leftJoin("user_badge_progress", (join) => {
         join
-          .on(`${this.tableName}.event_type`, `=`, `${TABLES.USER_BADGE_PROGRESS}.event_type`)
-          .andOn(`${TABLES.USER_BADGE_PROGRESS}.user_id`, `=`, this.knex.raw("?", [userId]));
+          .on(`badges.event_type`, `=`, `user_badge_progress.event_type`)
+          .andOn(`user_badge_progress.user_id`, `=`, userId);
       })
-      .orderBy(`${this.tableName}.category`)
-      .orderBy(`${this.tableName}.threshold`);
-
-    return badges;
+      .orderBy(`badges.category`)
+      .orderBy(`badges.threshold`);
   }
 
-  async findBadgesByEventType(eventType: string): Promise<BadgeEntity[]> {
-    return this.query(this.tableName).where({ event_type: eventType, is_active: true });
+  findBadgesByEventType(eventType: string) {
+    return this.query("badges").where({ event_type: eventType, is_active: true }).select<Badges[]>({
+      id: "id",
+      code: "code",
+      name: "name",
+      description: "description",
+      icon: "icon",
+      category: "category",
+      eventType: "event_type",
+      threshold: "threshold",
+      isActive: "is_active",
+    });
   }
 
-  async hasUserEarnedBadge(userId: string, badgeId: string): Promise<boolean> {
-    const result = await this.knex(TABLES.USER_BADGES)
+  hasUserEarnedBadge(userId: string, badgeId: string) {
+    return this.query("user_badges")
       .where({ user_id: userId, badge_id: badgeId })
+      .select("id")
       .first();
-    return !!result;
   }
 
-  async createUserBadge(userId: string, badgeId: string): Promise<UserBadgeEntity> {
-    const [userBadge] = await this.knex(TABLES.USER_BADGES)
+  createUserBadge(userId: string, badgeId: string) {
+    return this.knex("user_badges").insert({
+      id: generateId(),
+      user_id: userId,
+      badge_id: badgeId,
+    });
+  }
+
+  updateUserProgress(userId: string, eventType: string, increment: number = 1) {
+    return this.knex("user_badge_progress")
       .insert({
-        id: generateId(),
         user_id: userId,
-        badge_id: badgeId,
+        event_type: eventType,
+        count: increment,
+        last_updated: new Date(),
       })
-      .returning("*");
-    return userBadge;
-  }
-
-  async updateUserProgress(
-    userId: string,
-    eventType: string,
-    increment: number = 1,
-  ): Promise<UserBadgeProgressEntity> {
-    const query = `
-      INSERT INTO ${TABLES.USER_BADGE_PROGRESS} (id, user_id, event_type, count, last_updated)
-      VALUES (?, ?, ?, ?, NOW())
-      ON CONFLICT (user_id, event_type)
-      DO UPDATE SET 
-        count = ${TABLES.USER_BADGE_PROGRESS}.count + ?,
-        last_updated = NOW()
-      RETURNING *
-    `;
-
-    const { rows } = await this.knex.raw(query, [
-      generateId(),
-      userId,
-      eventType,
-      increment,
-      increment,
-    ]);
-    return rows[0];
+      .onConflict(["user_id", "event_type"])
+      .merge({
+        count: this.knex.raw("user_badge_progress.count + ?", [increment]),
+        last_updated: new Date(),
+      })
+      .returning("count");
   }
 }

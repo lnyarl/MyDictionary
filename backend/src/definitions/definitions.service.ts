@@ -9,15 +9,15 @@ import {
 import { Definition, PaginatedResponseDto, PaginationDto } from "@stashy/shared";
 import { CreateDefinitionDto } from "@stashy/shared/dto/definition/create-definition.dto";
 import { UpdateDefinitionDto } from "@stashy/shared/dto/definition/update-definition.dto";
+import { DefinitionHistories } from "@stashy/shared/types/db_entity.generated";
 import { Knex } from "knex";
 import { EventEmitterService } from "../common/events/event-emitter.service";
 import { MetadataService } from "../common/services/metadata.service";
 import { IStorageService, STORAGE_SERVICE } from "../common/services/storage/storage.interface";
-import { DefinitionHistoriesRepository } from "../definition-histories/definition-histories.repository";
-import type { DefinitionHistory } from "../definition-histories/entities/definition-history.entity";
 import { FeedService } from "../feed/feed.service";
 import { Word } from "../words/entities/word.entity";
 import { WordsRepository } from "../words/words.repository";
+import { DefinitionHistoriesRepository } from "./definition-histories.repository";
 import { DefinitionsRepository } from "./definitions.repository";
 
 @Injectable()
@@ -256,7 +256,7 @@ export class DefinitionsService {
   async getDefinitionHistory(
     definitionId: string,
     requestUserId?: string,
-  ): Promise<DefinitionHistory[]> {
+  ): Promise<DefinitionHistories[]> {
     const definition = await this.definitionRepository.findByIdWithPublic(definitionId);
 
     if (!definition) {

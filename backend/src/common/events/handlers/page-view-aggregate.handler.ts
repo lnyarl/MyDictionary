@@ -20,13 +20,23 @@ export class PageViewAggregateHandler implements EventHandler {
     const periodEnd = new Date(periodStart);
     periodEnd.setDate(periodEnd.getDate() + 1);
 
-    await this.eventsRepository.upsertAggregate(
+    const exist = await this.eventsRepository.existing(
       EventType.PAGE_VIEW,
-      payload.userId || null,
+      payload.userId,
       payload.path,
       periodStart,
-      periodEnd,
-      { referrer: payload.referrer },
     );
+    if (!exist) {
+      this.eventsRepository.insertAggregate(
+        EventType.PAGE_VIEW,
+        payload.userId,
+        payload.path,
+        periodStart,
+        periodEnd,
+        { referrer: payload.referrer },
+      );
+    } else {
+      this.eventsRepository.updateAggregate(exist.id);
+    }
   }
 }

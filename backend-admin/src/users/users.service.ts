@@ -1,9 +1,10 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { generateRandomNickname, User } from "@stashy/shared";
+import { generateRandomNickname } from "@stashy/shared";
 import {
   PaginatedResponseDto,
   PaginationDto,
 } from "@stashy/shared/admin/dto/pagination.dto";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 
@@ -11,9 +12,7 @@ import { UsersRepository } from "./users.repository";
 export class UsersService {
   constructor(private readonly userRepository: UsersRepository) {}
 
-  async getUsers(
-    paginationDto: PaginationDto,
-  ): Promise<PaginatedResponseDto<User>> {
+  async getUsers(paginationDto: PaginationDto) {
     const { listQuery, countQuery } = await this.userRepository.findUsers(
       paginationDto.offset,
       paginationDto.limit,
@@ -22,7 +21,7 @@ export class UsersService {
     const totalResult = await countQuery;
     const total = totalResult ? totalResult.count : 0;
 
-    return new PaginatedResponseDto<User>(
+    return new PaginatedResponseDto<Users>(
       users,
       total,
       paginationDto.page,
@@ -30,7 +29,7 @@ export class UsersService {
     );
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto) {
     const existingByEmail = await this.userRepository.findByEmail(
       createUserDto.email,
     );
@@ -45,33 +44,33 @@ export class UsersService {
       throw new ConflictException("Nickname is already taken");
     }
 
-    return this.userRepository.insert({
+    return await this.userRepository.insert({
       email: createUserDto.email,
       nickname: createUserDto.nickname,
       profilePicture: createUserDto.profilePicture,
     });
   }
 
-  async createDummyUser(): Promise<User> {
+  async createDummyUser() {
     const nickname = generateRandomNickname();
     const email = `dummy_${nickname}_${Date.now()}@example.com`;
 
-    return this.userRepository.insert({
+    return await this.userRepository.insert({
       email,
       nickname,
       profilePicture: undefined,
     });
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.userRepository.findById(id);
+  async getUserById(id: string) {
+    return await this.userRepository.findById(id);
   }
 
-  async suspendUser(id: string): Promise<User> {
-    return this.userRepository.updateStatus(id, new Date());
+  async suspendUser(id: string) {
+    return await this.userRepository.updateStatus(id, new Date());
   }
 
-  async unsuspendUser(id: string): Promise<User> {
-    return this.userRepository.updateStatus(id, null);
+  async unsuspendUser(id: string) {
+    return await this.userRepository.updateStatus(id, null);
   }
 }

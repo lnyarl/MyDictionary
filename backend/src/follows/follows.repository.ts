@@ -1,108 +1,115 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES, User } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
 import { UserSelect } from "@stashy/shared/entities/user.entity";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 import { Follow, FollowSelect } from "./entities/follow.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FollowsRepository extends BaseRepository {
-  private tableName = TABLES.FOLLOWS;
-
   findExistingFollow(followerId: string, followingId: string) {
-    return this.query(this.tableName, true)
+    return this.query("follows", true)
       .select<Follow>(FollowSelect)
       .where({ follower_id: followerId, following_id: followingId })
       .first();
   }
 
   restoreRelation(id: string): Promise<void> {
-    return this.undelete(this.tableName, id);
+    return this.undelete("follows", id);
   }
 
   findFollowers(userId: string, limit: number, cursor?: string) {
-    const baseQuery = this.query(this.tableName).where({ following_id: userId });
+    const baseQuery = this.query("follows").where({ following_id: userId });
 
     if (cursor) {
-      baseQuery.where(`${TABLES.FOLLOWS}.created_at`, "<", cursor);
+      baseQuery.where(`follows.created_at`, "<", cursor);
     }
 
     const listQuery = baseQuery
       .clone()
-      .leftJoin(TABLES.USERS, `${TABLES.FOLLOWS}.follower_id`, `${TABLES.USERS}.id`)
-      .select<any[]>(
-        Object.keys(UserSelect).reduce((acc, key) => {
-          acc[key] = `${TABLES.USERS}.${UserSelect[key]}`;
-          return acc;
-        }, {}),
+      .leftJoin("users", `follows.follower_id`, `users.id`)
+      .select<(Users & { followCreatedAt: Date })[]>(
+        Object.keys(UserSelect).reduce(
+          (acc, key) => {
+            acc[key] = `users.${UserSelect[key]}`;
+            return acc;
+          },
+          {
+            followCreatedAt: `follows.created_at`,
+          },
+        ),
       )
-      .select({ followCreatedAt: `${TABLES.FOLLOWS}.created_at` })
       .limit(limit)
-      .orderBy(`${TABLES.FOLLOWS}.created_at`, "desc");
+      .orderBy(`follows.created_at`, "desc");
 
     return listQuery;
   }
 
   getFollowerCount(userId) {
-    return this.query(this.tableName)
+    return this.query("follows")
       .where({ following_id: userId })
       .count<{ count: number }>("id as count")
       .first();
   }
 
   findFollowings(userId: string, limit: number, cursor?: string) {
-    const baseQuery = this.query(this.tableName).where({ follower_id: userId });
+    const baseQuery = this.query("follows").where({ follower_id: userId });
 
     if (cursor) {
-      baseQuery.where(`${TABLES.FOLLOWS}.created_at`, "<", cursor);
+      baseQuery.where(`follows.created_at`, "<", cursor);
     }
 
     const listQuery = baseQuery
       .clone()
-      .leftJoin(TABLES.USERS, `${TABLES.FOLLOWS}.following_id`, `${TABLES.USERS}.id`)
-      .select<any[]>(
-        Object.keys(UserSelect).reduce((acc, key) => {
-          acc[key] = `${TABLES.USERS}.${UserSelect[key]}`;
-          return acc;
-        }, {}),
+      .leftJoin("users", `follows.following_id`, `users.id`)
+      .select<(Users & { followCreatedAt: Date })[]>(
+        Object.keys(UserSelect).reduce(
+          (acc, key) => {
+            acc[key] = `users.${UserSelect[key]}`;
+            return acc;
+          },
+          {
+            followCreatedAt: `follows.created_at`,
+          },
+        ),
       )
-      .select({ followCreatedAt: `${TABLES.FOLLOWS}.created_at` })
       .limit(limit)
-      .orderBy(`${TABLES.FOLLOWS}.created_at`, "desc");
+      .orderBy("follows.created_at", "desc");
     return listQuery;
   }
 
   getFollowingCount(userId) {
-    return this.query(this.tableName)
+    return this.query("follows")
       .where({ follower_id: userId })
       .count<{ count: number }>("id as count")
       .first();
   }
 
   findById(id: string) {
-    return this.query(this.tableName).select<Follow>(FollowSelect).where({ id }).first();
+    return this.query("follows").select<Follow>(FollowSelect).where({ id }).first();
   }
 
   findFollowingIds(userId: string) {
-    return this.query(this.tableName)
+    return this.query("follows")
       .select("following_id")
       .where({ follower_id: userId })
       .pluck("following_id");
   }
 
   findFollowerIds(userId: string) {
-    return this.query(this.tableName)
+    return this.query("follows")
       .select("follower_id")
       .where({ following_id: userId })
       .pluck("follower_id");
   }
 
   delete(id: string) {
-    return this.softDelete(this.tableName, id);
+    return this.softDelete("follows", id);
   }
 
   create(follow: Partial<Follow>) {
     const now = new Date();
-    return this.knex(this.tableName)
+    return this.knex("follows")
       .insert({
         id: follow.id || generateId(),
         follower_id: follow.followerId,

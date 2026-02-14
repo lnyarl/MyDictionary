@@ -1,33 +1,29 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES, User } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
 import { UserSelect } from "@stashy/shared/entities/user.entity";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class UsersRepository extends BaseRepository {
-  private tableName = TABLES.USERS;
-
   findById(id: string) {
-    return this.query(this.tableName).select<User>(UserSelect).where({ id }).first();
+    return this.query("users").select<Users>(UserSelect).where({ id }).first();
   }
 
   findByGoogleId(googleId: string) {
-    return this.query(this.tableName)
-      .select<User>(UserSelect)
-      .where({ google_id: googleId })
-      .first();
+    return this.query("users").select<Users>(UserSelect).where({ google_id: googleId }).first();
   }
 
   findByEmail(email: string) {
-    return this.query(this.tableName).select<User>(UserSelect).where({ email }).first();
+    return this.query("users").select<Users>(UserSelect).where({ email }).first();
   }
 
   findByNickname(nickname: string) {
-    return this.query(this.tableName).select<User>(UserSelect).where({ nickname }).first();
+    return this.query("users").select<Users>(UserSelect).where({ nickname }).first();
   }
 
-  async updateNickname(userId: string, nickname: string): Promise<User> {
-    const [result] = await this.knex(this.tableName)
+  updateNickname(userId: string, nickname: string) {
+    return this.knex("users")
       .update({ nickname })
       .where({ id: userId })
       .returning([
@@ -40,13 +36,12 @@ export class UsersRepository extends BaseRepository {
         "updated_at as updatedAt",
         "deleted_at as deletedAt",
       ]);
-    return result;
   }
 
   async updateProfile(
     userId: string,
     updates: { nickname?: string; bio?: string; profilePicture?: string },
-  ): Promise<User> {
+  ): Promise<Users> {
     const dbUpdates: any = { ...updates };
     if (updates.profilePicture) {
       dbUpdates.profile_picture = updates.profilePicture;
@@ -57,10 +52,10 @@ export class UsersRepository extends BaseRepository {
     });
 
     if (Object.keys(dbUpdates).length === 0) {
-      return this.findById(userId) as Promise<User>;
+      return this.findById(userId) as Promise<Users>;
     }
 
-    const [result] = await this.knex(this.tableName)
+    const [result] = await this.knex("users")
       .update(dbUpdates)
       .where({ id: userId })
       .returning([
@@ -77,9 +72,9 @@ export class UsersRepository extends BaseRepository {
     return result;
   }
 
-  insert(data: Partial<User>): Promise<User> {
+  insert(data: Partial<Users>): Promise<Users> {
     const now = new Date();
-    return this.knex(this.tableName)
+    return this.knex("users")
       .insert({
         id: data.id || generateId(),
         google_id: data.googleId || null,

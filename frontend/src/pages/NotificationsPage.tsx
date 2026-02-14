@@ -112,7 +112,7 @@ export default function NotificationsPage() {
     <Page>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3  mt-2 sm:mx-2">
+          <h1 className="text-3xl font-bold flex items-center gap-3 mt-2 sm:mx-2">
             <Bell className="h-8 w-8" />
             {t("common.notification")}
           </h1>

@@ -1,16 +1,15 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { TABLES, TableName, Term, TermSelect } from "@stashy/shared";
+import { TermSelect } from "@stashy/shared";
+import { Terms } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class TermsRepository extends BaseRepository {
-  private tableName: TableName = TABLES.TERMS;
-
   search(term: string, limit: number, cursor?: string) {
     const searchPattern = `%${term}%`;
-    const subquery = this.query(TABLES.DEFINITIONS)
-      .leftJoin(`${this.tableName} as t`, `definitions.term_id`, `t.id`)
-      .leftJoin(`${TABLES.USERS} as u`, `u.id`, `definitions.user_id`)
+    const subquery = this.query("definitions")
+      .leftJoin(`terms as t`, `definitions.term_id`, `t.id`)
+      .leftJoin(`users as u`, `u.id`, `definitions.user_id`)
       .where((builder) => {
         builder
           .where(`t.text`, "ilike", searchPattern)
@@ -56,6 +55,6 @@ export class TermsRepository extends BaseRepository {
   }
 
   async findById(id: string) {
-    return this.query(this.tableName).select<Term>(TermSelect).where({ id }).first();
+    return this.query("terms").select<Terms>(TermSelect).where({ id }).first();
   }
 }

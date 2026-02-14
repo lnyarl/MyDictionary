@@ -3,19 +3,21 @@
  * DO NOT EDIT MANUALLY.
  */
 
-export type AdminUsersTable = {
+export type AdminRole = "super_admin" | "developer" | "operator";
+
+export type admin_users = {
   id: string;
   username: string;
   password: string;
-  role: any;
+  role: AdminRole;
   must_change_password?: boolean | null;
-  last_login?: any | null;
-  created_at?: any | null;
-  updated_at?: any | null;
-  deleted_at?: any | null;
+  last_login?: Date | null;
+  created_at?: Date | null;
+  updated_at?: Date | null;
+  deleted_at?: Date | null;
 };
 
-export type BadgesTable = {
+export type badges = {
   id: string;
   code: string;
   name: string;
@@ -25,86 +27,86 @@ export type BadgesTable = {
   event_type: string;
   threshold: number;
   is_active: boolean;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type DefinitionHistoriesTable = {
+export type definition_histories = {
   id: string;
   definition_id: string;
   content: string;
   tags?: any | null;
   media_urls?: any | null;
-  created_at: any;
+  created_at: Date;
 };
 
-export type DefinitionsTable = {
+export type definitions = {
   id: string;
   content: string;
   word_id: string;
   user_id: string;
   term_id: string;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
   tags?: any | null;
   media_urls?: any | null;
   is_public: boolean;
 };
 
-export type EventAggregatesTable = {
+export type event_aggregates = {
   id: string;
   type: string;
   user_id?: string | null;
   aggregate_key: string;
   count: number;
-  first_occurrence: any;
-  last_occurrence: any;
+  first_occurrence: Date;
+  last_occurrence: Date;
   metadata?: any | null;
-  period_start: any;
-  period_end: any;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  period_start: Date;
+  period_end: Date;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type EventsTable = {
+export type events = {
   id: string;
   type: string;
   user_id?: string | null;
   payload: any;
   metadata?: any | null;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type FollowsTable = {
+export type follows = {
   id: string;
   follower_id: string;
   following_id: string;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type LikesTable = {
+export type likes = {
   id: string;
   user_id: string;
   definition_id: string;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type MigrationHistoryTable = {
+export type migration_history = {
   sequence_id: number;
   filename: string;
-  executed_at?: any | null;
+  executed_at?: Date | null;
 };
 
-export type NotificationsTable = {
+export type notifications = {
   id: string;
   user_id: string;
   type: string;
@@ -113,23 +115,23 @@ export type NotificationsTable = {
   actor_id?: string | null;
   target_url?: string | null;
   is_read: boolean;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type RefreshTokensTable = {
+export type refresh_tokens = {
   id: string;
   user_id: string;
   token: string;
-  expires_at: any;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  expires_at: Date;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
   from_admin: boolean;
 };
 
-export type ReportsTable = {
+export type reports = {
   id: string;
   reporter_id: string;
   reported_user_id: string;
@@ -137,87 +139,87 @@ export type ReportsTable = {
   reason: string;
   status: string;
   description?: string | null;
-  created_at: any;
-  updated_at: any;
-  resolved_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  resolved_at?: Date | null;
 };
 
-export type TermsTable = {
+export type terms = {
   id: string;
   text: string;
   number: number;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type UserBadgeProgressTable = {
+export type user_badge_progress = {
   id: string;
   user_id: string;
   event_type: string;
   count: number;
-  last_updated: any;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  last_updated: Date;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type UserBadgesTable = {
+export type user_badges = {
   id: string;
   user_id: string;
   badge_id: string;
-  earned_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  earned_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type UserLoginStreaksTable = {
+export type user_login_streaks = {
   id: string;
   user_id: string;
   current_streak: number;
   longest_streak: number;
-  last_login_at: any;
-  created_at?: any | null;
-  updated_at?: any | null;
+  last_login_at: Date;
+  created_at?: Date | null;
+  updated_at?: Date | null;
 };
 
-export type UsersTable = {
+export type users = {
   id: string;
   google_id?: string | null;
   email: string;
   nickname: string;
   profile_picture?: string | null;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
   bio?: string | null;
-  suspended_at?: any | null;
+  suspended_at?: Date | null;
 };
 
-export type VwDefinitionsWithLikesTable = {
-  id?: string | null;
+export type vw_definitions_with_likes = {
+  id: string;
   content?: string | null;
   word_id?: string | null;
   user_id?: string | null;
   term_id?: string | null;
-  created_at?: any | null;
-  updated_at?: any | null;
-  deleted_at?: any | null;
+  created_at?: Date | null;
+  updated_at?: Date | null;
+  deleted_at?: Date | null;
   tags?: any | null;
   media_urls?: any | null;
   is_public?: boolean | null;
   likes_count?: string | null;
 };
 
-export type VwLatestDefinitionsTable = {
-  id?: string | null;
+export type vw_latest_definitions = {
+  id: string;
   content?: string | null;
   word_id?: string | null;
   user_id?: string | null;
   term_id?: string | null;
-  created_at?: any | null;
-  updated_at?: any | null;
-  deleted_at?: any | null;
+  created_at?: Date | null;
+  updated_at?: Date | null;
+  deleted_at?: Date | null;
   tags?: any | null;
   media_urls?: any | null;
   is_public?: boolean | null;
@@ -226,28 +228,28 @@ export type VwLatestDefinitionsTable = {
   likes_count?: string | null;
 };
 
-export type VwWordsWithStatsTable = {
-  id?: string | null;
+export type vw_words_with_stats = {
+  id: string;
   term?: string | null;
   user_id?: string | null;
-  created_at?: any | null;
-  updated_at?: any | null;
-  deleted_at?: any | null;
+  created_at?: Date | null;
+  updated_at?: Date | null;
+  deleted_at?: Date | null;
   definition_count?: string | null;
   public_definition_count?: string | null;
   contributor_count?: string | null;
 };
 
-export type WordsTable = {
+export type words = {
   id: string;
   term: string;
   user_id: string;
-  created_at: any;
-  updated_at: any;
-  deleted_at?: any | null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at?: Date | null;
 };
 
-export type DBTableNames = 
+export type DBTableNameStr =
   | "admin_users"
   | "badges"
   | "definition_histories"
@@ -269,3 +271,28 @@ export type DBTableNames =
   | "vw_latest_definitions"
   | "vw_words_with_stats"
   | "words";
+export interface DBTableMap {
+  admin_users: admin_users;
+  badges: badges;
+  definition_histories: definition_histories;
+  definitions: definitions;
+  event_aggregates: event_aggregates;
+  events: events;
+  follows: follows;
+  likes: likes;
+  migration_history: migration_history;
+  notifications: notifications;
+  refresh_tokens: refresh_tokens;
+  reports: reports;
+  terms: terms;
+  user_badge_progress: user_badge_progress;
+  user_badges: user_badges;
+  user_login_streaks: user_login_streaks;
+  users: users;
+  vw_definitions_with_likes: vw_definitions_with_likes;
+  vw_latest_definitions: vw_latest_definitions;
+  vw_words_with_stats: vw_words_with_stats;
+  words: words;
+}
+
+export type DBTableNames = keyof DBTableMap;

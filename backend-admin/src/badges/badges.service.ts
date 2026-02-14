@@ -3,20 +3,19 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { BadgeEntity, CreateBadgeDto, UpdateBadgeDto } from "@stashy/shared";
+import { CreateBadgeDto, UpdateBadgeDto } from "@stashy/shared";
 import {
   PaginatedResponseDto,
   PaginationDto,
 } from "@stashy/shared/admin/dto/pagination.dto";
+import { Badges } from "@stashy/shared/types/db_entity.generated";
 import { BadgesRepository } from "./badges.repository";
 
 @Injectable()
 export class BadgesService {
   constructor(private readonly badgesRepository: BadgesRepository) {}
 
-  async findAll(
-    paginationDto: PaginationDto,
-  ): Promise<PaginatedResponseDto<BadgeEntity>> {
+  async findAll(paginationDto: PaginationDto) {
     const { listQuery, countQuery } = await this.badgesRepository.findAll(
       paginationDto.offset,
       paginationDto.limit,
@@ -25,7 +24,7 @@ export class BadgesService {
     const totalResult = await countQuery;
     const total = totalResult ? Number(totalResult.count) : 0;
 
-    return new PaginatedResponseDto<BadgeEntity>(
+    return new PaginatedResponseDto<Badges>(
       badges,
       total,
       paginationDto.page,

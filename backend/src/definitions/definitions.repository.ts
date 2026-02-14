@@ -1,14 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { Definition, generateId, TABLES } from "@stashy/shared";
+import { Definition, generateId } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { DefinitionSelect, OnlyDefinitionSelect } from "./entities/definition.entity";
 
 @Injectable()
 export class DefinitionsRepository extends BaseRepository {
-  private tableName = TABLES.DEFINITIONS;
-
   findByUserId(userId: string, limit: number, cursor?: string) {
-    const baseQuery = this.query(this.tableName).where({ user_id: userId });
+    const baseQuery = this.query("definitions").where({ user_id: userId });
 
     if (cursor) {
       baseQuery.where("created_at", "<", cursor);
@@ -24,27 +22,27 @@ export class DefinitionsRepository extends BaseRepository {
   }
 
   getTermIdByTerm(term: string) {
-    return this.query(TABLES.TERMS).where({ text: term }).select<{ id: string }[]>("id");
+    return this.query("terms").where({ text: term }).select<{ id: string }[]>("id");
   }
 
   findById(definitionId: string) {
-    return this.query(this.tableName)
+    return this.query("definitions")
       .select<Definition>(OnlyDefinitionSelect)
       .where({ id: definitionId })
       .first();
   }
 
   findByWordIdAndUserId(wordId: string, userId: string) {
-    return this.query(this.tableName)
+    return this.query("definitions")
       .select<Definition[]>(OnlyDefinitionSelect)
       .where({ word_id: wordId, user_id: userId })
       .orderBy("created_at", "desc");
   }
 
   findByIdWithPublic(definitionId: string) {
-    return this.query(this.tableName)
-      .leftJoin(TABLES.WORDS, `${TABLES.WORDS}.id`, `${this.tableName}.word_id`)
-      .leftJoin(TABLES.USERS, `${TABLES.USERS}.id`, `${this.tableName}.user_id`)
+    return this.query("definitions")
+      .leftJoin("words", `words.id`, `definitions.word_id`)
+      .leftJoin("users", `users.id`, `definitions.user_id`)
       .select<
         Definition & {
           wordUserId: string;
@@ -53,45 +51,43 @@ export class DefinitionsRepository extends BaseRepository {
           term: string;
         }
       >({
-        id: `${this.tableName}.id`,
-        wordId: `${this.tableName}.word_id`,
+        id: `definitions.id`,
+        wordId: `definitions.word_id`,
         term: "words.term",
-        termId: `${this.tableName}.term_id`,
-        userId: `${this.tableName}.user_id`,
-        content: `${this.tableName}.content`,
-        tags: `${this.tableName}.tags`,
-        isPublic: `${this.tableName}.is_public`,
-        mediaUrls: `${this.tableName}.media_urls`,
-        createdAt: `${this.tableName}.created_at`,
-        updatedAt: `${this.tableName}.updated_at`,
-        wordUserId: `${TABLES.WORDS}.user_id`,
+        termId: `definitions.term_id`,
+        userId: `definitions.user_id`,
+        content: `definitions.content`,
+        tags: `definitions.tags`,
+        isPublic: `definitions.is_public`,
+        mediaUrls: `definitions.media_urls`,
+        createdAt: `definitions.created_at`,
+        updatedAt: `definitions.updated_at`,
+        wordUserId: `words.user_id`,
         nickname: "users.nickname",
         profilePicture: `users.profile_picture`,
       })
-      .where({ [`${this.tableName}.id`]: definitionId })
-      .groupBy(`${this.tableName}.id`, `${TABLES.WORDS}.id`, "users.id")
+      .where({ "definitions.id": definitionId })
+      .groupBy(`definitions.id`, `words.id`, "users.id")
       .first();
   }
 
   findByTerm(term: string, userId?: string) {
-    const baseQuery = this.query(this.tableName)
-      .innerJoin(TABLES.WORDS, `${TABLES.WORDS}.id`, `${this.tableName}.word_id`)
-      .innerJoin(TABLES.USERS, `${TABLES.USERS}.id`, `${this.tableName}.user_id`)
-      .where(`${TABLES.WORDS}.term`, `${term}`);
+    const baseQuery = this.query("definitions")
+      .innerJoin("words", `words.id`, `definitions.word_id`)
+      .innerJoin("users", `users.id`, `definitions.user_id`)
+      .where(`words.term`, `${term}`);
 
     if (userId) {
       baseQuery.where((builder) => {
-        builder
-          .where({ [`${this.tableName}.is_public`]: true })
-          .orWhere({ [`${this.tableName}.user_id`]: userId });
+        builder.where({ "definitions.is_public": true }).orWhere({ "definitions.user_id": userId });
       });
     } else {
-      baseQuery.where({ [`${this.tableName}.is_public`]: true });
+      baseQuery.where({ "definitions.is_public": true });
     }
 
     return baseQuery
       .select<Definition[]>(DefinitionSelect)
-      .orderBy(`${this.tableName}.created_at`, "DESC");
+      .orderBy(`definitions.created_at`, "DESC");
   }
 
   findAllByWordId(wordId: string) {
@@ -126,14 +122,14 @@ export class DefinitionsRepository extends BaseRepository {
   }
 
   getCountByUserId(userId: string) {
-    return this.query(this.tableName)
+    return this.query("definitions")
       .where({ user_id: userId })
       .count<{ count: number }>("* as count")
       .first();
   }
 
   delete(id: string): Promise<void> {
-    return this.softDelete(this.tableName, id);
+    return this.softDelete("definitions", id);
   }
 
   create(definition: Partial<Definition>) {
@@ -156,7 +152,7 @@ export class DefinitionsRepository extends BaseRepository {
       insertData.tags = this.knex.raw("'{}'::text[]");
     }
 
-    return this.knex(this.tableName)
+    return this.knex("definitions")
       .insert(insertData)
       .returning([
         "id",
@@ -198,7 +194,7 @@ export class DefinitionsRepository extends BaseRepository {
       updateData.media_urls = JSON.stringify(definition.mediaUrls);
     }
 
-    return this.knex(this.tableName)
+    return this.knex("definitions")
       .where({ id })
       .whereNull("deleted_at")
       .update(updateData)

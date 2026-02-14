@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 
 interface SitemapItem {
@@ -12,17 +11,17 @@ interface SitemapItem {
 @Injectable()
 export class SitemapService extends BaseRepository {
   async getWordsForSitemap(limit = 50000): Promise<SitemapItem[]> {
-    const words = await this.query(TABLES.WORDS)
-      .select([`${TABLES.WORDS}.term`, `${TABLES.WORDS}.updated_at as updatedAt`])
+    const words = await this.query("words")
+      .select([`words.term`, `words.updated_at as updatedAt`])
       .whereExists(function () {
         this.select("*")
-          .from(TABLES.DEFINITIONS)
-          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
-          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
-          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+          .from("definitions")
+          .whereRaw(`definitions.word_id = words.id`)
+          .andWhere(`definitions.is_public`, true)
+          .whereNull(`definitions.deleted_at`);
       })
-      .whereNull(`${TABLES.WORDS}.deleted_at`)
-      .orderBy(`${TABLES.WORDS}.updated_at`, "desc")
+      .whereNull(`words.deleted_at`)
+      .orderBy(`words.updated_at`, "desc")
       .limit(limit);
 
     return words.map((word) => ({
@@ -34,17 +33,17 @@ export class SitemapService extends BaseRepository {
   }
 
   async getTermsForSitemap(limit = 50000): Promise<SitemapItem[]> {
-    const terms = await this.query(TABLES.TERMS)
-      .select([`${TABLES.TERMS}.text`, `${TABLES.TERMS}.updated_at as updatedAt`])
+    const terms = await this.query("terms")
+      .select([`terms.text`, `terms.updated_at as updatedAt`])
       .whereExists(function () {
         this.select("*")
-          .from(TABLES.DEFINITIONS)
-          .whereRaw(`${TABLES.DEFINITIONS}.term_id = ${TABLES.TERMS}.id`)
-          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
-          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+          .from("definitions")
+          .whereRaw(`definitions.term_id = terms.id`)
+          .andWhere(`definitions.is_public`, true)
+          .whereNull(`definitions.deleted_at`);
       })
-      .whereNull(`${TABLES.TERMS}.deleted_at`)
-      .orderBy(`${TABLES.TERMS}.updated_at`, "desc")
+      .whereNull(`terms.deleted_at`)
+      .orderBy(`terms.updated_at`, "desc")
       .limit(limit);
 
     return terms.map((term) => ({

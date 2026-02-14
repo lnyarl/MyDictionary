@@ -1,21 +1,21 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import type { Word } from "../words/entities/word.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
   createTerm(term: string) {
-    return this.knex(TABLES.TERMS).insert({ text: term }).returning(["number"]);
+    return this.knex("terms").insert({ text: term }).returning(["number"]);
   }
 
   findTerm(term: string) {
-    return this.knex(TABLES.TERMS).where("text", term).first();
+    return this.knex("terms").where("text", term).first();
   }
 
   createWord(word: Omit<Word, "id" | "createdAt" | "updatedAt" | "deletedAt">) {
     const now = new Date();
-    return this.knex(TABLES.WORDS)
+    return this.knex("words")
       .insert({
         id: generateId(),
         term: word.term,
@@ -34,12 +34,10 @@ export class FeedRepository extends BaseRepository {
   }
 
   findUserFeeds(userId: string, withPrivate: boolean, limit: number, cursor?: string) {
-    const baseQuery = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
+    const baseQuery = this.query("vw_definitions_with_likes as definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .where("definitions.user_id", userId)
       .whereNull("words.deleted_at");
 
@@ -72,12 +70,10 @@ export class FeedRepository extends BaseRepository {
   }
 
   findFeeds(userIds: string[], limit: number, cursor?: string) {
-    const baseQuery = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
+    const baseQuery = this.query("definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .whereIn("definitions.user_id", userIds)
       .whereNull("words.deleted_at")
       .where("definitions.is_public", true);
@@ -105,12 +101,10 @@ export class FeedRepository extends BaseRepository {
   }
 
   findAllFeeds(myUserId: string, limit: number, cursor?: string) {
-    const query = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
+    const query = this.query("definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .andWhere("definitions.is_public", true);
 
@@ -134,12 +128,10 @@ export class FeedRepository extends BaseRepository {
   }
 
   findRecommendations(limit: number, cursor?: string, excludeUserId?: string) {
-    const query = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
+    const query = this.query("vw_definitions_with_likes as definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
       .where("definitions.is_public", true);
@@ -171,28 +163,26 @@ export class FeedRepository extends BaseRepository {
   }
 
   findWordByTerm(userId: string, term: string) {
-    return this.query(TABLES.WORDS)
-      .leftJoin(TABLES.TERMS, `${TABLES.WORDS}.term`, `${TABLES.TERMS}.text`)
+    return this.query("words")
+      .leftJoin("terms", `words.term`, "terms.text")
       .select({
-        id: `${TABLES.WORDS}.id`,
-        term: `${TABLES.WORDS}.term`,
-        userId: `${TABLES.WORDS}.user_id`,
-        createdAt: `${TABLES.WORDS}.created_at`,
-        updatedAt: `${TABLES.WORDS}.updated_at`,
-        deletedAt: `${TABLES.WORDS}.deleted_at`,
-        termNumber: `${TABLES.TERMS}.number`,
+        id: `words.id`,
+        term: `words.term`,
+        userId: `words.user_id`,
+        createdAt: `words.created_at`,
+        updatedAt: `words.updated_at`,
+        deletedAt: `words.deleted_at`,
+        termNumber: `terms.number`,
       })
-      .where({ [`${TABLES.WORDS}.user_id`]: userId, [`${TABLES.WORDS}.term`]: term })
+      .where({ "words.user_id": userId, "words.term": term })
       .first();
   }
 
   findFeedByTerm(term: string, limit: number, cursor?: string) {
-    const query = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
+    const query = this.query("vw_definitions_with_likes as definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
       .where("definitions.is_public", true)
@@ -219,12 +209,10 @@ export class FeedRepository extends BaseRepository {
   }
 
   findFeedsByTag(tag: string, limit: number, cursor?: string) {
-    const query = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
+    const query = this.query("vw_definitions_with_likes as definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
       .where("definitions.is_public", true)
@@ -254,13 +242,10 @@ export class FeedRepository extends BaseRepository {
   }
 
   findLikedFeeds(userId: string, limit: number, cursor?: string) {
-    const query = this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.USERS, "definitions.user_id", "users.id")
-      .leftJoin(TABLES.WORDS, "definitions.word_id", "words.id")
-      .leftJoin(TABLES.TERMS, "words.term", "terms.text")
-      .innerJoin(TABLES.LIKES, "definitions.id", "likes.definition_id")
+    const query = this.query("definitions")
+      .leftJoin("users", "definitions.user_id", "users.id")
+      .leftJoin("words", "definitions.word_id", "words.id")
+      .leftJoin("terms", "words.term", "terms.text")
       .whereNull("words.deleted_at")
       .whereNull("users.deleted_at")
       .whereNull("likes.deleted_at")
@@ -279,7 +264,6 @@ export class FeedRepository extends BaseRepository {
         content: "definitions.content",
         wordId: "definitions.word_id",
         userId: "definitions.user_id",
-        likesCount: "definitions.likes_count",
         createdAt: "definitions.created_at",
         updatedAt: "definitions.updated_at",
         nickname: "users.nickname",

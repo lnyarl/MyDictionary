@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type { TableName } from "@stashy/shared";
+import type { DBTableMap, DBTableNames } from "@stashy/shared";
 import type { Knex } from "knex";
 import { KNEX_CONNECTION } from "./knex.provider";
 
@@ -28,7 +28,10 @@ export abstract class BaseRepository {
   /**
    * Get base query with soft delete filtering
    */
-  protected query(tableName: string, withDeleted = false): Knex.QueryBuilder {
+  protected query<K extends DBTableNames>(
+    tableName: K,
+    withDeleted = false,
+  ): Knex.QueryBuilder {
     const query = this.knex(tableName);
     if (!withDeleted) {
       query.whereNull(`${tableName}.deleted_at`);
@@ -36,30 +39,17 @@ export abstract class BaseRepository {
     return query;
   }
 
-  /**
-   * Update a record by ID
-   */
-  protected async update<T>(
-    tableName: TableName,
-    id: string,
-    data: any,
-  ): Promise<T | null> {
-    const [record] = await this.knex(tableName)
-      .where({ id })
-      .whereNull("deleted_at")
-      .update({
-        data,
-        updated_at: new Date(),
-      })
-      .returning("*");
-
-    return record ?? null;
+  protected getPrimary<K extends DBTableNames>(tableName: K) {
+    return this.knex<DBTableMap[K]>(tableName);
   }
 
   /**
    * Soft delete a record
    */
-  protected async softDelete(tableName: TableName, id: string): Promise<void> {
+  protected async softDelete(
+    tableName: DBTableNames,
+    id: string,
+  ): Promise<void> {
     await this.knex(tableName).where({ id }).whereNull("deleted_at").update({
       deleted_at: new Date(),
       updated_at: new Date(),
@@ -69,7 +59,7 @@ export abstract class BaseRepository {
   /**
    * Restore a soft-deleted record
    */
-  protected async restore(tableName: TableName, id: string): Promise<void> {
+  protected async restore(tableName: DBTableNames, id: string): Promise<void> {
     await this.knex(tableName).where({ id }).whereNotNull("deleted_at").update({
       deleted_at: null,
       updated_at: new Date(),
@@ -79,7 +69,7 @@ export abstract class BaseRepository {
   /**
    * Hard delete a record
    */
-  protected async delete(tableName: TableName, id: string): Promise<void> {
+  protected async delete(tableName: DBTableNames, id: string): Promise<void> {
     await this.knex(tableName).where({ id }).delete();
   }
 

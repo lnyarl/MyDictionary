@@ -1,58 +1,55 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES } from "@stashy/shared";
-import { UserSelect } from "@stashy/shared/entities/user.entity";
+import { generateId } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Notification, NotificationSelect, NotificationType } from "./entities/notification.entity";
 
 @Injectable()
 export class NotificationsRepository extends BaseRepository {
-  private tableName = TABLES.NOTIFICATIONS;
-
   findByUserId(userId: string, limit: number, cursor?: string) {
-    const baseQuery = this.query(this.tableName).where({ user_id: userId });
+    const baseQuery = this.query("notifications").where({ user_id: userId });
 
     if (cursor) {
-      baseQuery.where(`${this.tableName}.created_at`, "<", cursor);
+      baseQuery.where(`notifications.created_at`, "<", cursor);
     }
 
     const listQuery = baseQuery
       .clone()
-      .leftJoin(TABLES.USERS, `${this.tableName}.actor_id`, `${TABLES.USERS}.id`)
+      .leftJoin("users", `notifications.actor_id`, `notifications.id`)
       .select({
         ...NotificationSelect,
         nickname: "users.nickname",
         profilePicture: "users.profile_picture",
       })
-      .orderBy(`${this.tableName}.created_at`, "desc")
+      .orderBy(`notifications.created_at`, "desc")
       .limit(limit);
 
     return listQuery;
   }
 
   findById(id: string): Promise<Notification | null> {
-    return this.query(this.tableName).select(NotificationSelect).where({ id }).first();
+    return this.query("notifications").select(NotificationSelect).where({ id }).first();
   }
 
   getUnreadCount(userId: string) {
-    return this.query(this.tableName)
+    return this.query("notifications")
       .where({ user_id: userId, is_read: false })
       .count<{ count: number }>("* as count")
       .first();
   }
 
-  markAsRead(id: string): Promise<Notification | null> {
-    return this.update<Notification>(this.tableName, id, { is_read: true });
+  markAsRead(id: string) {
+    return this.query("notifications").where({ id: id }).update({ is_read: true }).returning("*");
   }
 
   markAllAsRead(userId: string): Promise<void> {
-    return this.knex(this.tableName)
+    return this.knex("notifications")
       .where({ user_id: userId, is_read: false })
       .whereNull("deleted_at")
       .update({ is_read: true, updated_at: new Date() });
   }
 
   delete(id: string): Promise<void> {
-    return this.softDelete(this.tableName, id);
+    return this.softDelete("notifications", id);
   }
 
   create(notification: {
@@ -64,7 +61,7 @@ export class NotificationsRepository extends BaseRepository {
     targetUrl?: string;
   }): Promise<Notification[]> {
     const now = new Date();
-    return this.knex(this.tableName)
+    return this.knex("notifications")
       .insert({
         id: generateId(),
         user_id: notification.userId,

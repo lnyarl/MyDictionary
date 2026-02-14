@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { LoginStreak, LoginStreaksRepository } from "./login-streaks.repository";
+import { UserLoginStreaks } from "@stashy/shared/types/db_entity.generated";
+import { LoginStreaksRepository } from "./login-streaks.repository";
 
 @Injectable()
 export class LoginStreaksService {
@@ -51,7 +52,7 @@ export class LoginStreaksService {
     return { areadyChecked: false, streak: newStreak };
   }
 
-  async getStreak(userId: string): Promise<LoginStreak | null> {
-    return this.loginStreaksRepository.findByUserId(userId);
+  async getStreak(userId: string) {
+    return await this.loginStreaksRepository.findByUserId(userId);
   }
 }

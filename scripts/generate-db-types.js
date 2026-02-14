@@ -26,6 +26,10 @@ const DB_CONTAINER = "stashy-db-dev";
 const DB_USER = process.env.DB_USERNAME || "mystashy";
 const DB_NAME = process.env.DB_DATABASE || "stashy";
 const OUTPUT_FILE = path.join(__dirname, "../shared/src/types/db.generated.ts");
+const DB_ENTITY_OUTPUT_FILE = path.join(
+  __dirname,
+  "../shared/src/types/db_entity.generated.ts",
+);
 
 const TYPE_MAPPING = {
   integer: "number",
@@ -41,9 +45,10 @@ const TYPE_MAPPING = {
   uuid: "string",
   "character varying": "string",
   character: "string",
-  timestamp: "string",
-  "timestamp with time zone": "string",
-  date: "string",
+  timestamp: "Date",
+  "timestamp with time zone": "Date",
+  "timestamp without time zone": "Date",
+  date: "Date",
   time: "string",
   json: "any",
   jsonb: "any",
@@ -56,14 +61,21 @@ function toPascalCase(str) {
     .join("");
 }
 
-function run() {
+function toCamelCase(str) {
+  const p = toPascalCase(str);
+  return p.charAt(0).toLowerCase() + p.slice(1);
+}
+
+function getTableData() {
   console.log("=== Generating Database Types ===");
-  console.log(`Querying database '${DB_NAME}' in container '${DB_CONTAINER}'...`);
+  console.log(
+    `Querying database '${DB_NAME}' in container '${DB_CONTAINER}'...`,
+  );
 
   try {
     const sql = `
 SELECT json_agg(t) FROM (
-  SELECT table_name, column_name, data_type, is_nullable 
+  SELECT table_name, column_name, data_type, is_nullable, udt_name
   FROM information_schema.columns 
   WHERE table_schema = 'public' 
   AND table_name NOT LIKE 'knex_%'
@@ -88,7 +100,63 @@ SELECT json_agg(t) FROM (
       throw new Error("Failed to parse database schema.");
     }
 
+    return data;
+  } catch (error) {
+    console.error("\nError during get typedata:");
+    console.error(error.message);
+    if (error.stdout) console.error("stdout:", error.stdout);
+    if (error.stderr) console.error("stderr:", error.stderr);
+    process.exit(1);
+  }
+}
+
+function getEnumTypes() {
+  console.log("Querying enum types...");
+
+  try {
+    const sql = `
+SELECT json_agg(t) FROM (
+  SELECT 
+    t.typname as enum_name,
+    array_agg(e.enumlabel ORDER BY e.enumsortorder) as enum_values
+  FROM pg_type t 
+  JOIN pg_enum e ON t.oid = e.enumtypid 
+  WHERE t.typtype = 'e' 
+  GROUP BY t.typname
+  ORDER BY t.typname
+) t;
+`.trim();
+
+    const output = execSync(
+      `docker exec -i ${DB_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME} -t -A`,
+      {
+        input: sql,
+        encoding: "utf8",
+      },
+    );
+
+    if (!output || output.trim() === "") {
+      return [];
+    }
+
+    const data = JSON.parse(output);
+    return data || [];
+  } catch (error) {
+    console.warn("\nWarning: Could not fetch enum types:");
+    console.warn(error.message);
+    return [];
+  }
+}
+
+function makeCommonTypes(data, enumTypes = []) {
+  try {
     const tables = {};
+    const enumTypeMap = {};
+
+    for (const enumInfo of enumTypes) {
+      enumTypeMap[enumInfo.enum_name] = enumInfo.enum_values;
+    }
+
     for (const row of data) {
       if (!tables[row.table_name]) {
         tables[row.table_name] = [];
@@ -103,12 +171,28 @@ SELECT json_agg(t) FROM (
 
 `;
 
+    for (const [enumName, enumValues] of Object.entries(enumTypeMap)) {
+      const typeName = toPascalCase(enumName);
+      tsContent += `export type ${typeName} = \n`;
+      enumValues.forEach((value, index) => {
+        tsContent += `  | "${value}"${index === enumValues.length - 1 ? ";" : ""}\n`;
+      });
+      tsContent += "\n";
+    }
+
     for (const [tableName, columns] of Object.entries(tables)) {
-      const typeName = `${toPascalCase(tableName)}Table`;
-      tsContent += `export type ${typeName} = {\n`;
+      const typeName = tableName;
+      tsContent += `export type ${tableName} = {\n`;
 
       for (const col of columns) {
-        const tsType = TYPE_MAPPING[col.data_type] || "any";
+        let tsType;
+
+        if (col.data_type === "USER-DEFINED" && enumTypeMap[col.udt_name]) {
+          tsType = toPascalCase(col.udt_name);
+        } else {
+          tsType = TYPE_MAPPING[col.data_type] || "any";
+        }
+
         const isNullable = col.is_nullable === "YES";
         const propertyName = col.column_name;
 
@@ -119,10 +203,18 @@ SELECT json_agg(t) FROM (
     }
 
     const tableNames = Object.keys(tables);
-    tsContent += "export type DBTableNames = \n";
+    tsContent += "export type DBTableNameStr = \n";
     tableNames.forEach((name, index) => {
       tsContent += `  | "${name}"${index === tableNames.length - 1 ? ";" : ""}\n`;
     });
+
+    tsContent += "export interface DBTableMap {\n";
+    tableNames.forEach((name) => {
+      tsContent += `  ${name} : ${name};\n`;
+    });
+    tsContent += "}\n\n";
+
+    tsContent += "export type DBTableNames = keyof DBTableMap;";
 
     const dir = path.dirname(OUTPUT_FILE);
     if (!fs.existsSync(dir)) {
@@ -130,7 +222,9 @@ SELECT json_agg(t) FROM (
     }
 
     fs.writeFileSync(OUTPUT_FILE, tsContent);
-    console.log(`Successfully generated types for ${tableNames.length} tables.`);
+    console.log(
+      `Successfully generated types for ${tableNames.length} tables and ${enumTypes.length} enums.`,
+    );
     console.log(`Output: ${OUTPUT_FILE}`);
   } catch (error) {
     console.error("\nError during type generation:");
@@ -141,4 +235,129 @@ SELECT json_agg(t) FROM (
   }
 }
 
-run();
+function makeKnexTypes(data, outputFilePath) {
+  try {
+    const tables = {};
+    for (const row of data) {
+      if (!tables[row.table_name]) {
+        tables[row.table_name] = [];
+      }
+      tables[row.table_name].push(row);
+    }
+
+    let tsContent = `/**
+ * This file was automatically generated by scripts/generate-db-types.js.
+ * DO NOT EDIT MANUALLY.
+ */
+
+`;
+    tsContent += `import {\n`;
+    for (const tableName of Object.keys(tables)) {
+      tsContent += `  ${tableName}, \n`;
+    }
+    tsContent += '} from "@stashy/shared";\n\n';
+
+    tsContent += `declare module "knex/types/tables" {
+  export interface Tables {\n`;
+    for (const tableName of Object.keys(tables)) {
+      tsContent += `    ${tableName}: ${tableName},\n`;
+    }
+    tsContent += `  }
+}
+  `;
+
+    fs.writeFileSync(outputFilePath, tsContent);
+    console.log(`Successfully generated types for kenx types`);
+    console.log(`Output: ${outputFilePath}`);
+  } catch (error) {
+    console.error("\nError during type generation:");
+    console.error(error.message);
+    if (error.stdout) console.error("stdout:", error.stdout);
+    if (error.stderr) console.error("stderr:", error.stderr);
+    process.exit(1);
+  }
+}
+
+function makeDatabaseEntity(data, enumTypes = []) {
+  try {
+    const tables = {};
+    const enumTypeMap = {};
+
+    for (const enumInfo of enumTypes) {
+      enumTypeMap[enumInfo.enum_name] = enumInfo.enum_values;
+    }
+
+    for (const row of data) {
+      if (!tables[row.table_name]) {
+        tables[row.table_name] = [];
+      }
+      tables[row.table_name].push(row);
+    }
+
+    let tsContent = `/**
+ * This file was automatically generated by scripts/generate-db-types.js.
+ * DO NOT EDIT MANUALLY.
+ */
+
+`;
+
+    for (const [enumName, enumValues] of Object.entries(enumTypeMap)) {
+      const typeName = toPascalCase(enumName);
+      tsContent += `export type ${typeName} = \n`;
+      enumValues.forEach((value, index) => {
+        tsContent += `  | "${value}"${index === enumValues.length - 1 ? ";" : ""}\n`;
+      });
+      tsContent += "\n";
+    }
+
+    for (const [tableName, columns] of Object.entries(tables)) {
+      const typeName = tableName;
+      tsContent += `export type ${toPascalCase(typeName)} = {\n`;
+
+      for (const col of columns) {
+        let tsType;
+
+        if (col.data_type === "USER-DEFINED" && enumTypeMap[col.udt_name]) {
+          tsType = toPascalCase(col.udt_name);
+        } else {
+          tsType = TYPE_MAPPING[col.data_type] || "any";
+        }
+
+        const isNullable = col.is_nullable === "YES";
+        const propertyName = toCamelCase(col.column_name);
+
+        tsContent += `  ${propertyName}${isNullable ? "?" : ""}: ${tsType}${isNullable ? " | null" : ""};\n`;
+      }
+
+      tsContent += "};\n\n";
+    }
+
+    const dir = path.dirname(DB_ENTITY_OUTPUT_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(DB_ENTITY_OUTPUT_FILE, tsContent);
+    console.log(
+      `Successfully generated types for ${Object.keys(tables).length} tables and ${enumTypes.length} enums.`,
+    );
+    console.log(`Output: ${DB_ENTITY_OUTPUT_FILE}`);
+  } catch (error) {
+    console.error("\nError during type generation:");
+    console.error(error.message);
+    if (error.stdout) console.error("stdout:", error.stdout);
+    if (error.stderr) console.error("stderr:", error.stderr);
+    process.exit(1);
+  }
+}
+
+const tableData = getTableData();
+const enumTypes = getEnumTypes();
+makeCommonTypes(tableData, enumTypes);
+makeKnexTypes(tableData, "./backend/src/common/database/type.generated.ts");
+makeKnexTypes(
+  tableData,
+  "./backend-admin/src/common/database/type.generated.ts",
+);
+
+makeDatabaseEntity(tableData, enumTypes);

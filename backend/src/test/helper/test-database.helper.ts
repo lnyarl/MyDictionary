@@ -1,6 +1,5 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { TABLES } from "@stashy/shared";
 import { Knex } from "knex";
 import { createTestKnexInstance, destroyTestKnexInstance } from "./test-database.module";
 
@@ -54,11 +53,11 @@ export class TestDatabaseHelper {
   }
 
   async cleanAll(): Promise<void> {
-    await this.knex(TABLES.LIKES).del();
-    await this.knex(TABLES.FOLLOWS).del();
-    await this.knex(TABLES.DEFINITIONS).del();
-    await this.knex(TABLES.WORDS).del();
-    await this.knex(TABLES.USERS).del();
+    await this.knex("likes").del();
+    await this.knex("follows").del();
+    await this.knex("definitions").del();
+    await this.knex("words").del();
+    await this.knex("users").del();
   }
 
   async createUser(
@@ -82,7 +81,7 @@ export class TestDatabaseHelper {
     deletedAt: Date | null;
   }> {
     const id = data.id || this.generateId();
-    const [user] = await this.knex(TABLES.USERS)
+    const [user] = await this.knex("users")
       .insert({
         id,
         google_id: data.googleId ?? `google-${id}`,
@@ -115,7 +114,7 @@ export class TestDatabaseHelper {
     deletedAt: Date | null;
   }> {
     const id = data.id || this.generateId();
-    const [word] = await this.knex(TABLES.WORDS)
+    const [word] = await this.knex("words")
       .insert({
         id,
         term: data.term,
@@ -155,7 +154,7 @@ export class TestDatabaseHelper {
     deletedAt: Date | null;
   }> {
     const id = data.id || this.generateId();
-    const [definition] = await this.knex(TABLES.DEFINITIONS)
+    const [definition] = await this.knex("vw_definitions_with_likes")
       .insert({
         id,
         content: data.content,
@@ -172,7 +171,7 @@ export class TestDatabaseHelper {
       content: definition.content,
       wordId: definition.word_id,
       userId: definition.user_id,
-      likesCount: definition.likes_count,
+      likesCount: Number(definition.likes_count ?? 0),
       tags: definition.tags ?? [],
       isPublic: definition.is_public,
       mediaUrls: definition.media_urls ?? [],
@@ -188,7 +187,7 @@ export class TestDatabaseHelper {
     definitionId: string;
   }): Promise<{ id: string; userId: string; definitionId: string; createdAt: Date }> {
     const id = data.id || this.generateId();
-    const [like] = await this.knex(TABLES.LIKES)
+    const [like] = await this.knex("likes")
       .insert({
         id,
         user_id: data.userId,
@@ -210,7 +209,7 @@ export class TestDatabaseHelper {
     followingId: string;
   }): Promise<{ id: string; followerId: string; followingId: string; createdAt: Date }> {
     const id = data.id || this.generateId();
-    const [follow] = await this.knex(TABLES.FOLLOWS)
+    const [follow] = await this.knex("follows")
       .insert({
         id,
         follower_id: data.followerId,

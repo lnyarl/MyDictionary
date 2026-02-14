@@ -10,12 +10,10 @@ export {
   LANGUAGE_NAMES,
   SUPPORTED_LANGUAGES,
 } from "./constants/languages";
-export type { TableName } from "./constants/tables";
-export { TABLES } from "./constants/tables";
 // DTOs
 export { PaginatedResponseDto, PaginationDto } from "./dto/pagination.dto";
 export { SearchTermDto } from "./dto/term/search-term.dto";
-export { TermResponseDto } from "./dto/term/term-response.dto";
+export type { TermResponseDto } from "./dto/term/term-response.dto";
 export type {
   BadgeEntity,
   BadgeWithProgress,

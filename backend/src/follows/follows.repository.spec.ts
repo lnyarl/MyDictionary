@@ -42,7 +42,7 @@ describe("FollowsRepository", () => {
     it("should generate correct query", () => {
       const listQuery = repository.findFollowers("user-123", 20);
       expect(listQuery.toQuery()).toBe(
-        'select "users"."id" as "id", "users"."google_id" as "googleId", "users"."email" as "email", "users"."nickname" as "nickname", "users"."bio" as "bio", "users"."profile_picture" as "profilePicture", "users"."created_at" as "createdAt", "users"."updated_at" as "updatedAt", "users"."deleted_at" as "deletedAt", "users"."suspended_at" as "suspendedAt", "follows"."created_at" as "followCreatedAt" from "follows" left join "users" on "follows"."follower_id" = "users"."id" where "follows"."deleted_at" is null and "following_id" = \'user-123\' order by "follows"."created_at" desc limit 20',
+        'select "follows"."created_at" as "followCreatedAt", "users"."id" as "id", "users"."google_id" as "googleId", "users"."email" as "email", "users"."nickname" as "nickname", "users"."bio" as "bio", "users"."profile_picture" as "profilePicture", "users"."created_at" as "createdAt", "users"."updated_at" as "updatedAt", "users"."deleted_at" as "deletedAt", "users"."suspended_at" as "suspendedAt" from "follows" left join "users" on "follows"."follower_id" = "users"."id" where "follows"."deleted_at" is null and "following_id" = \'user-123\' order by "follows"."created_at" desc limit 20',
       );
     });
   });
@@ -51,7 +51,7 @@ describe("FollowsRepository", () => {
     it("should generate correct query", () => {
       const listQuery = repository.findFollowings("user-123", 15);
       expect(listQuery.toQuery()).toBe(
-        'select "users"."id" as "id", "users"."google_id" as "googleId", "users"."email" as "email", "users"."nickname" as "nickname", "users"."bio" as "bio", "users"."profile_picture" as "profilePicture", "users"."created_at" as "createdAt", "users"."updated_at" as "updatedAt", "users"."deleted_at" as "deletedAt", "users"."suspended_at" as "suspendedAt", "follows"."created_at" as "followCreatedAt" from "follows" left join "users" on "follows"."following_id" = "users"."id" where "follows"."deleted_at" is null and "follower_id" = \'user-123\' order by "follows"."created_at" desc limit 15',
+        'select "follows"."created_at" as "followCreatedAt", "users"."id" as "id", "users"."google_id" as "googleId", "users"."email" as "email", "users"."nickname" as "nickname", "users"."bio" as "bio", "users"."profile_picture" as "profilePicture", "users"."created_at" as "createdAt", "users"."updated_at" as "updatedAt", "users"."deleted_at" as "deletedAt", "users"."suspended_at" as "suspendedAt" from "follows" left join "users" on "follows"."following_id" = "users"."id" where "follows"."deleted_at" is null and "follower_id" = \'user-123\' order by "follows"."created_at" desc limit 15',
       );
     });
   });

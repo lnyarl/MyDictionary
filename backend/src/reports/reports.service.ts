@@ -8,9 +8,11 @@ export class ReportsService {
   constructor(private readonly reportsRepository: ReportsRepository) {}
 
   async create(user: User, createReportDto: CreateReportDto) {
-    return this.reportsRepository.create({
+    const [{ id }] = await this.reportsRepository.create({
       reporterId: user.id,
       ...createReportDto,
     });
+
+    return await this.reportsRepository.findById(id);
   }
 }

@@ -20,6 +20,7 @@
 		"noUncheckedSideEffectImports": true,
 
 		"paths": {
+			"@/*": ["./src/*"],
 			"@stashy/shared": ["../shared/src"],
 			"@stashy/shared/*": ["../shared/src/*"]
 		}

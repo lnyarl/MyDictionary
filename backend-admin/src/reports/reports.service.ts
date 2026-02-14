@@ -3,7 +3,8 @@ import {
   PaginatedResponseDto,
   PaginationDto,
 } from "@stashy/shared/admin/dto/pagination.dto";
-import { Report, ReportStatus } from "./entities/report.entity";
+import { Reports } from "@stashy/shared/types/db_entity.generated";
+import { ReportStatus } from "./entities/report.entity";
 import { ReportsRepository } from "./reports.repository";
 
 @Injectable()
@@ -12,7 +13,7 @@ export class ReportsService {
 
   async findAll(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResponseDto<Report>> {
+  ): Promise<PaginatedResponseDto<Reports>> {
     const { listQuery, countQuery } = await this.reportsRepository.findAll(
       paginationDto.offset,
       paginationDto.limit,
@@ -21,7 +22,7 @@ export class ReportsService {
     const totalResult = await countQuery;
     const total = totalResult ? Number(totalResult.count) : 0;
 
-    return new PaginatedResponseDto<Report>(
+    return new PaginatedResponseDto<Reports>(
       reports,
       total,
       paginationDto.page,

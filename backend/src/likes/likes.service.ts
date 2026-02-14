@@ -1,11 +1,6 @@
 import { InjectQueue } from "@nestjs/bullmq";
-import {
-  ForbiddenException,
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Likes } from "@stashy/shared/types/db_entity.generated";
 import { Queue } from "bullmq";
 import { EventEmitterService } from "../common/events/event-emitter.service";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
@@ -13,7 +8,6 @@ import { NotificationType } from "../notifications/entities/notification.entity"
 import { NotificationsService } from "../notifications/notifications.service";
 import { UsersRepository } from "../users/users.repository";
 import { WordsRepository } from "../words/words.repository";
-import type { Like } from "./entities/like.entity";
 import { LikesRepository } from "./likes.repository";
 
 @Injectable()
@@ -87,8 +81,8 @@ export class LikesService {
     return !!(like && !like.deletedAt);
   }
 
-  async getLikesByDefinition(definitionId: string): Promise<Like[]> {
-    return this.likeRepository.findByDefinitionId(definitionId);
+  async getLikesByDefinition(definitionId: string): Promise<Likes[]> {
+    return await this.likeRepository.findByDefinitionId(definitionId);
   }
 
   async getLikeInfoByDefinitions(definitionIds: string[], userId?: string) {

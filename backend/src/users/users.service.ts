@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto, User } from "@stashy/shared";
+import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { FollowsService } from "../follows/follows.service";
 import { Word } from "../words/entities/word.entity";
@@ -22,24 +23,24 @@ export class UsersService {
     private readonly followsService: FollowsService,
   ) {}
 
-  async findByGoogleId(googleId: string): Promise<User | null> {
+  async findByGoogleId(googleId: string): Promise<Users | null> {
     return await this.userRepository.findByGoogleId(googleId);
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<Users | null> {
     return await this.userRepository.findById(id);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<Users | null> {
     return await this.userRepository.findByEmail(email);
   }
 
-  async create(data: CreateUserDto): Promise<User> {
+  async create(data: CreateUserDto): Promise<Users> {
     const result = await this.userRepository.insert(data);
     return result[0];
   }
 
-  async updateNickname(userId: string, nickname: string): Promise<User> {
+  async updateNickname(userId: string, nickname: string): Promise<Users> {
     const user = await this.findById(userId);
     if (!user) {
       throw new NotFoundException("User not found");
@@ -51,7 +52,7 @@ export class UsersService {
       throw new ConflictException("Nickname is already taken");
     }
 
-    const updated = await this.userRepository.updateNickname(userId, nickname);
+    const [updated] = await this.userRepository.updateNickname(userId, nickname);
     if (!updated) {
       throw new NotFoundException("User not found");
     }
@@ -61,7 +62,7 @@ export class UsersService {
   async updateProfile(
     userId: string,
     updates: { nickname?: string; bio?: string; profilePicture?: string },
-  ): Promise<User> {
+  ): Promise<Users> {
     if (updates.nickname) {
       const existingUser = await this.userRepository.findByNickname(updates.nickname);
       if (existingUser && existingUser.id !== userId) {
@@ -101,7 +102,7 @@ export class UsersService {
     return this.getProfileData(user);
   }
 
-  private async getProfileData(user: User) {
+  private async getProfileData(user: Users) {
     const userId = user.id;
     const wordsCountQuery = this.wordRepository.countPublicByUserId(userId);
     const definitionsCountQuery = this.definitionRepository.getCountByUserId(userId);

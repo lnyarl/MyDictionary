@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { PaginatedResponseDto, User } from "@stashy/shared";
+import { PaginatedResponseDto } from "@stashy/shared";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { DefinitionsRepository } from "../definitions/definitions.repository";
 import { FollowsService } from "../follows/follows.service";
 import { Word } from "../words/entities/word.entity";
@@ -15,7 +16,7 @@ describe("UsersService", () => {
   let definitionRepository: jest.Mocked<DefinitionsRepository>;
   let followsService: jest.Mocked<FollowsService>;
 
-  const mockUser: User = {
+  const mockUser: Users = {
     id: "user-1",
     email: "test@example.com",
     nickname: "testuser",
@@ -165,7 +166,7 @@ describe("UsersService", () => {
     it("should update nickname if available", async () => {
       userRepository.findById.mockResolvedValue(mockUser);
       userRepository.findByNickname.mockResolvedValue(null);
-      userRepository.updateNickname.mockResolvedValue({ ...mockUser, nickname: "newnickname" });
+      userRepository.updateNickname.mockResolvedValue([{ ...mockUser, nickname: "newnickname" }]);
 
       const result = await service.updateNickname("user-1", "newnickname");
 
@@ -174,7 +175,7 @@ describe("UsersService", () => {
 
     it("should throw ConflictException if nickname taken by another user", async () => {
       userRepository.findById.mockResolvedValue(mockUser);
-      userRepository.findByNickname.mockResolvedValue({ ...mockUser, id: "other-user" } as User);
+      userRepository.findByNickname.mockResolvedValue({ ...mockUser, id: "other-user" } as Users);
 
       await expect(service.updateNickname("user-1", "taken")).rejects.toThrow(ConflictException);
     });
@@ -182,7 +183,7 @@ describe("UsersService", () => {
     it("should allow user to keep same nickname", async () => {
       userRepository.findById.mockResolvedValue(mockUser);
       userRepository.findByNickname.mockResolvedValue(mockUser);
-      userRepository.updateNickname.mockResolvedValue(mockUser);
+      userRepository.updateNickname.mockResolvedValue([mockUser]);
 
       const result = await service.updateNickname("user-1", "testuser");
 
@@ -211,7 +212,7 @@ describe("UsersService", () => {
     });
 
     it("should throw ConflictException if nickname is taken", async () => {
-      userRepository.findByNickname.mockResolvedValue({ ...mockUser, id: "other-user" } as User);
+      userRepository.findByNickname.mockResolvedValue({ ...mockUser, id: "other-user" } as Users);
 
       await expect(service.updateProfile("user-1", { nickname: "existing" })).rejects.toThrow(
         ConflictException,

@@ -14,7 +14,7 @@ export class WordsService {
   ) {}
 
   async create(userId: string, createWordDto: CreateWordDto): Promise<Word> {
-    let word: Word;
+    let word: { id: string; term: string };
     const existWord = await this.wordRepository.findByTerm(userId, createWordDto.term);
     if (!existWord) {
       const result = await this.wordRepository.create({

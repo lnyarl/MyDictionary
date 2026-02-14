@@ -1,15 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
+import { DefinitionHistories } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
-import { DefinitionHistory, DefinitionHistorySelect } from "./entities/definition-history.entity";
+import { DefinitionHistorySelect } from "./entities/definition-history.entity";
 
 @Injectable()
 export class DefinitionHistoriesRepository extends BaseRepository {
-  private tableName = TABLES.DEFINITION_HISTORIES;
-
-  create(history: Omit<DefinitionHistory, "id" | "createdAt">) {
+  create(history: Omit<DefinitionHistories, "id" | "createdAt">) {
     const now = new Date();
-    return this.knex(this.tableName)
+    return this.knex("definition_histories")
       .insert({
         id: generateId(),
         definition_id: history.definitionId,
@@ -28,9 +27,9 @@ export class DefinitionHistoriesRepository extends BaseRepository {
       ]);
   }
 
-  findByDefinitionId(definitionId: string): Promise<DefinitionHistory[]> {
-    return this.knex(this.tableName)
-      .select<DefinitionHistory[]>(DefinitionHistorySelect)
+  findByDefinitionId(definitionId: string): Promise<DefinitionHistories[]> {
+    return this.knex("definition_histories")
+      .select<DefinitionHistories[]>(DefinitionHistorySelect)
       .where({ definition_id: definitionId })
       .orderBy("created_at", "desc");
   }

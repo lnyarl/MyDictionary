@@ -1,31 +1,30 @@
 import { Injectable } from "@nestjs/common";
-import { TABLES } from "@stashy/shared/constants/tables";
-import { Report } from "@stashy/shared/entities/report.entity";
+import { Reports } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 import { ReportSelect, ReportStatus } from "./entities/report.entity";
 
 @Injectable()
 export class ReportsRepository extends BaseRepository {
   async findAll(offset: number, limit: number) {
-    const listQuery = this.knex(TABLES.REPORTS)
+    const listQuery = this.knex("reports")
       .select(ReportSelect)
       .offset(offset)
       .limit(limit)
       .orderBy("created_at", "desc");
 
-    const countQuery = this.knex(TABLES.REPORTS)
+    const countQuery = this.knex("reports")
       .count<{ count: number }>("* as count")
       .first();
 
     return { listQuery, countQuery };
   }
 
-  async findById(id: string): Promise<Report | null> {
-    return this.knex(TABLES.REPORTS).where({ id }).select(ReportSelect).first();
+  async findById(id: string): Promise<Reports | null> {
+    return this.knex("reports").where({ id }).select(ReportSelect).first();
   }
 
-  async findByIdWithDetails(id: string): Promise<Report | null> {
-    return this.knex(TABLES.REPORTS)
+  async findByIdWithDetails(id: string): Promise<Reports | null> {
+    return this.knex("reports")
       .leftJoin("users as reporter", "reports.reporter_id", "reporter.id")
       .leftJoin("users as reported", "reports.reported_user_id", "reported.id")
       .leftJoin("definitions", "reports.definition_id", "definitions.id")
@@ -52,8 +51,8 @@ export class ReportsRepository extends BaseRepository {
       .first();
   }
 
-  async updateStatus(id: string, status: ReportStatus): Promise<Report> {
-    const [idOnly] = await this.knex(TABLES.REPORTS)
+  async updateStatus(id: string, status: ReportStatus): Promise<Reports> {
+    const [idOnly] = await this.knex("reports")
       .where({ id })
       .update({
         status,
@@ -66,6 +65,6 @@ export class ReportsRepository extends BaseRepository {
       })
       .returning("id");
 
-    return this.findById(idOnly.id) as Promise<Report>;
+    return this.findById(idOnly.id) as Promise<Reports>;
   }
 }

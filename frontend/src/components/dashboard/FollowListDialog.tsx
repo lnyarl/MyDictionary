@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useFollowers } from "@/hooks/useFollowers";
@@ -16,7 +16,6 @@ type FollowListDialogProps = {
 
 export function FollowListDialog({ isOpen, onClose, userId, type }: FollowListDialogProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const isFollowers = type === "followers";
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = isFollowers
@@ -30,11 +29,6 @@ export function FollowListDialog({ isOpen, onClose, userId, type }: FollowListDi
     hasMore: !!hasNextPage,
     isLoading: isFetchingNextPage,
   });
-
-  const handleUserClick = (targetUserId: string) => {
-    navigate(`/users/${targetUserId}`);
-    onClose();
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -57,11 +51,11 @@ export function FollowListDialog({ isOpen, onClose, userId, type }: FollowListDi
           ) : (
             <div className="space-y-4 pt-4">
               {users.map((user) => (
-                // biome-ignore lint/a11y/noStaticElementInteractions: <explanation>
-                <div
+                <Link
                   key={user.id}
                   className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => handleUserClick(user.id)}
+                  to={`/profile/${user.nickname}`}
+                  onClick={() => onClose()}
                 >
                   <Avatar className="h-10 w-10 border shadow-sm">
                     <AvatarImage src={user.profilePicture} />
@@ -70,7 +64,7 @@ export function FollowListDialog({ isOpen, onClose, userId, type }: FollowListDi
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate">{user.nickname}</h4>
                   </div>
-                </div>
+                </Link>
               ))}
 
               <div ref={sentinelRef} className="py-2 flex justify-center h-8">

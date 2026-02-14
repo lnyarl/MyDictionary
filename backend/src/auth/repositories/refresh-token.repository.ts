@@ -1,17 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
+import { RefreshTokens } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../../common/database/base.repository";
-import type { RefreshToken } from "../entities/refresh-token.entity";
 
 @Injectable()
 export class RefreshTokenRepository extends BaseRepository {
-  async create(
-    userId: string,
-    token: string,
-    expiresAt: Date,
-    fromAdmin = false,
-  ): Promise<RefreshToken> {
-    const [record] = await this.knex(TABLES.REFRESH_TOKENS)
+  create(userId: string, token: string, expiresAt: Date, fromAdmin = false) {
+    return this.knex("refresh_tokens")
       .insert({
         id: generateId(),
         user_id: userId,
@@ -20,13 +15,11 @@ export class RefreshTokenRepository extends BaseRepository {
         from_admin: fromAdmin,
       })
       .returning("*");
-
-    return record;
   }
 
-  async findByToken(token: string) {
-    const record = await this.query(TABLES.REFRESH_TOKENS)
-      .select<RefreshToken>({
+  findByToken(token: string) {
+    const record = this.query("refresh_tokens")
+      .select<RefreshTokens>({
         id: "id",
         userId: "user_id",
         token: "token",
@@ -40,33 +33,42 @@ export class RefreshTokenRepository extends BaseRepository {
       .where("expires_at", ">", new Date())
       .first();
 
-    return record ?? null;
+    return record;
   }
 
-  async findByUserId(userId: string): Promise<RefreshToken[]> {
-    return this.query(TABLES.REFRESH_TOKENS).where({ user_id: userId });
+  findByUserId(userId: string) {
+    return this.query("refresh_tokens").where({ user_id: userId }).select<RefreshTokens>({
+      id: "id",
+      userId: "user_id",
+      token: "token",
+      expiresAt: "expires_at",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+      deletedAt: "deleted_at",
+      fromAdmin: "from_admin",
+    });
   }
 
-  async deleteById(id: string): Promise<void> {
-    await this.query(TABLES.REFRESH_TOKENS).where({ id }).update({
+  deleteById(id: string) {
+    return this.query("refresh_tokens").where({ id }).update({
       deleted_at: new Date(),
     });
   }
 
-  async deleteByToken(token: string): Promise<void> {
-    await this.query(TABLES.REFRESH_TOKENS).where({ token }).update({
+  deleteByToken(token: string) {
+    return this.query("refresh_tokens").where({ token }).update({
       deleted_at: new Date(),
     });
   }
 
-  async deleteByUserId(userId: string): Promise<void> {
-    await this.query(TABLES.REFRESH_TOKENS).where({ user_id: userId }).update({
+  deleteByUserId(userId: string) {
+    return this.query("refresh_tokens").where({ user_id: userId }).update({
       deleted_at: new Date(),
     });
   }
 
-  async deleteExpired(): Promise<void> {
-    await this.query(TABLES.REFRESH_TOKENS, true).where("expires_at", "<", new Date()).update({
+  deleteExpired() {
+    return this.query("refresh_tokens", true).where("expires_at", "<", new Date()).update({
       deleted_at: new Date(),
     });
   }

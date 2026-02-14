@@ -9,6 +9,7 @@
 		"strict": true,
 		"noEmit": true,
 		"paths": {
+			"@/*": ["./src/*"],
 			"@stashy/shared": ["../shared/src"],
 			"@stashy/shared/*": ["../shared/src/*"]
 		}

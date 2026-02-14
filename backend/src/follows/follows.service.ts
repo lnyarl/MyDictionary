@@ -6,10 +6,10 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PaginatedResponseDto, PaginationDto } from "@stashy/shared";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { EventEmitterService } from "../common/events/event-emitter.service";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
-import { User } from "../users/entities/user.entity";
 import { UsersRepository } from "../users/users.repository";
 import { Follow } from "./entities/follow.entity";
 import { FollowsRepository } from "./follows.repository";
@@ -88,7 +88,7 @@ export class FollowsService {
   async getFollowers(
     userId: string,
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResponseDto<User>> {
+  ): Promise<PaginatedResponseDto<Users>> {
     const followers = await this.followRepository.findFollowers(
       userId,
       paginationDto.limit || 20,
@@ -97,7 +97,7 @@ export class FollowsService {
     const nextCursor =
       followers.length > 0 ? (followers[followers.length - 1].followCreatedAt as any) : undefined;
 
-    return new PaginatedResponseDto<User>(
+    return new PaginatedResponseDto<Users & { followCreatedAt: Date }>(
       followers,
       paginationDto.page || 1,
       paginationDto.limit || 20,
@@ -108,7 +108,7 @@ export class FollowsService {
   async getFollowing(
     userId: string,
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResponseDto<User>> {
+  ): Promise<PaginatedResponseDto<Users>> {
     const followings = await this.followRepository.findFollowings(
       userId,
       paginationDto.limit || 20,
@@ -120,7 +120,7 @@ export class FollowsService {
         ? (followings[followings.length - 1].followCreatedAt as any)
         : undefined;
 
-    return new PaginatedResponseDto<User>(
+    return new PaginatedResponseDto<Users>(
       followings,
       paginationDto.page || 1,
       paginationDto.limit || 20,

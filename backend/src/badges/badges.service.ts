@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { NotificationType } from "../notifications/entities/notification.entity";
 import { NotificationsService } from "../notifications/notifications.service";
 import { BadgesRepository } from "./badges.repository";
-import { BadgeEntity, BadgeWithProgress } from "./entities/badge.entity";
+import { BadgeEntity } from "./entities/badge.entity";
 
 @Injectable()
 export class BadgesService {
@@ -13,23 +13,23 @@ export class BadgesService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async getMyBadges(userId: string): Promise<BadgeWithProgress[]> {
-    return this.badgesRepository.findAllBadgesWithStatus(userId);
+  async getMyBadges(userId: string) {
+    return await this.badgesRepository.findAllBadgesWithStatus(userId);
   }
 
-  async getUserBadges(userId: string): Promise<BadgeWithProgress[]> {
-    return this.badgesRepository.findAllBadgesWithStatus(userId);
+  async getUserBadges(userId: string) {
+    return await this.badgesRepository.findAllBadgesWithStatus(userId);
   }
 
   async updateProgressAndCheckBadges(userId: string, eventType: string): Promise<BadgeEntity[]> {
     this.logger.debug(`Checking badges for user ${userId}, event: ${eventType}`);
-    const progress = await this.badgesRepository.updateUserProgress(userId, eventType);
+    const [progress] = await this.badgesRepository.updateUserProgress(userId, eventType);
     this.logger.debug(`Current progress for ${eventType}: ${progress.count}`);
 
     const potentialBadges = await this.badgesRepository.findBadgesByEventType(eventType);
     this.logger.debug(`Found ${potentialBadges.length} potential badges for ${eventType}`);
 
-    const earnedBadges: BadgeEntity[] = [];
+    const earnedBadges = [];
 
     for (const badge of potentialBadges) {
       if (progress.count >= badge.threshold) {

@@ -1,12 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { generateId, TABLES, User } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
 import { UserInsert } from "@stashy/shared/entities/user.entity";
+import { Users } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 
 @Injectable()
 export class UsersRepository extends BaseRepository {
-  private tableName = TABLES.USERS;
-
   private readonly userSelect = {
     id: "id",
     googleId: "google_id",
@@ -20,14 +19,14 @@ export class UsersRepository extends BaseRepository {
   };
 
   findUsers(offset: number, limit: number) {
-    const listQuery = this.knex(this.tableName)
-      .select<User[]>(this.userSelect)
+    const listQuery = this.knex("users")
+      .select<Users[]>(this.userSelect)
       .whereNull("deleted_at")
       .offset(offset)
       .limit(limit)
       .orderBy("created_at", "desc");
 
-    const countQuery = this.knex(this.tableName)
+    const countQuery = this.knex("users")
       .whereNull("deleted_at")
       .count<{ count: number }>("* as count")
       .first();
@@ -35,33 +34,33 @@ export class UsersRepository extends BaseRepository {
     return { listQuery, countQuery };
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.knex(this.tableName)
-      .select<User>(this.userSelect)
+  async findByEmail(email: string): Promise<Users | null> {
+    return this.knex("users")
+      .select<Users>(this.userSelect)
       .where({ email })
       .whereNull("deleted_at")
       .first();
   }
 
-  async findByNickname(nickname: string): Promise<User | null> {
-    return this.knex(this.tableName)
-      .select<User>(this.userSelect)
+  async findByNickname(nickname: string): Promise<Users | null> {
+    return this.knex("users")
+      .select<Users>(this.userSelect)
       .where({ nickname })
       .whereNull("deleted_at")
       .first();
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.knex(this.tableName)
-      .select<User>(this.userSelect)
+  async findById(id: string): Promise<Users | null> {
+    return this.knex("users")
+      .select<Users>(this.userSelect)
       .where({ id })
       .whereNull("deleted_at")
       .first();
   }
 
-  async insert(data: UserInsert): Promise<User> {
+  async insert(data: UserInsert): Promise<Users> {
     const now = new Date();
-    const [result] = await this.knex(this.tableName)
+    const [result] = await this.knex("users")
       .insert({
         id: generateId(),
         email: data.email,
@@ -85,8 +84,8 @@ export class UsersRepository extends BaseRepository {
     return result;
   }
 
-  async updateStatus(id: string, suspendedAt: Date | null): Promise<User> {
-    const [result] = await this.knex(this.tableName)
+  async updateStatus(id: string, suspendedAt: Date | null): Promise<Users> {
+    const [result] = await this.knex("users")
       .where({ id })
       .update({
         suspended_at: suspendedAt,

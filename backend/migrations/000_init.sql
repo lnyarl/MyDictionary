@@ -62,7 +62,7 @@ DROP TYPE IF EXISTS "public"."admin_role" CASCADE;
 CREATE TABLE "public"."migration_history" (
     "sequence_id" int4 NOT NULL,
     "filename" text NOT NULL,
-    "executed_at" timestamp DEFAULT now(),
+    "executed_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("sequence_id")
 );
 
@@ -73,11 +73,11 @@ CREATE TABLE "public"."users" (
     "email" varchar(255) NOT NULL CHECK ((email)::text ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'::text),
     "nickname" varchar(255) NOT NULL,
     "profile_picture" varchar(500),
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "bio" text,
-    "suspended_at" timestamp,
+    "suspended_at" timestamptz,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."users"."google_id" IS 'Google OAuth ID. NULL for admin-created users';
@@ -94,9 +94,9 @@ CREATE TABLE "public"."terms" (
     "id" uuid NOT NULL DEFAULT gen_random_uuid(),
     "text" varchar(255) NOT NULL,
     "number" SERIAL NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX idx_terms_text_unique ON "public"."terms" USING btree (text);
@@ -109,9 +109,9 @@ CREATE TABLE "public"."words" (
     "id" uuid NOT NULL,
     "term" varchar(100) NOT NULL,
     "user_id" uuid NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."words" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
@@ -129,9 +129,9 @@ CREATE TABLE "public"."definitions" (
     "word_id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
     "term_id" uuid NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "tags" _text DEFAULT '{}'::text[],
     "media_urls" jsonb DEFAULT '[]'::jsonb,
     "is_public" bool NOT NULL DEFAULT false,
@@ -156,9 +156,9 @@ CREATE TABLE "public"."likes" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
     "definition_id" uuid NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 -- Comments
@@ -177,9 +177,9 @@ CREATE TABLE "public"."follows" (
     "id" uuid NOT NULL,
     "follower_id" uuid NOT NULL,
     "following_id" uuid NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."follows"."follower_id" IS 'The user who is following';
@@ -202,10 +202,10 @@ CREATE TABLE "public"."admin_users" (
     "password" varchar(255) NOT NULL,
     "role" "public"."admin_role" NOT NULL DEFAULT 'operator'::admin_role,
     "must_change_password" bool DEFAULT true,
-    "last_login" timestamp,
-    "created_at" timestamp DEFAULT now(),
-    "updated_at" timestamp DEFAULT now(),
-    "deleted_at" timestamp,
+    "last_login" timestamptz,
+    "created_at" timestamptz DEFAULT now(),
+    "updated_at" timestamptz DEFAULT now(),
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX admin_users_username_key ON public.admin_users USING btree (username);
@@ -225,9 +225,9 @@ CREATE TABLE "public"."notifications" (
     "actor_id" uuid,
     "target_url" varchar(500),
     "is_read" bool NOT NULL DEFAULT false,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."notifications"."user_id" IS 'The user who receives the notification';
@@ -252,9 +252,9 @@ CREATE TABLE "public"."events" (
     "user_id" uuid,
     "payload" jsonb NOT NULL DEFAULT '{}'::jsonb,
     "metadata" jsonb DEFAULT '{}'::jsonb,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."events"."type" IS 'Event type (page_view, word_create, etc.)';
@@ -275,14 +275,14 @@ CREATE TABLE "public"."event_aggregates" (
     "user_id" uuid,
     "aggregate_key" varchar(255) NOT NULL,
     "count" int4 NOT NULL DEFAULT 0,
-    "first_occurrence" timestamp NOT NULL,
-    "last_occurrence" timestamp NOT NULL,
+    "first_occurrence" timestamptz NOT NULL,
+    "last_occurrence" timestamptz NOT NULL,
     "metadata" jsonb DEFAULT '{}'::jsonb,
-    "period_start" timestamp NOT NULL,
-    "period_end" timestamp NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "period_start" timestamptz NOT NULL,
+    "period_end" timestamptz NOT NULL,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 COMMENT ON COLUMN "public"."event_aggregates"."aggregate_key" IS 'Unique key for aggregation (e.g., page path, word ID)';
@@ -308,9 +308,9 @@ CREATE TABLE "public"."badges" (
     "event_type" varchar(50) NOT NULL,
     "threshold" int4 NOT NULL,
     "is_active" bool NOT NULL DEFAULT true,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX badges_code_key ON public.badges USING btree (code);
@@ -323,9 +323,9 @@ CREATE TABLE "public"."user_badges" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
     "badge_id" uuid NOT NULL,
-    "earned_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "earned_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."user_badges" ADD FOREIGN KEY ("badge_id") REFERENCES "public"."badges"("id") ON DELETE CASCADE;
@@ -341,10 +341,10 @@ CREATE TABLE "public"."user_badge_progress" (
     "user_id" uuid NOT NULL,
     "event_type" varchar(50) NOT NULL,
     "count" int4 NOT NULL DEFAULT 0,
-    "last_updated" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "last_updated" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."user_badge_progress" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
@@ -361,9 +361,9 @@ CREATE TABLE "public"."reports" (
     "reason" varchar(50) NOT NULL,
     "status" varchar(20) NOT NULL DEFAULT 'PENDING'::character varying,
     "description" text,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "resolved_at" timestamp,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "resolved_at" timestamptz,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."reports" ADD FOREIGN KEY ("definition_id") REFERENCES "public"."definitions"("id") ON DELETE SET NULL;
@@ -380,7 +380,7 @@ CREATE TABLE "public"."definition_histories" (
     "content" text NOT NULL CHECK (length(content) <= 5000),
     "tags" _text DEFAULT '{}'::text[],
     "media_urls" jsonb DEFAULT '[]'::jsonb,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
 );
 ALTER TABLE "public"."definition_histories" ADD FOREIGN KEY ("definition_id") REFERENCES "public"."definitions"("id") ON DELETE CASCADE;
@@ -436,16 +436,16 @@ CREATE TABLE "public"."refresh_tokens" (
     "id" uuid NOT NULL,
     "user_id" uuid NOT NULL,
     "token" varchar(500) NOT NULL,
-    "expires_at" timestamp NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp,
+    "expires_at" timestamptz NOT NULL,
+    "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 );
 
 COMMENT ON TABLE "public"."refresh_tokens" IS 'Stores refresh tokens for JWT token rotation';
 COMMENT ON COLUMN "public"."refresh_tokens"."token" IS 'Hashed refresh token value';
-COMMENT ON COLUMN "public"."refresh_tokens"."expires_at" IS 'Token expiration timestamp';
+COMMENT ON COLUMN "public"."refresh_tokens"."expires_at" IS 'Token expiration timestamptz';
 
 ALTER TABLE "public"."refresh_tokens" ADD FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
 
@@ -461,9 +461,10 @@ CREATE TABLE "public"."user_login_streaks" (
   "user_id" UUID NOT NULL,
   "current_streak" INTEGER NOT NULL DEFAULT 0,
   "longest_streak" INTEGER NOT NULL DEFAULT 0,
-  "last_login_at" TIMESTAMP NOT NULL,
-  "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "last_login_at" timestamptz NOT NULL,
+  "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+  "deleted_at" timestamptz,
   PRIMARY KEY ("user_id"),
   FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE
 );

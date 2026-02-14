@@ -1,32 +1,30 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES, TableName } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import { Word, WordSelect } from "./entities/word.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class WordsRepository extends BaseRepository {
-  private tableName: TableName = TABLES.WORDS;
-
   findByUserId(userId: string) {
-    return this.query(this.tableName)
+    return this.query("words")
       .select<Word[]>(WordSelect)
       .where({ user_id: userId })
       .orderBy("created_at", "desc");
   }
 
   findPublicByUserId(userId: string, limit: number, cursor?: string) {
-    const baseQuery = this.query(this.tableName)
+    const baseQuery = this.query("words")
       .where({ user_id: userId })
       .whereExists(function () {
         this.select("*")
-          .from(TABLES.DEFINITIONS)
-          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
-          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
-          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+          .from("definitions")
+          .whereRaw(`definitions.word_id = words.id`)
+          .andWhere(`definitions.is_public`, true)
+          .whereNull(`definitions.deleted_at`);
       });
 
     if (cursor) {
-      baseQuery.where(`${TABLES.WORDS}.created_at`, "<", cursor);
+      baseQuery.where(`words.created_at`, "<", cursor);
     }
 
     const listQuery = baseQuery
@@ -39,14 +37,14 @@ export class WordsRepository extends BaseRepository {
   }
 
   countPublicByUserId(userId: string) {
-    return this.query(this.tableName)
+    return this.query("words")
       .where({ user_id: userId })
       .whereExists(function () {
         this.select("*")
-          .from(TABLES.DEFINITIONS)
-          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
-          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
-          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+          .from("definitions")
+          .whereRaw(`definitions.word_id = words.id`)
+          .andWhere(`definitions.is_public`, true)
+          .whereNull(`definitions.deleted_at`);
       })
       .count<{ count: number }>("* as count")
       .first();
@@ -54,7 +52,7 @@ export class WordsRepository extends BaseRepository {
 
   create(word: Omit<Word, "id" | "createdAt" | "updatedAt" | "deletedAt">) {
     const now = new Date();
-    return this.knex(this.tableName)
+    return this.knex("words")
       .insert({
         id: generateId(),
         term: word.term,
@@ -62,36 +60,27 @@ export class WordsRepository extends BaseRepository {
         created_at: now,
         updated_at: now,
       })
-      .returning("id");
+      .returning(["id", "term"]);
   }
 
   delete(id: string) {
-    return this.softDelete(this.tableName, id);
-  }
-
-  async updateAll(id: string, data: Partial<Word>) {
-    return await this.update<Word>(this.tableName, id, data);
+    return this.softDelete("words", id);
   }
 
   findByTerm(userId: string, term: string) {
-    return this.query(this.tableName)
-      .select<Word>(WordSelect)
-      .where({ user_id: userId, term })
-      .first();
+    return this.query("words").select<Word>(WordSelect).where({ user_id: userId, term }).first();
   }
 
   findById(id: string) {
-    return this.query(this.tableName).select<Word>(WordSelect).where({ id }).first();
+    return this.query("words").select<Word>(WordSelect).where({ id }).first();
   }
 
   hasPublicDefinitions(wordId: string) {
-    return this.query(TABLES.DEFINITIONS)
-      .where({ word_id: wordId, is_public: true })
-      .first<boolean>();
+    return this.query("definitions").where({ word_id: wordId, is_public: true }).first<boolean>();
   }
 
   findMyWordsForAutocomplete(term: string, userId: string, limit: number) {
-    return this.query(this.tableName)
+    return this.query("words")
       .select<Word[]>(WordSelect)
       .where({ user_id: userId })
       .where("term", "ilike", `%${term}%`)
@@ -115,43 +104,43 @@ export class WordsRepository extends BaseRepository {
   searchWithDefinitions(term: string, userId: string | undefined, limit: number, cursor?: string) {
     const normalizedTerm = `%${term}%`;
 
-    const baseQuery = this.knex(TABLES.WORDS)
-      .whereNull(`${TABLES.WORDS}.deleted_at`)
-      .where(`${TABLES.WORDS}.term`, "ilike", normalizedTerm);
+    const baseQuery = this.knex("words")
+      .whereNull(`words.deleted_at`)
+      .where(`words.term`, "ilike", normalizedTerm);
 
     if (cursor) {
-      baseQuery.where(`${TABLES.WORDS}.created_at`, "<", cursor);
+      baseQuery.where(`words.created_at`, "<", cursor);
     }
 
     if (userId) {
       baseQuery.where((builder) => {
-        builder.where(`${TABLES.WORDS}.user_id`, userId).orWhereExists(function () {
+        builder.where(`words.user_id`, userId).orWhereExists(function () {
           this.select("*")
-            .from(TABLES.DEFINITIONS)
-            .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
-            .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
-            .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+            .from("definitions")
+            .whereRaw(`definitions.word_id = words.id`)
+            .andWhere(`definitions.is_public`, true)
+            .whereNull(`definitions.deleted_at`);
         });
       });
     } else {
       baseQuery.whereExists(function () {
         this.select("*")
-          .from(TABLES.DEFINITIONS)
-          .whereRaw(`${TABLES.DEFINITIONS}.word_id = ${TABLES.WORDS}.id`)
-          .andWhere(`${TABLES.DEFINITIONS}.is_public`, true)
-          .whereNull(`${TABLES.DEFINITIONS}.deleted_at`);
+          .from("definitions")
+          .whereRaw(`definitions.word_id = words.id`)
+          .andWhere(`definitions.is_public`, true)
+          .whereNull(`definitions.deleted_at`);
       });
     }
 
     const listQuery = baseQuery
       .clone()
       .select(
-        `${TABLES.WORDS}.id`,
-        `${TABLES.WORDS}.term`,
-        `${TABLES.WORDS}.user_id as userId`,
-        `${TABLES.WORDS}.created_at as createdAt`,
-        `${TABLES.WORDS}.updated_at as updatedAt`,
-        `${TABLES.WORDS}.deleted_at as deletedAt`,
+        `words.id`,
+        `words.term`,
+        `words.user_id as userId`,
+        `words.created_at as createdAt`,
+        `words.updated_at as updatedAt`,
+        `words.deleted_at as deletedAt`,
         this.knex.raw(`
           COALESCE(
             json_agg(
@@ -191,20 +180,20 @@ export class WordsRepository extends BaseRepository {
           ) as user
         `),
       )
-      .leftJoin(`${TABLES.DEFINITIONS} as d`, function () {
-        this.on(`d.word_id`, "=", `${TABLES.WORDS}.id`).andOnNull("d.deleted_at");
+      .leftJoin(`definitions as d`, function () {
+        this.on(`d.word_id`, "=", `words.id`).andOnNull("d.deleted_at");
       })
-      .leftJoin(`${TABLES.USERS} as du`, function () {
+      .leftJoin(`users as du`, function () {
         this.on(`du.id`, "=", "d.user_id").andOnNull("du.deleted_at");
       })
-      .leftJoin(`${TABLES.USERS} as wu`, function () {
-        this.on(`wu.id`, "=", `${TABLES.WORDS}.user_id`).andOnNull("wu.deleted_at");
+      .leftJoin(`users as wu`, function () {
+        this.on(`wu.id`, "=", `words.user_id`).andOnNull("wu.deleted_at");
       })
-      .groupBy(`${TABLES.WORDS}.id`, "wu.id")
-      .orderByRaw(`CASE WHEN ${TABLES.WORDS}.user_id = ? THEN 0 ELSE 1 END`, [
+      .groupBy(`words.id`, "wu.id")
+      .orderByRaw(`CASE WHEN words.user_id = ? THEN 0 ELSE 1 END`, [
         userId || "00000000-0000-0000-0000-000000000000",
       ])
-      .orderBy(`${TABLES.WORDS}.created_at`, "desc")
+      .orderBy(`words.created_at`, "desc")
       .limit(limit);
 
     return listQuery;

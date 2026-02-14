@@ -1,41 +1,35 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { generateId, TABLES } from "@stashy/shared";
+import { generateId } from "@stashy/shared";
+import { Likes } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
-import { Like, LikeSelect } from "./entities/like.entity";
+import { LikeSelect } from "./entities/like.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LikesRepository extends BaseRepository {
-  private tableName = TABLES.LIKES;
   /**
    * Find all words by user ID
    */
   findByUserIdAndDefinitionIdWithDeleted(userId: string, definitionId: string) {
-    return this.knex(this.tableName)
-      .select<Like>(LikeSelect)
+    return this.knex("likes")
+      .select<Likes>(LikeSelect)
       .where({ user_id: userId, definition_id: definitionId })
       .first();
   }
 
   findByDefinitionId(definitionId: string) {
-    return this.query(this.tableName)
-      .select<Like[]>(LikeSelect)
-      .where({ definition_id: definitionId });
+    return this.query("likes").select<Likes[]>(LikeSelect).where({ definition_id: definitionId });
   }
 
   findByDefinitionIds(definitionId: string) {
-    return this.query(this.tableName)
-      .select<Like[]>(LikeSelect)
-      .where({ definition_id: definitionId });
+    return this.query("likes").select<Likes[]>(LikeSelect).where({ definition_id: definitionId });
   }
 
   findLikeInfoByDefinitionIds(
     definitionIds: string[],
     userId?: string,
   ): Promise<{ definitionId: string; isLiked: any; likesCount: number }[]> {
-    return this.query({
-      [TABLES.DEFINITIONS]: TABLES.DEFINITIONS_LIKE_VIEW,
-    })
-      .leftJoin(TABLES.LIKES, (on) => {
+    return this.query("vw_definitions_with_likes as definitions")
+      .leftJoin("likes", (on) => {
         on.on("definitions.id", "=", "likes.definition_id");
         if (userId) {
           on.andOnVal("likes.user_id", "=", userId);
@@ -51,16 +45,16 @@ export class LikesRepository extends BaseRepository {
   }
 
   delete(id: string) {
-    return this.softDelete(this.tableName, id);
+    return this.softDelete("likes", id);
   }
 
   restore(id: string) {
-    return this.undelete(this.tableName, id);
+    return this.undelete("likes", id);
   }
 
-  create(like: Partial<Like>) {
+  create(like: Partial<Likes>) {
     const now = new Date();
-    return this.knex(this.tableName).insert({
+    return this.knex("likes").insert({
       id: generateId(),
       user_id: like.userId,
       definition_id: like.definitionId,
