@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Definition } from "@stashy/shared";
-import { ExternalLink, Flag, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { ExternalLink, Flag, MoreVertical, Pencil, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +45,11 @@ type QuoteSelection = {
 	y: number;
 };
 
+type LinkedSourceItem = {
+	key: string;
+	source: Definition;
+};
+
 function getTextOffset(root: Node, targetNode: Node, nodeOffset: number): number {
 	const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
 	let currentOffset = 0;
@@ -66,7 +71,7 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 	const isOwner = user?.id === definition.userId;
 	const [quoteSelection, setQuoteSelection] = useState<QuoteSelection | null>(null);
 	const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
-	const [linkedSources, setLinkedSources] = useState<Definition[]>([]);
+	const [linkedSources, setLinkedSources] = useState<LinkedSourceItem[]>([]);
 
 	const formattedDate = new Date(definition.createdAt).toLocaleDateString(i18nToIsoLocale[i18n.language], {
 		year: "numeric",
@@ -155,18 +160,13 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 				return;
 			}
 
-			if (linkedSources.some((item) => item.id === detail.sourceDefinitionId)) {
-				setLinkedSources((prev) => prev.filter((item) => item.id !== detail.sourceDefinitionId));
-				return;
-			}
-
 			try {
 				const source = await definitionsApi.getById(detail.sourceDefinitionId);
 				setLinkedSources((prev) => {
-					if (prev.some((item) => item.id === source.id)) {
-						return prev;
-					}
-					return [...prev, source];
+					return [
+						...prev,
+						{ key: `${source.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`, source },
+					];
 				});
 			} catch (error) {
 				console.error("Failed to load quoted source", error);
@@ -177,7 +177,7 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 		return () => {
 			document.removeEventListener(QUOTE_TOGGLE_EVENT, handleQuoteToggle as EventListener);
 		};
-	}, [definition.id, linkedSources]);
+	}, [definition.id]);
 
 	const handleContentMouseUp = () => {
 		if (!user) {
@@ -217,10 +217,9 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 
 	const needMoreMenu = onDelete || onStartEdit || !isOwner;
 	return (
-		<div>
+		<div data-definition-id={definition.id}>
 			<article
 				className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]"
-				data-definition-id={definition.id}
 			>
 				{definition.term && (
 					<div className="flex flex-col pr-6 h-full md:w-60 w-full">
@@ -417,13 +416,24 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 
 			{linkedSources.length > 0 && (
 				<div className="mt-4 space-y-3 px-4 pb-4">
-					{linkedSources.map((source) => (
-						<div key={source.id} className="rounded-md border bg-gray-50 p-4 md:ml-66">
-							<a href={`/definitions/${source.id}`} className="text-xs text-gray-500 underline">
-								원문 보기: {source.term}
+					{linkedSources.map((item) => (
+						<div key={item.key} className="rounded-md border bg-gray-50 p-4 md:ml-66 relative">
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								className="absolute top-2 right-2 h-7 w-7 text-gray-500 hover:text-gray-700"
+								onClick={() => {
+									setLinkedSources((prev) => prev.filter((prevItem) => prevItem.key !== item.key));
+								}}
+							>
+								<X className="h-4 w-4" />
+							</Button>
+							<a href={`/definitions/${item.source.id}`} className="text-xs text-gray-500 underline">
+								원문 보기: {item.source.term}
 							</a>
 							<div className="mt-2 text-base leading-relaxed text-gray-700">
-								<RichTextContent content={source.content} />
+								<RichTextContent content={item.source.content} />
 							</div>
 						</div>
 					))}
