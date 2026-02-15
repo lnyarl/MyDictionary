@@ -55,8 +55,11 @@
   margin: 8px 0;
 }
 
-.quote-block-widget__actions {
-  display: flex;
+.quote-block-line {
+  border-left: 3px solid #9ca3af;
+  background: #f3f4f6;
+  padding-left: 10px;
+  margin-left: 2px;
 }
 
 .quote-block-widget__button {
