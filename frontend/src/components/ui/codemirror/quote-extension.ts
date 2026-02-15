@@ -73,14 +73,19 @@ function addQuoteLineDecorations(
 ) {
 	const markerLine = state.doc.lineAt(markerFrom);
 	let lineNumber = markerLine.number - 1;
+	const quoteLines: number[] = [];
 
 	while (lineNumber >= 1) {
 		const line = state.doc.line(lineNumber);
 		if (!isQuoteLine(line.text)) {
 			break;
 		}
-		builder.add(line.from, line.from, Decoration.line({ class: "quote-block-line" }));
+		quoteLines.push(line.from);
 		lineNumber -= 1;
+	}
+
+	for (const lineFrom of quoteLines.reverse()) {
+		builder.add(lineFrom, lineFrom, Decoration.line({ class: "quote-block-line" }));
 	}
 }
 
