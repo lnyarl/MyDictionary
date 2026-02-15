@@ -100,7 +100,10 @@ const quoteDecorationField = StateField.define<DecorationSet>({
 		}
 		return buildQuoteDecorations(transaction.state);
 	},
-	provide: (field) => [EditorView.decorations.from(field), EditorView.atomicRanges.from(field)],
+	provide: (field) => [
+		EditorView.decorations.from(field),
+		EditorView.atomicRanges.of((view) => view.state.field(field)),
+	],
 });
 
 export const quoteBlockPlugin = [quoteDecorationField];
