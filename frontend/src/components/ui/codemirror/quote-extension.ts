@@ -69,8 +69,17 @@ class QuoteWidget extends WidgetType {
 		return container;
 	}
 
-	ignoreEvent() {
-		return true;
+	ignoreEvent(event: Event) {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) {
+			return false;
+		}
+
+		if (event.type === "click" && target.closest(".quote-block-widget__button")) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
