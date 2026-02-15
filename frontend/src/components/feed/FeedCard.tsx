@@ -308,7 +308,7 @@ function LinkedSourceList({ items, onClose }: LinkedSourceListProps) {
 	return (
 		<div className="mt-4 space-y-3 px-4 pb-4">
 			{items.map((item) => (
-				<div key={item.key} className="rounded-md border bg-gray-50 p-4 md:ml-66 relative">
+				<div key={item.key} className="rounded-md border bg-gray-50 p-4 relative w-full">
 					<Button
 						type="button"
 						variant="ghost"
@@ -319,9 +319,9 @@ function LinkedSourceList({ items, onClose }: LinkedSourceListProps) {
 						<X className="h-4 w-4" />
 					</Button>
 					<a href={`/definitions/${item.source.id}`} className="text-xs text-gray-500 underline">
-						원문 보기: {item.source.term}
+						원문 보기
 					</a>
-					<div className="mt-2 text-base leading-relaxed text-gray-700">
+					<div className="mt-2 text-base leading-relaxed text-gray-700 ">
 						<RichTextContent content={item.source.content} />
 					</div>
 				</div>
