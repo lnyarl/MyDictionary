@@ -70,7 +70,7 @@ class QuoteWidget extends WidgetType {
 	}
 
 	ignoreEvent() {
-		return false;
+		return true;
 	}
 }
 
