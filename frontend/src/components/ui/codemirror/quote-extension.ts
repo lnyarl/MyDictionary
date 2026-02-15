@@ -11,17 +11,13 @@ export type QuoteToggleEventDetail = {
 };
 
 class QuoteWidget extends WidgetType {
-	constructor(
-		readonly metadata: QuoteBlockMetadata,
-		readonly quoteText: string,
-	) {
+	constructor(readonly metadata: QuoteBlockMetadata) {
 		super();
 	}
 
 	eq(other: QuoteWidget) {
 		return (
 			other.metadata.definitionId === this.metadata.definitionId &&
-			other.quoteText === this.quoteText &&
 			other.metadata.sourceUrl === this.metadata.sourceUrl
 		);
 	}
@@ -29,14 +25,6 @@ class QuoteWidget extends WidgetType {
 	toDOM() {
 		const container = document.createElement("div");
 		container.className = "quote-block-widget";
-
-		const quoteContent = document.createElement("blockquote");
-		quoteContent.className = "quote-block-widget__content";
-		quoteContent.textContent = this.quoteText;
-
-		const info = document.createElement("p");
-		info.className = "quote-block-widget__info";
-		info.textContent = `인용: ${this.metadata.term} (${this.metadata.startOffset}-${this.metadata.endOffset})`;
 
 		const actionRow = document.createElement("div");
 		actionRow.className = "quote-block-widget__actions";
@@ -65,7 +53,7 @@ class QuoteWidget extends WidgetType {
 		});
 
 		actionRow.append(connectButton);
-		container.append(quoteContent, info, actionRow);
+		container.append(actionRow);
 		return container;
 	}
 
@@ -91,7 +79,7 @@ function buildQuoteDecorations(state: EditorState): DecorationSet {
 
 	const decorations = blocks.map((block) => {
 		return Decoration.replace({
-			widget: new QuoteWidget(block.metadata, block.quoteText),
+			widget: new QuoteWidget(block.metadata),
 			block: true,
 		}).range(block.from, block.to);
 	});

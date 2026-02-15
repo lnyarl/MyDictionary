@@ -9,22 +9,29 @@ export type QuoteBlockMetadata = {
 export type ParsedQuoteBlock = {
 	fullMatch: string;
 	metadata: QuoteBlockMetadata;
-	quoteText: string;
 	from: number;
 	to: number;
 };
 
-const QUOTE_BLOCK_REGEX = /:::quote\s+(\{[^\n]+\})\n([\s\S]*?)\n:::/g;
+const QUOTE_SOURCE_MARKER_REGEX = /\[\[quote-source:(\{[^\n]+\})\]\]/g;
+
+function toMarkdownBlockquote(text: string): string {
+	return text
+		.trim()
+		.split("\n")
+		.map((line) => `> ${line}`)
+		.join("\n");
+}
 
 export function createQuoteBlock(metadata: QuoteBlockMetadata, quoteText: string): string {
-	const normalizedText = quoteText.trim();
-	return `:::quote ${JSON.stringify(metadata)}\n${normalizedText}\n:::`;
+	const quotedText = toMarkdownBlockquote(quoteText);
+	return `${quotedText}\n[[quote-source:${JSON.stringify(metadata)}]]`;
 }
 
 export function parseQuoteBlocks(content: string): ParsedQuoteBlock[] {
 	const blocks: ParsedQuoteBlock[] = [];
-	for (const match of content.matchAll(QUOTE_BLOCK_REGEX)) {
-		const [fullMatch, metadataJson, quoteText] = match;
+	for (const match of content.matchAll(QUOTE_SOURCE_MARKER_REGEX)) {
+		const [fullMatch, metadataJson] = match;
 		const from = match.index ?? 0;
 		const to = from + fullMatch.length;
 
@@ -36,7 +43,6 @@ export function parseQuoteBlocks(content: string): ParsedQuoteBlock[] {
 			blocks.push({
 				fullMatch,
 				metadata: parsed,
-				quoteText: quoteText.trim(),
 				from,
 				to,
 			});
