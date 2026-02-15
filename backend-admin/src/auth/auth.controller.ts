@@ -8,13 +8,13 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { ChangePasswordDto } from "@stashy/shared/admin/dto/auth/change-password.dto";
+import { LoginDto } from "@stashy/shared/admin/dto/auth/login.dto";
 import type { Response } from "express";
 import { AdminUser } from "../admin-users/entities/admin-user.entity";
 import { CurrentAdmin } from "../common/decorators/current-admin.decorator";
 import { AuthService } from "./auth.service";
 import { Public } from "./decorators/public.decorator";
-import { ChangePasswordDto } from "./dto/change-password.dto";
-import { LoginDto } from "./dto/login.dto";
 import { SkipPasswordCheck } from "./guards/password-change-required.guard";
 
 @Controller()

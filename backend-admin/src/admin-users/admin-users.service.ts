@@ -4,9 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import type { CreateAdminUserDto } from "@stashy/shared/admin/dto/admin-user/create-admin-user.dto";
 import * as bcrypt from "bcrypt";
 import { AdminUsersRepository } from "./admin-users.repository";
-import type { CreateAdminUserDto } from "./dto/create-admin-user.dto";
 import type { AdminRoleType } from "./entities/admin-user.entity";
 
 @Injectable()

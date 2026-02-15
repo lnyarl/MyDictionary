@@ -1,7 +1,12 @@
 // Constants
 
+export { CreateAdminUserDto } from "./admin/dto/admin-user/create-admin-user.dto";
+export { UpdateAdminRoleDto } from "./admin/dto/admin-user/update-admin-role.dto";
+export { ChangePasswordDto } from "./admin/dto/auth/change-password.dto";
+export { LoginDto } from "./admin/dto/auth/login.dto";
 export { CreateBadgeDto } from "./admin/dto/badge/create-badge.dto";
 export { UpdateBadgeDto } from "./admin/dto/badge/update-badge.dto";
+export { CreateUserDto } from "./admin/dto/user/create-user.dto";
 export type { ApiErrorResponse, ErrorCode } from "./constants/error-codes";
 export { ERROR_CODES } from "./constants/error-codes";
 export type { SupportedLanguage } from "./constants/languages";
