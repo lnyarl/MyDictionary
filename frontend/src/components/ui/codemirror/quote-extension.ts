@@ -109,7 +109,6 @@ function buildQuoteDecorations(view: EditorView): DecorationSet {
 	const decorations = blocks.map((block) => {
 		return Decoration.replace({
 			widget: new QuoteWidget(block.metadata, block.quoteText),
-			block: true,
 		}).range(block.from, block.to);
 	});
 
