@@ -184,6 +184,7 @@ export type UserLoginStreaks = {
   lastLoginAt: Date;
   createdAt?: Date | null;
   updatedAt?: Date | null;
+  deletedAt?: Date | null;
 };
 
 export type Users = {

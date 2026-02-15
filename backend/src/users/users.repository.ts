@@ -45,7 +45,7 @@ export class UsersRepository extends BaseRepository {
     const dbUpdates: { nickname?: string; bio?: string; profile_picture?: string } = { ...updates };
     if (updates.profilePicture) {
       dbUpdates.profile_picture = updates.profilePicture;
-      delete dbUpdates.profilePicture;
+      delete dbUpdates.profile_picture;
     }
     Object.keys(dbUpdates).forEach((key) => {
       if (dbUpdates[key] === undefined) delete dbUpdates[key];
