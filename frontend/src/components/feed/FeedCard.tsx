@@ -217,54 +217,55 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 
 	const needMoreMenu = onDelete || onStartEdit || !isOwner;
 	return (
-		<article
-			className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]"
-			data-definition-id={definition.id}
-		>
-			{definition.term && (
-				<div className="flex flex-col pr-6 h-full md:w-60 w-full">
-					{definition.termNumber && (
-						<span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
-							No. {definition.termNumber.toString().padStart(2, "0")}
-						</span>
-					)}
-					<h2
-						onClick={handleTermClick}
-						className="editorial-number font-bold md:text-3xl text-2xl text-foreground transition-all cursor-pointer"
-						style={{ fontFamily: '"Gowun Batang", serif' }}
-					>
-						{definition.term}
-					</h2>
-				</div>
-			)}
-
-			<div className="w-full min-w-0 pb-3 pt-6">
-				<div>
-					<div className="relative" onMouseUp={handleContentMouseUp}>
-						<div
-							ref={contentRef}
-							className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75 overflow-hidden"
-							style={isTruncated ? { maskImage: "linear-gradient(to bottom, #000 60%, transparent 100%)" } : {}}
+		<div>
+			<article
+				className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]"
+				data-definition-id={definition.id}
+			>
+				{definition.term && (
+					<div className="flex flex-col pr-6 h-full md:w-60 w-full">
+						{definition.termNumber && (
+							<span className="text-[10px] font-black text-primary mb-3 tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
+								No. {definition.termNumber.toString().padStart(2, "0")}
+							</span>
+						)}
+						<h2
+							onClick={handleTermClick}
+							className="editorial-number font-bold md:text-3xl text-2xl text-foreground transition-all cursor-pointer"
+							style={{ fontFamily: '"Gowun Batang", serif' }}
 						>
-							<RichTextContent content={definition.content} />
-						</div>
+							{definition.term}
+						</h2>
 					</div>
-					{isTruncated && (
-						<Dialog>
-							<DialogTrigger asChild>
-								<Button variant="ghost" size="sm" className="mt-2 text-gray-700 hover:text-foreground">
-									[ {t("common.more")} ]...
-								</Button>
-							</DialogTrigger>
-							<DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-								<DialogHeader>
-									<DialogTitle className="font-serif text-2xl font-bold mb-4">{definition.term}</DialogTitle>
-								</DialogHeader>
+				)}
+
+				<div className="w-full min-w-0 pb-3 pt-6">
+					<div>
+						<div className="relative" onMouseUp={handleContentMouseUp}>
+							<div
+								ref={contentRef}
+								className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75 overflow-hidden"
+								style={isTruncated ? { maskImage: "linear-gradient(to bottom, #000 60%, transparent 100%)" } : {}}
+							>
 								<RichTextContent content={definition.content} />
-							</DialogContent>
-						</Dialog>
-					)}
-				</div>
+							</div>
+						</div>
+						{isTruncated && (
+							<Dialog>
+								<DialogTrigger asChild>
+									<Button variant="ghost" size="sm" className="mt-2 text-gray-700 hover:text-foreground">
+										[ {t("common.more")} ]...
+									</Button>
+								</DialogTrigger>
+								<DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+									<DialogHeader>
+										<DialogTitle className="font-serif text-2xl font-bold mb-4">{definition.term}</DialogTitle>
+									</DialogHeader>
+									<RichTextContent content={definition.content} />
+								</DialogContent>
+							</Dialog>
+						)}
+					</div>
 
 				{definition.mediaUrls && definition.mediaUrls.length > 0 && (
 					<div className="mb-10 grid gap-2 grid-cols-1 sm:grid-cols-2 max-w-2xl">
@@ -383,14 +384,42 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 				</div>
 			</div>
 
+				{quoteSelection && (
+					<div className="quote-action-menu fixed z-50" style={{ left: quoteSelection.x, top: quoteSelection.y }}>
+						<Button
+							type="button"
+							size="sm"
+							className="h-8 text-xs"
+							onClick={() => {
+								setIsQuoteDialogOpen(true);
+							}}
+						>
+							인용하기
+						</Button>
+					</div>
+				)}
+
+				<Dialog open={isQuoteDialogOpen} onOpenChange={setIsQuoteDialogOpen}>
+					<DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+						<DialogHeader>
+							<DialogTitle>인용 글쓰기</DialogTitle>
+						</DialogHeader>
+						<FeedForm
+							fixedTerm={definition.term}
+							initialContent={quoteBlockContent}
+							onCreate={async (data) => {
+								await createFeedMutation.mutateAsync(data);
+							}}
+						/>
+					</DialogContent>
+				</Dialog>
+			</article>
+
 			{linkedSources.length > 0 && (
-				<div className="w-full mt-4 space-y-3">
+				<div className="mt-4 space-y-3 px-4 pb-4">
 					{linkedSources.map((source) => (
 						<div key={source.id} className="rounded-md border bg-gray-50 p-4 md:ml-66">
-							<a
-								href={`/definitions/${source.id}`}
-								className="text-xs text-gray-500 underline"
-							>
+							<a href={`/definitions/${source.id}`} className="text-xs text-gray-500 underline">
 								원문 보기: {source.term}
 							</a>
 							<div className="mt-2 text-base leading-relaxed text-gray-700">
@@ -400,36 +429,6 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 					))}
 				</div>
 			)}
-
-			{quoteSelection && (
-				<div className="quote-action-menu fixed z-50" style={{ left: quoteSelection.x, top: quoteSelection.y }}>
-					<Button
-						type="button"
-						size="sm"
-						className="h-8 text-xs"
-						onClick={() => {
-							setIsQuoteDialogOpen(true);
-						}}
-					>
-						인용하기
-					</Button>
-				</div>
-			)}
-
-			<Dialog open={isQuoteDialogOpen} onOpenChange={setIsQuoteDialogOpen}>
-				<DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle>인용 글쓰기</DialogTitle>
-					</DialogHeader>
-					<FeedForm
-						fixedTerm={definition.term}
-						initialContent={quoteBlockContent}
-						onCreate={async (data) => {
-							await createFeedMutation.mutateAsync(data);
-						}}
-					/>
-				</DialogContent>
-			</Dialog>
-		</article>
+		</div>
 	);
 }
