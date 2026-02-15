@@ -499,8 +499,8 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 	};
 
 	return (
-		<div data-definition-id={definition.id}>
-			<article className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]">
+		<div data-definition-id={definition.id} className="hover:bg-[#f0f3ec] pb-7">
+			<article className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 relative">
 				<TermColumn definition={definition} onTermClick={handleTermClick} />
 
 				<div className="w-full min-w-0 pb-3 pt-6">
@@ -548,7 +548,6 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 					</DialogContent>
 				</Dialog>
 			</article>
-
 			<LinkedSourceList items={linkedSources} onClose={handleCloseLinkedSource} />
 		</div>
 	);
