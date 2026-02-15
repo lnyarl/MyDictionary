@@ -106,7 +106,7 @@ export class FeedService {
     );
 
     const feeds = await listQuery;
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -142,7 +142,7 @@ export class FeedService {
     );
 
     const feeds = await listQuery;
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -177,7 +177,7 @@ export class FeedService {
     );
 
     const feeds = await listQuery;
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -199,18 +199,12 @@ export class FeedService {
     if (cached) {
       return cached;
     }
-    console.log(
-      this.feedRepository
-        .findAllFeeds(userId, paginationDto.limit || 20, paginationDto.cursor)
-        .toQuery(),
-    );
-
     const feeds = await this.feedRepository.findAllFeeds(
       userId,
       paginationDto.limit || 20,
       paginationDto.cursor,
     );
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -246,7 +240,7 @@ export class FeedService {
 
     const nextCursor =
       recommendations.length > 0
-        ? (recommendations[recommendations.length - 1].createdAt as any)
+        ? String(recommendations[recommendations.length - 1].createdAt)
         : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
@@ -297,7 +291,7 @@ export class FeedService {
       paginationDto.cursor,
     );
 
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -328,7 +322,7 @@ export class FeedService {
       paginationDto.cursor,
     );
 
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -352,7 +346,7 @@ export class FeedService {
       paginationDto.cursor,
     );
 
-    const nextCursor = feeds.length > 0 ? (feeds[feeds.length - 1].createdAt as any) : undefined;
+    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
 
     return new PaginatedResponseDto<Feed>(
       feeds,

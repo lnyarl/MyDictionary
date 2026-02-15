@@ -8,9 +8,6 @@ export class TermsService {
 
   async search(searchTermDto: SearchTermDto): Promise<PaginatedResponseDto<TermResponseDto>> {
     const limit = searchTermDto.limit || 20;
-    console.log(
-      this.termsRepository.search(searchTermDto.term, limit, searchTermDto.cursor).toQuery(),
-    );
     const results = await this.termsRepository.search(
       searchTermDto.term,
       limit,

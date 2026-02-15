@@ -28,7 +28,7 @@ export function useBadges(page = 1, limit = 20, refreshKey = 0) {
 
 				// Handle pagination meta based on what API returns
 				// The Admin DTO response usually has total
-				const total = (response.meta as any).total || 0;
+				const total = response.meta.total || 0;
 				const totalPages = Math.ceil(total / response.meta.limit);
 
 				setMeta({

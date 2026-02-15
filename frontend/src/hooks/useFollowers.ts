@@ -1,7 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { followsApi } from "../lib/api/follows";
 
-export function useFollowers(userId?: string) {
+type FollowQueryOptions = {
+  enabled?: boolean;
+};
+
+export function useFollowers(userId?: string, options?: FollowQueryOptions) {
   return useInfiniteQuery({
     queryKey: ["followers", userId],
     queryFn: ({ pageParam }) =>
@@ -14,6 +18,6 @@ export function useFollowers(userId?: string) {
         cursor: lastPage.meta.nextCursor,
       };
     },
-    enabled: !!userId,
+    enabled: !!userId && (options?.enabled ?? true),
   });
 }

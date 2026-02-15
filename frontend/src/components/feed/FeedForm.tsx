@@ -106,7 +106,6 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   const [_, _cancelSave, saveToLocalstorage] = useTimeoutFn(() => {
     const expiredAt = addDay(new Date(), 3);
     const key = getStorageKey(path);
-    console.log("saving key", key);
     setItem(key, { term: term, content: definition.content, tags: definition.tags }, expiredAt);
   }, 100);
 

@@ -1,5 +1,7 @@
-import type { Definition } from "@stashy/shared";
+import type { Definition as SharedDefinition } from "@stashy/shared";
 import { api } from "./api";
+
+export type Definition = SharedDefinition;
 
 export type PaginatedResponse<T> = {
   data: T[];

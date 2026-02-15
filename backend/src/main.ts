@@ -1,4 +1,4 @@
-import { ValidationPipe } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
 import pg from "pg";
@@ -14,7 +14,6 @@ pg.types.setTypeParser(20, (val) => {
 
 // stacktrace를 더 자세히 찍기 위한 라이브러리
 if (process.env.NODE_ENV !== "production") {
-  console.log("lognjohn initalized");
   require("longjohn");
 }
 
@@ -46,8 +45,10 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Environment (NODE_ENV): ${process.env.NODE_ENV || "development"}`);
-  console.log(`Environment (ENV): ${process.env.ENV || "not set"}`);
+
+  const logger = new Logger("Bootstrap");
+  logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Environment (NODE_ENV): ${process.env.NODE_ENV || "development"}`);
+  logger.log(`Environment (ENV): ${process.env.ENV || "not set"}`);
 }
 bootstrap();
