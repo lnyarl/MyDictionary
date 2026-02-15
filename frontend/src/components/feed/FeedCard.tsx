@@ -211,7 +211,7 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 			startOffset,
 			endOffset,
 			x: rect.left + rect.width / 2,
-			y: rect.bottom + window.scrollY + 8,
+			y: rect.bottom + 8,
 		});
 	};
 
