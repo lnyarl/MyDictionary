@@ -21,6 +21,7 @@ import {
   wikiLinkCompletion,
   wikiLinkPlugin,
 } from "./codemirror/wikilink-extension";
+import { quoteBlockPlugin } from "./codemirror/quote-extension";
 import "./codemirror/styles.css";
 import { imageExtension } from "./codemirror/image-extension";
 
@@ -74,6 +75,7 @@ export function CodeMirrorEditor({
         }),
         // closeBrackets(),
         wikiLinkPlugin,
+        quoteBlockPlugin,
         wikiLinkClickHandler((name) => {
           navigate(`/word/${name}`);
         }),
