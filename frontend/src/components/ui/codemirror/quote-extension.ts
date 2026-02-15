@@ -1,4 +1,4 @@
-import { EditorState, StateField } from "@codemirror/state";
+import { type EditorState, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, WidgetType } from "@codemirror/view";
 import { parseQuoteBlocks, type QuoteBlockMetadata } from "@/lib/utils/quote-block";
 

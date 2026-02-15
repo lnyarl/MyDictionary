@@ -41,7 +41,6 @@ export function parseQuoteBlocks(content: string): ParsedQuoteBlock[] {
 				to,
 			});
 		} catch {
-			continue;
 		}
 	}
 
