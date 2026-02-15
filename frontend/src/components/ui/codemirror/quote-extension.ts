@@ -2,7 +2,6 @@ import {
 	Decoration,
 	type DecorationSet,
 	EditorView,
-	MatchDecorator,
 	ViewPlugin,
 	type ViewUpdate,
 	WidgetType,
@@ -100,29 +99,33 @@ class QuoteWidget extends WidgetType {
 	}
 }
 
-const quoteMatcher = new MatchDecorator({
-	regexp: /:::quote\s+\{[^\n]+\}\n[\s\S]*?\n:::/g,
-	decoration: (match) => {
-		const parsed = parseQuoteBlocks(match[0])[0];
-		if (!parsed) {
-			return Decoration.mark({ class: "quote-block-widget__invalid" });
-		}
+function buildQuoteDecorations(view: EditorView): DecorationSet {
+	const content = view.state.doc.toString();
+	const blocks = parseQuoteBlocks(content);
+	if (blocks.length === 0) {
+		return Decoration.none;
+	}
 
+	const decorations = blocks.map((block) => {
 		return Decoration.replace({
-			widget: new QuoteWidget(parsed.metadata, parsed.quoteText),
+			widget: new QuoteWidget(block.metadata, block.quoteText),
 			block: true,
-		});
-	},
-});
+		}).range(block.from, block.to);
+	});
+
+	return Decoration.set(decorations, true);
+}
 
 export const quoteBlockPlugin = ViewPlugin.fromClass(
 	class {
 		decorations: DecorationSet;
 		constructor(view: EditorView) {
-			this.decorations = quoteMatcher.createDeco(view);
+			this.decorations = buildQuoteDecorations(view);
 		}
 		update(update: ViewUpdate) {
-			this.decorations = quoteMatcher.updateDeco(update, this.decorations);
+			if (update.docChanged || update.viewportChanged) {
+				this.decorations = buildQuoteDecorations(update.view);
+			}
 		}
 	},
 	{
