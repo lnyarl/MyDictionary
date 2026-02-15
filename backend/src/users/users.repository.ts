@@ -42,7 +42,7 @@ export class UsersRepository extends BaseRepository {
     userId: string,
     updates: { nickname?: string; bio?: string; profilePicture?: string },
   ): Promise<Users> {
-    const dbUpdates: any = { ...updates };
+    const dbUpdates: { nickname?: string; bio?: string; profile_picture?: string } = { ...updates };
     if (updates.profilePicture) {
       dbUpdates.profile_picture = updates.profilePicture;
       delete dbUpdates.profilePicture;

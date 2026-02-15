@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useFollowers } from "@/hooks/useFollowers";
@@ -18,9 +18,10 @@ export function FollowListDialog({ isOpen, onClose, userId, type }: FollowListDi
   const { t } = useTranslation();
 
   const isFollowers = type === "followers";
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = isFollowers
-    ? useFollowers(userId)
-    : useFollowing(userId);
+  const followersQuery = useFollowers(userId, { enabled: isFollowers });
+  const followingQuery = useFollowing(userId, { enabled: !isFollowers });
+  const activeQuery = isFollowers ? followersQuery : followingQuery;
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = activeQuery;
 
   const users = data?.pages.flatMap((page) => page.data) ?? [];
 

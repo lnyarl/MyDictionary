@@ -142,7 +142,6 @@ export const WikiLinkSuggestion = Extension.create<{
                 return true;
               }
             } else if (event.key === "Escape") {
-              console.log("Escape");
               wikiLinkState.active = false;
               element.style.display = "none";
               return false;

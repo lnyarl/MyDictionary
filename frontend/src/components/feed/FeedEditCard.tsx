@@ -54,7 +54,6 @@ export function FeedEditCard({
 
   const handleSave = async () => {
     if (!content.trim()) return;
-    console.log(definition.content);
 
     setIsSaving(true);
     try {
@@ -96,7 +95,10 @@ export function FeedEditCard({
         )}
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Avatar className="h-6 w-6 cursor-pointer border border-gray-800" onClick={handleUserClick}>
+            <Avatar
+              className="h-6 w-6 cursor-pointer border border-gray-800"
+              onClick={handleUserClick}
+            >
               <AvatarImage src={definition.profilePicture} className="object-cover" />
               <AvatarFallback>{definition.nickname?.[0].toUpperCase() || "U"}</AvatarFallback>
             </Avatar>

@@ -41,7 +41,6 @@ export class WordsRepository extends BaseRepository {
         })
         .returning("*");
 
-      console.log(term);
       await trx("definitions").insert({
         id: generateId(),
         word_id: word.id,
