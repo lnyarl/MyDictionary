@@ -102,7 +102,6 @@ const quoteDecorationField = StateField.define<DecorationSet>({
 	},
 	provide: (field) => [
 		EditorView.decorations.from(field),
-		EditorView.atomicRanges.of((view) => view.state.field(field)),
 	],
 });
 
