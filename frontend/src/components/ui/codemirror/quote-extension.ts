@@ -1,11 +1,5 @@
-import {
-	Decoration,
-	type DecorationSet,
-	EditorView,
-	ViewPlugin,
-	type ViewUpdate,
-	WidgetType,
-} from "@codemirror/view";
+import { EditorState, StateField } from "@codemirror/state";
+import { Decoration, type DecorationSet, EditorView, WidgetType } from "@codemirror/view";
 import { definitionsApi } from "@/lib/api/definitions";
 import { parseQuoteBlocks, type QuoteBlockMetadata } from "@/lib/utils/quote-block";
 
@@ -99,9 +93,8 @@ class QuoteWidget extends WidgetType {
 	}
 }
 
-function buildQuoteDecorations(view: EditorView): DecorationSet {
-	const content = view.state.doc.toString();
-	const blocks = parseQuoteBlocks(content);
+function buildQuoteDecorations(state: EditorState): DecorationSet {
+	const blocks = parseQuoteBlocks(state.doc.toString());
 	if (blocks.length === 0) {
 		return Decoration.none;
 	}
@@ -109,29 +102,27 @@ function buildQuoteDecorations(view: EditorView): DecorationSet {
 	const decorations = blocks.map((block) => {
 		return Decoration.replace({
 			widget: new QuoteWidget(block.metadata, block.quoteText),
+			block: true,
 		}).range(block.from, block.to);
 	});
 
 	return Decoration.set(decorations, true);
 }
 
-export const quoteBlockPlugin = ViewPlugin.fromClass(
-	class {
-		decorations: DecorationSet;
-		constructor(view: EditorView) {
-			this.decorations = buildQuoteDecorations(view);
-		}
-		update(update: ViewUpdate) {
-			if (update.docChanged || update.viewportChanged) {
-				this.decorations = buildQuoteDecorations(update.view);
-			}
-		}
+const quoteDecorationField = StateField.define<DecorationSet>({
+	create(state) {
+		return buildQuoteDecorations(state);
 	},
-	{
-		decorations: (instance) => instance.decorations,
-		provide: (plugin) =>
-			EditorView.atomicRanges.of((view) => {
-				return view.plugin(plugin)?.decorations || Decoration.none;
-			}),
+	update(decorations, transaction) {
+		if (!transaction.docChanged) {
+			return decorations;
+		}
+		return buildQuoteDecorations(transaction.state);
 	},
-);
+	provide: (field) => [
+		EditorView.decorations.from(field),
+		EditorView.atomicRanges.from(field),
+	],
+});
+
+export const quoteBlockPlugin = [quoteDecorationField];
