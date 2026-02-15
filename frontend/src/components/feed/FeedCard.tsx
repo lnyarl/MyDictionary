@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { definitionsApi } from "@/lib/api/definitions";
 import { feedApi } from "@/lib/api/feed";
 import { stringToColor } from "@/lib/utils/color-generator";
 import { i18nToIsoLocale } from "@/lib/utils/date";
@@ -21,6 +22,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import {
+	QUOTE_TOGGLE_EVENT,
+	type QuoteToggleEventDetail,
+} from "../ui/codemirror/quote-extension";
 import { FeedCardContent as RichTextContent } from "./FeedCardContent";
 import { FeedForm } from "./FeedForm";
 
@@ -61,6 +66,7 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 	const isOwner = user?.id === definition.userId;
 	const [quoteSelection, setQuoteSelection] = useState<QuoteSelection | null>(null);
 	const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
+	const [linkedSources, setLinkedSources] = useState<Definition[]>([]);
 
 	const formattedDate = new Date(definition.createdAt).toLocaleDateString(i18nToIsoLocale[i18n.language], {
 		year: "numeric",
@@ -141,6 +147,38 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 		return () => document.removeEventListener("mousedown", handleOutsideClick);
 	}, []);
 
+	useEffect(() => {
+		const handleQuoteToggle = async (event: Event) => {
+			const quoteEvent = event as CustomEvent<QuoteToggleEventDetail>;
+			const detail = quoteEvent.detail;
+			if (!detail || detail.hostDefinitionId !== definition.id) {
+				return;
+			}
+
+			if (linkedSources.some((item) => item.id === detail.sourceDefinitionId)) {
+				setLinkedSources((prev) => prev.filter((item) => item.id !== detail.sourceDefinitionId));
+				return;
+			}
+
+			try {
+				const source = await definitionsApi.getById(detail.sourceDefinitionId);
+				setLinkedSources((prev) => {
+					if (prev.some((item) => item.id === source.id)) {
+						return prev;
+					}
+					return [...prev, source];
+				});
+			} catch (error) {
+				console.error("Failed to load quoted source", error);
+			}
+		};
+
+		document.addEventListener(QUOTE_TOGGLE_EVENT, handleQuoteToggle as EventListener);
+		return () => {
+			document.removeEventListener(QUOTE_TOGGLE_EVENT, handleQuoteToggle as EventListener);
+		};
+	}, [definition.id, linkedSources]);
+
 	const handleContentMouseUp = () => {
 		if (!user) {
 			return;
@@ -179,7 +217,10 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 
 	const needMoreMenu = onDelete || onStartEdit || !isOwner;
 	return (
-		<article className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]">
+		<article
+			className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]"
+			data-definition-id={definition.id}
+		>
 			{definition.term && (
 				<div className="flex flex-col pr-6 h-full md:w-60 w-full">
 					{definition.termNumber && (
@@ -341,6 +382,24 @@ export function FeedCard({ definition, onDelete, onStartEdit, option = { showUse
 					</div>
 				</div>
 			</div>
+
+			{linkedSources.length > 0 && (
+				<div className="w-full mt-4 space-y-3">
+					{linkedSources.map((source) => (
+						<div key={source.id} className="rounded-md border bg-gray-50 p-4 md:ml-66">
+							<a
+								href={`/definitions/${source.id}`}
+								className="text-xs text-gray-500 underline"
+							>
+								원문 보기: {source.term}
+							</a>
+							<div className="mt-2 text-base leading-relaxed text-gray-700">
+								<RichTextContent content={source.content} />
+							</div>
+						</div>
+					))}
+				</div>
+			)}
 
 			{quoteSelection && (
 				<div className="quote-action-menu fixed z-50" style={{ left: quoteSelection.x, top: quoteSelection.y }}>

@@ -1,7 +1,14 @@
 import { EditorState, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, WidgetType } from "@codemirror/view";
-import { definitionsApi } from "@/lib/api/definitions";
 import { parseQuoteBlocks, type QuoteBlockMetadata } from "@/lib/utils/quote-block";
+
+export const QUOTE_TOGGLE_EVENT = "stashy:quote-toggle-source";
+
+export type QuoteToggleEventDetail = {
+	hostDefinitionId?: string;
+	sourceDefinitionId: string;
+	sourceUrl: string;
+};
 
 class QuoteWidget extends WidgetType {
 	constructor(
@@ -34,57 +41,31 @@ class QuoteWidget extends WidgetType {
 		const actionRow = document.createElement("div");
 		actionRow.className = "quote-block-widget__actions";
 
-		const goToSourceButton = document.createElement("button");
-		goToSourceButton.type = "button";
-		goToSourceButton.className = "quote-block-widget__button";
-		goToSourceButton.textContent = "원문 보기";
-		goToSourceButton.addEventListener("click", () => {
-			window.location.href = this.metadata.sourceUrl;
-		});
+		const connectButton = document.createElement("a");
+		connectButton.href = this.metadata.sourceUrl;
+		connectButton.className = "quote-block-widget__button";
+		connectButton.textContent = "인용 원문 연결";
 
-		const openThreadButton = document.createElement("button");
-		openThreadButton.type = "button";
-		openThreadButton.className = "quote-block-widget__button";
-		openThreadButton.textContent = "인용 원문 연결";
-
-		const linkedContent = document.createElement("div");
-		linkedContent.className = "quote-block-widget__linked hidden";
-
-		openThreadButton.addEventListener("click", async () => {
-			if (!linkedContent.classList.contains("hidden")) {
-				linkedContent.classList.add("hidden");
-				openThreadButton.textContent = "인용 원문 연결";
+		connectButton.addEventListener("click", (event) => {
+			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
 				return;
 			}
-
-			if (!linkedContent.dataset.loaded) {
-				linkedContent.textContent = "원문 불러오는 중...";
-				try {
-					const sourceDefinition = await definitionsApi.getById(this.metadata.definitionId);
-					linkedContent.innerHTML = "";
-
-					const linkedTerm = document.createElement("a");
-					linkedTerm.href = this.metadata.sourceUrl;
-					linkedTerm.className = "quote-block-widget__linked-title";
-					linkedTerm.textContent = `${sourceDefinition.term} 원문으로 이동`;
-
-					const linkedText = document.createElement("p");
-					linkedText.className = "quote-block-widget__linked-content";
-					linkedText.textContent = sourceDefinition.content;
-
-					linkedContent.append(linkedTerm, linkedText);
-					linkedContent.dataset.loaded = "true";
-				} catch {
-					linkedContent.textContent = "원문을 불러오지 못했습니다.";
-				}
-			}
-
-			linkedContent.classList.remove("hidden");
-			openThreadButton.textContent = "원문 접기";
+			event.preventDefault();
+			const hostDefinitionId =
+				container.closest("[data-definition-id]")?.getAttribute("data-definition-id") ?? undefined;
+			document.dispatchEvent(
+				new CustomEvent<QuoteToggleEventDetail>(QUOTE_TOGGLE_EVENT, {
+					detail: {
+						hostDefinitionId,
+						sourceDefinitionId: this.metadata.definitionId,
+						sourceUrl: this.metadata.sourceUrl,
+					},
+				}),
+			);
 		});
 
-		actionRow.append(goToSourceButton, openThreadButton);
-		container.append(quoteContent, info, actionRow, linkedContent);
+		actionRow.append(connectButton);
+		container.append(quoteContent, info, actionRow);
 		return container;
 	}
 
@@ -119,10 +100,7 @@ const quoteDecorationField = StateField.define<DecorationSet>({
 		}
 		return buildQuoteDecorations(transaction.state);
 	},
-	provide: (field) => [
-		EditorView.decorations.from(field),
-		EditorView.atomicRanges.from(field),
-	],
+	provide: (field) => [EditorView.decorations.from(field), EditorView.atomicRanges.from(field)],
 });
 
 export const quoteBlockPlugin = [quoteDecorationField];
