@@ -13,7 +13,7 @@ export type ParsedQuoteBlock = {
 	to: number;
 };
 
-const QUOTE_SOURCE_MARKER_REGEX = /\[\[quote-source:(\{[^\n]+\})\]\]/g;
+export const QUOTE_SOURCE_MARKER_REGEX = /\[_\[quote-source:(\{[^\n]+\})\]_\]/;
 
 function toMarkdownBlockquote(text: string): string {
 	return text
@@ -25,7 +25,7 @@ function toMarkdownBlockquote(text: string): string {
 
 export function createQuoteBlock(metadata: QuoteBlockMetadata, quoteText: string): string {
 	const quotedText = toMarkdownBlockquote(quoteText);
-	return `${quotedText}\n[[quote-source:${JSON.stringify(metadata)}]]`;
+	return `${quotedText}\n[_[quote-source:${JSON.stringify(metadata)}]_]`;
 }
 
 export function parseQuoteBlocks(content: string): ParsedQuoteBlock[] {
@@ -47,7 +47,6 @@ export function parseQuoteBlocks(content: string): ParsedQuoteBlock[] {
 				to,
 			});
 		} catch {
-			continue;
 		}
 	}
 

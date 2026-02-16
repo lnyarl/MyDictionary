@@ -1,127 +1,165 @@
-import { EditorState, RangeSetBuilder, StateField } from "@codemirror/state";
+import { type EditorState, RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, WidgetType } from "@codemirror/view";
-import { parseQuoteBlocks, type QuoteBlockMetadata } from "@/lib/utils/quote-block";
+import {
+  parseQuoteBlocks,
+  QUOTE_SOURCE_MARKER_REGEX,
+  type QuoteBlockMetadata,
+} from "@/lib/utils/quote-block";
 
 export const QUOTE_TOGGLE_EVENT = "stashy:quote-toggle-source";
 
 export type QuoteToggleEventDetail = {
-	hostDefinitionId?: string;
-	sourceDefinitionId: string;
-	sourceUrl: string;
+  hostDefinitionId?: string;
+  sourceDefinitionId: string;
+  sourceUrl: string;
 };
 
 class QuoteSourceButtonWidget extends WidgetType {
-	constructor(readonly metadata: QuoteBlockMetadata) {
-		super();
-	}
+  constructor(readonly metadata: QuoteBlockMetadata) {
+    super();
+  }
 
-	eq(other: QuoteSourceButtonWidget) {
-		return (
-			other.metadata.definitionId === this.metadata.definitionId &&
-			other.metadata.sourceUrl === this.metadata.sourceUrl
-		);
-	}
+  eq(other: QuoteSourceButtonWidget) {
+    return (
+      other.metadata.definitionId === this.metadata.definitionId &&
+      other.metadata.sourceUrl === this.metadata.sourceUrl
+    );
+  }
 
-	toDOM() {
-		const container = document.createElement("div");
-		container.className = "quote-block-widget";
+  toDOM() {
+    const container = document.createElement("div");
+    container.className = "quote-block-widget";
 
-		const button = document.createElement("a");
-		button.href = this.metadata.sourceUrl;
-		button.className = "quote-block-widget__button";
-		button.textContent = "인용 원문 연결";
+    const button = document.createElement("a");
+    button.href = this.metadata.sourceUrl;
+    button.className = "quote-block-widget__button";
+    button.textContent = "인용 원문 연결";
 
-		button.addEventListener("click", (event) => {
-			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
-				return;
-			}
-			event.preventDefault();
-			const hostDefinitionId =
-				container.closest("[data-definition-id]")?.getAttribute("data-definition-id") ?? undefined;
-			document.dispatchEvent(
-				new CustomEvent<QuoteToggleEventDetail>(QUOTE_TOGGLE_EVENT, {
-					detail: {
-						hostDefinitionId,
-						sourceDefinitionId: this.metadata.definitionId,
-						sourceUrl: this.metadata.sourceUrl,
-					},
-				}),
-			);
-		});
+    button.addEventListener("click", (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+        return;
+      }
+      event.preventDefault();
+      const hostDefinitionId =
+        container.closest("[data-definition-id]")?.getAttribute("data-definition-id") ?? undefined;
+      document.dispatchEvent(
+        new CustomEvent<QuoteToggleEventDetail>(QUOTE_TOGGLE_EVENT, {
+          detail: {
+            hostDefinitionId,
+            sourceDefinitionId: this.metadata.definitionId,
+            sourceUrl: this.metadata.sourceUrl,
+          },
+        }),
+      );
+    });
 
-		container.append(button);
-		return container;
-	}
-
-	ignoreEvent(event: Event) {
-		const target = event.target;
-		if (!(target instanceof HTMLElement)) {
-			return false;
-		}
-		return event.type === "click" && !!target.closest(".quote-block-widget__button");
-	}
+    container.append(button);
+    return container;
+  }
 }
 
-function isQuoteLine(text: string): boolean {
-	return /^\s*>/.test(text);
+class JustAccessory extends WidgetType {
+  toDOM() {
+    const container = document.createElement("span");
+    container.className = "quote-indent";
+    return container;
+  }
 }
 
-function addQuoteLineDecorations(
-	builder: RangeSetBuilder<Decoration>,
-	state: EditorState,
-	markerFrom: number,
-) {
-	const markerLine = state.doc.lineAt(markerFrom);
-	let lineNumber = markerLine.number - 1;
-	const quoteLines: number[] = [];
+function addQuoteLineDecorations(state: EditorState) {
+  const builder = new RangeSetBuilder<Decoration>();
+  const maxLine = state.doc.lines;
+  for (let i = 0; i < maxLine; i++) {
+    const line = state.doc.line(i + 1);
+    const quotaMatch = line.text.match(/^(> )+/);
+    const sourceMatch = line.text.match(QUOTE_SOURCE_MARKER_REGEX);
+    if (quotaMatch) {
+      const level = quotaMatch[0].length / 2;
+      builder.add(
+        line.from,
+        line.from,
+        Decoration.line({
+          attributes: {
+            class: "cm-quote-line",
+            style: `
+                    background-color: rgba(0, 123, 255, ${Math.min(level * 0.05, 0.15)});
+                    `,
+          },
+        }),
+      );
+      for (let i = 0; i < level; i++) {
+        builder.add(
+          line.from + i * 2,
+          line.from + (i + 1) * 2,
+          Decoration.replace({
+            attributes: {
+              style: `
+                    padding-left: ${i * 12}px;
+                    border-left: 4px solid #007bff;
+                    `,
+            },
 
-	while (lineNumber >= 1) {
-		const line = state.doc.line(lineNumber);
-		if (!isQuoteLine(line.text)) {
-			break;
-		}
-		quoteLines.push(line.from);
-		lineNumber -= 1;
-	}
-
-	for (const lineFrom of quoteLines.reverse()) {
-		builder.add(lineFrom, lineFrom, Decoration.line({ class: "quote-block-line" }));
-	}
-}
-
-function buildQuoteDecorations(state: EditorState): DecorationSet {
-	const blocks = parseQuoteBlocks(state.doc.toString());
-	if (blocks.length === 0) {
-		return Decoration.none;
-	}
-
-	const builder = new RangeSetBuilder<Decoration>();
-	for (const block of blocks) {
-		addQuoteLineDecorations(builder, state, block.from);
-		builder.add(
-			block.from,
-			block.to,
-			Decoration.replace({
-				widget: new QuoteSourceButtonWidget(block.metadata),
-				block: true,
-			}),
-		);
-	}
-
-	return builder.finish();
+            widget: new JustAccessory(),
+          }),
+        );
+      }
+    } 
+	if (sourceMatch) {
+      try {
+        builder.add(
+          line.from,
+          line.to,
+          Decoration.replace({
+            widget: new QuoteSourceButtonWidget(JSON.parse(sourceMatch[1])),
+          }),
+        );
+      } catch {
+      }
+    }
+  }
+  return builder.finish();
 }
 
 const quoteDecorationField = StateField.define<DecorationSet>({
-	create(state) {
-		return buildQuoteDecorations(state);
-	},
-	update(decorations, transaction) {
-		if (!transaction.docChanged) {
-			return decorations;
-		}
-		return buildQuoteDecorations(transaction.state);
-	},
-	provide: (field) => [EditorView.decorations.from(field)],
+  create(state) {
+    return addQuoteLineDecorations(state);
+  },
+  update(decorations, transaction) {
+    if (!transaction.docChanged) {
+      return decorations;
+    }
+    return addQuoteLineDecorations(transaction.state);
+  },
+  provide: (field) => [EditorView.decorations.from(field)],
 });
 
-export const quoteBlockPlugin = [quoteDecorationField];
+const quoteTheme = EditorView.baseTheme({
+  ".cm-quote-line": {
+    display: "flex",
+    margin: "0",
+    transition: "border-left 0.2s, background-color 0.2s",
+    lineHeight: "1.7rem",
+  },
+  ".cm-line": {
+    paddingLeft: "0px",
+  },
+  ".cm-widgetBuffer": {
+    display: "none",
+  },
+  ".quote-indent": {
+    borderLeft: "3px solid #729fcf",
+    paddingRight: "12px",
+  },
+  ".cm-hidden-marker": {
+    display: "inline-block",
+    width: "0",
+    height: "0",
+    fontSize: "0",
+    opacity: "0",
+    overflow: "hidden",
+    pointerEvents: "none",
+    verticalAlign: "top",
+  },
+});
+
+export const quoteBlockPlugin = [quoteDecorationField, quoteTheme];

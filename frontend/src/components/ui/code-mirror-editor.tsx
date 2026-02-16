@@ -29,6 +29,7 @@ type CodeMirrorEditorProps = {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onMouseUp?: (e: React.MouseEvent, view: EditorView) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -40,6 +41,7 @@ export function CodeMirrorEditor({
   value,
   onChange,
   onKeyDown,
+  onMouseUp,
   placeholder = "",
   className,
   disabled,
@@ -74,8 +76,9 @@ export function CodeMirrorEditor({
           },
         }),
         // closeBrackets(),
-        wikiLinkPlugin,
         quoteBlockPlugin,
+        wikiLinkPlugin,
+        // quoteExtension,
         wikiLinkClickHandler((name) => {
           navigate(`/word/${name}`);
         }),
@@ -106,6 +109,11 @@ export function CodeMirrorEditor({
               onKeyDown(e as unknown as React.KeyboardEvent);
             }
           },
+          mouseup: (e, view) => {
+            if(onMouseUp) {
+              onMouseUp(e as unknown as React.MouseEvent, view)
+            }
+          }
         }),
       ],
     });
