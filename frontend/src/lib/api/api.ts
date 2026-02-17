@@ -18,6 +18,11 @@ interface RequestOptions extends RequestInit {
   showErrorToast?: boolean;
 }
 
+export type AuthTokens = {
+  accessToken: string;
+  refreshToken?: string;
+};
+
 function getLocalizedErrorMessage(error: ApiError): string {
   const translatedMessage = i18n.t(error.errorCode, { ns: "errors", defaultValue: "" });
   if (translatedMessage && translatedMessage !== error.errorCode) {
@@ -46,14 +51,54 @@ export const queryClient = new QueryClient({
 export class ApiClient {
   private baseUrl: string;
   private refreshPromise: Promise<boolean> | null = null;
+  private authTokens: AuthTokens | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
+    this.authTokens = this.getStoredAuthTokens();
+  }
+
+  setAuthTokens(tokens: AuthTokens) {
+    this.authTokens = tokens;
+    this.storeAuthTokens(tokens);
+  }
+
+  clearAuthTokens() {
+    this.authTokens = null;
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("stashy_auth_tokens");
+    }
+  }
+
+  private getStoredAuthTokens(): AuthTokens | null {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    const raw = window.localStorage.getItem("stashy_auth_tokens");
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as AuthTokens;
+    } catch (_error) {
+      window.localStorage.removeItem("stashy_auth_tokens");
+      return null;
+    }
+  }
+
+  private storeAuthTokens(tokens: AuthTokens) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem("stashy_auth_tokens", JSON.stringify(tokens));
   }
 
   private async refreshToken(): Promise<boolean> {
     if (this.refreshPromise) {
-      return this.refreshPromise!;
+      return this.refreshPromise;
     }
 
     this.refreshPromise = this.doRefreshToken();
@@ -66,12 +111,35 @@ export class ApiClient {
 
   private async doRefreshToken(): Promise<boolean> {
     try {
+      const headers: HeadersInit = {};
+      const refreshToken = this.authTokens?.refreshToken;
+
+      if (refreshToken) {
+        headers.Authorization = `Bearer ${refreshToken}`;
+      }
+
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: "POST",
-        credentials: "include",
+        headers,
       });
 
-      return response.ok;
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = (await response.json().catch(() => null)) as {
+        token?: string;
+        refreshToken?: string;
+      } | null;
+
+      if (data?.token) {
+        this.setAuthTokens({
+          accessToken: data.token,
+          refreshToken: data.refreshToken ?? this.authTokens?.refreshToken,
+        });
+      }
+
+      return true;
     } catch {
       return false;
     }
@@ -90,10 +158,13 @@ export class ApiClient {
       headers["Content-Type"] = "application/json";
     }
 
+    if (this.authTokens?.accessToken) {
+      headers.Authorization = `Bearer ${this.authTokens.accessToken}`;
+    }
+
     const config: RequestInit = {
       ...fetchOptions,
       headers,
-      credentials: "include",
     };
 
     try {
@@ -109,6 +180,7 @@ export class ApiClient {
           if (new URL(window.location.href).pathname !== "/") {
             window.location.href = "/";
           }
+          this.clearAuthTokens();
           throw new Error("Session expired");
         }
       }
@@ -132,6 +204,9 @@ export class ApiClient {
       return await response.json();
     } catch (error) {
       if (error && typeof error === "object" && "statusCode" in error && "errorCode" in error) {
+        throw error;
+      }
+      if (error instanceof Error && error.message === "Session expired") {
         throw error;
       }
       const networkError: ApiError = {

@@ -1,11 +1,10 @@
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import cookieParser from "cookie-parser";
 import pg from "pg";
 import { AppModule } from "./app.module";
+import { LoggingInterceptor } from "./common/access-logger";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { setApp } from "./globalApp";
-import { LoggingInterceptor } from "./common/access-logger";
 
 // pg 설정: BigInt를 JavaScript의 number로 변환
 // 일반으로는 안전하지 않지만, 이 프로젝트에서는 BigInt가 안전한 범위 내에 있다고 가정
@@ -22,14 +21,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   setApp(app);
 
-  // Cookie Parser
-  app.use(cookieParser());
-
   // CORS 설정 - 개발 환경에서는 모든 오리진 허용
   const isDevelopment = process.env.NODE_ENV !== "production";
   app.enableCors({
     origin: isDevelopment ? true : process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
+    credentials: false,
   });
 
   // Global Exception Filter
@@ -47,7 +43,6 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-
 
   const logger = new Logger("Bootstrap");
   logger.log(`Application is running on: http://localhost:${port}`);
