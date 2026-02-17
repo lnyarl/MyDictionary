@@ -30,6 +30,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   }
 
   async validate(payload: JwtPayload) {
+    console.log("@! 1", payload);
+    console.log("@! 2", JSON.stringify(payload));
     const user = await this.usersService.findById(payload.sub);
 
     if (!user) {
