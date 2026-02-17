@@ -30,11 +30,11 @@ export class AuthController {
   ) {}
 
   private getCookieOptions(maxAge: number): CookieOptions {
-    const isDevelopment = this.configService.get("NODE_ENV") !== "production";
+    // const isDevelopment = this.configService.get("NODE_ENV") !== "production";
     return {
       httpOnly: true,
-      secure: !isDevelopment,
-      sameSite: isDevelopment ? "lax" : "none",
+      secure: true,
+      sameSite: "none",
       maxAge,
       path: "/",
     };
