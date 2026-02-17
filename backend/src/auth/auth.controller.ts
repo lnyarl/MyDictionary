@@ -9,10 +9,9 @@ import {
   UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { AuthGuard } from "@nestjs/passport";
 import { GoogleLoginDto } from "@stashy/shared/dto/auth/google-login.dto";
-import type { CookieOptions, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { Public } from "../common/decorators/public.decorator";
 import { EventEmitterService } from "../common/events";
 import { forbidden } from "../common/exceptions/business.exception";
@@ -24,20 +23,17 @@ import { AuthService } from "./auth.service";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitterService,
     private readonly loginStreaksService: LoginStreaksService,
   ) {}
 
-  private getCookieOptions(maxAge: number): CookieOptions {
-    // const isDevelopment = this.configService.get("NODE_ENV") !== "production";
-    return {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge,
-      path: "/",
-    };
+  private extractBearerToken(req: Request): string | undefined {
+    const authorization = req.headers.authorization;
+    if (!authorization?.startsWith("Bearer ")) {
+      return undefined;
+    }
+
+    return authorization.slice(7).trim() || undefined;
   }
 
   @Public()
@@ -53,12 +49,6 @@ export class AuthController {
 
     const { accessToken, refreshToken } = await this.authService.generateTokenPair(user);
 
-    const accessTokenMaxAge = 60 * 60 * 1000;
-    const refreshTokenMaxAge = 30 * 24 * 60 * 60 * 1000;
-
-    res.cookie("access_token", accessToken, this.getCookieOptions(accessTokenMaxAge));
-    res.cookie("refresh_token", refreshToken, this.getCookieOptions(refreshTokenMaxAge));
-
     const { areadyChecked, streak } = await this.loginStreaksService.recordLogin(user.id);
     if (!areadyChecked) {
       await this.eventEmitter.emitUserDailyLogin(user.id);
@@ -69,16 +59,21 @@ export class AuthController {
     return res.status(HttpStatus.OK).json({
       user: userWithoutDeletedAt,
       token: accessToken,
+      refreshToken,
+      authMode: "bearer",
     });
   }
 
   @Public()
   @Post("/auth/refresh")
-  async refreshToken(@Req() req: Request, @Res() res: Response) {
-    const refreshToken = req.cookies?.refresh_token;
+  async refreshToken(
+    @Req() req: Request,
+    @Body() body: { refreshToken?: string },
+    @Res() res: Response,
+  ) {
+    const refreshToken = body.refreshToken ?? this.extractBearerToken(req);
 
     if (!refreshToken) {
-      res.clearCookie("refresh_token");
       throw new UnauthorizedException("Refresh token not found");
     }
 
@@ -88,11 +83,6 @@ export class AuthController {
       user,
     } = await this.authService.refreshAccessToken(refreshToken);
 
-    const accessTokenMaxAge = 15 * 60 * 1000; // 15분
-    const refreshTokenMaxAge = 30 * 24 * 60 * 60 * 1000; // 30일
-    res.cookie("access_token", accessToken, this.getCookieOptions(accessTokenMaxAge));
-    res.cookie("refresh_token", newRefreshToken, this.getCookieOptions(refreshTokenMaxAge));
-
     const { areadyChecked, streak } = await this.loginStreaksService.recordLogin(user.id);
     if (!areadyChecked) {
       await this.eventEmitter.emitUserDailyLogin(user.id);
@@ -103,6 +93,8 @@ export class AuthController {
     return res.status(HttpStatus.OK).json({
       user: userWithoutDeletedAt,
       token: accessToken,
+      refreshToken: newRefreshToken,
+      authMode: "bearer",
     });
   }
 
@@ -117,16 +109,13 @@ export class AuthController {
 
   @Public()
   @Post("/auth/logout")
-  async logout(@Req() req: Request, @Res() res: Response) {
-    const refreshToken = req.cookies?.refresh_token;
+  async logout(@Req() req: Request, @Body() body: { refreshToken?: string }, @Res() res: Response) {
+    const refreshToken = body.refreshToken ?? this.extractBearerToken(req);
 
     if (refreshToken) {
       await this.authService.revokeRefreshToken(refreshToken);
     }
 
-    const cookieOptions = this.getCookieOptions(0);
-    res.clearCookie("access_token", cookieOptions);
-    res.clearCookie("refresh_token", cookieOptions);
     return res.status(HttpStatus.OK).json({ message: "Logged out successfully" });
   }
 
@@ -145,18 +134,11 @@ export class AuthController {
 
     const { accessToken, refreshToken } = await this.authService.generateTokenPair(user, true);
 
-    const accessTokenMaxAge = 60 * 60 * 1000;
-    const refreshTokenMaxAge = 60 * 60 * 1000;
-    const domain = URL.parse(this.configService.get<string>("FRONTEND_URL")).hostname;
-    res.cookie("access_token", accessToken, {
-      ...this.getCookieOptions(accessTokenMaxAge),
-      domain,
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      token: accessToken,
+      refreshToken,
+      authMode: "bearer",
     });
-    res.cookie("refresh_token", refreshToken, {
-      ...this.getCookieOptions(refreshTokenMaxAge),
-      domain,
-    });
-
-    return res.status(HttpStatus.OK).json({ success: true });
   }
 }
