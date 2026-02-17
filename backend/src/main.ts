@@ -5,6 +5,7 @@ import pg from "pg";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { setApp } from "./globalApp";
+import { LoggingInterceptor } from "./common/access-logger";
 
 // pg 설정: BigInt를 JavaScript의 number로 변환
 // 일반으로는 안전하지 않지만, 이 프로젝트에서는 BigInt가 안전한 범위 내에 있다고 가정
@@ -33,6 +34,7 @@ async function bootstrap() {
 
   // Global Exception Filter
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   // Global Validation Pipe
   app.useGlobalPipes(
@@ -45,6 +47,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
+
 
   const logger = new Logger("Bootstrap");
   logger.log(`Application is running on: http://localhost:${port}`);

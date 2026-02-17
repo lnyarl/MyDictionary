@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import { BullModule } from "@nestjs/bullmq";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import Redis from "ioredis";
@@ -87,4 +87,4 @@ import { WordsModule } from "./words/words.module";
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
