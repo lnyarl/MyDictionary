@@ -1,18 +1,6 @@
-export enum ReportReason {
-  SPAM = "SPAM",
-  HARASSMENT = "HARASSMENT",
-  HATE_SPEECH = "HATE_SPEECH",
-  MISINFORMATION = "MISINFORMATION",
-  INAPPROPRIATE = "INAPPROPRIATE",
-  OTHER = "OTHER",
-}
+import { ReportReason, ReportStatus } from "../dto/report/report.dto";
 
-export enum ReportStatus {
-  PENDING = "PENDING",
-  REVIEWING = "REVIEWING",
-  RESOLVED = "RESOLVED",
-  DISMISSED = "DISMISSED",
-}
+export { ReportReason, ReportStatus };
 
 export type Report = {
   id: string;
@@ -35,19 +23,6 @@ export type ReportDetail = {
   definitionContent: string;
   definitionMediaUrls: { url: string; type: string }[];
 } & Report;
-
-export const ReportSelect = {
-  id: "id",
-  reporterId: "reporter_id",
-  reportedUserId: "reported_user_id",
-  definitionId: "definition_id",
-  reason: "reason",
-  status: "status",
-  description: "description",
-  createdAt: "created_at",
-  updatedAt: "updated_at",
-  resolvedAt: "resolved_at",
-} as const;
 
 export type ReportInsert = {
   reporterId: string;

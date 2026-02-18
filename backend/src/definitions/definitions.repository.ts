@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Definition, generateId } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
-import { DefinitionSelect, OnlyDefinitionSelect } from "./entities/definition.entity";
 
 @Injectable()
 export class DefinitionsRepository extends BaseRepository {
@@ -15,7 +14,19 @@ export class DefinitionsRepository extends BaseRepository {
     const listQuery = baseQuery
       .clone()
       .orderBy("created_at", "DESC")
-      .select<Definition[]>(OnlyDefinitionSelect)
+      .select<Definition[]>({
+        id: "definitions.id",
+        content: "content",
+        wordId: "word_id",
+        termId: "term_id",
+        userId: "definitions.user_id",
+        isPublic: "definitions.is_public",
+        tags: "tags",
+        mediaUrls: "media_urls",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        deletedAt: "definitions.deleted_at",
+      })
       .limit(limit);
 
     return listQuery;
@@ -27,14 +38,38 @@ export class DefinitionsRepository extends BaseRepository {
 
   findById(definitionId: string) {
     return this.query("definitions")
-      .select<Definition>(OnlyDefinitionSelect)
+      .select<Definition>({
+        id: "definitions.id",
+        content: "content",
+        wordId: "word_id",
+        termId: "term_id",
+        userId: "definitions.user_id",
+        isPublic: "definitions.is_public",
+        tags: "tags",
+        mediaUrls: "media_urls",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        deletedAt: "definitions.deleted_at",
+      })
       .where({ id: definitionId })
       .first();
   }
 
   findByWordIdAndUserId(wordId: string, userId: string) {
     return this.query("definitions")
-      .select<Definition[]>(OnlyDefinitionSelect)
+      .select<Definition[]>({
+        id: "definitions.id",
+        content: "content",
+        wordId: "word_id",
+        termId: "term_id",
+        userId: "definitions.user_id",
+        isPublic: "definitions.is_public",
+        tags: "tags",
+        mediaUrls: "media_urls",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        deletedAt: "definitions.deleted_at",
+      })
       .where({ word_id: wordId, user_id: userId })
       .orderBy("created_at", "desc");
   }
@@ -86,7 +121,21 @@ export class DefinitionsRepository extends BaseRepository {
     }
 
     return baseQuery
-      .select<Definition[]>(DefinitionSelect)
+      .select<Definition[]>({
+        id: "definitions.id",
+        content: "content",
+        wordId: "word_id",
+        termId: "term_id",
+        userId: "definitions.user_id",
+        isPublic: "definitions.is_public",
+        tags: "tags",
+        mediaUrls: "media_urls",
+        nickname: "users.nickname",
+        profilePicture: "users.profile_picture",
+        createdAt: "definitions.created_at",
+        updatedAt: "definitions.updated_at",
+        deletedAt: "definitions.deleted_at",
+      })
       .orderBy(`definitions.created_at`, "DESC");
   }
 

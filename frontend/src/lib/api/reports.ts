@@ -1,4 +1,4 @@
-import type { ReportReason } from "@stashy/shared/entities/report.entity";
+import type { ReportReason } from "@stashy/shared/dto/report/report.dto";
 import { api } from "@/lib/api/api";
 
 export interface CreateReportDto {

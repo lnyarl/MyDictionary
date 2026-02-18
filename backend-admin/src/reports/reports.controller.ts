@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Query } from "@nestjs/common";
 import { PaginationDto } from "@stashy/shared";
 import { AdminRole } from "../admin-users/entities/admin-user.entity";
 import { Roles } from "../auth/decorators/roles.decorator";

@@ -65,6 +65,16 @@ Stashy is a full-stack dictionary application.
 - **Shared Workspace**: Definitions used by both FE and BE must reside in `shared/`.
 - **Interfaces**: Prefer `interface` for object shapes and `type` for unions/aliases.
 
+### Type Boundaries (Must Follow)
+- **DTO (`*Dto`)**: API contract between backend and frontend/admin frontend.
+  - Place shared API DTOs under `shared/src/dto` (or `shared/src/admin/dto` for admin API).
+  - DTOs must be **data-only** (no business logic/helper methods).
+- **Entity/Repository Model**: Data interface between repository and service layers.
+  - Keep entity/repository model types **close to repository domain** (backend or backend-admin), not as cross-app DTOs.
+  - Entity types must be **data-only** (no business logic/helper methods).
+- Do not mix DTO purpose and entity purpose in one type file.
+
+
 ### Error Handling & Validation
 - **Backend**:
   - Use `HttpException` (and subclasses like `NotFoundException`, `BadRequestException`) for API responses.
@@ -82,6 +92,10 @@ Stashy is a full-stack dictionary application.
 - **Transactions**: Use `this.transaction(async (trx) => { ... })` for atomic operations involving multiple tables.
 - **Migrations**: SQL-based migrations are located in `migrations/` folders and run via `migrate.js`.
 - Avoid using Triggers and Functions
+- **Snake→Camel Mapping Rule**:
+  - Do **not** create or reuse global/shared select mapping constants (e.g., shared `*Select` objects).
+  - Write the mapping explicitly in each repository query (hardcoded local `.select({ ... })` or `returning([... as ...])`).
+  - Prefer locality/readability over DRY for DB column alias mapping.
 
 ### Authentication
 - **Backend**: Passport.js with JWT and Google OAuth strategies. Use `@CurrentUser()` decorator to access authenticated user info.

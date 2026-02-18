@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { CreateAdminUserDto } from "@stashy/shared/admin/dto/admin-user/create-admin-user.dto";
+import { UpdateAdminRoleDto } from "@stashy/shared/admin/dto/admin-user/update-admin-role.dto";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { AdminUsersService } from "./admin-users.service";
-import { CreateAdminUserDto } from "./dto/create-admin-user.dto";
-import { UpdateAdminRoleDto } from "./dto/update-admin-role.dto";
 import { AdminRole } from "./entities/admin-user.entity";
 
 @Controller()

@@ -18,3 +18,12 @@
 
 ## controller
 * Define absolute paths in method-level decorators instead of using base paths in controller decorators for better grep-ability. 
+
+## dto-entity-boundary
+* DTO (`*Dto`) is only for backend↔frontend contracts.
+* Entity/repository model types are only for repository↔service contracts.
+* DTO/entity files must be data-only (no logic/helper methods).
+
+## query-mapping
+* Do not reuse shared/global snake_case→camelCase select maps.
+* Each repository query should define its own local mapping explicitly.

@@ -1,6 +1,5 @@
 import { Injectable, Scope } from "@nestjs/common";
 import { generateId } from "@stashy/shared";
-import { UserSelect } from "@stashy/shared/entities/user.entity";
 import { Users } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 import { Follow, FollowSelect } from "./entities/follow.entity";
@@ -28,17 +27,19 @@ export class FollowsRepository extends BaseRepository {
     const listQuery = baseQuery
       .clone()
       .leftJoin("users", `follows.follower_id`, `users.id`)
-      .select<(Users & { followCreatedAt: Date })[]>(
-        Object.keys(UserSelect).reduce(
-          (acc, key) => {
-            acc[key] = `users.${UserSelect[key]}`;
-            return acc;
-          },
-          {
-            followCreatedAt: `follows.created_at`,
-          },
-        ),
-      )
+      .select<(Users & { followCreatedAt: Date })[]>({
+        id: "users.id",
+        googleId: "users.google_id",
+        email: "users.email",
+        nickname: "users.nickname",
+        bio: "users.bio",
+        profilePicture: "users.profile_picture",
+        createdAt: "users.created_at",
+        updatedAt: "users.updated_at",
+        deletedAt: "users.deleted_at",
+        suspendedAt: "users.suspended_at",
+        followCreatedAt: "follows.created_at",
+      })
       .limit(limit)
       .orderBy(`follows.created_at`, "desc");
 
@@ -62,17 +63,19 @@ export class FollowsRepository extends BaseRepository {
     const listQuery = baseQuery
       .clone()
       .leftJoin("users", `follows.following_id`, `users.id`)
-      .select<(Users & { followCreatedAt: Date })[]>(
-        Object.keys(UserSelect).reduce(
-          (acc, key) => {
-            acc[key] = `users.${UserSelect[key]}`;
-            return acc;
-          },
-          {
-            followCreatedAt: `follows.created_at`,
-          },
-        ),
-      )
+      .select<(Users & { followCreatedAt: Date })[]>({
+        id: "users.id",
+        googleId: "users.google_id",
+        email: "users.email",
+        nickname: "users.nickname",
+        bio: "users.bio",
+        profilePicture: "users.profile_picture",
+        createdAt: "users.created_at",
+        updatedAt: "users.updated_at",
+        deletedAt: "users.deleted_at",
+        suspendedAt: "users.suspended_at",
+        followCreatedAt: "follows.created_at",
+      })
       .limit(limit)
       .orderBy("follows.created_at", "desc");
     return listQuery;
@@ -103,26 +106,18 @@ export class FollowsRepository extends BaseRepository {
       .pluck("follower_id");
   }
 
-  delete(id: string) {
-    return this.softDelete("follows", id);
-  }
-
-  create(follow: Partial<Follow>) {
-    const now = new Date();
+  createFollow(followerId: string, followingId: string) {
     return this.knex("follows")
       .insert({
-        id: follow.id || generateId(),
-        follower_id: follow.followerId,
-        following_id: follow.followingId,
-        created_at: now,
-        updated_at: now,
+        id: generateId(),
+        follower_id: followerId,
+        following_id: followingId,
       })
-      .returning([
-        "id",
-        "follower_id as followerId",
-        "following_id as followingId",
-        "created_at as createdAt",
-        "updated_at as updatedAt",
-      ]);
+      .returning(FollowSelect)
+      .then((rows) => rows[0]);
+  }
+
+  deleteFollow(id: string) {
+    return this.softDelete("follows", id);
   }
 }

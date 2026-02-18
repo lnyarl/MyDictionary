@@ -1,5 +1,8 @@
 import { IsEnum, IsString, MinLength } from "class-validator";
-import { AdminRole, type AdminRoleType } from "../entities/admin-user.entity";
+
+const assignableAdminRoles = ["developer", "operator"] as const;
+
+export type AssignableAdminRole = (typeof assignableAdminRoles)[number];
 
 export class CreateAdminUserDto {
   @IsString()
@@ -10,6 +13,6 @@ export class CreateAdminUserDto {
   @MinLength(8)
   password: string;
 
-  @IsEnum([AdminRole.DEVELOPER, AdminRole.OPERATOR])
-  role: Exclude<AdminRoleType, "super_admin">;
+  @IsEnum(assignableAdminRoles)
+  role: AssignableAdminRole;
 }

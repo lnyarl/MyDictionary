@@ -1,13 +1,24 @@
 import { Injectable } from "@nestjs/common";
 import { Reports } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
-import { ReportSelect, ReportStatus } from "./entities/report.entity";
+import { ReportStatus } from "./entities/report.entity";
 
 @Injectable()
 export class ReportsRepository extends BaseRepository {
   async findAll(offset: number, limit: number) {
     const listQuery = this.knex("reports")
-      .select(ReportSelect)
+      .select({
+        id: "id",
+        reporterId: "reporter_id",
+        reportedUserId: "reported_user_id",
+        definitionId: "definition_id",
+        reason: "reason",
+        status: "status",
+        description: "description",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        resolvedAt: "resolved_at",
+      })
       .offset(offset)
       .limit(limit)
       .orderBy("created_at", "desc");
@@ -20,7 +31,21 @@ export class ReportsRepository extends BaseRepository {
   }
 
   async findById(id: string): Promise<Reports | null> {
-    return this.knex("reports").where({ id }).select(ReportSelect).first();
+    return this.knex("reports")
+      .where({ id })
+      .select({
+        id: "id",
+        reporterId: "reporter_id",
+        reportedUserId: "reported_user_id",
+        definitionId: "definition_id",
+        reason: "reason",
+        status: "status",
+        description: "description",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        resolvedAt: "resolved_at",
+      })
+      .first();
   }
 
   async findByIdWithDetails(id: string): Promise<Reports | null> {

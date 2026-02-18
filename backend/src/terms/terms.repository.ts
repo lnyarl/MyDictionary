@@ -1,5 +1,4 @@
 import { Injectable, Scope } from "@nestjs/common";
-import { TermSelect } from "@stashy/shared";
 import { Terms } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 
@@ -55,6 +54,14 @@ export class TermsRepository extends BaseRepository {
   }
 
   async findById(id: string) {
-    return this.query("terms").select<Terms>(TermSelect).where({ id }).first();
+    return this.query("terms")
+      .select<Terms>({
+        id: "terms.id",
+        text: "terms.text",
+        number: "terms.number",
+        createdAt: "terms.created_at",
+      })
+      .where({ id })
+      .first();
   }
 }

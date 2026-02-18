@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
-import { User } from "@stashy/shared/entities/user.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Injectable()
 export class SuspendedUserGuard implements CanActivate {

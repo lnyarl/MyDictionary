@@ -1,5 +1,3 @@
-export {
-  Report,
-  ReportSelect,
-  ReportStatus,
-} from "@stashy/shared/entities/report.entity";
+import { ReportStatus } from "@stashy/shared/dto/report/report.dto";
+
+export { ReportStatus };

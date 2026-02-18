@@ -1,8 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { generateId } from "@stashy/shared";
-import { UserInsert } from "@stashy/shared/entities/user.entity";
 import { Users } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
+
+type UserInsert = {
+  email: string;
+  nickname: string;
+  googleId?: string | null;
+  profilePicture?: string | null;
+};
 
 @Injectable()
 export class UsersRepository extends BaseRepository {

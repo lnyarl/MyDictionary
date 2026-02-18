@@ -4,8 +4,8 @@ import {
   PaginatedResponseDto,
   PaginationDto,
 } from "@stashy/shared/admin/dto/pagination.dto";
+import { CreateUserDto } from "@stashy/shared/admin/dto/user/create-user.dto";
 import { Users } from "@stashy/shared/types/db_entity.generated";
-import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
