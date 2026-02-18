@@ -85,10 +85,18 @@ export default function UserDetailPage() {
 		if (!id) return;
 		try {
 			const { token } = await usersApi.impersonateUser(id);
-			await mainBackendApi.post("/auth/session", { token });
+			const session = await mainBackendApi.post<{
+				token: string;
+				refreshToken?: string;
+			}>("/auth/session", { token });
 			const mainAppUrl =
 				import.meta.env.VITE_MAIN_APP_URL || "http://localhost:5173";
-			window.open(mainAppUrl, "_blank");
+			const loginUrl = new URL(mainAppUrl);
+			loginUrl.searchParams.set("mockAccessToken", session.token);
+			if (session.refreshToken) {
+				loginUrl.searchParams.set("mockRefreshToken", session.refreshToken);
+			}
+			window.open(loginUrl.toString(), "_blank");
 		} catch (error) {
 			console.error("Failed to mock login", error);
 			alert("Failed to mock login");

@@ -23,6 +23,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mockAccessToken = params.get("mockAccessToken");
+    const mockRefreshToken = params.get("mockRefreshToken");
+
+    if (mockAccessToken) {
+      api.setAuthTokens({
+        accessToken: mockAccessToken,
+        refreshToken: mockRefreshToken ?? undefined,
+      });
+
+      params.delete("mockAccessToken");
+      params.delete("mockRefreshToken");
+      const queryString = params.toString();
+      const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", nextUrl);
+    }
+
     fetchUser({ showErrorToast: false });
   }, [fetchUser]);
 
