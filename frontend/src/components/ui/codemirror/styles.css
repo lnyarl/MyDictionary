@@ -50,3 +50,48 @@
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+.quote-block-widget {
+  margin: 8px 0;
+}
+
+.quote-block-line {
+  background: #f3f4f6;
+  padding-left: 10px;
+  margin-left: 2px;
+}
+
+.quote-block-widget__button {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.quote-block-widget__linked {
+  margin-top: 10px;
+  border-top: 1px solid #d1d5db;
+  padding-top: 8px;
+}
+
+.quote-block-widget__linked.hidden {
+  display: none;
+}
+
+.quote-block-widget__linked-title {
+  display: inline-block;
+  font-size: 12px;
+  margin-bottom: 6px;
+  text-decoration: underline;
+}
+
+.quote-block-widget__linked-content {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #4b5563;
+  font-size: 13px;
+}

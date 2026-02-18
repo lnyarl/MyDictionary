@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   acceptCompletion,
   autocompletion,
@@ -5,7 +6,7 @@ import {
   completionStatus,
 } from "@codemirror/autocomplete";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
-import { Compartment, EditorState } from "@codemirror/state";
+import { Compartment, EditorState, type SelectionRange } from "@codemirror/state";
 import {
   drawSelection,
   dropCursor,
@@ -15,19 +16,21 @@ import {
 } from "@codemirror/view";
 import { type RefObject, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { imageExtension } from "./codemirror/image-extension";
+import { quoteBlockPlugin } from "./codemirror/quote-extension";
+import "./codemirror/styles.css";
 import {
   wikiLinkClickHandler,
   wikiLinkCompletion,
   wikiLinkPlugin,
 } from "./codemirror/wikilink-extension";
-import "./codemirror/styles.css";
-import { imageExtension } from "./codemirror/image-extension";
 
 type CodeMirrorEditorProps = {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onMouseUp?: (e: React.MouseEvent, view: EditorView) => void;
+  onSelectionChange?: (range: SelectionRange, view: EditorView) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -39,6 +42,8 @@ export function CodeMirrorEditor({
   value,
   onChange,
   onKeyDown,
+  onMouseUp,
+  onSelectionChange,
   placeholder = "",
   className,
   disabled,
@@ -55,6 +60,16 @@ export function CodeMirrorEditor({
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!editorRef.current) return;
+    const selectionListener = EditorView.updateListener.of((update) => {
+      // 선택 영역이 변경되었는지 확인
+      if (onSelectionChange) {
+        if (update.selectionSet) {
+          const selection = update.state.selection;
+          const mainRange = selection.main; // 가장 최근/주요 선택 영역
+          onSelectionChange(mainRange, update.view);
+        }
+      }
+    });
     const startState = EditorState.create({
       doc: value,
       extensions: [
@@ -73,7 +88,9 @@ export function CodeMirrorEditor({
           },
         }),
         // closeBrackets(),
+        quoteBlockPlugin,
         wikiLinkPlugin,
+        // quoteExtension,
         wikiLinkClickHandler((name) => {
           navigate(`/word/${name}`);
         }),
@@ -98,11 +115,23 @@ export function CodeMirrorEditor({
             },
           },
         ]),
+        selectionListener,
         EditorView.domEventHandlers({
           keydown: (e) => {
             if (onKeyDown) {
               onKeyDown(e as unknown as React.KeyboardEvent);
             }
+          },
+          mouseup: (e, view) => {
+            if (onMouseUp) {
+              onMouseUp(e as unknown as React.MouseEvent, view);
+            }
+          },
+        }),
+        EditorView.theme({
+          ".cm-cursor": {
+            borderLeftWidth: "1px",
+            height: "1.2em",
           },
         }),
       ],
