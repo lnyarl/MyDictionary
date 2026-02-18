@@ -49,7 +49,7 @@ export class FollowsService {
       throw new BadRequestException("Already following this user");
     }
 
-    const result = await this.followRepository.create({
+    const result = await this.followRepository.createFollow({
       followerId,
       followingId,
     });
@@ -76,7 +76,7 @@ export class FollowsService {
       throw new NotFoundException("Follow relationship not found");
     }
 
-    await this.followRepository.delete(follow.id);
+    await this.followRepository.deleteFollow(follow.id);
     await this.eventEmitter.emitUnfollow(followerId, followingId);
   }
 

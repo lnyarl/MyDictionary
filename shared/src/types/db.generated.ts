@@ -3,7 +3,10 @@
  * DO NOT EDIT MANUALLY.
  */
 
-export type AdminRole = "super_admin" | "developer" | "operator";
+export type AdminRole = 
+  | "super_admin"
+  | "developer"
+  | "operator";
 
 export type admin_users = {
   id: string;
@@ -181,6 +184,7 @@ export type user_login_streaks = {
   last_login_at: Date;
   created_at?: Date | null;
   updated_at?: Date | null;
+  deleted_at?: Date | null;
 };
 
 export type users = {
@@ -197,7 +201,7 @@ export type users = {
 };
 
 export type vw_definitions_with_likes = {
-  id: string;
+  id?: string | null;
   content?: string | null;
   word_id?: string | null;
   user_id?: string | null;
@@ -212,7 +216,7 @@ export type vw_definitions_with_likes = {
 };
 
 export type vw_latest_definitions = {
-  id: string;
+  id?: string | null;
   content?: string | null;
   word_id?: string | null;
   user_id?: string | null;
@@ -229,7 +233,7 @@ export type vw_latest_definitions = {
 };
 
 export type vw_words_with_stats = {
-  id: string;
+  id?: string | null;
   term?: string | null;
   user_id?: string | null;
   created_at?: Date | null;
@@ -249,7 +253,7 @@ export type words = {
   deleted_at?: Date | null;
 };
 
-export type DBTableNameStr =
+export type DBTableNameStr = 
   | "admin_users"
   | "badges"
   | "definition_histories"
@@ -272,27 +276,27 @@ export type DBTableNameStr =
   | "vw_words_with_stats"
   | "words";
 export interface DBTableMap {
-  admin_users: admin_users;
-  badges: badges;
-  definition_histories: definition_histories;
-  definitions: definitions;
-  event_aggregates: event_aggregates;
-  events: events;
-  follows: follows;
-  likes: likes;
-  migration_history: migration_history;
-  notifications: notifications;
-  refresh_tokens: refresh_tokens;
-  reports: reports;
-  terms: terms;
-  user_badge_progress: user_badge_progress;
-  user_badges: user_badges;
-  user_login_streaks: user_login_streaks;
-  users: users;
-  vw_definitions_with_likes: vw_definitions_with_likes;
-  vw_latest_definitions: vw_latest_definitions;
-  vw_words_with_stats: vw_words_with_stats;
-  words: words;
+  admin_users : admin_users;
+  badges : badges;
+  definition_histories : definition_histories;
+  definitions : definitions;
+  event_aggregates : event_aggregates;
+  events : events;
+  follows : follows;
+  likes : likes;
+  migration_history : migration_history;
+  notifications : notifications;
+  refresh_tokens : refresh_tokens;
+  reports : reports;
+  terms : terms;
+  user_badge_progress : user_badge_progress;
+  user_badges : user_badges;
+  user_login_streaks : user_login_streaks;
+  users : users;
+  vw_definitions_with_likes : vw_definitions_with_likes;
+  vw_latest_definitions : vw_latest_definitions;
+  vw_words_with_stats : vw_words_with_stats;
+  words : words;
 }
 
 export type DBTableNames = keyof DBTableMap;
