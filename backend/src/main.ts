@@ -1,8 +1,8 @@
-import { ValidationPipe } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import cookieParser from "cookie-parser";
 import pg from "pg";
 import { AppModule } from "./app.module";
+import { LoggingInterceptor } from "./common/access-logger";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { setApp } from "./globalApp";
 
@@ -14,7 +14,6 @@ pg.types.setTypeParser(20, (val) => {
 
 // stacktrace를 더 자세히 찍기 위한 라이브러리
 if (process.env.NODE_ENV !== "production") {
-  console.log("lognjohn initalized");
   require("longjohn");
 }
 
@@ -22,18 +21,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   setApp(app);
 
-  // Cookie Parser
-  app.use(cookieParser());
-
   // CORS 설정 - 개발 환경에서는 모든 오리진 허용
   const isDevelopment = process.env.NODE_ENV !== "production";
   app.enableCors({
     origin: isDevelopment ? true : process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
+    credentials: false,
   });
 
   // Global Exception Filter
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   // Global Validation Pipe
   app.useGlobalPipes(
@@ -46,8 +43,10 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Environment (NODE_ENV): ${process.env.NODE_ENV || "development"}`);
-  console.log(`Environment (ENV): ${process.env.ENV || "not set"}`);
+
+  const logger = new Logger("Bootstrap");
+  logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Environment (NODE_ENV): ${process.env.NODE_ENV || "development"}`);
+  logger.log(`Environment (ENV): ${process.env.ENV || "not set"}`);
 }
 bootstrap();

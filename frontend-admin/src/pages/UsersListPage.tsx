@@ -27,8 +27,8 @@ export default function UsersListPage() {
 	const { admin } = useAdminAuth();
 	const navigate = useNavigate();
 	const canCreateUser =
-		admin?.role === AdminRole.SUPER_ADMIN || admin?.role === AdminRole.DEVELOPER;
-	console.log("Admin Role:", admin?.role);
+		admin?.role === AdminRole.SUPER_ADMIN ||
+		admin?.role === AdminRole.DEVELOPER;
 
 	const [page, setPage] = useState(1);
 	const [refreshKey, setRefreshKey] = useState(0);
@@ -71,7 +71,9 @@ export default function UsersListPage() {
 			setNickname("");
 			setRefreshKey((prev) => prev + 1);
 		} catch (err) {
-			setFormError(err instanceof Error ? err.message : "Failed to create user");
+			setFormError(
+				err instanceof Error ? err.message : "Failed to create user",
+			);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -116,12 +118,14 @@ export default function UsersListPage() {
 			<div className="mb-6 flex justify-between items-start">
 				<div>
 					<h1 className="text-3xl font-bold">Users Management</h1>
-					<p className="text-gray-600 mt-2">View and manage all registered users</p>
+					<p className="text-gray-600 mt-2">
+						View and manage all registered users
+					</p>
 				</div>
 				<div className="flex gap-2">
 					{canCreateUser && (
 						<>
-							<Button onClick={handleCreateDummyUser} variant="secondary" className="tqtq" >
+							<Button onClick={handleCreateDummyUser} variant="secondary">
 								Create Dummy User
 							</Button>
 							<Button onClick={() => setIsDialogOpen(true)}>Create User</Button>
@@ -160,7 +164,9 @@ export default function UsersListPage() {
 								/>
 							</div>
 							{formError && (
-								<div className="text-sm text-red-600 bg-red-50 p-2 rounded">{formError}</div>
+								<div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+									{formError}
+								</div>
 							)}
 						</div>
 						<DialogFooter>
@@ -193,7 +199,10 @@ export default function UsersListPage() {
 					<TableBody>
 						{users.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={4} className="text-center py-8 text-gray-500">
+								<TableCell
+									colSpan={4}
+									className="text-center py-8 text-gray-500"
+								>
 									No users found
 								</TableCell>
 							</TableRow>
@@ -221,7 +230,9 @@ export default function UsersListPage() {
 											</div>
 										)}
 									</TableCell>
-									<TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+									<TableCell>
+										{new Date(user.createdAt).toLocaleDateString()}
+									</TableCell>
 								</TableRow>
 							))
 						)}

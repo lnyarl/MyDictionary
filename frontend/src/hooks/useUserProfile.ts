@@ -1,6 +1,13 @@
 import { useCallback, useState } from "react";
-import { usersApi } from "../lib/api/users";
-import type { UserProfile } from "../types/follow.types";
+import { type UserProfile, usersApi } from "../lib/api/users";
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+};
 
 export function useUserProfile(userId: string) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -13,8 +20,8 @@ export function useUserProfile(userId: string) {
     try {
       const data = await usersApi.getUserProfile(userId);
       setProfile(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch profile");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch profile"));
     } finally {
       setLoading(false);
     }

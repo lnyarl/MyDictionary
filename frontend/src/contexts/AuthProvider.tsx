@@ -1,6 +1,7 @@
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/lib/api/users";
+import { api } from "../lib/api/api";
 import { authApi } from "../lib/api/auth";
 import { AuthContext, type AuthContextType, type GoogleCredentialResponse } from "./AuthContext";
 
@@ -29,7 +30,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (response: GoogleCredentialResponse) => {
       try {
         setIsLoading(true);
-        const { user: userData } = await authApi.loginWithGoogle(response.credential);
+        const {
+          user: userData,
+          token,
+          refreshToken,
+        } = await authApi.loginWithGoogle(response.credential);
+        api.setAuthTokens({ accessToken: token, refreshToken });
         setUser(userData);
         navigate("/feed/all");
       } catch (error) {
@@ -45,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await authApi.logout();
+      api.clearAuthTokens();
       setUser(null);
       window.location.href = "/";
     } catch (error) {

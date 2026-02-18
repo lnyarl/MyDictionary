@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateWordInput } from "@/types/word.types";
+import type { CreateFeedInput } from "@/lib/api/feed";
 import { feedApi } from "../lib/api/feed";
 
 export function useMyFeed() {
@@ -19,7 +19,7 @@ export function useMyFeed() {
   });
 
   const mutation = useMutation({
-    mutationFn: (input: CreateWordInput) => feedApi.create(input),
+    mutationFn: (input: CreateFeedInput) => feedApi.create(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feed"] });
     },

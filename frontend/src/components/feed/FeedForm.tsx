@@ -24,6 +24,7 @@ type WordFormProps = {
   onCreate: (data: CreateFeedInput) => Promise<void>;
   /** 고정된 단어 (지정 시 단어 입력 필드가 비활성화됨) */
   fixedTerm?: string;
+  initialContent?: string;
 };
 
 const getStorageKey = (path: string) => {
@@ -34,7 +35,7 @@ const getStorageKey = (path: string) => {
   }
 };
 
-export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
+export function FeedForm({ onCreate, fixedTerm, initialContent = "" }: WordFormProps) {
   const { t } = useTranslation();
   const today = toDayString();
   const [suggestions, setSuggestions] = useState<{
@@ -54,8 +55,18 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
     content: string;
     tags: string;
     isPublic: boolean;
-  }>({ content: tempDocument?.content ?? "", tags: tempDocument?.tags ?? "", isPublic: true });
+  }>({
+    content: initialContent || tempDocument?.content || "",
+    tags: tempDocument?.tags ?? "",
+    isPublic: true,
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialContent) {
+      setDefinition((prev) => ({ ...prev, content: initialContent }));
+    }
+  }, [initialContent]);
 
   const clearEditor = () => {
     if (viewRef.current) {
@@ -106,7 +117,6 @@ export function FeedForm({ onCreate, fixedTerm }: WordFormProps) {
   const [_, _cancelSave, saveToLocalstorage] = useTimeoutFn(() => {
     const expiredAt = addDay(new Date(), 3);
     const key = getStorageKey(path);
-    console.log("saving key", key);
     setItem(key, { term: term, content: definition.content, tags: definition.tags }, expiredAt);
   }, 100);
 

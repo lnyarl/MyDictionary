@@ -1,11 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { definitionsApi } from "../lib/api/definitions";
 import type {
   CreateDefinitionInput,
   Definition,
   UpdateDefinitionInput,
-} from "../types/definition.types";
+} from "../lib/api/definitions";
+import { definitionsApi } from "../lib/api/definitions";
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+};
 
 export function useDefinitions() {
   const queryClient = useQueryClient();
@@ -19,8 +27,8 @@ export function useDefinitions() {
     try {
       const data = await definitionsApi.getByWord(wordId);
       setDefinitions(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch definitions");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch definitions"));
     } finally {
       setLoading(false);
     }
@@ -32,8 +40,8 @@ export function useDefinitions() {
     try {
       const data = await definitionsApi.getByTerm(term);
       setDefinitions(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch definitions");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch definitions"));
     } finally {
       setLoading(false);
     }

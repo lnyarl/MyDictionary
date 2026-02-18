@@ -99,7 +99,7 @@ export class WordsService {
     );
 
     const words = await listQuery;
-    const nextCursor = words.length > 0 ? (words[words.length - 1].createdAt as any) : undefined;
+    const nextCursor = words.length > 0 ? String(words[words.length - 1].createdAt) : undefined;
 
     return new PaginatedResponseDto<Word>(
       words,

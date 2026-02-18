@@ -92,7 +92,6 @@ export default function ReportsPage() {
 		handleUpdateStatus(ReportStatus.DISMISSED);
 	};
 
-	console.log(selectedReport);
 	if (loading && !data) return <div>Loading...</div>;
 
 	return (
