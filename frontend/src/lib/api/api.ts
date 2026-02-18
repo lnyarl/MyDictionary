@@ -165,6 +165,7 @@ export class ApiClient {
     const config: RequestInit = {
       ...fetchOptions,
       headers,
+      credentials: "include",
     };
 
     try {

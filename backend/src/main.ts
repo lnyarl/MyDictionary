@@ -24,8 +24,13 @@ async function bootstrap() {
   // CORS 설정 - 개발 환경에서는 모든 오리진 허용
   const isDevelopment = process.env.NODE_ENV !== "production";
   app.enableCors({
-    origin: isDevelopment ? true : process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: false,
+    origin: isDevelopment
+      ? true
+      : [
+          process.env.FRONTEND_URL || "http://localhost:5173",
+          process.env.ADMIN_FRONTEND_URL || "http://localhost:5174",
+        ],
+    credentials: true,
   });
 
   // Global Exception Filter

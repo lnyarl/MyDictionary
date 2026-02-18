@@ -1,10 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import {
-  AdminRole,
-  type AdminRoleType,
-} from "../admin-users/entities/admin-user.entity";
 import { ROLES_KEY } from "../decorators/roles.decorator";
+import { AdminRole, AdminRoleType } from "@/admin-users/entities/admin-user.entity";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
