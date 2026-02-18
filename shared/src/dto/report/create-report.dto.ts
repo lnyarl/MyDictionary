@@ -5,7 +5,7 @@ import {
   IsString,
   IsUUID,
 } from "class-validator";
-import { ReportReason } from "../../entities/report.entity";
+import { ReportReason } from "./report.dto";
 
 export class CreateReportDto {
   @IsUUID()

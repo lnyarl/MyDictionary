@@ -1,6 +1,6 @@
 import { type Report, ReportStatus } from "@stashy/shared";
-import type { ReportDetail } from "@stashy/shared/entities/report.entity";
-import { useEffect, useState } from "react";
+import type { ReportDetailDto } from "@stashy/shared/dto/report/report.dto";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import {
 	Dialog,
@@ -26,11 +26,12 @@ export default function ReportsPage() {
 	const [page, setPage] = useState(1);
 	const [data, setData] = useState<PaginatedResponse<Report> | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [selectedReport, setSelectedReport] =
-		useState<ReportDetail | null>(null);
+	const [selectedReport, setSelectedReport] = useState<ReportDetailDto | null>(
+		null,
+	);
 	const [dialogOpen, setDialogOpen] = useState(false);
 
-	const fetchReports = async () => {
+	const fetchReports = useCallback(async () => {
 		setLoading(true);
 		try {
 			const res = await reportsApi.getReports(page);
@@ -41,11 +42,11 @@ export default function ReportsPage() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [page]);
 
 	useEffect(() => {
 		fetchReports();
-	}, [page]);
+	}, [fetchReports]);
 
 	const handleViewDetails = async (id: string) => {
 		try {
@@ -91,7 +92,7 @@ export default function ReportsPage() {
 		handleUpdateStatus(ReportStatus.DISMISSED);
 	};
 
-	console.log(selectedReport)
+	console.log(selectedReport);
 	if (loading && !data) return <div>Loading...</div>;
 
 	return (
@@ -117,14 +118,15 @@ export default function ReportsPage() {
 								<TableCell>{report.reportedUserId}</TableCell>
 								<TableCell>
 									<span
-										className={`px-2 py-1 rounded-full text-xs ${report.status === ReportStatus.PENDING
-											? "bg-yellow-100 text-yellow-800"
-											: report.status === ReportStatus.RESOLVED
-												? "bg-green-100 text-green-800"
-												: report.status === ReportStatus.DISMISSED
-													? "bg-gray-100 text-gray-800"
-													: "bg-blue-100 text-blue-800"
-											}`}
+										className={`px-2 py-1 rounded-full text-xs ${
+											report.status === ReportStatus.PENDING
+												? "bg-yellow-100 text-yellow-800"
+												: report.status === ReportStatus.RESOLVED
+													? "bg-green-100 text-green-800"
+													: report.status === ReportStatus.DISMISSED
+														? "bg-gray-100 text-gray-800"
+														: "bg-blue-100 text-blue-800"
+										}`}
 									>
 										{report.status}
 									</span>
@@ -247,7 +249,7 @@ export default function ReportsPage() {
 													{selectedReport.definitionMediaUrls.map(
 														(media, index) => (
 															<img
-																// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+																// biome-ignore lint/suspicious/noArrayIndexKey: media list has no stable id from API
 																key={index}
 																src={media.url}
 																alt={`Media ${index}`}
@@ -267,7 +269,7 @@ export default function ReportsPage() {
 						<div className="flex gap-2">
 							{selectedReport?.status === ReportStatus.PENDING && (
 								<Button variant="secondary" onClick={handleDismiss}>
-									Dismiss Report
+									Dismiss ReportDto
 								</Button>
 							)}
 						</div>

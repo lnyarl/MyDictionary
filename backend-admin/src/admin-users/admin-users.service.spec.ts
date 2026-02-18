@@ -1,10 +1,10 @@
 import { ConflictException, ForbiddenException } from "@nestjs/common";
 import { Test, type TestingModule } from "@nestjs/testing";
-import { AdminRole } from "@stashy/shared/admin/entities/admin-user.entity";
 import { DatabaseModule } from "../common/database/database.module";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { AdminUsersRepository } from "./admin-users.repository";
 import { AdminUsersService } from "./admin-users.service";
+import { AdminRole } from "./entities/admin-user.entity";
 
 describe("AdminUsersService", () => {
   let service: AdminUsersService;

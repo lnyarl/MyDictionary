@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import type { AdminUser } from "@stashy/shared/admin/entities/admin-user.entity";
 import { UserJwtPayload } from "@stashy/shared/dto/auth/type";
 import { Users } from "@stashy/shared/types/db_entity.generated";
 import * as bcrypt from "bcrypt";
 import { AdminUsersService } from "../admin-users/admin-users.service";
+import type { AdminUser } from "../admin-users/entities/admin-user.entity";
 
 export interface AdminJwtPayload {
   sub: string;

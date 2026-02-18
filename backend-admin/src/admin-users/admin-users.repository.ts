@@ -1,10 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { generateId } from "@stashy/shared";
-import {
-  type AdminRoleType,
-  AdminUser,
-} from "@stashy/shared/admin/entities/admin-user.entity";
 import { BaseRepository } from "../common/database/base.repository";
+import { type AdminRoleType, AdminUser } from "./entities/admin-user.entity";
 
 @Injectable()
 export class AdminUsersRepository extends BaseRepository {

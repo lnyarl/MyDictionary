@@ -10,8 +10,8 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { ChangePasswordDto } from "@stashy/shared/admin/dto/auth/change-password.dto";
 import { LoginDto } from "@stashy/shared/admin/dto/auth/login.dto";
-import { AdminUser } from "@stashy/shared/admin/entities/admin-user.entity";
 import type { Response } from "express";
+import { AdminUser } from "../admin-users/entities/admin-user.entity";
 import { CurrentAdmin } from "../common/decorators/current-admin.decorator";
 import { AuthService } from "./auth.service";
 import { Public } from "./decorators/public.decorator";

@@ -1,4 +1,4 @@
-import { ReportReason } from "@stashy/shared/entities/report.entity";
+import { ReportReason } from "@stashy/shared/dto/report/report.dto";
 import { Flag } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,7 +53,7 @@ export function ReportDialog({ reportedUserId, definitionId, trigger }: ReportDi
       setOpen(false);
       setReason("");
       setDescription("");
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: t("common.error", "Error"),

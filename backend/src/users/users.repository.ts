@@ -1,25 +1,80 @@
 import { Injectable, Scope } from "@nestjs/common";
 import { generateId } from "@stashy/shared";
-import { UserSelect } from "@stashy/shared/entities/user.entity";
 import { Users } from "@stashy/shared/types/db_entity.generated";
 import { BaseRepository } from "../common/database/base.repository";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class UsersRepository extends BaseRepository {
   findById(id: string) {
-    return this.query("users").select<Users>(UserSelect).where({ id }).first();
+    return this.query("users")
+      .select<Users>({
+        id: "id",
+        googleId: "google_id",
+        email: "email",
+        nickname: "nickname",
+        bio: "bio",
+        profilePicture: "profile_picture",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+        suspendedAt: "suspended_at",
+      })
+      .where({ id })
+      .first();
   }
 
   findByGoogleId(googleId: string) {
-    return this.query("users").select<Users>(UserSelect).where({ google_id: googleId }).first();
+    return this.query("users")
+      .select<Users>({
+        id: "id",
+        googleId: "google_id",
+        email: "email",
+        nickname: "nickname",
+        bio: "bio",
+        profilePicture: "profile_picture",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+        suspendedAt: "suspended_at",
+      })
+      .where({ google_id: googleId })
+      .first();
   }
 
   findByEmail(email: string) {
-    return this.query("users").select<Users>(UserSelect).where({ email }).first();
+    return this.query("users")
+      .select<Users>({
+        id: "id",
+        googleId: "google_id",
+        email: "email",
+        nickname: "nickname",
+        bio: "bio",
+        profilePicture: "profile_picture",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+        suspendedAt: "suspended_at",
+      })
+      .where({ email })
+      .first();
   }
 
   findByNickname(nickname: string) {
-    return this.query("users").select<Users>(UserSelect).where({ nickname }).first();
+    return this.query("users")
+      .select<Users>({
+        id: "id",
+        googleId: "google_id",
+        email: "email",
+        nickname: "nickname",
+        bio: "bio",
+        profilePicture: "profile_picture",
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+        deletedAt: "deleted_at",
+        suspendedAt: "suspended_at",
+      })
+      .where({ nickname })
+      .first();
   }
 
   updateNickname(userId: string, nickname: string) {

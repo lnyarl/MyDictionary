@@ -5,10 +5,3 @@ export type Term = {
   createdAt: Date;
   updatedAt: Date;
 };
-
-export const TermSelect = {
-  id: "terms.id",
-  text: "terms.text",
-  number: "terms.number",
-  createdAt: "terms.created_at",
-} as const;

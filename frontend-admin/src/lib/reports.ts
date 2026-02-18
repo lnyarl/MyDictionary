@@ -1,8 +1,8 @@
 import type {
 	Report,
-	ReportDetail,
+	ReportDetailDto,
 	ReportStatus,
-} from "@stashy/shared/entities/report.entity";
+} from "@stashy/shared/dto/report/report.dto";
 import type { PaginatedResponse } from "../types/admin.types";
 import { api } from "./api";
 
@@ -15,8 +15,8 @@ export const reportsApi = {
 			`/reports?page=${page}&limit=${limit}`,
 		);
 	},
-	getReport: async (id: string): Promise<ReportDetail> => {
-		return api.get<ReportDetail>(`/reports/${id}`);
+	getReport: async (id: string): Promise<ReportDetailDto> => {
+		return api.get<ReportDetailDto>(`/reports/${id}`);
 	},
 	updateStatus: async (id: string, status: ReportStatus): Promise<Report> => {
 		return api.patch<Report>(`/reports/${id}/status`, { status });

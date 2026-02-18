@@ -3,7 +3,7 @@ import { Reflector } from "@nestjs/core";
 import {
   AdminRole,
   type AdminRoleType,
-} from "@stashy/shared/admin/entities/admin-user.entity";
+} from "../admin-users/entities/admin-user.entity";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 
 @Injectable()
