@@ -7,6 +7,11 @@ export { LoginDto } from "./admin/dto/auth/login.dto";
 export { CreateBadgeDto } from "./admin/dto/badge/create-badge.dto";
 export { UpdateBadgeDto } from "./admin/dto/badge/update-badge.dto";
 export { CreateUserDto } from "./admin/dto/user/create-user.dto";
+export type {
+  AdminRoleType,
+  AdminUser,
+} from "./admin/entities/admin-user.entity";
+export { AdminRole } from "./admin/entities/admin-user.entity";
 export type { ApiErrorResponse, ErrorCode } from "./constants/error-codes";
 export { ERROR_CODES } from "./constants/error-codes";
 export type { SupportedLanguage } from "./constants/languages";

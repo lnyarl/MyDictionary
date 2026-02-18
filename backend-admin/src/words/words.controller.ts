@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Post } from "@nestjs/common";
-import { AdminRole } from "../admin-users/entities/admin-user.entity";
+import { AdminRole } from "@stashy/shared/admin/entities/admin-user.entity";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { WordsService } from "./words.service";
 

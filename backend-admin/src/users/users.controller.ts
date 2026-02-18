@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { PaginationDto } from "@stashy/shared";
 import { CreateUserDto } from "@stashy/shared/admin/dto/user/create-user.dto";
-import { AdminRole } from "../admin-users/entities/admin-user.entity";
+import { AdminRole } from "@stashy/shared/admin/entities/admin-user.entity";
 import { AuthService } from "../auth/auth.service";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { UsersService } from "./users.service";

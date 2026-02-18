@@ -1,9 +1,9 @@
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Test, type TestingModule } from "@nestjs/testing";
+import { AdminRole } from "@stashy/shared/admin/entities/admin-user.entity";
 import * as bcrypt from "bcrypt";
 import { AdminUsersService } from "../admin-users/admin-users.service";
-import { AdminRole } from "../admin-users/entities/admin-user.entity";
 import { DatabaseModule } from "../common/database/database.module";
 import { TestDatabaseModule } from "../test/helper/test-database.module";
 import { AuthService } from "./auth.service";
