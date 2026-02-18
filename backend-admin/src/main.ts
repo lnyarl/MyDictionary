@@ -14,7 +14,7 @@ async function bootstrap() {
   app.enableCors({
     origin: isDevelopment
       ? true
-      : process.env.ADMIN_FRONTEND_URL || "http://localhost:81",
+      : process.env.ADMIN_FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   });
 

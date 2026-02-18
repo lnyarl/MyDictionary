@@ -117,7 +117,7 @@ describe("FollowsService", () => {
     it("should follow a user", async () => {
       userRepository.findById.mockResolvedValue(mockOtherUser);
       followRepository.findExistingFollow.mockResolvedValue(null);
-      followRepository.create.mockResolvedValue([mockFollow] as any);
+      followRepository.createFollow.mockResolvedValue([mockFollow] as any);
 
       const result = await service.follow("user-1", "user-2");
 
@@ -160,11 +160,11 @@ describe("FollowsService", () => {
   describe("unfollow", () => {
     it("should unfollow a user", async () => {
       followRepository.findExistingFollow.mockResolvedValue(mockFollow);
-      followRepository.delete.mockResolvedValue(undefined);
+      followRepository.deleteFollow.mockResolvedValue(undefined);
 
       await service.unfollow("user-1", "user-2");
 
-      expect(followRepository.delete).toHaveBeenCalledWith("follow-1");
+      expect(followRepository.deleteFollow).toHaveBeenCalledWith("follow-1");
       expect(eventEmitter.emitUnfollow).toHaveBeenCalledWith("user-1", "user-2");
     });
 

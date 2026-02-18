@@ -106,14 +106,21 @@ export class FollowsRepository extends BaseRepository {
       .pluck("follower_id");
   }
 
-  createFollow(followerId: string, followingId: string) {
+  createFollow({followerId, followingId}: {followerId: string, followingId: string}) {
     return this.knex("follows")
       .insert({
         id: generateId(),
         follower_id: followerId,
         following_id: followingId,
       })
-      .returning(FollowSelect)
+      .returning([
+        "id",
+        "follower_id as followerId",
+        "following_id as followingId",
+        "created_at as createdAt",
+        "updated_at as updatedAt",
+        "deleted_at as deletedAt",
+      ])
       .then((rows) => rows[0]);
   }
 
