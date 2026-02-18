@@ -1,10 +1,7 @@
 import { type EditorState, RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, WidgetType } from "@codemirror/view";
-import {
-  parseQuoteBlocks,
-  QUOTE_SOURCE_MARKER_REGEX,
-  type QuoteBlockMetadata,
-} from "@/lib/utils/quote-block";
+import { QUOTE_SOURCE_MARKER_REGEX, type QuoteBlockMetadata } from "@/lib/utils/quote-block";
+import i18n from "@/lib/i18n";
 
 export const QUOTE_TOGGLE_EVENT = "stashy:quote-toggle-source";
 
@@ -33,7 +30,7 @@ class QuoteSourceButtonWidget extends WidgetType {
     const button = document.createElement("a");
     button.href = this.metadata.sourceUrl;
     button.className = "quote-block-widget__button";
-    button.textContent = "인용 원문 연결";
+    button.textContent = i18n.t("feed.quotation.source");
 
     button.addEventListener("click", (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
@@ -56,6 +53,10 @@ class QuoteSourceButtonWidget extends WidgetType {
     container.append(button);
     return container;
   }
+
+  ignoreEvent(_event: Event): boolean {
+    return false;
+  }
 }
 
 class JustAccessory extends WidgetType {
@@ -63,6 +64,10 @@ class JustAccessory extends WidgetType {
     const container = document.createElement("span");
     container.className = "quote-indent";
     return container;
+  }
+
+  ignoreEvent(_event: Event): boolean {
+    return false;
   }
 }
 
@@ -90,7 +95,7 @@ function addQuoteLineDecorations(state: EditorState) {
       for (let i = 0; i < level; i++) {
         builder.add(
           line.from + i * 2,
-          line.from + (i + 1) * 2,
+          line.from + (i * 2) + 2 ,
           Decoration.replace({
             attributes: {
               style: `
@@ -103,18 +108,17 @@ function addQuoteLineDecorations(state: EditorState) {
           }),
         );
       }
-    } 
-	if (sourceMatch) {
+    }
+    if (sourceMatch) {
       try {
         builder.add(
-          line.from,
-          line.to,
+          line.from + (sourceMatch.index ?? 0),
+          line.from + (sourceMatch.index ?? 0) + sourceMatch[0].length,
           Decoration.replace({
             widget: new QuoteSourceButtonWidget(JSON.parse(sourceMatch[1])),
           }),
         );
-      } catch {
-      }
+      } catch {}
     }
   }
   return builder.finish();

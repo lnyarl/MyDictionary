@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Definition } from "@stashy/shared";
 import { ExternalLink, Flag, MoreVertical, Pencil, Trash2, X } from "lucide-react";
-import React, { type RefObject, useEffect, useMemo, useRef, useState } from "react";
+import React, { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { definitionsApi } from "@/lib/api/definitions";
-import { feedApi } from "@/lib/api/feed";
+import { type CreateFeedInput, feedApi } from "@/lib/api/feed";
 import { stringToColor } from "@/lib/utils/color-generator";
 import { i18nToIsoLocale } from "@/lib/utils/date";
 import { createQuoteBlock } from "@/lib/utils/quote-block";
@@ -26,6 +26,8 @@ import { QUOTE_TOGGLE_EVENT, type QuoteToggleEventDetail } from "../ui/codemirro
 import { FeedCardContent as RichTextContent } from "./FeedCardContent";
 import { FeedForm } from "./FeedForm";
 import type { EditorView } from "@codemirror/view";
+import type { SelectionRange } from "@codemirror/state";
+import { useMyFeed } from "@/hooks/useMyFeed";
 
 type FeedCardProps = {
   definition: Definition;
@@ -77,52 +79,167 @@ function TermColumn({ definition, onTermClick }: TermColumnProps) {
 }
 
 type ContentSectionProps = {
-  content: string;
-  term: string;
-  contentRef: RefObject<HTMLDivElement | null>;
-  isTruncated: boolean;
-  onContentMouseUp: (e: React.MouseEvent, view: EditorView) => void;
+  definition: Definition;
 };
 
-function ContentSection({
-  content,
-  term,
-  contentRef,
-  isTruncated,
-  onContentMouseUp,
-}: ContentSectionProps) {
+function ContentSection({ definition }: ContentSectionProps) {
   const { t } = useTranslation();
+  const contentRef: RefObject<HTMLDivElement | null> = useRef(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  // 더보기 표시
+  // biome-ignore lint/correctness/useExhaustiveDependencies: content가 있을때 계산되어야 한다
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element) return;
+
+    const observer = new ResizeObserver(() => {
+      setIsTruncated(element.scrollHeight > element.clientHeight);
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [definition.content]);
 
   return (
     <div>
       <div className="relative">
         <div
           ref={contentRef}
-          className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75 overflow-hidden"
+          className="text-2xl text-foreground leading-snug font-light max-w-2xl font-sans tracking-tight max-h-75"
           style={
             isTruncated
               ? { maskImage: "linear-gradient(to bottom, #000 60%, transparent 100%)" }
               : {}
           }
         >
-          <RichTextContent content={content} onMouseUp={onContentMouseUp} />
+            <EditorWrapper definition={definition} />
         </div>
       </div>
       {isTruncated && (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="mt-2 text-gray-700 hover:text-foreground">
+            <Button variant="ghost" className="relative w-full font-semibold mt-2 -top-12 text-xs text-gray-700 hover:text-foreground">
               [ {t("common.more")} ]...
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="feed max-w-3xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="font-serif text-2xl font-bold mb-4">{term}</DialogTitle>
+              <DialogTitle className="font-serif text-2xl font-bold mb-4">
+                {definition.term}
+              </DialogTitle>
             </DialogHeader>
-            <RichTextContent content={content} />
+            <EditorWrapper definition={definition} />
           </DialogContent>
         </Dialog>
       )}
+    </div>
+  );
+}
+
+function EditorWrapper({definition}: { definition: Definition}) {
+  const [quoteSelection, setQuoteSelection] = useState<QuoteSelection | null>(() => {
+    return null;
+  });
+  const { user } = useAuth();
+  const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
+  const { t } = useTranslation();
+  
+  const handleContentSelection = useCallback((range: SelectionRange, view: EditorView) => {
+    if (!user) {
+      return;
+    }
+    if (range.empty) {
+      setQuoteSelection(() => null);
+      return;
+    }
+    const from = range.from;
+    const to = range.to;
+    let doc = view.state.sliceDoc(from, to);
+    const match = view.state.doc.lineAt(from).text.match(/^(> )+/);
+    if (match) {
+      doc = match[0] + doc;
+    }
+
+    if (!doc) {
+      setQuoteSelection(() => null);
+      return;
+    }
+
+    const pos = range.to; // 커서 끝 지점
+    const coords = view.coordsAtPos(pos);
+    const standard = view.dom.closest(".feed")?.getBoundingClientRect();
+    const editorRect = view.dom.getBoundingClientRect();
+    if (coords && standard && editorRect) {
+      const absoluteX = editorRect.left - standard.left;
+      const absoluteY = coords.bottom - standard.top;
+      setQuoteSelection(() => ({
+        text: doc,
+        startOffset: from,
+        endOffset: to,
+        x: absoluteX,
+        y: absoluteY + 6,
+      }));
+    } else {
+    }
+  }, [user]);
+  const { createFeed } = useMyFeed();
+  const createFeedMutation = async (input: CreateFeedInput) => {
+    await createFeed(input);
+    setIsQuoteDialogOpen(false);
+    setQuoteSelection(null);
+  };
+  const quoteBlockContent = useMemo(() => {
+    if (!quoteSelection) {
+      return "";
+    }
+
+    const sourceUrl = `${window.location.origin}/definitions/${definition.id}`;
+    return `${createQuoteBlock(
+      {
+        definitionId: definition.id,
+        term: definition.term,
+        sourceUrl,
+        startOffset: quoteSelection.startOffset,
+        endOffset: quoteSelection.endOffset,
+      },
+      quoteSelection.text,
+    )}\n\n`;
+  }, [definition.id, definition.term, quoteSelection]);
+
+  return (
+    <div className="feed relative">
+      <RichTextContent content={definition.content} onSelectionChange={handleContentSelection} />
+      {quoteSelection && (
+        <div
+          className="quote-action-menu absolute z-50"
+          style={{ left: quoteSelection.x, top: quoteSelection.y }}
+        >
+          <Button
+            type="button"
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => setIsQuoteDialogOpen(true)}
+          >
+            {t("feed.quotation.add")}
+          </Button>
+        </div>
+      )}
+
+      <Dialog open={isQuoteDialogOpen} onOpenChange={setIsQuoteDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle></DialogTitle>
+          </DialogHeader>
+          <FeedForm
+            fixedTerm={definition.term}
+            initialContent={quoteBlockContent}
+            onCreate={async (data) => {
+              await createFeedMutation(data);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -338,6 +455,7 @@ type LinkedSourceListProps = {
 };
 
 function LinkedSourceList({ items, onClose }: LinkedSourceListProps) {
+  const { t } = useTranslation();
   if (items.length === 0) {
     return null;
   }
@@ -356,7 +474,7 @@ function LinkedSourceList({ items, onClose }: LinkedSourceListProps) {
             <X className="h-4 w-4" />
           </Button>
           <a href={`/definitions/${item.source.id}`} className="text-xs text-gray-500 underline">
-            원문 보기: {item.source.term}
+            {t("feed.quotation.goto_source")}
           </a>
           <div className="mt-2 text-base leading-relaxed text-gray-700">
             <RichTextContent content={item.source.content} />
@@ -367,38 +485,18 @@ function LinkedSourceList({ items, onClose }: LinkedSourceListProps) {
   );
 }
 
-function getTextOffset(root: Node, targetNode: Node, nodeOffset: number): number {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let currentOffset = 0;
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (node === targetNode) {
-      return currentOffset + nodeOffset;
-    }
-    currentOffset += node.textContent?.length ?? 0;
-  }
-  return currentOffset;
-}
-
 export function FeedCard({
   definition,
   onDelete,
   onStartEdit,
   option = { showUser: true },
 }: FeedCardProps) {
-  const { i18n } = useTranslation();
+  const {i18n } = useTranslation();
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-
   const isOwner = user?.id === definition.userId;
   const needMoreMenu = onDelete || onStartEdit || !isOwner;
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  const [quoteSelection, setQuoteSelection] = useState<QuoteSelection | null>(null);
-  const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
   const [linkedSources, setLinkedSources] = useState<LinkedSourceItem[]>([]);
-  const [isTruncated, setIsTruncated] = useState(false);
 
   const formattedDate = new Date(definition.createdAt).toLocaleDateString(
     i18nToIsoLocale[i18n.language],
@@ -408,57 +506,6 @@ export function FeedCard({
       day: "numeric",
     },
   );
-
-  const createFeedMutation = useMutation({
-    mutationFn: feedApi.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
-      setIsQuoteDialogOpen(false);
-      setQuoteSelection(null);
-    },
-  });
-
-  const quoteBlockContent = useMemo(() => {
-    if (!quoteSelection) {
-      return "";
-    }
-
-    const sourceUrl = `${window.location.origin}/definitions/${definition.id}`;
-    return `${createQuoteBlock(
-      {
-        definitionId: definition.id,
-        term: definition.term,
-        sourceUrl,
-        startOffset: quoteSelection.startOffset,
-        endOffset: quoteSelection.endOffset,
-      },
-      quoteSelection.text,
-    )}\n\n`;
-  }, [definition.id, definition.term, quoteSelection]);
-
-  useEffect(() => {
-    const element = contentRef.current;
-    if (!element) return;
-
-    const observer = new ResizeObserver(() => {
-      setIsTruncated(element.scrollHeight > element.clientHeight);
-    });
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [definition.content]);
-
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest(".quote-action-menu")) {
-        setQuoteSelection(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, []);
 
   useEffect(() => {
     const handleQuoteToggle = async (event: Event) => {
@@ -490,35 +537,6 @@ export function FeedCard({
     };
   }, [definition.id]);
 
-  const handleContentMouseUp = (e: React.MouseEvent, view: EditorView) => {
-    if (!user) {
-      return;
-    }
-    const from = view.state.selection.main.from;
-    const to = view.state.selection.main.to;
-    if (from === to) {
-      return;
-    }
-    let doc = view.state.sliceDoc(from, to);
-	const match = view.state.doc.lineAt(from).text.match(/^(> )+/);
-	if(match) {
-		doc = match[0] + doc;
-	}
-	
-    if (!doc) {
-      setQuoteSelection(null);
-      return;
-    }
-
-    setQuoteSelection({
-      text: doc,
-      startOffset: from,
-      endOffset: to,
-      x: e.clientX,
-      y: e.clientY + 12,
-    });
-  };
-
   const handleTermClick = () => {
     navigate(`/word/${encodeURIComponent(definition.term)}`);
   };
@@ -542,18 +560,12 @@ export function FeedCard({
 
   return (
     <div data-definition-id={definition.id}>
-      <article className="group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]">
+      <article className="feed group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]">
         <TermColumn definition={definition} onTermClick={handleTermClick} />
 
         <div className="w-full min-w-0 pb-3 pt-6">
-          <ContentSection
-            content={definition.content}
-            term={definition.term}
-            contentRef={contentRef}
-            isTruncated={isTruncated}
-            onContentMouseUp={handleContentMouseUp}
-          />
-          <MediaSection mediaUrls={definition.mediaUrls} />
+          <ContentSection definition={definition} />
+          {/* <MediaSection mediaUrls={definition.mediaUrls} /> */}
           <TagsSection tags={definition.tags || []} onTagClick={handleTagClick} />
           <FooterSection
             definition={definition}
@@ -566,37 +578,6 @@ export function FeedCard({
             onUserClick={handleUserClick}
           />
         </div>
-
-        {quoteSelection && (
-          <div
-            className="quote-action-menu fixed z-50"
-            style={{ left: quoteSelection.x, top: quoteSelection.y }}
-          >
-            <Button
-              type="button"
-              size="sm"
-              className="h-8 text-xs"
-              onClick={() => setIsQuoteDialogOpen(true)}
-            >
-              인용하기
-            </Button>
-          </div>
-        )}
-
-        <Dialog open={isQuoteDialogOpen} onOpenChange={setIsQuoteDialogOpen}>
-          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>인용 글쓰기</DialogTitle>
-            </DialogHeader>
-            <FeedForm
-              fixedTerm={definition.term}
-              initialContent={quoteBlockContent}
-              onCreate={async (data) => {
-                await createFeedMutation.mutateAsync(data);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
       </article>
 
       <LinkedSourceList items={linkedSources} onClose={handleCloseLinkedSource} />

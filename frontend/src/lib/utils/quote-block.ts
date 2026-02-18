@@ -27,28 +27,3 @@ export function createQuoteBlock(metadata: QuoteBlockMetadata, quoteText: string
 	const quotedText = toMarkdownBlockquote(quoteText);
 	return `${quotedText}\n[_[quote-source:${JSON.stringify(metadata)}]_]`;
 }
-
-export function parseQuoteBlocks(content: string): ParsedQuoteBlock[] {
-	const blocks: ParsedQuoteBlock[] = [];
-	for (const match of content.matchAll(QUOTE_SOURCE_MARKER_REGEX)) {
-		const [fullMatch, metadataJson] = match;
-		const from = match.index ?? 0;
-		const to = from + fullMatch.length;
-
-		try {
-			const parsed = JSON.parse(metadataJson) as QuoteBlockMetadata;
-			if (!parsed.definitionId || !parsed.sourceUrl || !parsed.term) {
-				continue;
-			}
-			blocks.push({
-				fullMatch,
-				metadata: parsed,
-				from,
-				to,
-			});
-		} catch {
-		}
-	}
-
-	return blocks;
-}
