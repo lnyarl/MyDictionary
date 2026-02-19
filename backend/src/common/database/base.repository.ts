@@ -44,8 +44,8 @@ export abstract class BaseRepository {
   /**
    * Soft delete a record
    */
-  protected async softDelete(tableName: DBTableNames, id: string): Promise<void> {
-    await this.knex(tableName).where({ id }).whereNull("deleted_at").update({
+  protected softDelete(tableName: DBTableNames, id: string) {
+    return this.knex(tableName).where({ id }).whereNull("deleted_at").update({
       deleted_at: new Date(),
       updated_at: new Date(),
     });

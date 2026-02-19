@@ -55,10 +55,10 @@ describe("FollowsService", () => {
   beforeEach(async () => {
     const mockFollowRepo = {
       findExistingFollow: jest.fn(),
-      create: jest.fn(),
+      createFollow: jest.fn(),
       restoreRelation: jest.fn(),
       findById: jest.fn(),
-      delete: jest.fn(),
+      deleteFollow: jest.fn(),
       findFollowers: jest.fn(),
       findFollowings: jest.fn(),
       getFollowerCount: jest.fn(),

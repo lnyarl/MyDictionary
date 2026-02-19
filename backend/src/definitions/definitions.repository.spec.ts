@@ -29,8 +29,14 @@ describe("DefinitionsRepository", () => {
     });
 
     it("should generate correct query with cursor", () => {
-      const listQuery = repository.findByUserId("user-123", 20, "2024-01-01");
-      expect(listQuery.toQuery()).toContain("\"created_at\" < '2024-01-01'");
+      const listQuery = repository.findByUserId(
+        "user-123",
+        20,
+        new Date("2024-01-01").getTime().toString(),
+      );
+      expect(listQuery.toQuery()).toBe(
+        'select "definitions"."id" as "id", "content" as "content", "word_id" as "wordId", "term_id" as "termId", "definitions"."user_id" as "userId", "definitions"."is_public" as "isPublic", "tags" as "tags", "media_urls" as "mediaUrls", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "definitions"."deleted_at" as "deletedAt" from "definitions" where "definitions"."deleted_at" is null and "user_id" = \'user-123\' and "created_at" < \'2024-01-01 09:00:00.000\' order by "created_at" DESC limit 20',
+      );
     });
   });
 

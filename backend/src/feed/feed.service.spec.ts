@@ -21,6 +21,8 @@ describe("FeedService", () => {
     id: "feed-1",
     term: "testterm",
     content: "test content",
+    nickname: "hihi",
+    profilePicture: "",
     wordId: "word-1",
     termId: "term-1",
     userId: "user-1",

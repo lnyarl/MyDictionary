@@ -21,7 +21,7 @@ export class FollowsRepository extends BaseRepository {
     const baseQuery = this.query("follows").where({ following_id: userId });
 
     if (cursor) {
-      baseQuery.where(`follows.created_at`, "<", cursor);
+      baseQuery.where(`follows.created_at`, "<", new Date(Number(cursor)));
     }
 
     const listQuery = baseQuery
@@ -106,22 +106,21 @@ export class FollowsRepository extends BaseRepository {
       .pluck("follower_id");
   }
 
-  createFollow({followerId, followingId}: {followerId: string, followingId: string}) {
+  createFollow({ followerId, followingId }: { followerId: string; followingId: string }) {
     return this.knex("follows")
       .insert({
         id: generateId(),
         follower_id: followerId,
         following_id: followingId,
       })
-      .returning([
+      .returning<Follow[]>([
         "id",
         "follower_id as followerId",
         "following_id as followingId",
         "created_at as createdAt",
         "updated_at as updatedAt",
         "deleted_at as deletedAt",
-      ])
-      .then((rows) => rows[0]);
+      ]);
   }
 
   deleteFollow(id: string) {

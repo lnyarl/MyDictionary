@@ -106,7 +106,8 @@ export class FeedService {
     );
 
     const feeds = await listQuery;
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? feeds[feeds.length - 1].createdAt.getTime().toString() : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -142,7 +143,8 @@ export class FeedService {
     );
 
     const feeds = await listQuery;
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? feeds[feeds.length - 1].createdAt.getTime().toString() : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -177,7 +179,8 @@ export class FeedService {
     );
 
     const feeds = await listQuery;
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? feeds[feeds.length - 1].createdAt.getTime().toString() : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -204,7 +207,8 @@ export class FeedService {
       paginationDto.limit || 20,
       paginationDto.cursor,
     );
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? feeds[feeds.length - 1].createdAt.getTime().toString() : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -240,7 +244,7 @@ export class FeedService {
 
     const nextCursor =
       recommendations.length > 0
-        ? String(recommendations[recommendations.length - 1].createdAt)
+        ? String(recommendations[recommendations.length - 1].createdAt.getTime())
         : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
@@ -291,7 +295,8 @@ export class FeedService {
       paginationDto.cursor,
     );
 
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt.getTime()) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -322,7 +327,8 @@ export class FeedService {
       paginationDto.cursor,
     );
 
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt.getTime()) : undefined;
 
     const dto = new PaginatedResponseDto<Feed>(
       feeds,
@@ -346,7 +352,8 @@ export class FeedService {
       paginationDto.cursor,
     );
 
-    const nextCursor = feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt) : undefined;
+    const nextCursor =
+      feeds.length > 0 ? String(feeds[feeds.length - 1].createdAt.getTime()) : undefined;
 
     return new PaginatedResponseDto<Feed>(
       feeds,

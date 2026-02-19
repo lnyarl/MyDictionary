@@ -6,8 +6,10 @@ import { FeedList } from "@/components/feed/FeedList";
 import { Page } from "@/components/layout/Page";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAllFeed } from "@/hooks/useAllFeed";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useMyFeed } from "@/hooks/useMyFeed";
 import type { CreateFeedInput } from "@/lib/api/feed";
+import { Loader2 } from "lucide-react";
 
 export default function AllFeedPage() {
   const { t } = useTranslation();
@@ -18,6 +20,11 @@ export default function AllFeedPage() {
   const handleSubmit = async (data: CreateFeedInput) => {
     await myFeed.createFeed(data);
   };
+  const { sentinelRef } = useInfiniteScroll({
+    onLoadMore: allFeed.loadMore,
+    hasMore: !!allFeed.hasMore,
+    isLoading: allFeed.loading || false,
+  });
 
   return (
     <Page>
@@ -57,6 +64,15 @@ export default function AllFeedPage() {
             loading={allFeed.loading}
             emptyMessage={t("feed.empty")}
           />
+          <div ref={sentinelRef} className="py-4 flex justify-center">
+            {allFeed.loading && allFeed.hasMore ? (
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            ) : (
+              allFeed.definitions.length > 0 && (
+                <p className="text-sm text-muted-foreground italic">{t("common.end_of_list")}</p>
+              )
+            )}
+          </div>
         </div>
       </Tabs>
     </Page>
