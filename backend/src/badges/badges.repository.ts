@@ -84,6 +84,7 @@ export class BadgesRepository extends BaseRepository {
   updateUserProgress(userId: string, eventType: string, increment: number = 1) {
     return this.knex("user_badge_progress")
       .insert({
+        id: generateId(),
         user_id: userId,
         event_type: eventType,
         count: increment,

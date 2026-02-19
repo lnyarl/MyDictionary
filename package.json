@@ -43,8 +43,8 @@
     "db:reset": "node scripts/db-reset.js",
     "db:migration": "node scripts/db-migration.js",
     "db:generate-types": "node scripts/generate-db-types.js",
-    "prepare": "husky",
-    "seeddata": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' ts-node --project scripts/tsconfig.json -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/controller-seed.ts"
+    "db:seed": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' ts-node --project scripts/tsconfig.json -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/controller-seed.ts",
+    "prepare": "husky"
   },
   "lint-staged": {
     "backend/**/*.{ts,js}": [

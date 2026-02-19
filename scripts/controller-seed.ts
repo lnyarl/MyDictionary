@@ -1,10 +1,12 @@
 import { execSync } from "node:child_process";
 import path from "node:path";
 import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
-import dotenv from "dotenv";
 import { AppModule as BackendAppModule } from "@stashy/backend/app.module";
 import { AuthController as BackendAuthController } from "@stashy/backend/auth/auth.controller";
+import { CacheModule } from "@stashy/backend/common/cache/cache.module";
+import { CommonModule } from "@stashy/backend/common/common.module";
 import { DefinitionsController } from "@stashy/backend/definitions/definitions.controller";
 import { FeedController } from "@stashy/backend/feed/feed.controller";
 import { FollowsController } from "@stashy/backend/follows/follows.controller";
@@ -22,11 +24,18 @@ import { UsersController as AdminUsersApiController } from "@stashy/backend-admi
 import { UsersModule as BackendAdminUsersModule } from "@stashy/backend-admin/users/users.module";
 import { WordsController as AdminWordsController } from "@stashy/backend-admin/words/words.controller";
 import { WordsModule as BackendAdminWordsModule } from "@stashy/backend-admin/words/words.module";
-import { controllerSeedData } from "./controller-seed-data";
 import { User } from "@stashy/shared";
+import dotenv from "dotenv";
+import { controllerSeedData } from "./controller-seed-data";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ".env",
+    }),
+    CacheModule,
+    CommonModule,
     BackendAdminDatabaseModule,
     AdminUsersModule,
     BackendAdminAuthModule,
@@ -132,7 +141,7 @@ function getFeedInput(
     ];
 
   return {
-    term: `${termBase}-${userNickname}-${feedIndex + 1}`,
+    term: `${termBase}`,
     definition: {
       content: composeContent(
         template.opening,
@@ -291,7 +300,10 @@ async function main() {
         if (!targetFeeds || targetFeeds.length === 0) {
           throw new Error("no target feed for like");
         }
-        await likesController.toggle(targetFeeds[0].id, createdUsers[0] as User);
+        await likesController.toggle(
+          targetFeeds[0].id,
+          createdUsers[0] as User,
+        );
       },
     })),
     ...controllerSeedData.backend.reports.map((reportData, reportIndex) => ({
@@ -392,6 +404,7 @@ async function main() {
 
   for (const task of tasks) {
     try {
+      console.log(`[seed][start] ${task.name}`);
       await task.run();
       report.succeeded += 1;
       console.log(`[seed][ok] ${task.name}`);

@@ -54,6 +54,7 @@ export interface ControllerSeedData {
   };
 }
 
+const today = new Date();
 export const controllerSeedData: ControllerSeedData = {
   admin: {
     bootstrapAdmin: {
@@ -121,7 +122,7 @@ export const controllerSeedData: ControllerSeedData = {
     termPool: [
       "serendipity",
       "ephemeral",
-      "ubiquitous",
+      "유비쿼터스",
       "resilience",
       "ambiguous",
       "catalyst",
@@ -159,6 +160,7 @@ export const controllerSeedData: ControllerSeedData = {
       "fractal",
       "legacy",
       "continuum",
+      `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`,
     ],
     feedTemplates: [
       {

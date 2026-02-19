@@ -14,9 +14,7 @@
     "experimentalDecorators": true,
     "composite": true,
     "resolveJsonModule": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0"
+    "module": "commonjs"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
