@@ -13,7 +13,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "composite": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
