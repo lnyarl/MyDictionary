@@ -3,26 +3,27 @@ import path from "node:path";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import dotenv from "dotenv";
-import { AppModule as BackendAppModule } from "../backend/src/app.module";
-import { AuthController as BackendAuthController } from "../backend/src/auth/auth.controller";
-import { DefinitionsController } from "../backend/src/definitions/definitions.controller";
-import { FeedController } from "../backend/src/feed/feed.controller";
-import { FollowsController } from "../backend/src/follows/follows.controller";
-import { LikesController } from "../backend/src/likes/likes.controller";
-import { ReportsController as BackendReportsController } from "../backend/src/reports/reports.controller";
-import { AdminUsersController } from "../backend-admin/src/admin-users/admin-users.controller";
-import { AdminUsersModule } from "../backend-admin/src/admin-users/admin-users.module";
-import { AuthModule as BackendAdminAuthModule } from "../backend-admin/src/auth/auth.module";
-import { BadgesController as AdminBadgesController } from "../backend-admin/src/badges/badges.controller";
-import { BadgesModule } from "../backend-admin/src/badges/badges.module";
-import { DatabaseModule as BackendAdminDatabaseModule } from "../backend-admin/src/common/database/database.module";
-import { ReportsController as AdminReportsController } from "../backend-admin/src/reports/reports.controller";
-import { ReportsModule as BackendAdminReportsModule } from "../backend-admin/src/reports/reports.module";
-import { UsersController as AdminUsersApiController } from "../backend-admin/src/users/users.controller";
-import { UsersModule as BackendAdminUsersModule } from "../backend-admin/src/users/users.module";
-import { WordsController as AdminWordsController } from "../backend-admin/src/words/words.controller";
-import { WordsModule as BackendAdminWordsModule } from "../backend-admin/src/words/words.module";
+import { AppModule as BackendAppModule } from "@stashy/backend/app.module";
+import { AuthController as BackendAuthController } from "@stashy/backend/auth/auth.controller";
+import { DefinitionsController } from "@stashy/backend/definitions/definitions.controller";
+import { FeedController } from "@stashy/backend/feed/feed.controller";
+import { FollowsController } from "@stashy/backend/follows/follows.controller";
+import { LikesController } from "@stashy/backend/likes/likes.controller";
+import { ReportsController as BackendReportsController } from "@stashy/backend/reports/reports.controller";
+import { AdminUsersController } from "@stashy/backend-admin/admin-users/admin-users.controller";
+import { AdminUsersModule } from "@stashy/backend-admin/admin-users/admin-users.module";
+import { AuthModule as BackendAdminAuthModule } from "@stashy/backend-admin/auth/auth.module";
+import { BadgesController as AdminBadgesController } from "@stashy/backend-admin/badges/badges.controller";
+import { BadgesModule } from "@stashy/backend-admin/badges/badges.module";
+import { DatabaseModule as BackendAdminDatabaseModule } from "@stashy/backend-admin/common/database/database.module";
+import { ReportsController as AdminReportsController } from "@stashy/backend-admin/reports/reports.controller";
+import { ReportsModule as BackendAdminReportsModule } from "@stashy/backend-admin/reports/reports.module";
+import { UsersController as AdminUsersApiController } from "@stashy/backend-admin/users/users.controller";
+import { UsersModule as BackendAdminUsersModule } from "@stashy/backend-admin/users/users.module";
+import { WordsController as AdminWordsController } from "@stashy/backend-admin/words/words.controller";
+import { WordsModule as BackendAdminWordsModule } from "@stashy/backend-admin/words/words.module";
 import { controllerSeedData } from "./controller-seed-data";
+import { User } from "@stashy/shared";
 
 @Module({
   imports: [
@@ -249,7 +250,7 @@ async function main() {
             const user = createdUsers[userIndex];
             const feedInput = getFeedInput(userIndex, feedIndex, user.nickname);
             const feed = (await feedController.createFeed(
-              user,
+              user as User,
               feedInput,
             )) as FeedResult;
             feedsByUser.get(user.id)?.push(feed);
@@ -268,7 +269,7 @@ async function main() {
 
         await definitionsController.update(
           userFeeds[0].id,
-          user,
+          user as User,
           getUpdateInput(user.nickname, 1),
         );
       },
@@ -277,7 +278,7 @@ async function main() {
       name: `backend.follows.follow user1->user${userIndex + 2}`,
       run: async () => {
         await followsController.follow(
-          createdUsers[0],
+          createdUsers[0] as User,
           createdUsers[userIndex + 1].id,
         );
       },
@@ -290,7 +291,7 @@ async function main() {
         if (!targetFeeds || targetFeeds.length === 0) {
           throw new Error("no target feed for like");
         }
-        await likesController.toggle(targetFeeds[0].id, createdUsers[0]);
+        await likesController.toggle(targetFeeds[0].id, createdUsers[0] as User);
       },
     })),
     ...controllerSeedData.backend.reports.map((reportData, reportIndex) => ({
@@ -303,7 +304,7 @@ async function main() {
           throw new Error("no target feed for report");
         }
         const reportEntity = (await backendReportsController.create(
-          createdUsers[0],
+          createdUsers[0] as User,
           {
             definitionId: targetFeeds[reportIndex % targetFeeds.length].id,
             reportedUserId: targetUser.id,

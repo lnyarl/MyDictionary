@@ -44,15 +44,15 @@
     "db:migration": "node scripts/db-migration.js",
     "db:generate-types": "node scripts/generate-db-types.js",
     "prepare": "husky",
-    "seed:controllers": "TS_NODE_PROJECT=backend/tsconfig.json node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/controller-seed.ts"
+    "seed:controllers": "ts-node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/controller-seed.ts"
   },
   "lint-staged": {
     "backend/**/*.{ts,js}": [
-      "yarn workspace stashy-backend lint",
-      "yarn workspace stashy-backend test --findRelatedTests --passWithNoTests"
+      "yarn workspace @stashy/backend lint",
+      "yarn workspace @stashy/backend test --findRelatedTests --passWithNoTests"
     ],
     "backend-admin/**/*.{ts,js}": [
-      "yarn workspace stashy-backend-admin lint"
+      "yarn workspace @stashy/backend-admin lint"
     ],
     "frontend/**/*.{ts,tsx,js,jsx}": [
       "yarn workspace stashy-frontend lint"
