@@ -3,8 +3,6 @@ import path from "node:path";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import dotenv from "dotenv";
-import { controllerSeedData } from "./controller-seed-data";
-
 import { AppModule as BackendAppModule } from "../backend/src/app.module";
 import { AuthController as BackendAuthController } from "../backend/src/auth/auth.controller";
 import { DefinitionsController } from "../backend/src/definitions/definitions.controller";
@@ -12,8 +10,8 @@ import { FeedController } from "../backend/src/feed/feed.controller";
 import { FollowsController } from "../backend/src/follows/follows.controller";
 import { LikesController } from "../backend/src/likes/likes.controller";
 import { ReportsController as BackendReportsController } from "../backend/src/reports/reports.controller";
-import { AdminUsersModule } from "../backend-admin/src/admin-users/admin-users.module";
 import { AdminUsersController } from "../backend-admin/src/admin-users/admin-users.controller";
+import { AdminUsersModule } from "../backend-admin/src/admin-users/admin-users.module";
 import { AuthModule as BackendAdminAuthModule } from "../backend-admin/src/auth/auth.module";
 import { BadgesController as AdminBadgesController } from "../backend-admin/src/badges/badges.controller";
 import { BadgesModule } from "../backend-admin/src/badges/badges.module";
@@ -24,6 +22,7 @@ import { UsersController as AdminUsersApiController } from "../backend-admin/src
 import { UsersModule as BackendAdminUsersModule } from "../backend-admin/src/users/users.module";
 import { WordsController as AdminWordsController } from "../backend-admin/src/words/words.controller";
 import { WordsModule as BackendAdminWordsModule } from "../backend-admin/src/words/words.module";
+import { controllerSeedData } from "./controller-seed-data";
 
 @Module({
   imports: [
@@ -61,6 +60,18 @@ interface FeedResult {
   wordId: string;
 }
 
+interface SeedBadge {
+  id: string;
+}
+
+interface SeedReportEntity {
+  id: string;
+}
+
+interface ImpersonateResult {
+  token: string;
+}
+
 interface ReportResponsePayload {
   refreshToken?: string;
 }
@@ -93,6 +104,66 @@ function createResponseMock(bucket: ReportResponsePayload) {
   };
 }
 
+function composeContent(
+  opening: string,
+  body: string,
+  closing: string,
+  term: string,
+  userNickname: string,
+  serial: number,
+) {
+  return `${opening} ${term}의 실제 사용 맥락을 ${userNickname} 사용자의 관점에서 정리했습니다. ${body} 번호 ${serial} 항목으로 기록되며, 검색과 복습 시 서로 다른 문맥을 빠르게 비교할 수 있도록 작성되었습니다. ${closing}`;
+}
+
+function getFeedInput(
+  userIndex: number,
+  feedIndex: number,
+  userNickname: string,
+) {
+  const termBase =
+    controllerSeedData.backend.termPool[
+      (userIndex * controllerSeedData.backend.feedPerUser + feedIndex) %
+        controllerSeedData.backend.termPool.length
+    ];
+  const template =
+    controllerSeedData.backend.feedTemplates[
+      feedIndex % controllerSeedData.backend.feedTemplates.length
+    ];
+
+  return {
+    term: `${termBase}-${userNickname}-${feedIndex + 1}`,
+    definition: {
+      content: composeContent(
+        template.opening,
+        template.body,
+        template.closing,
+        termBase,
+        userNickname,
+        feedIndex + 1,
+      ),
+      tags: [...template.tags, termBase, userNickname],
+      isPublic: template.isPublic,
+    },
+  };
+}
+
+function getUpdateInput(userNickname: string, feedIndex: number) {
+  const update = controllerSeedData.backend.userUpdate;
+
+  return {
+    content: composeContent(
+      update.opening,
+      update.body,
+      update.closing,
+      "revision",
+      userNickname,
+      feedIndex,
+    ),
+    tags: [...update.tags, userNickname],
+    isPublic: update.isPublic,
+  };
+}
+
 async function main() {
   loadEnvFiles();
   runDbReset();
@@ -118,9 +189,9 @@ async function main() {
   );
 
   const createdUsers: SeedUser[] = [];
-  const createdFeeds: FeedResult[] = [];
-  let createdBadgeId = "";
-  let createdReportId = "";
+  const feedsByUser = new Map<string, FeedResult[]>();
+  const createdBadgeIds: string[] = [];
+  const createdReportIds: string[] = [];
 
   const backendAuthController = backendApp.get(BackendAuthController);
   const definitionsController = backendApp.get(DefinitionsController);
@@ -151,107 +222,133 @@ async function main() {
           user,
         )) as SeedUser;
         createdUsers.push(created);
+        feedsByUser.set(created.id, []);
       },
     })),
-    {
-      name: "admin.badges.create",
+    ...controllerSeedData.admin.badges.map((badge) => ({
+      name: `admin.badges.create ${badge.code}`,
       run: async () => {
-        const badge = await adminBadgesController.create(
-          controllerSeedData.admin.badge,
-        );
-        createdBadgeId = badge.id;
+        const createdBadge = (await adminBadgesController.create(
+          badge,
+        )) as SeedBadge;
+        createdBadgeIds.push(createdBadge.id);
       },
-    },
-    {
-      name: "admin.words.createDummyWord",
+    })),
+    ...controllerSeedData.admin.users.map((_user, userIndex) => ({
+      name: `admin.words.createDummyWord user#${userIndex + 1}`,
       run: async () => {
-        await adminWordsController.createDummyWord(createdUsers[0].id);
+        await adminWordsController.createDummyWord(createdUsers[userIndex].id);
       },
-    },
-    {
-      name: "backend.feed.createFeed user1",
+    })),
+    ...controllerSeedData.admin.users.flatMap((_user, userIndex) =>
+      Array.from(
+        { length: controllerSeedData.backend.feedPerUser },
+        (_, feedIndex) => ({
+          name: `backend.feed.createFeed user#${userIndex + 1} item#${feedIndex + 1}`,
+          run: async () => {
+            const user = createdUsers[userIndex];
+            const feedInput = getFeedInput(userIndex, feedIndex, user.nickname);
+            const feed = (await feedController.createFeed(
+              user,
+              feedInput,
+            )) as FeedResult;
+            feedsByUser.get(user.id)?.push(feed);
+          },
+        }),
+      ),
+    ),
+    ...controllerSeedData.admin.users.map((_user, userIndex) => ({
+      name: `backend.definitions.update user#${userIndex + 1}`,
       run: async () => {
-        const feed = (await feedController.createFeed(
-          createdUsers[0],
-          controllerSeedData.backend.feeds[0],
-        )) as FeedResult;
-        createdFeeds.push(feed);
-      },
-    },
-    {
-      name: "backend.feed.createFeed user2",
-      run: async () => {
-        const feed = (await feedController.createFeed(
-          createdUsers[1],
-          controllerSeedData.backend.feeds[1],
-        )) as FeedResult;
-        createdFeeds.push(feed);
-      },
-    },
-    {
-      name: "backend.definitions.update",
-      run: async () => {
+        const user = createdUsers[userIndex];
+        const userFeeds = feedsByUser.get(user.id);
+        if (!userFeeds || userFeeds.length === 0) {
+          throw new Error("no feed found for definition update");
+        }
+
         await definitionsController.update(
-          createdFeeds[0].id,
-          createdUsers[0],
-          controllerSeedData.backend.definitionUpdate,
+          userFeeds[0].id,
+          user,
+          getUpdateInput(user.nickname, 1),
         );
       },
-    },
-    {
-      name: "backend.follows.follow",
+    })),
+    ...controllerSeedData.admin.users.slice(1).map((_user, userIndex) => ({
+      name: `backend.follows.follow user1->user${userIndex + 2}`,
       run: async () => {
-        await followsController.follow(createdUsers[0], createdUsers[1].id);
+        await followsController.follow(
+          createdUsers[0],
+          createdUsers[userIndex + 1].id,
+        );
       },
-    },
-    {
-      name: "backend.likes.toggle",
+    })),
+    ...controllerSeedData.admin.users.slice(1).map((_user, userIndex) => ({
+      name: `backend.likes.toggle user1->user${userIndex + 2} feed1`,
       run: async () => {
-        await likesController.toggle(createdFeeds[1].id, createdUsers[0]);
+        const targetUser = createdUsers[userIndex + 1];
+        const targetFeeds = feedsByUser.get(targetUser.id);
+        if (!targetFeeds || targetFeeds.length === 0) {
+          throw new Error("no target feed for like");
+        }
+        await likesController.toggle(targetFeeds[0].id, createdUsers[0]);
       },
-    },
-    {
-      name: "backend.reports.create",
+    })),
+    ...controllerSeedData.backend.reports.map((reportData, reportIndex) => ({
+      name: `backend.reports.create #${reportIndex + 1}`,
       run: async () => {
-        const reportEntity = await backendReportsController.create(
+        const targetUser =
+          createdUsers[(reportIndex % (createdUsers.length - 1)) + 1];
+        const targetFeeds = feedsByUser.get(targetUser.id);
+        if (!targetFeeds || targetFeeds.length === 0) {
+          throw new Error("no target feed for report");
+        }
+        const reportEntity = (await backendReportsController.create(
           createdUsers[0],
           {
-            definitionId: createdFeeds[1].id,
-            reportedUserId: createdUsers[1].id,
-            reason: controllerSeedData.backend.report.reason,
-            description: controllerSeedData.backend.report.description,
+            definitionId: targetFeeds[reportIndex % targetFeeds.length].id,
+            reportedUserId: targetUser.id,
+            reason: reportData.reason,
+            description: reportData.description,
           },
+        )) as SeedReportEntity;
+
+        createdReportIds.push(reportEntity.id);
+      },
+    })),
+    ...controllerSeedData.backend.reports.map((reportData, reportIndex) => ({
+      name: `admin.reports.updateStatus #${reportIndex + 1}`,
+      run: async () => {
+        await adminReportsController.updateStatus(
+          createdReportIds[reportIndex],
+          reportData.status,
         );
-        createdReportId = reportEntity.id;
       },
-    },
-    {
-      name: "admin.reports.updateStatus",
+    })),
+    ...createdUsers.map((_user, userIndex) => ({
+      name: `admin.badges.grantBadge user#${userIndex + 1}`,
       run: async () => {
-        await adminReportsController.updateStatus(createdReportId, "RESOLVED");
-      },
-    },
-    {
-      name: "admin.badges.grantBadge",
-      run: async () => {
+        const badgeId = createdBadgeIds[userIndex % createdBadgeIds.length];
         await adminBadgesController.grantBadge(
-          createdUsers[0].id,
-          createdBadgeId,
+          createdUsers[userIndex].id,
+          badgeId,
         );
       },
-    },
-    {
-      name: "admin.users.impersonate",
+    })),
+    ...createdUsers.map((_user, userIndex) => ({
+      name: `admin.users.impersonate user#${userIndex + 1}`,
       run: async () => {
-        await adminUsersApiController.impersonateUser(createdUsers[0].id);
-      },
-    },
-    {
-      name: "backend.auth.createSession",
-      run: async () => {
-        const impersonation = await adminUsersApiController.impersonateUser(
-          createdUsers[0].id,
+        await adminUsersApiController.impersonateUser(
+          createdUsers[userIndex].id,
         );
+      },
+    })),
+    ...createdUsers.map((_user, userIndex) => ({
+      name: `backend.auth.createSession user#${userIndex + 1}`,
+      run: async () => {
+        const impersonation = (await adminUsersApiController.impersonateUser(
+          createdUsers[userIndex].id,
+        )) as ImpersonateResult;
+
         const responseBucket: ReportResponsePayload = {};
         await backendAuthController.createSession(
           { token: impersonation.token },
@@ -262,13 +359,14 @@ async function main() {
           throw new Error("refreshToken not generated from createSession");
         }
       },
-    },
-    {
-      name: "backend.auth.refreshToken",
+    })),
+    ...createdUsers.map((_user, userIndex) => ({
+      name: `backend.auth.refreshToken user#${userIndex + 1}`,
       run: async () => {
-        const impersonation = await adminUsersApiController.impersonateUser(
-          createdUsers[0].id,
-        );
+        const impersonation = (await adminUsersApiController.impersonateUser(
+          createdUsers[userIndex].id,
+        )) as ImpersonateResult;
+
         const sessionBucket: ReportResponsePayload = {};
         await backendAuthController.createSession(
           { token: impersonation.token },
@@ -286,7 +384,7 @@ async function main() {
           createResponseMock(refreshBucket) as never,
         );
       },
-    },
+    })),
   ];
 
   report.planned = tasks.length;
