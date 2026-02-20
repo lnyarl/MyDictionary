@@ -45,10 +45,7 @@ import { WordsModule } from "./words/words.module";
     I18nModule.forRoot({
       fallbackLanguage: "ko",
       loaderOptions: {
-        path: path.join(
-          process.cwd(),
-          process.env.NODE_ENV === "production" ? "backend/dist/i18n/" : "src/i18n/",
-        ),
+        path: path.join(__dirname, "i18n/"),
         watch: false,
       },
       resolvers: [
@@ -87,4 +84,4 @@ import { WordsModule } from "./words/words.module";
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

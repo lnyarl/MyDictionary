@@ -2,6 +2,7 @@ import { Injectable, Scope } from "@nestjs/common";
 import { generateId } from "@stashy/shared";
 import { BaseRepository } from "../common/database/base.repository";
 import type { Word } from "../words/entities/word.entity";
+import { Feed } from "./entities/feed.entity";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FeedRepository extends BaseRepository {
@@ -42,7 +43,7 @@ export class FeedRepository extends BaseRepository {
       .whereNull("words.deleted_at");
 
     if (cursor) {
-      baseQuery.where("definitions.created_at", "<", cursor);
+      baseQuery.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
     if (withPrivate === false) {
       baseQuery.where("definitions.is_public", true);
@@ -50,7 +51,7 @@ export class FeedRepository extends BaseRepository {
 
     return baseQuery
       .clone()
-      .select({
+      .select<Feed[]>({
         id: "definitions.id",
         content: "definitions.content",
         wordId: "definitions.word_id",
@@ -79,11 +80,11 @@ export class FeedRepository extends BaseRepository {
       .where("definitions.is_public", true);
 
     if (cursor) {
-      baseQuery.where("definitions.created_at", "<", cursor);
+      baseQuery.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
 
     return baseQuery
-      .select({
+      .select<Feed[]>({
         id: "definitions.id",
         content: "definitions.content",
         wordId: "definitions.word_id",
@@ -109,10 +110,10 @@ export class FeedRepository extends BaseRepository {
       .andWhere("definitions.is_public", true);
 
     if (cursor) {
-      query.where("definitions.created_at", "<", cursor);
+      query.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
 
-    return query.limit(limit).orderBy("definitions.created_at", "desc").select({
+    return query.limit(limit).orderBy("definitions.created_at", "desc").select<Feed[]>({
       id: "definitions.id",
       content: "definitions.content",
       wordId: "definitions.word_id",
@@ -137,7 +138,7 @@ export class FeedRepository extends BaseRepository {
       .where("definitions.is_public", true);
 
     if (cursor) {
-      query.where("definitions.created_at", "<", cursor);
+      query.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
 
     if (excludeUserId) {
@@ -148,7 +149,7 @@ export class FeedRepository extends BaseRepository {
       .limit(limit)
       .orderBy("definitions.likes_count", "desc")
       .orderBy("definitions.created_at", "desc")
-      .select({
+      .select<Feed[]>({
         id: "definitions.id",
         content: "definitions.content",
         wordId: "definitions.word_id",
@@ -189,10 +190,10 @@ export class FeedRepository extends BaseRepository {
       .where("words.term", "ilike", `%${term}%`);
 
     if (cursor) {
-      query.where("definitions.created_at", "<", cursor);
+      query.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
 
-    return query.limit(limit).orderBy("definitions.created_at", "desc").select({
+    return query.limit(limit).orderBy("definitions.created_at", "desc").select<Feed[]>({
       id: "definitions.id",
       content: "definitions.content",
       wordId: "definitions.word_id",
@@ -219,30 +220,29 @@ export class FeedRepository extends BaseRepository {
       .whereRaw(`? = ANY(definitions.tags)`, [tag]);
 
     if (cursor) {
-      query.where("definitions.created_at", "<", cursor);
+      query.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
 
-    return query
-      .limit(limit)
-      .orderBy("definitions.created_at", "desc")
-      .select({
-        id: "definitions.id",
-        content: "definitions.content",
-        wordId: "definitions.word_id",
-        userId: "definitions.user_id",
-        likesCount: "definitions.likes_count",
-        createdAt: "definitions.created_at",
-        updatedAt: "definitions.updated_at",
-        nickname: "users.nickname",
-        profilePicture: "users.profile_picture",
-        term: "words.term",
-        termNumber: "terms.number",
-        tags: this.knex.raw("array_to_json(definitions.tags)"),
-      });
+    return query.limit(limit).orderBy("definitions.created_at", "desc").select<Feed[]>({
+      id: "definitions.id",
+      content: "definitions.content",
+      wordId: "definitions.word_id",
+      userId: "definitions.user_id",
+      likesCount: "definitions.likes_count",
+      createdAt: "definitions.created_at",
+      updatedAt: "definitions.updated_at",
+      nickname: "users.nickname",
+      profilePicture: "users.profile_picture",
+      term: "words.term",
+      termNumber: "terms.number",
+      // tags: this.knex.raw("array_to_json(definitions.tags)"),
+      tags: "definitions.tags",
+    });
   }
 
   findLikedFeeds(userId: string, limit: number, cursor?: string) {
     const query = this.query("definitions")
+      .leftJoin("likes", "definitions.user_id", "likes.user_id")
       .leftJoin("users", "definitions.user_id", "users.id")
       .leftJoin("words", "definitions.word_id", "words.id")
       .leftJoin("terms", "words.term", "terms.text")
@@ -253,24 +253,22 @@ export class FeedRepository extends BaseRepository {
       .where("likes.user_id", userId);
 
     if (cursor) {
-      query.where("definitions.created_at", "<", cursor);
+      query.where("definitions.created_at", "<", new Date(Number(cursor)));
     }
 
-    return query
-      .limit(limit)
-      .orderBy("definitions.created_at", "desc")
-      .select({
-        id: "definitions.id",
-        content: "definitions.content",
-        wordId: "definitions.word_id",
-        userId: "definitions.user_id",
-        createdAt: "definitions.created_at",
-        updatedAt: "definitions.updated_at",
-        nickname: "users.nickname",
-        profilePicture: "users.profile_picture",
-        term: "words.term",
-        termNumber: "terms.number",
-        tags: this.knex.raw("array_to_json(definitions.tags)"),
-      });
+    return query.limit(limit).orderBy("definitions.created_at", "desc").select<Feed[]>({
+      id: "definitions.id",
+      content: "definitions.content",
+      wordId: "definitions.word_id",
+      userId: "definitions.user_id",
+      createdAt: "definitions.created_at",
+      updatedAt: "definitions.updated_at",
+      nickname: "users.nickname",
+      profilePicture: "users.profile_picture",
+      term: "words.term",
+      termNumber: "terms.number",
+      // tags: this.knex.raw("array_to_json(definitions.tags)"),
+      tags: "definitions.tags",
+    });
   }
 }

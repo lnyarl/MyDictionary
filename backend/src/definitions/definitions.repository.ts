@@ -8,7 +8,7 @@ export class DefinitionsRepository extends BaseRepository {
     const baseQuery = this.query("definitions").where({ user_id: userId });
 
     if (cursor) {
-      baseQuery.where("created_at", "<", cursor);
+      baseQuery.where("created_at", "<", new Date(Number(cursor)));
     }
 
     const listQuery = baseQuery

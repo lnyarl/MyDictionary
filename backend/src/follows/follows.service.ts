@@ -49,7 +49,7 @@ export class FollowsService {
       throw new BadRequestException("Already following this user");
     }
 
-    const result = await this.followRepository.createFollow({
+    const [result] = await this.followRepository.createFollow({
       followerId,
       followingId,
     });
@@ -67,7 +67,7 @@ export class FollowsService {
       });
     }
 
-    return result[0];
+    return result;
   }
 
   async unfollow(followerId: string, followingId: string): Promise<void> {

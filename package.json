@@ -19,14 +19,12 @@
     "dev:backend-admin": "cd backend-admin && yarn dev",
     "dev:frontend": "cd frontend && yarn dev",
     "dev:frontend-admin": "cd frontend-admin && yarn dev",
-
     "build:shared": "cd shared && yarn build",
     "build:backend": "cd backend && yarn build",
     "build:backend-admin": "cd backend-admin && yarn build",
     "build:frontend": "cd frontend && yarn build",
     "build:frontend-admin": "cd frontend-admin && yarn build",
     "build": "yarn build:shared && yarn build:backend && yarn build:backend-admin && yarn build:frontend && yarn build:frontend-admin",
-
     "test": "concurrently -n \"backend\" -c \"green\" \"yarn test:backend\" &&  concurrently -n \"admin-be\" -c \"yellow\" \"yarn test:backend-admin\"",
     "test:backend": "cd backend && yarn test",
     "test:backend-admin": "cd backend-admin && yarn test",
@@ -42,19 +40,19 @@
     "docker": "docker-compose --env-file ./backend/.env up -d --build",
     "docker:down": "docker-compose down",
     "docker:down-v": "docker-compose down -v #volumne까지 삭제",
-
     "db:reset": "node scripts/db-reset.js",
     "db:migration": "node scripts/db-migration.js",
     "db:generate-types": "node scripts/generate-db-types.js",
+    "db:seed": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' ts-node --project scripts/tsconfig.json -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/controller-seed.ts",
     "prepare": "husky"
   },
   "lint-staged": {
     "backend/**/*.{ts,js}": [
-      "yarn workspace stashy-backend lint",
-      "yarn workspace stashy-backend test --findRelatedTests --passWithNoTests"
+      "yarn workspace @stashy/backend lint",
+      "yarn workspace @stashy/backend test --findRelatedTests --passWithNoTests"
     ],
     "backend-admin/**/*.{ts,js}": [
-      "yarn workspace stashy-backend-admin lint"
+      "yarn workspace @stashy/backend-admin lint"
     ],
     "frontend/**/*.{ts,tsx,js,jsx}": [
       "yarn workspace stashy-frontend lint"

@@ -29,16 +29,26 @@ describe("FeedRepository", () => {
     });
 
     it("should generate correct query with cursor", () => {
-      const listQuery = repository.findFeeds(["user-1"], 10, "2024-01-01");
-      expect(listQuery.toQuery()).toContain('"definitions"."created_at" < \'2024-01-01\'');
+      const listQuery = repository.findFeeds(
+        ["user-1"],
+        10,
+        new Date("2024-01-01").getTime().toString(),
+      );
+      expect(listQuery.toQuery()).toBe(
+        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "definitions"."tags" as "tags", "words"."term" as "term", "terms"."number" as "termNumber" from "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" left join "terms" on "words"."term" = "terms"."text" where "definitions"."deleted_at" is null and "definitions"."user_id" in (\'user-1\') and "words"."deleted_at" is null and "definitions"."is_public" = true and "definitions"."created_at" < \'2024-01-01 09:00:00.000\' order by "definitions"."created_at" desc limit 10',
+      );
     });
   });
 
   describe("findAllFeeds", () => {
     it("all feeds with cursor", () => {
-      const feed = repository.findAllFeeds("userId", 15, "2026-01-27T12:48:19");
+      const feed = repository.findAllFeeds(
+        "userId",
+        15,
+        new Date("2026-01-27T12:48:19").getTime().toString(),
+      );
       expect(feed.toQuery()).toBe(
-        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "words"."term" as "term", "definitions"."tags" as "tags", "terms"."number" as "termNumber" from "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" left join "terms" on "words"."term" = "terms"."text" where "definitions"."deleted_at" is null and "words"."deleted_at" is null and "definitions"."is_public" = true and "definitions"."created_at" < \'2026-01-27T12:48:19\' order by "definitions"."created_at" desc limit 15',
+        'select "definitions"."id" as "id", "definitions"."content" as "content", "definitions"."word_id" as "wordId", "definitions"."user_id" as "userId", "definitions"."created_at" as "createdAt", "definitions"."updated_at" as "updatedAt", "users"."nickname" as "nickname", "users"."profile_picture" as "profilePicture", "words"."term" as "term", "definitions"."tags" as "tags", "terms"."number" as "termNumber" from "definitions" left join "users" on "definitions"."user_id" = "users"."id" left join "words" on "definitions"."word_id" = "words"."id" left join "terms" on "words"."term" = "terms"."text" where "definitions"."deleted_at" is null and "words"."deleted_at" is null and "definitions"."is_public" = true and "definitions"."created_at" < \'2026-01-27 12:48:19.000\' order by "definitions"."created_at" desc limit 15',
       );
     });
   });

@@ -6,9 +6,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
     "target": "ES2021",
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": "..",
     "outDir": "./dist",
     "incremental": false,
     "skipLibCheck": true,
@@ -21,11 +22,17 @@
     "isolatedModules": true,
     "types": ["jest", "node"],
     "paths": {
+      "@/*": ["../backend-admin/src/*"],
       "@stashy/shared": ["../shared/dist", "../shared/src"], // shared는 이미 빌드된 라이브러리처럼 생각해야한다
-      "@stashy/shared/*": ["../shared/dist/*", "../shared/src/*"]
+      "@stashy/shared/*": ["../shared/dist/*", "../shared/src/*"],
+      "@stashy/backend/*": ["../backend/dist/*", "../backend/src/*"],
+      "@stashy/backend-admin/*": [
+        "../backend-admin/dist/*",
+        "../backend-admin/src/*"
+      ]
     }
   },
-  "include": ["src", "../shared/src/"],
+  "include": ["./"],
   "exclude": ["../shared/src/admin/"],
   "references": [{ "path": "../shared" }]
 }

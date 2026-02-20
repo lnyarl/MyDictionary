@@ -47,7 +47,7 @@ export function FeedList({
     return () => clearTimeout(timer);
   }, [loading]);
 
-  if (loading) {
+  if (loading && definitions.length === 0) {
     if (!showLoading) {
       return null;
     }
