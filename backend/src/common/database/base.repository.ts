@@ -64,7 +64,7 @@ export abstract class BaseRepository {
   /**
    * Hard delete a record
    */
-  protected async delete(tableName: DBTableNames, id: string): Promise<void> {
+  protected async hardDelete(tableName: DBTableNames, id: string): Promise<void> {
     await this.knex(tableName).where({ id }).delete();
   }
 

@@ -43,7 +43,7 @@ export class LikesService {
 
     let result = false;
     if (existingLike && !existingLike.deletedAt) {
-      await this.likeRepository.delete(existingLike.id);
+      await this.likeRepository.remove(existingLike.id);
       result = false;
       await this.eventEmitter.emitUnlike(userId, definitionId, definition.userId);
     } else if (existingLike?.deletedAt) {

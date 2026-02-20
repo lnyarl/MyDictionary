@@ -63,7 +63,7 @@ export class WordsRepository extends BaseRepository {
       .returning(["id", "term"]);
   }
 
-  delete(id: string) {
+  remove(id: string) {
     return this.softDelete("words", id);
   }
 

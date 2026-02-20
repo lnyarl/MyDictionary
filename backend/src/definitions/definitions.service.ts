@@ -244,7 +244,7 @@ export class DefinitionsService {
       throw new ForbiddenException("You do not have permission to delete this definition");
     }
 
-    await this.definitionRepository.delete(id);
+    await this.definitionRepository.remove(id);
 
     await this.eventEmitter.emitDefinitionDelete(userId, id, definition.wordId);
 

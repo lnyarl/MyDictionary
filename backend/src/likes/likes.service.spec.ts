@@ -193,12 +193,12 @@ describe("LikesService", () => {
     it("should delete a like if it exists", async () => {
       definitionRepository.findById.mockResolvedValue(mockDefinition as any);
       likeRepository.findByUserIdAndDefinitionIdWithDeleted.mockResolvedValue(mockLike);
-      likeRepository.delete.mockResolvedValue(undefined);
+      likeRepository.remove.mockResolvedValue(undefined);
 
       const result = await service.executeToggle("user-1", "def-1");
 
       expect(result).toBe(false);
-      expect(likeRepository.delete).toHaveBeenCalledWith("like-1");
+      expect(likeRepository.remove).toHaveBeenCalledWith("like-1");
       expect(eventEmitter.emitUnlike).toHaveBeenCalledWith("user-1", "def-1", "user-2");
     });
 

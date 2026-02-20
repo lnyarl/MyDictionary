@@ -44,7 +44,7 @@ export class LikesRepository extends BaseRepository {
       });
   }
 
-  delete(id: string) {
+  remove(id: string) {
     return this.softDelete("likes", id);
   }
 

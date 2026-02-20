@@ -335,11 +335,11 @@ describe("DefinitionsService", () => {
   describe("remove", () => {
     it("should remove definition", async () => {
       definitionRepository.findById.mockResolvedValue(mockDefinition as any);
-      definitionRepository.delete.mockResolvedValue(undefined);
+      definitionRepository.remove.mockResolvedValue(undefined);
 
       await service.remove("def-1", "user-1");
 
-      expect(definitionRepository.delete).toHaveBeenCalledWith("def-1");
+      expect(definitionRepository.remove).toHaveBeenCalledWith("def-1");
       expect(eventEmitter.emitDefinitionDelete).toHaveBeenCalledWith(
         "user-1",
         "def-1",

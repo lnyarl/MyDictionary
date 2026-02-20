@@ -177,7 +177,7 @@ export class DefinitionsRepository extends BaseRepository {
       .first();
   }
 
-  delete(id: string): Promise<void> {
+  remove(id: string) {
     return this.softDelete("definitions", id);
   }
 

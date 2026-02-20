@@ -48,7 +48,7 @@ export class NotificationsRepository extends BaseRepository {
       .update({ is_read: true, updated_at: new Date() });
   }
 
-  delete(id: string): Promise<void> {
+  remove(id: string): Promise<void> {
     return this.softDelete("notifications", id);
   }
 
