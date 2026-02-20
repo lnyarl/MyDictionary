@@ -105,7 +105,7 @@ export class FollowsRepository extends BaseRepository {
       .where({ following_id: userId })
       .pluck("follower_id");
   }
-
+  
   createFollow({ followerId, followingId }: { followerId: string; followingId: string }) {
     return this.knex("follows")
       .insert({
