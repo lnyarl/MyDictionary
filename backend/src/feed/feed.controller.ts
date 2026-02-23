@@ -7,6 +7,7 @@ import { LikesService } from "../likes/likes.service";
 import { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
 import { FeedService } from "./feed.service";
+import { GetFeedsByTag, GetFeedsByTerm } from "@stashy/shared/dto/feed.dto";
 
 @Controller()
 export class FeedController {
@@ -93,12 +94,12 @@ export class FeedController {
     return this.feedService.getRecommendations(paginationDto, user?.id);
   }
 
-  @Get("/feed/term/:term")
+  @Get("/feed/term")
   async getFeedByTerm(
     @CurrentUser() user: User | null,
-    @Param("term") term: string,
-    @Query() paginationDto: PaginationDto,
+    @Query() paginationDto: GetFeedsByTerm,
   ) {
+    const term = paginationDto.term;
     if (!term) {
       throw new BadRequestException("Term is required");
     }
@@ -120,13 +121,13 @@ export class FeedController {
     return feeds;
   }
 
-  @Get("/feed/tag/:tag")
+  @Get("/feed/tag")
   @Public()
   async getFeedsByTag(
     @CurrentUser() user: User | null,
-    @Param("tag") tag: string,
-    @Query() paginationDto: PaginationDto,
+    @Query() paginationDto: GetFeedsByTag,
   ) {
+    const tag = paginationDto.tag;
     if (!tag) {
       throw new BadRequestException("Tag is required");
     }

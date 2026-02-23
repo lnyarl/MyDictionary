@@ -56,16 +56,16 @@ export const feedApi = {
   },
 
   getFeedByTerm: (term: string, page = 1, limit = 20, cursor?: string) => {
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    const params = new URLSearchParams({ page: String(page), limit: String(limit), term: term });
     if (cursor) params.append("cursor", cursor);
-    return api.get<PaginatedResponse<Definition>>(`/feed/term/${term}?${params.toString()}`);
+    return api.get<PaginatedResponse<Definition>>(`/feed/term/?${params.toString()}`);
   },
 
   getFeedsByTag: (tag: string, page = 1, limit = 20, cursor?: string) => {
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    const params = new URLSearchParams({ page: String(page), limit: String(limit), tag: tag });
     if (cursor) params.append("cursor", cursor);
     return api.get<PaginatedResponse<Definition>>(
-      `/feed/tag/${encodeURIComponent(tag)}?${params.toString()}`,
+      `/feed/tag/?${params.toString()}`,
     );
   },
 
