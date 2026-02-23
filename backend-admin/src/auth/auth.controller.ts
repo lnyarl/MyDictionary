@@ -45,7 +45,7 @@ export class AuthController {
     // Set httpOnly cookie
     const isDevelopment = this.configService.get("NODE_ENV") !== "production";
     const domain = URL.parse(
-      this.configService.get<string>("ADMIN_FRONTEND_URL"),
+      this.configService.get<string>("HOST"),
     ).hostname;
     res.cookie("admin_access_token", token, {
       httpOnly: true,
