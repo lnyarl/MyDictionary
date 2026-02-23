@@ -69,7 +69,7 @@ function TermColumn({ definition, onTermClick }: TermColumnProps) {
       )}
       <h2
         onClick={onTermClick}
-        className="editorial-number font-bold md:text-3xl text-2xl text-foreground transition-all cursor-pointer"
+        className="editorial-number font-bold md:text-3xl text-2xl text-foreground transition-all cursor-pointer break-all"
         style={{ fontFamily: '"Gowun Batang", serif' }}
       >
         {definition.term}
