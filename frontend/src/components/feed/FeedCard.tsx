@@ -50,12 +50,7 @@ type LinkedSourceItem = {
   source: Definition;
 };
 
-type TermColumnProps = {
-  definition: Definition;
-  onTermClick: () => void;
-};
-
-function TermColumn({ definition, onTermClick }: TermColumnProps) {
+function TermColumn({ definition }: {definition: Definition}) {
   if (!definition.term) {
     return null;
   }
@@ -67,13 +62,14 @@ function TermColumn({ definition, onTermClick }: TermColumnProps) {
           No. {definition.termNumber.toString().padStart(2, "0")}
         </span>
       )}
+      <a href={`/word/${encodeURIComponent(definition.term)}`}>
       <h2
-        onClick={onTermClick}
         className="editorial-number font-bold md:text-3xl text-2xl text-foreground transition-all cursor-pointer break-all"
         style={{ fontFamily: '"Gowun Batang", serif' }}
       >
         {definition.term}
       </h2>
+      </a>
     </div>
   );
 }
@@ -537,10 +533,6 @@ export function FeedCard({
     };
   }, [definition.id]);
 
-  const handleTermClick = () => {
-    navigate(`/word/${encodeURIComponent(definition.term)}`);
-  };
-
   const handleUserClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     if (user?.nickname === definition.nickname) {
@@ -561,7 +553,7 @@ export function FeedCard({
   return (
     <div data-definition-id={definition.id}>
       <article className="feed group border-t border-gray-200 flex items-start md:flex-row flex-col transition-colors px-4 pt-2 pb-7 relative hover:bg-[#f0f3ec]">
-        <TermColumn definition={definition} onTermClick={handleTermClick} />
+        <TermColumn definition={definition} />
 
         <div className="w-full min-w-0 pb-3 pt-6">
           <ContentSection definition={definition} />
