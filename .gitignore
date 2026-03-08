@@ -17,6 +17,10 @@ build/
 .env.test.local
 .env.production.local
 
+# Production env files (managed in envs/ directory, never commit)
+envs/*.env.prod
+**/.env.prod
+
 # Logs
 logs
 *.log

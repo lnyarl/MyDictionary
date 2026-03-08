@@ -17,7 +17,6 @@
       "Bash(npx @biomejs/biome@latest init)",
       "Bash(npx @biomejs/biome check --write .)",
       "Bash(npx --yes @biomejs/biome@latest check:*)",
-
       "Bash(docker exec:*)",
       "Bash(npm install:*)",
       "Bash(npm uninstall:*)",
@@ -32,7 +31,9 @@
       "Bash(node scripts/generate-hash.js:*)",
       "Bash(if exist package-lock.json del package-lock.json)",
       "Bash(if exist node_modules rmdir /s /q node_modules)",
-      "Bash(docker volume:*)"
+      "Bash(docker volume:*)",
+      "Bash(ls:*)",
+      "Bash(chmod +x:*)"
     ]
   }
 }

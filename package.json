@@ -44,6 +44,7 @@
     "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
     "docker:prod:down-v": "docker-compose -f docker-compose.prod.yml down -v",
     "docker:prod:certbot-init": "docker-compose -f docker-compose.prod.yml --env-file ./backend/.env --profile certbot-init run --rm certbot-init",
+    "deploy": "./deploy.sh",
     "db:reset": "node scripts/db-reset.js",
     "db:migration": "node scripts/db-migration.js",
     "db:generate-types": "node scripts/generate-db-types.js",
