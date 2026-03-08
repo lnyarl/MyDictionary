@@ -28,14 +28,12 @@ export function useBadges(page = 1, limit = 20, refreshKey = 0) {
 
 				// Handle pagination meta based on what API returns
 				// The Admin DTO response usually has total
-				const total = response.meta.total || 0;
-				const totalPages = Math.ceil(total / response.meta.limit);
 
 				setMeta({
 					page: response.meta.page,
 					limit: response.meta.limit,
-					total: total,
-					totalPages,
+					total: 0,
+					totalPages: 0,
 				});
 			} catch (err) {
 				setError(err instanceof Error ? err.message : "Failed to fetch badges");

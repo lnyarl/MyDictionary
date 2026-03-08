@@ -1,0 +1,292 @@
+version: '3.8'
+
+name: stashy-prod
+services:
+  # PostgreSQL Database
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    container_name: stashy-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - stashy-network
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: stashy-redis
+    restart: unless-stopped
+    command: redis-server --requirepass '${REDIS_PASSWORD}'
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - stashy-network
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO (S3 Compatible Storage)
+  minio:
+    image: minio/minio:latest
+    container_name: stashy-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - '127.0.0.1:9000:9000'
+      - '127.0.0.1:9001:9001'
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    networks:
+      - stashy-network
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live' ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Create MinIO Buckets
+  createbuckets:
+    image: minio/mc
+    container_name: stashy-createbuckets
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}; /usr/bin/mc mb --ignore-existing myminio/${STORAGE_BUCKET:-stashy-bucket}; /usr/bin/mc anonymous set public myminio/${STORAGE_BUCKET:-stashy-bucket}; /usr/bin/mc mb --ignore-existing myminio/${STORAGE_TEMP_BUCKET:-stashy-temp-bucket}; /usr/bin/mc anonymous set public myminio/${STORAGE_TEMP_BUCKET:-stashy-temp-bucket}; exit 0;"
+    networks:
+      - stashy-network
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: stashy-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: 0
+      FRONTEND_URL: ${FRONTEND_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT}
+      STORAGE_REGION: ${STORAGE_REGION}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-stashy-bucket}
+      STORAGE_TEMP_BUCKET: ${STORAGE_TEMP_BUCKET:-stashy-temp-bucket}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
+    networks:
+      - stashy-network
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:3000/health' ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: stashy-frontend
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - stashy-network
+
+  # Admin Backend API
+  backend-admin:
+    build:
+      context: .
+      dockerfile: backend-admin/Dockerfile
+    container_name: stashy-backend-admin
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      ADMIN_FRONTEND_URL: ${ADMIN_FRONTEND_URL}
+    ports:
+      - '127.0.0.1:3001:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - stashy-network
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:3001/health' ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Admin Frontend
+  frontend-admin:
+    build:
+      context: .
+      dockerfile: frontend-admin/Dockerfile
+    container_name: stashy-frontend-admin
+    restart: unless-stopped
+    environment:
+      BACKEND_ADMIN_URL: http://backend-admin:3001
+    depends_on:
+      backend-admin:
+        condition: service_healthy
+    networks:
+      - stashy-network
+
+  # Nginx Reverse Proxy (SSL termination)
+  nginx:
+    image: nginx:alpine
+    container_name: stashy-nginx
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - '0.0.0.0:80:80'
+      - '0.0.0.0:443:443'
+    volumes:
+      - ./docker/nginx/available:/etc/nginx/available:ro
+      - ./docker/nginx/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+      - nginx_reload:/var/nginx-reload
+    entrypoint: ['/bin/sh', '/docker-entrypoint.sh']
+    depends_on:
+      - frontend
+      - frontend-admin
+    networks:
+      - stashy-network
+
+  # Let's Encrypt 초기 인증서 발급 (최초 1회, profile: certbot-init)
+  # 실행: yarn docker:prod:certbot-init
+  certbot-init:
+    image: certbot/certbot
+    container_name: stashy-certbot-init
+    profiles:
+      - certbot-init
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+      - nginx_reload:/var/nginx-reload
+    command:
+      - certonly
+      - --webroot
+      - -w
+      - /var/www/certbot
+      - -d
+      - ${DOMAIN}
+      - -d
+      - admin.${DOMAIN}
+      - -d
+      - api.${DOMAIN}
+      - -d
+      - admin-api.${DOMAIN}
+      - --email
+      - ${CERTBOT_EMAIL}
+      - --agree-tos
+      - --no-eff-email
+      - --deploy-hook
+      - touch /var/nginx-reload/.reload
+    networks:
+      - stashy-network
+
+  # Namecheap Dynamic DNS 갱신 (5분마다 현재 IP로 업데이트)
+  ddns:
+    image: alpine
+    container_name: stashy-ddns
+    restart: unless-stopped
+    environment:
+      DDNS_DOMAIN: ${DOMAIN}
+      DDNS_PASSWORD: ${NAMECHEAP_DDNS_PASSWORD}
+    entrypoint: ['/bin/sh', '/ddns.sh']
+    command: []
+    volumes:
+      - ./docker/ddns/ddns.sh:/ddns.sh:ro
+    networks:
+      - stashy-network
+
+  # Let's Encrypt 인증서 자동 갱신 (75일마다 = 2개월 + 2주)
+  certbot-renew:
+    image: certbot/certbot
+    container_name: stashy-certbot-renew
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    entrypoint: ['/bin/sh', '/renew.sh']
+    command: []
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+      - nginx_reload:/var/nginx-reload
+      - ./docker/certbot/renew.sh:/renew.sh:ro
+    networks:
+      - stashy-network
+
+networks:
+  stashy-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  certbot_certs:
+  certbot_www:
+  nginx_reload:
