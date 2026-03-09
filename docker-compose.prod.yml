@@ -107,8 +107,6 @@ services:
       STORAGE_TEMP_BUCKET: ${STORAGE_TEMP_BUCKET:-stashy-temp-bucket}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-    ports:
-      - '127.0.0.1:3000:3000'
     depends_on:
       postgres:
         condition: service_healthy
@@ -158,8 +156,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
       ADMIN_FRONTEND_URL: ${ADMIN_FRONTEND_URL}
-    ports:
-      - '127.0.0.1:3001:3001'
     depends_on:
       postgres:
         condition: service_healthy
@@ -207,6 +203,8 @@ services:
     depends_on:
       - frontend
       - frontend-admin
+      - backend
+      - backend-admin
     networks:
       - stashy-network
 
