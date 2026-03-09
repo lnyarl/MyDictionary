@@ -31,6 +31,8 @@ RUN yarn build:backend
 # Production stage
 FROM node:20-alpine
 
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Copy root package files
