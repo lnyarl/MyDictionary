@@ -59,14 +59,15 @@ cat "$ENVS_DIR/backend.env.prod" \
 cd "$WORKTREE"
 
 echo "Building images..."
-docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml --env-file .env  build
 
 echo ""
 echo "Starting services..."
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml --env-file .env up -d
 
 echo ""
 echo "============================================"
 echo "  Done! Deployed: $RESOLVED"
 echo "  Run 'docker compose -f docker-compose.prod.yml logs -f' to watch logs"
 echo "============================================"
+  

@@ -16,7 +16,7 @@
     "lint:check": "biome check .",
     "lint:fix": "biome check --write .",
     "test": "jest --coverage --config jest.config.js --runInBand",
-    "test:e2e": "jest --config ./src/test/jest-e2e.json --runInBand",
+    "test:e2e": "jest --config ./src/test/jest-e2e.json --runInBand"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.972.0",
