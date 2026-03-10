@@ -213,6 +213,7 @@ services:
       - ${CERTBOT_EMAIL}
       - --agree-tos
       - --no-eff-email
+      - --expand
       - --deploy-hook
       - touch /var/nginx-reload/.reload
     networks:

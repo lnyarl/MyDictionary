@@ -175,6 +175,9 @@ export class ApiClient {
         const refreshSuccess = await this.refreshToken();
 
         if (refreshSuccess) {
+          if (this.authTokens?.accessToken) {
+            (config.headers as Record<string, string>).Authorization = `Bearer ${this.authTokens.accessToken}`;
+          }
           response = await fetch(url, config);
         } else {
           // 이걸 하지 않으면 무한으로 "/"를 로딩한다
