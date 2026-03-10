@@ -31,6 +31,7 @@ export class S3StorageService implements IStorageService {
     this.internalEndpoint = this.configService.get<string>("STORAGE_ENDPOINT");
     this.publicEndpoint = this.configService.get<string>("PUBLIC_STORAGE_ENDPOINT");
     console.log("S3 Storage Configuration:", this.bucketName, this.tempBucketName, this.internalEndpoint, this.publicEndpoint);
+    console.log("@! TQ", process.env.PUBLIC_STORAGE_ENDPOINT)
 
     if (!accessKeyId || !secretAccessKey) {
       this.logger.warn("Storage credentials not found. Uploads will fail.");

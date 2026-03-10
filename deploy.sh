@@ -59,7 +59,7 @@ cat "$ENVS_DIR/backend.env.prod" \
 cd "$WORKTREE"
 
 echo "Building images..."
-docker compose -f docker-compose.prod.yml --env-file .env  build
+docker compose -f docker-compose.prod.yml --env-file .env build
 
 echo ""
 echo "Starting services..."
