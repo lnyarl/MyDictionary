@@ -235,6 +235,10 @@ services:
       - api.${DOMAIN}
       - -d
       - admin-api.${DOMAIN}
+      - -d
+      - cdn.${DOMAIN}
+      - -d
+      - cdn-minio-admin.${DOMAIN}
       - --email
       - ${CERTBOT_EMAIL}
       - --agree-tos
