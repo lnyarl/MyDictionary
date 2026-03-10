@@ -48,6 +48,10 @@ cp "$ENVS_DIR/backend.env.prod"       "$WORKTREE/backend/.env"
 cp "$ENVS_DIR/backend-admin.env.prod" "$WORKTREE/backend-admin/.env"
 cp "$ENVS_DIR/frontend.env.prod"      "$WORKTREE/frontend/.env.production"
 cp "$ENVS_DIR/frontend-admin.env.prod" "$WORKTREE/frontend-admin/.env.production"
+cp "$ENVS_DIR/backend.env.prod"       "$WORKTREE/envs/"
+cp "$ENVS_DIR/backend-admin.env.prod" "$WORKTREE/envs/"
+cp "$ENVS_DIR/frontend.env.prod"      "$WORKTREE/envs/"
+cp "$ENVS_DIR/frontend-admin.env.prod" "$WORKTREE/envs/"
 
 # Merge all env files into root .env for docker-compose variable substitution
 # (later files override earlier ones if keys conflict)
