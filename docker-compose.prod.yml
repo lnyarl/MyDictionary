@@ -209,6 +209,10 @@ services:
       - cdn.${DOMAIN}
       - -d
       - cdn-minio-admin.${DOMAIN}
+      - -d
+      - chat.${DOMAIN}
+      - -d
+      - signal.${DOMAIN}
       - --email
       - ${CERTBOT_EMAIL}
       - --agree-tos
