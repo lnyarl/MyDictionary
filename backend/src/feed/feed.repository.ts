@@ -242,7 +242,7 @@ export class FeedRepository extends BaseRepository {
 
   findLikedFeeds(userId: string, limit: number, cursor?: string) {
     const query = this.query("definitions")
-      .leftJoin("likes", "definitions.user_id", "likes.user_id")
+      .leftJoin("likes", "definitions.id", "likes.definition_id")
       .leftJoin("users", "definitions.user_id", "users.id")
       .leftJoin("words", "definitions.word_id", "words.id")
       .leftJoin("terms", "words.term", "terms.text")
