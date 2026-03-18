@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v \"^[a-z]$\")",
+      "Bash(grep -v \"^[0-9]$\")",
+      "Bash(grep -v \"^$\")",
+      "Read(//private/tmp/**)",
+      "Bash(__NEW_LINE_63f82cc41b7fdbd6__ grep:*)",
+      "Bash(__NEW_LINE_b30bc39ef3ce627f__ grep:*)",
+      "Bash(__NEW_LINE_224584934ef31d30__ grep:*)",
+      "Bash(__NEW_LINE_1f6c12386dfc1ca4__ cat:*)"
+    ]
+  }
+}
