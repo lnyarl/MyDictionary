@@ -160,7 +160,7 @@ export class FeedController {
       );
 
       for (const feed of feeds.data) {
-        feed.isLiked = true;
+        feed.isLiked = likes[feed.id]?.isLiked;
         feed.likesCount = likes[feed.id]?.likesCount;
       }
     }
