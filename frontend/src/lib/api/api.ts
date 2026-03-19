@@ -56,6 +56,23 @@ export class ApiClient {
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
     this.authTokens = this.getStoredAuthTokens();
+
+    // 다른 탭에서 localStorage를 업데이트하면 메모리 토큰도 즉시 동기화
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", (e) => {
+        if (e.key === "stashy_auth_tokens") {
+          if (e.newValue) {
+            try {
+              this.authTokens = JSON.parse(e.newValue) as AuthTokens;
+            } catch {
+              this.authTokens = null;
+            }
+          } else {
+            this.authTokens = null;
+          }
+        }
+      });
+    }
   }
 
   setAuthTokens(tokens: AuthTokens) {
@@ -110,13 +127,30 @@ export class ApiClient {
   }
 
   private async doRefreshToken(): Promise<boolean> {
+    const logPrefix = "[Auth]";
     try {
       const headers: HeadersInit = {};
+
+      // localStorage에서 최신 토큰 재조회 (다른 탭이 이미 rotation했을 수 있음)
+      const storedTokens = this.getStoredAuthTokens();
+      if (storedTokens) {
+        this.authTokens = storedTokens;
+      }
       const refreshToken = this.authTokens?.refreshToken;
 
-      if (refreshToken) {
-        headers.Authorization = `Bearer ${refreshToken}`;
+      console.log(`${logPrefix} refresh 시도`, {
+        hasMemoryToken: !!this.authTokens?.refreshToken,
+        hasStoredToken: !!storedTokens?.refreshToken,
+        tokenPrefix: refreshToken ? refreshToken.slice(0, 8) + "..." : "없음",
+        time: new Date().toISOString(),
+      });
+
+      if (!refreshToken) {
+        console.warn(`${logPrefix} refresh token 없음 → 로그아웃`);
+        return false;
       }
+
+      headers.Authorization = `Bearer ${refreshToken}`;
 
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: "POST",
@@ -124,6 +158,13 @@ export class ApiClient {
       });
 
       if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        console.error(`${logPrefix} refresh 실패`, {
+          status: response.status,
+          body,
+          tokenPrefix: refreshToken.slice(0, 8) + "...",
+          time: new Date().toISOString(),
+        });
         return false;
       }
 
@@ -137,10 +178,19 @@ export class ApiClient {
           accessToken: data.token,
           refreshToken: data.refreshToken ?? this.authTokens?.refreshToken,
         });
+        console.log(`${logPrefix} refresh 성공`, {
+          newTokenPrefix: data.token.slice(0, 8) + "...",
+          rotated: !!data.refreshToken,
+          time: new Date().toISOString(),
+        });
+      } else {
+        console.error(`${logPrefix} refresh 응답에 token 없음`, { data });
+        return false;
       }
 
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`${logPrefix} refresh 예외 발생`, { error, time: new Date().toISOString() });
       return false;
     }
   }
@@ -172,6 +222,7 @@ export class ApiClient {
       let response = await fetch(url, config);
 
       if (response.status === 401 && endpoint !== "/auth/refresh" && endpoint !== "/auth/google") {
+        console.warn("[Auth] 401 수신, refresh 시도", { endpoint, time: new Date().toISOString() });
         const refreshSuccess = await this.refreshToken();
 
         if (refreshSuccess) {
@@ -180,6 +231,10 @@ export class ApiClient {
           }
           response = await fetch(url, config);
         } else {
+          console.error("[Auth] refresh 실패 → 토큰 삭제 및 홈으로 이동", {
+            endpoint,
+            time: new Date().toISOString(),
+          });
           // 이걸 하지 않으면 무한으로 "/"를 로딩한다
           if (new URL(window.location.href).pathname !== "/") {
             window.location.href = "/";
