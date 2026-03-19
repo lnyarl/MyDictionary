@@ -129,8 +129,6 @@ export class ApiClient {
   private async doRefreshToken(): Promise<boolean> {
     const logPrefix = "[Auth]";
     try {
-      const headers: HeadersInit = {};
-
       // localStorage에서 최신 토큰 재조회 (다른 탭이 이미 rotation했을 수 있음)
       const storedTokens = this.getStoredAuthTokens();
       if (storedTokens) {
@@ -150,11 +148,10 @@ export class ApiClient {
         return false;
       }
 
-      headers.Authorization = `Bearer ${refreshToken}`;
-
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
       });
 
       if (!response.ok) {

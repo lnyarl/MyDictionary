@@ -4,7 +4,6 @@ import {
   Get,
   HttpStatus,
   Post,
-  Req,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -26,15 +25,6 @@ export class AuthController {
     private readonly eventEmitter: EventEmitterService,
     private readonly loginStreaksService: LoginStreaksService,
   ) {}
-
-  private extractBearerToken(req: Request): string | undefined {
-    const authorization = req.headers.authorization;
-    if (!authorization?.startsWith("Bearer ")) {
-      return undefined;
-    }
-
-    return authorization.slice(7).trim() || undefined;
-  }
 
   @Public()
   @Post("/auth/google")
@@ -66,12 +56,8 @@ export class AuthController {
 
   @Public()
   @Post("/auth/refresh")
-  async refreshToken(
-    @Req() req: Request,
-    @Body() body: { refreshToken?: string },
-    @Res() res: Response,
-  ) {
-    const refreshToken = body.refreshToken ?? this.extractBearerToken(req);
+  async refreshToken(@Body() body: { refreshToken?: string }, @Res() res: Response) {
+    const refreshToken = body?.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException("Refresh token not found");
@@ -109,8 +95,8 @@ export class AuthController {
 
   @Public()
   @Post("/auth/logout")
-  async logout(@Req() req: Request, @Body() body: { refreshToken?: string }, @Res() res: Response) {
-    const refreshToken = body.refreshToken ?? this.extractBearerToken(req);
+  async logout(@Body() body: { refreshToken?: string }, @Res() res: Response) {
+    const refreshToken = body?.refreshToken;
 
     if (refreshToken) {
       await this.authService.revokeRefreshToken(refreshToken);
