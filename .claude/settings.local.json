@@ -33,7 +33,14 @@
       "Bash(if exist node_modules rmdir /s /q node_modules)",
       "Bash(docker volume:*)",
       "Bash(ls:*)",
-      "Bash(chmod +x:*)"
+      "Bash(chmod +x:*)",
+      "Bash(where obsidian:*)",
+      "Read(//c/Users/lnyarl/AppData/Local/Programs/**)",
+      "Read(//c/Users/lnyarl/AppData/Local/**)",
+      "Bash(cmd.exe /c 'where obsidian 2>nul')",
+      "Bash(npx obsidian:*)",
+      "Bash(npm list:*)",
+      "Bash(cmd.exe /c \"dir /s /b C:\\\\Users\\\\lnyarl\\\\AppData\\\\Local\\\\obsidian*.exe 2>nul\")"
     ]
   }
 }

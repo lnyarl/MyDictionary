@@ -169,13 +169,14 @@ function EditorWrapper({definition}: { definition: Definition}) {
     if (coords && standard && editorRect) {
       const absoluteX = editorRect.left - standard.left;
       const absoluteY = coords.bottom - standard.top;
-      setQuoteSelection(() => ({
-        text: doc,
-        startOffset: from,
-        endOffset: to,
-        x: absoluteX,
-        y: absoluteY + 6,
-      }));
+      // TODO: 인용 기능 임시 비활성화
+      // setQuoteSelection(() => ({
+      //   text: doc,
+      //   startOffset: from,
+      //   endOffset: to,
+      //   x: absoluteX,
+      //   y: absoluteY + 6,
+      // }));
     } else {
     }
   }, [user]);
